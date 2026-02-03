@@ -85,39 +85,39 @@ Deferred to future release.
 | DB-01 | Phase 1 | Pending |
 | DB-02 | Phase 1 | Pending |
 | DB-03 | Phase 1 | Pending |
-| INST-01 | Phase 2 | Pending |
-| INST-02 | Phase 2 | Pending |
-| INST-03 | Phase 2 | Pending |
-| ACCT-01 | Phase 2 | Pending |
-| ACCT-02 | Phase 2 | Pending |
-| ACCT-03 | Phase 2 | Pending |
-| ACCT-04 | Phase 2 | Pending |
-| ACCT-05 | Phase 2 | Pending |
-| BAL-01 | Phase 3 | Pending |
-| BAL-02 | Phase 3 | Pending |
-| BAL-03 | Phase 3 | Pending |
-| BAL-04 | Phase 3 | Pending |
-| DASH-01 | Phase 4 | Pending |
-| DASH-02 | Phase 4 | Pending |
-| DASH-03 | Phase 4 | Pending |
-| DASH-04 | Phase 4 | Pending |
-| CRED-01 | Phase 5 | Pending |
-| CRED-02 | Phase 5 | Pending |
-| CRED-03 | Phase 5 | Pending |
-| CRED-04 | Phase 5 | Pending |
-| CRED-05 | Phase 5 | Pending |
-| HOUSE-01 | Phase 6 | Pending |
-| HOUSE-02 | Phase 6 | Pending |
-| HOUSE-03 | Phase 6 | Pending |
-| HOUSE-04 | Phase 6 | Pending |
-| UI-01 | Phase 4 | Pending |
-| UI-02 | Phase 4 | Pending |
+| UI-01 | Phase 2 | Pending |
+| UI-02 | Phase 2 | Pending |
+| INST-01 | Phase 3 | Pending |
+| INST-02 | Phase 3 | Pending |
+| INST-03 | Phase 3 | Pending |
+| ACCT-01 | Phase 3 | Pending |
+| ACCT-02 | Phase 3 | Pending |
+| ACCT-03 | Phase 3 | Pending |
+| ACCT-04 | Phase 3 | Pending |
+| ACCT-05 | Phase 3 | Pending |
+| BAL-01 | Phase 4 | Pending |
+| BAL-02 | Phase 4 | Pending |
+| BAL-03 | Phase 4 | Pending |
+| BAL-04 | Phase 4 | Pending |
+| DASH-01 | Phase 5 | Pending |
+| DASH-02 | Phase 5 | Pending |
+| DASH-03 | Phase 5 | Pending |
+| DASH-04 | Phase 5 | Pending |
+| CRED-01 | Phase 6 | Pending |
+| CRED-02 | Phase 6 | Pending |
+| CRED-03 | Phase 6 | Pending |
+| CRED-04 | Phase 6 | Pending |
+| CRED-05 | Phase 6 | Pending |
+| HOUSE-01 | Phase 7 | Pending |
+| HOUSE-02 | Phase 7 | Pending |
+| HOUSE-03 | Phase 7 | Pending |
+| HOUSE-04 | Phase 7 | Pending |
 
 **Coverage:**
-- v1 requirements: 27 total
-- Mapped to phases: 27
-- Unmapped: 0 ✓
+- v1 requirements: 30 total
+- Mapped to phases: 30
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-03*
-*Last updated: 2026-02-03 after initial definition*
+*Last updated: 2026-02-03 after roadmap creation*
