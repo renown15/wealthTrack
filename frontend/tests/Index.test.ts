@@ -2,6 +2,18 @@
  * Tests for main application entry point.
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import * as ApiServiceModule from '../src/services/ApiService';
+
+vi.mock('../src/services/ApiService', () => ({
+  apiService: {
+    getAuthToken: vi.fn(() => null),
+    setAuthToken: vi.fn(),
+    clearAuthToken: vi.fn(),
+    getCurrentUser: vi.fn(),
+    registerUser: vi.fn(),
+    loginUser: vi.fn(),
+  },
+}));
 
 describe('Application Index', () => {
   beforeEach(() => {
@@ -114,16 +126,18 @@ describe('Application Index', () => {
   it('should navigate to home page', async () => {
     const routerModule = await import('../src/router');
     const router = new routerModule.Router();
-    router.navigate('home');
+    await router.navigate('home');
     expect(document.getElementById('view-container')?.innerHTML).not.toBe('');
   });
 
-  it('should handle navigate event', () => {
+  it('should handle navigate event', async () => {
     let navigated = false;
     window.addEventListener('navigate', () => {
       navigated = true;
     });
     window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'home' } }));
+    // Give event handler time to process
+    await new Promise((resolve) => setTimeout(resolve, 100));
     expect(navigated).toBe(true);
   });
 });

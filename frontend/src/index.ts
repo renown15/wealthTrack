@@ -6,10 +6,7 @@ import { Router } from './router';
 // Initialize router
 const router = new Router();
 
-// Navigate to home page on load
-router.navigate('home');
-
-// Check for stored auth token
+// Check for stored auth token and set it before navigating
 const token = localStorage.getItem('accessToken');
 if (token) {
   // Import and set token in API service
@@ -17,3 +14,6 @@ if (token) {
     apiService.setAuthToken(token);
   });
 }
+
+// Navigate to home page on load (async)
+void router.navigate('home');

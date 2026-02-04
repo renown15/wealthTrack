@@ -16,7 +16,7 @@ export class Router {
   /**
    * Navigate to a specific page.
    */
-  navigate(page: string): void {
+  async navigate(page: string): Promise<void> {
     // Update active nav link
     document.querySelectorAll('.nav-link').forEach((link) => {
       link.classList.remove('active');
@@ -31,7 +31,7 @@ export class Router {
     switch (page) {
       case 'home':
         this.currentController = new HomeController('view-container');
-        this.currentController.init();
+        await this.currentController.init();
         break;
       case 'register':
         this.currentController = new RegistrationController('view-container');
@@ -43,7 +43,7 @@ export class Router {
         break;
       default:
         this.currentController = new HomeController('view-container');
-        this.currentController.init();
+        await this.currentController.init();
     }
   }
 
@@ -57,19 +57,23 @@ export class Router {
 
       if (target.id === 'nav-home' || target.id === 'cta-register') {
         e.preventDefault();
-        this.navigate('home');
-      } else if (target.id === 'nav-register' || target.id === 'go-to-register' || target.id === 'cta-register') {
+        void this.navigate('home');
+      } else if (
+        target.id === 'nav-register' ||
+        target.id === 'go-to-register' ||
+        target.id === 'cta-register'
+      ) {
         e.preventDefault();
-        this.navigate('register');
+        void this.navigate('register');
       } else if (target.id === 'nav-login' || target.id === 'go-to-login') {
         e.preventDefault();
-        this.navigate('login');
+        void this.navigate('login');
       }
     });
 
     // Handle custom navigation events
     window.addEventListener('navigate', ((e: CustomEvent<{ page: string }>) => {
-      this.navigate(e.detail.page);
+      void this.navigate(e.detail.page);
     }) as EventListener);
   }
 }
