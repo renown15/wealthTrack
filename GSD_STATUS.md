@@ -1,7 +1,7 @@
 # WealthTrack GSD (Getting Stuff Done) - Implementation Status & Plan
 
 **Last Updated:** 4 Feb 2026  
-**Current Phase:** 05-frontend-services (Complete - Ready to Commit)
+**Current Phase:** 06-frontend-views (Complete - Ready for Backend Integration)
 
 ---
 
@@ -40,14 +40,24 @@
 - [x] Add tests for new methods
 - [x] Commit Phase 5 changes
 
-### Phase 06: Frontend Views Integration
-- [ ] Wire LoginView to ApiService
-- [ ] Wire RegistrationView to ApiService
-- [ ] Wire HomeView to ApiService
-- [ ] Implement logout functionality
-- [ ] Test all view-to-service connections
+### Phase 06: Frontend Views Integration (Complete ✅)
+- [x] Wire LoginView to ApiService via LoginController
+- [x] Wire RegistrationView to ApiService via RegistrationController
+- [x] Wire HomeView to ApiService via HomeController
+- [x] Implement logout functionality with token clearing
+- [x] All view-to-service connections tested (50 controller tests passing)
+- [x] All 313 frontend tests passing
 
 ---
+
+## IN PROGRESS 🔄
+
+### Phase 07: Backend-Frontend Integration
+- [ ] Test API endpoints with frontend clients
+- [ ] Validate token flow (registration → login → authenticated home)
+- [ ] Test logout functionality
+- [ ] Verify error handling (invalid credentials, expired tokens)
+- [ ] Integration tests for full auth cycle
 
 ## TESTING STATUS
 
