@@ -1,0 +1,38 @@
+[MASTER]
+# Ignore alembic migrations, tests, and venv
+ignore=alembic,tests,venv
+ignore-paths=^alembic/.*,^tests/.*
+# Don't analyze these directories at all
+fail-under=10.0
+max-line-length=100
+
+[MESSAGES CONTROL]
+# Disable messages that conflict with ruff or are too strict
+disable=
+    missing-docstring,           # Too strict for all functions/classes
+    too-many-arguments,          # Conflicts with function design
+    too-many-locals,             # Conflicts with function design
+    too-few-public-methods,      # False positives with dataclasses
+    duplicate-code,              # Too many false positives
+    line-too-long,               # Ruff handles this (E501)
+    trailing-whitespace,         # Ruff handles this (W291)
+    missing-final-newline,       # Ruff handles this (W292)
+    import-error,                # Mypy handles import checking
+    import-outside-toplevel,     # Valid for lazy imports
+    redefined-outer-name,        # Valid pattern in pytest fixtures
+    unsubscriptable-object,      # SQLAlchemy 2.0 Mapped type patterns
+
+[FORMAT]
+max-line-length=100
+good-names=i,j,k,ex,Run,_,db,e,id,x,y,z
+
+[BASIC]
+# Allow single letter variables in specific contexts
+const-rgx=(([A-Z_][A-Z0-9_]*)|(__.*__)|(_.*))|(^test_)
+
+[DESIGN]
+max-attributes=10
+max-branches=15
+
+[LOGGING]
+logging-format-style=new

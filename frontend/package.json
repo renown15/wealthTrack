@@ -1,0 +1,32 @@
+{
+  "name": "wealthtrack-frontend",
+  "version": "1.0.0",
+  "description": "WealthTrack Frontend - Strategic Wealth Management",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint src --ext .ts --max-warnings 0",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": ["wealth", "management", "finance"],
+  "author": "WealthTrack Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "@typescript-eslint/eslint-plugin": "^6.17.0",
+    "@typescript-eslint/parser": "^6.17.0",
+    "@vitest/coverage-v8": "^1.1.1",
+    "eslint": "^8.56.0",
+    "jsdom": "^23.2.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.11",
+    "vitest": "^1.1.1"
+  },
+  "dependencies": {
+    "axios": "^1.6.5"
+  }
+}

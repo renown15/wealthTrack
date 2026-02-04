@@ -2,7 +2,6 @@
 ReferenceData model for extensible lookup tables.
 """
 from datetime import datetime
-from typing import Optional
 
 from sqlalchemy import DateTime, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column

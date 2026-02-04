@@ -2,12 +2,15 @@
 UserProfile model for user account data.
 """
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
-from sqlalchemy import DateTime, ForeignKey, JSON, String
+from sqlalchemy import JSON, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+
+if TYPE_CHECKING:
+    from app.models.reference_data import ReferenceData
 
 
 class UserProfile(Base):
@@ -25,7 +28,7 @@ class UserProfile(Base):
     emailaddress: Mapped[str] = mapped_column(
         String(255), unique=True, index=True, nullable=False
     )
-    profile: Mapped[Optional[Dict[str, Any]]] = mapped_column(
+    profile: Mapped[Optional[dict[str, Any]]] = mapped_column(
         JSON, nullable=True
     )
     typeid: Mapped[int] = mapped_column(

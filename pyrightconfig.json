@@ -1,0 +1,18 @@
+{
+  "typeCheckingMode": "strict",
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "backend/alembic/**",
+    "backend/.venv",
+    "backend/venv",
+    "backend/htmlcov",
+    "backend/tests/**",
+    "frontend/tests/**",
+    "frontend/coverage"
+  ],
+  "defineConstantSet": ["DEBUG"],
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false,
+  "reportDeprecated": false
+}

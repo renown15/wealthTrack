@@ -1,0 +1,179 @@
+name: WealthTrack CI/CD
+
+on:
+  push:
+    branches: [main, develop, 'feature/**', 'bugfix/**', 'hotfix/**']
+  pull_request:
+    branches: [main, develop, 'feature/**', 'bugfix/**', 'hotfix/**']
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '20'
+
+jobs:
+  # Backend Python tests
+  backend-lint-and-test:
+    name: Backend - Lint, Type Check, and Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: wealthtrack
+          POSTGRES_PASSWORD: wealthtrack_test
+          POSTGRES_DB: wealthtrack_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Ruff linter
+        working-directory: ./backend
+        run: |
+          ruff check app/ tests/
+
+      - name: Run mypy type checker
+        working-directory: ./backend
+        run: |
+          mypy app/ --config-file mypy.ini
+
+      - name: Run pytest with coverage
+        working-directory: ./backend
+        env:
+          DATABASE_URL: postgresql+asyncpg://wealthtrack:wealthtrack_test@localhost:5432/wealthtrack_test
+          SECRET_KEY: test-secret-key
+          ENVIRONMENT: test
+        run: |
+          pytest --cov=app --cov-report=xml --cov-report=term
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./backend/coverage.xml
+          flags: backend
+          name: backend-coverage
+
+  # Frontend TypeScript tests
+  frontend-lint-and-test:
+    name: Frontend - Lint, Type Check, and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ./frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Run ESLint
+        working-directory: ./frontend
+        run: npm run lint
+
+      - name: Run TypeScript type check
+        working-directory: ./frontend
+        run: npm run type-check
+
+      - name: Run tests with coverage
+        working-directory: ./frontend
+        run: npm run test:coverage
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./frontend/coverage/coverage-final.json
+          flags: frontend
+          name: frontend-coverage
+
+  # Build Docker images
+  docker-build:
+    name: Docker - Build Images
+    runs-on: ubuntu-latest
+    needs: [backend-lint-and-test, frontend-lint-and-test]
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+        if: github.ref == 'refs/heads/main'
+
+      - name: Build backend Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/wealthtrack-backend:latest
+            ${{ secrets.DOCKER_USERNAME }}/wealthtrack-backend:${{ github.sha }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/wealthtrack-backend:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/wealthtrack-backend:buildcache,mode=max
+
+      - name: Build frontend Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/wealthtrack-frontend:latest
+            ${{ secrets.DOCKER_USERNAME }}/wealthtrack-frontend:${{ github.sha }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/wealthtrack-frontend:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/wealthtrack-frontend:buildcache,mode=max
+
+  # Deploy (placeholder for actual deployment)
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: docker-build
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to production
+        run: |
+          echo "Deploying to production..."
+          echo "This is a placeholder. Implement actual deployment logic here."
+          # Example: SSH into server and pull latest images
+          # ssh user@server 'cd /app && docker-compose pull && docker-compose up -d'
+
+      - name: Notify deployment
+        run: |
+          echo "Deployment complete!"
+          echo "Version: ${{ github.sha }}"
