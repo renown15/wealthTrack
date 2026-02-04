@@ -17,9 +17,9 @@ WealthTrack v1 delivers a complete personal wealth management application where 
 **Plans:** 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md - Initialize Alembic and create User migration
-- [ ] 01-02-PLAN.md - Create reference data models (AccountType, AccountStatus, EventType, CredentialType)
-- [ ] 01-03-PLAN.md - Create reference table migrations and seed UK account types
+- [ ] 01-01-PLAN.md - Initialize Alembic with async template
+- [ ] 01-02-PLAN.md - Create models (single ReferenceData table, UserProfile) per Data Model spec
+- [ ] 01-03-PLAN.md - Create migrations and seed reference data
 
 **Requirements:**
 - DB-01: PostgreSQL database with full schema (migrate from SQLite)
