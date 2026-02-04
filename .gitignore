@@ -6,6 +6,7 @@ __pycache__/
 .Python
 env/
 venv/
+.venv/
 ENV/
 build/
 develop-eggs/
@@ -41,7 +42,6 @@ build/
 out/
 .nuxt/
 .cache/
-.vscode/
 *.log
 
 # IDEs
