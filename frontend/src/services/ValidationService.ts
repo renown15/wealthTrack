@@ -42,7 +42,37 @@ export class ValidationService {
       return { isValid: false, message: 'Username must be at most 50 characters' };
     }
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      return { isValid: false, message: 'Username must be alphanumeric (underscores allowed)' };
+      return {
+        isValid: false,
+        message: 'Username must be alphanumeric (underscores allowed)',
+      };
+    }
+    return { isValid: true };
+  }
+
+  /**
+   * Validate full name format.
+   */
+  static validateFullName(fullName: string): { isValid: boolean; message?: string } {
+    if (fullName && fullName.length > 100) {
+      return { isValid: false, message: 'Full name must be at most 100 characters' };
+    }
+    return { isValid: true };
+  }
+
+  /**
+   * Validate string field.
+   */
+  static validateString(
+    value: string,
+    minLength = 1,
+    maxLength = 255,
+  ): { isValid: boolean; message?: string } {
+    if (value.length < minLength) {
+      return { isValid: false, message: `Must be at least ${minLength} characters` };
+    }
+    if (value.length > maxLength) {
+      return { isValid: false, message: `Must be at most ${maxLength} characters` };
     }
     return { isValid: true };
   }
@@ -74,6 +104,14 @@ export class ValidationService {
       errors.password = 'Password is required';
     } else if (!passwordValidation.isValid) {
       errors.password = passwordValidation.message || 'Invalid password';
+    }
+
+    // Validate full name if provided
+    if (data.fullName) {
+      const nameValidation = this.validateFullName(data.fullName);
+      if (!nameValidation.isValid) {
+        errors.fullName = nameValidation.message || 'Invalid full name';
+      }
     }
 
     return {

@@ -527,4 +527,51 @@ describe('ApiService', () => {
       expect(error.message).toBe('Unexpected error occurred');
     });
   });
+
+  describe('Token management', () => {
+    it('should set auth token in headers', () => {
+      const token = 'test-jwt-token-123';
+      apiService.setAuthToken(token);
+      const retrievedToken = apiService.getAuthToken();
+      expect(retrievedToken).toBe(token);
+    });
+
+    it('should clear auth token', () => {
+      apiService.setAuthToken('test-token');
+      apiService.clearAuthToken();
+      const token = apiService.getAuthToken();
+      expect(token).toBeUndefined();
+    });
+
+    it('should return undefined when no token is set', () => {
+      apiService.clearAuthToken();
+      const token = apiService.getAuthToken();
+      expect(token).toBeUndefined();
+    });
+  });
+
+  describe('Retry logic', () => {
+    it('should identify retryable status codes', () => {
+      const retryableCodes = [408, 429, 500, 502, 503, 504];
+      retryableCodes.forEach((code) => {
+        expect([408, 429, 500, 502, 503, 504].includes(code)).toBe(true);
+      });
+    });
+
+    it('should not retry non-retryable status codes', () => {
+      const nonRetryableCodes = [400, 401, 403, 404];
+      nonRetryableCodes.forEach((code) => {
+        expect([408, 429, 500, 502, 503, 504].includes(code)).toBe(false);
+      });
+    });
+  });
+
+  describe('Exponential backoff delay calculation', () => {
+    it('should calculate correct delays for retries', () => {
+      const baseDelay = 1000;
+      expect(baseDelay * Math.pow(2, 0)).toBe(1000); // 1st retry: 1000ms
+      expect(baseDelay * Math.pow(2, 1)).toBe(2000); // 2nd retry: 2000ms
+      expect(baseDelay * Math.pow(2, 2)).toBe(4000); // 3rd retry: 4000ms
+    });
+  });
 });

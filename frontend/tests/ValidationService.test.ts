@@ -298,4 +298,87 @@ describe('ValidationService', () => {
       expect(typeof result.errors).toBe('object');
     });
   });
+
+  describe('validateFullName', () => {
+    it('should validate short full name', () => {
+      const result = ValidationService.validateFullName('John Doe');
+      expect(result.isValid).toBe(true);
+    });
+
+    it('should validate long full name', () => {
+      const result = ValidationService.validateFullName('John Michael Peter Anderson Smith');
+      expect(result.isValid).toBe(true);
+    });
+
+    it('should reject full name exceeding max length', () => {
+      const result = ValidationService.validateFullName('a'.repeat(101));
+      expect(result.isValid).toBe(false);
+      expect(result.message).toContain('100 characters');
+    });
+
+    it('should allow empty full name', () => {
+      const result = ValidationService.validateFullName('');
+      expect(result.isValid).toBe(true);
+    });
+  });
+
+  describe('validateString', () => {
+    it('should validate string within bounds', () => {
+      const result = ValidationService.validateString('hello', 1, 10);
+      expect(result.isValid).toBe(true);
+    });
+
+    it('should reject string below minimum length', () => {
+      const result = ValidationService.validateString('hi', 3, 10);
+      expect(result.isValid).toBe(false);
+      expect(result.message).toContain('3 characters');
+    });
+
+    it('should reject string exceeding maximum length', () => {
+      const result = ValidationService.validateString('toolongstring', 1, 5);
+      expect(result.isValid).toBe(false);
+      expect(result.message).toContain('5 characters');
+    });
+
+    it('should use default min and max lengths', () => {
+      const result = ValidationService.validateString('valid');
+      expect(result.isValid).toBe(true);
+    });
+  });
+
+  describe('validateRegistrationForm with fullName', () => {
+    it('should validate complete registration with fullName', () => {
+      const data = {
+        email: 'test@example.com',
+        username: 'testuser',
+        password: 'TestPass123',
+        fullName: 'Test User',
+      };
+      const result = ValidationService.validateRegistrationForm(data);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toEqual({});
+    });
+
+    it('should reject registration with invalid fullName', () => {
+      const data = {
+        email: 'test@example.com',
+        username: 'testuser',
+        password: 'TestPass123',
+        fullName: 'a'.repeat(101),
+      };
+      const result = ValidationService.validateRegistrationForm(data);
+      expect(result.isValid).toBe(false);
+      expect(result.errors.fullName).toBeDefined();
+    });
+
+    it('should allow registration without fullName', () => {
+      const data = {
+        email: 'test@example.com',
+        username: 'testuser',
+        password: 'TestPass123',
+      };
+      const result = ValidationService.validateRegistrationForm(data);
+      expect(result.isValid).toBe(true);
+    });
+  });
 });
