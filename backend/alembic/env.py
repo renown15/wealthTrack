@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 from app.database import Base  # type: ignore[import-not-found]
-from app.models import (  # type: ignore[import-not-found,unused-ignore]
+from app.models import (  # type: ignore[import-not-found] noqa: F401
     ReferenceData,
     User,
     UserProfile,
@@ -16,7 +16,7 @@ from app.models import (  # type: ignore[import-not-found,unused-ignore]
     AccountAttribute,
     AccountEvent,
     InstitutionSecurityCredentials,
-)  # noqa: F401
+)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

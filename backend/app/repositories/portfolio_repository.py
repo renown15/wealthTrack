@@ -35,7 +35,7 @@ class PortfolioRepository:
         accounts = result.scalars().all()
 
         # Enrich with latest balance for each
-        portfolio = []
+        portfolio: list[dict[str, Any]] = []
         for account in accounts:
             # Get latest balance event
             balance_stmt = (
@@ -47,13 +47,12 @@ class PortfolioRepository:
             balance_result = await self.session.execute(balance_stmt)
             latest_balance = balance_result.scalar_one_or_none()
 
-            portfolio.append(
-                {
-                    "account": account,
-                    "institution": account.institution,
-                    "latest_balance": latest_balance,
-                }
-            )
+            portfolio_item: dict[str, Any] = {
+                "account": account,
+                "institution": account.institution,
+                "latest_balance": latest_balance,
+            }
+            portfolio.append(portfolio_item)
 
         return portfolio
 
