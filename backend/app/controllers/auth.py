@@ -7,8 +7,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
-from app.controllers.dependencies import get_current_user_from_token
+from app.controllers.dependencies import get_current_user
 from app.database import get_db
+from app.models.user import User
 from app.schemas.user import (
     TokenResponse,
     UserLoginRequest,
@@ -79,10 +80,10 @@ async def login_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Create access token
+    # Create access token with user ID
     access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
     access_token = create_access_token(
-        data={"sub": user.username},
+        data={"sub": str(user.id), "username": user.username},
         expires_delta=access_token_expires,
     )
 
@@ -90,37 +91,16 @@ async def login_user(
 
 
 @router.get("/me", response_model=UserResponse)
-async def get_current_user(
-    token_payload: dict[str, str] = Depends(get_current_user_from_token),
-    db: AsyncSession = Depends(get_db),
+async def get_me(
+    user: User = Depends(get_current_user),
 ) -> UserResponse:
     """
     Get current authenticated user from JWT token.
 
     Args:
-        token_payload: Decoded JWT token payload
-        db: Database session
+        user: Current authenticated user from JWT token
 
     Returns:
         Current user data
-
-    Raises:
-        HTTPException: If user not found
     """
-    username = token_payload.get("sub")
-    if not username:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
-        )
-
-    user_service = UserService(db)
-    user = await user_service.get_user_by_username(username)
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found",
-        )
-
     return UserResponse.model_validate(user)
