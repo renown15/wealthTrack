@@ -9,15 +9,27 @@ from alembic import context
 from app.database import Base  # type: ignore[import-not-found]
 # These imports register models with SQLAlchemy metadata during migrations
 from app.models import (  # type: ignore[import-not-found]
-    ReferenceData,  # noqa: F401
-    User,  # noqa: F401
-    UserProfile,  # noqa: F401
-    Account,  # noqa: F401
-    Institution,  # noqa: F401
-    AccountAttribute,  # noqa: F401
-    AccountEvent,  # noqa: F401
-    InstitutionSecurityCredentials,  # noqa: F401
+    ReferenceData,
+    User,
+    UserProfile,
+    Account,
+    Institution,
+    AccountAttribute,
+    AccountEvent,
+    InstitutionSecurityCredentials,
 )
+
+# Ensure models are available for migration context (used by SQLAlchemy metadata)
+__all__ = [
+    "ReferenceData",
+    "User",
+    "UserProfile",
+    "Account",
+    "Institution",
+    "AccountAttribute",
+    "AccountEvent",
+    "InstitutionSecurityCredentials",
+]
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
