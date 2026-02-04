@@ -62,12 +62,73 @@
 ## IN PROGRESS 🔄
 
 ### Phase 08: Core Feature Models (Database Layer)
-- [ ] Create Account model (user_id, account_type, name, balance, currency, created_at)
-- [ ] Create Transaction model (account_id, type, amount, date, description)
-- [ ] Create Portfolio model (user_id, total_value, currency, last_updated)
-- [ ] Write migration script for new tables
-- [ ] Add model relationships (User → Account → Transaction)
+- [ ] Create Account model (id, userid FK→UserProfile, institutionid FK→Institution, name varchar, typeid FK→ReferenceData, statusid FK→ReferenceData, created_at, updated_at)
+- [ ] Create Institution model (id, userid FK→UserProfile, name varchar, created_at, updated_at)
+- [ ] Create AccountAttribute model (id, userid FK→UserProfile, accountid FK→Account, typeid FK→ReferenceData, value varchar, created_at, updated_at)
+- [ ] Create AccountEvent model (id, userid FK→UserProfile, accountid FK→Account, typeid FK→ReferenceData, value varchar, created_at, updated_at)
+- [ ] Create institutionSecurityCredentials model (id, userid FK→User, institutionid FK→Institution, typeid FK→ReferenceData, key encrypted varchar, value encrypted varchar, created_at, updated_at)
+- [ ] Write migration script for all 5 new tables
+- [ ] Add model relationships (User ← UserProfile → Account, Institution, etc.)
 - [ ] Write tests for model creation
+
+---
+
+## DATABASE DESIGN (From wealthTrack Data model.rtf)
+
+### Core Tables (Already Created ✅)
+- **users** - Legacy auth table (9 columns)
+- **user_profile** - User account with profiles (9 columns)
+- **reference_data** - Extensible lookup table (id, class, key, referencevalue, sortindex, created_at, updated_at)
+
+### Feature Tables (To Be Created)
+- **Account** - Financial accounts
+  - id (PK)
+  - userid (FK→user_profile)
+  - institutionid (FK→Institution)
+  - name (varchar)
+  - typeid (FK→reference_data) - e.g., SAVINGS, CURRENT, STOCKS_ISA, SIPP
+  - statusid (FK→reference_data) - e.g., ACTIVE, CLOSED, DORMANT
+  - created_at, updated_at
+
+- **Institution** - Financial institutions
+  - id (PK)
+  - userid (FK→user_profile)
+  - name (varchar)
+  - created_at, updated_at
+
+- **AccountAttribute** - Custom account attributes
+  - id (PK)
+  - userid (FK→user_profile)
+  - accountid (FK→Account)
+  - typeid (FK→reference_data)
+  - value (varchar)
+  - created_at, updated_at
+
+- **AccountEvent** - Account activity log
+  - id (PK)
+  - userid (FK→user_profile)
+  - accountid (FK→Account)
+  - typeid (FK→reference_data)
+  - value (varchar)
+  - created_at, updated_at
+
+- **institutionSecurityCredentials** - Encrypted API credentials
+  - id (PK)
+  - userid (FK→users)
+  - institutionid (FK→Institution)
+  - typeid (FK→reference_data)
+  - key (varchar, encrypted)
+  - value (varchar, encrypted)
+  - created_at, updated_at
+
+### ReferenceData Classes
+- user_profile_type
+- credential_type
+- account_attribute_type
+- account_event_type
+- account_type (SAVINGS, CURRENT, CASH_ISA, STOCKS_ISA, LIFETIME_ISA, SIPP, PREMIUM_BONDS)
+- account_status (ACTIVE, CLOSED, DORMANT)
+---
 
 ## TESTING STATUS
 
@@ -76,7 +137,6 @@
 
 ### Frontend (313 passing - ALL PASSING! 🎉)
 ✅ 63 ApiService tests, 49 ValidationService tests, 201 view tests
-
 
 ---
 
