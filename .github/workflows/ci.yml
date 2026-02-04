@@ -112,68 +112,61 @@ jobs:
           flags: frontend
           name: frontend-coverage
 
-  # Build Docker images
-  docker-build:
-    name: Docker - Build Images
-    runs-on: ubuntu-latest
-    needs: [backend-lint-and-test, frontend-lint-and-test]
-    if: github.event_name == 'push'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-        if: github.ref == 'refs/heads/main'
-
-      - name: Build backend Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./backend
-          push: ${{ github.ref == 'refs/heads/main' }}
-          tags: |
-            ${{ secrets.DOCKER_USERNAME }}/wealthtrack-backend:latest
-            ${{ secrets.DOCKER_USERNAME }}/wealthtrack-backend:${{ github.sha }}
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/wealthtrack-backend:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/wealthtrack-backend:buildcache,mode=max
-
-      - name: Build frontend Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
-          push: ${{ github.ref == 'refs/heads/main' }}
-          tags: |
-            ${{ secrets.DOCKER_USERNAME }}/wealthtrack-frontend:latest
-            ${{ secrets.DOCKER_USERNAME }}/wealthtrack-frontend:${{ github.sha }}
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/wealthtrack-frontend:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/wealthtrack-frontend:buildcache,mode=max
+  # Build Docker images (optional - requires DOCKER_USERNAME and DOCKER_PASSWORD secrets)
+  # docker-build:
+  #   name: Docker - Build Images
+  #   runs-on: ubuntu-latest
+  #   needs: [backend-lint-and-test, frontend-lint-and-test]
+  #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v3
+  #
+  #     - name: Log in to Docker Hub
+  #       uses: docker/login-action@v3
+  #       with:
+  #         username: ${{ secrets.DOCKER_USERNAME }}
+  #         password: ${{ secrets.DOCKER_PASSWORD }}
+  #
+  #     - name: Build backend Docker image
+  #       uses: docker/build-push-action@v5
+  #       with:
+  #         context: ./backend
+  #         push: true
+  #         tags: |
+  #           ${{ secrets.DOCKER_USERNAME }}/wealthtrack-backend:latest
+  #           ${{ secrets.DOCKER_USERNAME }}/wealthtrack-backend:${{ github.sha }}
+  #
+  #     - name: Build frontend Docker image
+  #       uses: docker/build-push-action@v5
+  #       with:
+  #         context: ./frontend
+  #         push: true
+  #         tags: |
+  #           ${{ secrets.DOCKER_USERNAME }}/wealthtrack-frontend:latest
+  #           ${{ secrets.DOCKER_USERNAME }}/wealthtrack-frontend:${{ github.sha }}
 
   # Deploy (placeholder for actual deployment)
-  deploy:
-    name: Deploy to Production
-    runs-on: ubuntu-latest
-    needs: docker-build
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Deploy to production
-        run: |
-          echo "Deploying to production..."
-          echo "This is a placeholder. Implement actual deployment logic here."
-          # Example: SSH into server and pull latest images
-          # ssh user@server 'cd /app && docker-compose pull && docker-compose up -d'
-
-      - name: Notify deployment
-        run: |
-          echo "Deployment complete!"
-          echo "Version: ${{ github.sha }}"
+  # deploy:
+  #   name: Deploy to Production
+  #   runs-on: ubuntu-latest
+  #   needs: docker-build
+  #   if: github.ref == 'refs/heads/main'
+  #
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Deploy to production
+  #       run: |
+  #         echo "Deploying to production..."
+  #         echo "This is a placeholder. Implement actual deployment logic here."
+  #
+  #     - name: Notify deployment
+  #       run: |
+  #         echo "Deployment complete!"
+  #         echo "Version: ${{ github.sha }}"
