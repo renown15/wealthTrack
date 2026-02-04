@@ -2,9 +2,9 @@ name: WealthTrack CI/CD
 
 on:
   push:
-    branches: [main, develop, 'feature/**', 'bugfix/**', 'hotfix/**']
+    branches: [main]
   pull_request:
-    branches: [main, develop, 'feature/**', 'bugfix/**', 'hotfix/**']
+    branches: [main]
 
 env:
   PYTHON_VERSION: '3.11'
