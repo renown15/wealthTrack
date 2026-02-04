@@ -2,12 +2,15 @@
 Account model for user financial accounts.
 """
 from datetime import datetime
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import DateTime, String, ForeignKey, Integer
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import DateTime, ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+
+if TYPE_CHECKING:
+    from app.models.institution import Institution
 
 
 class Account(Base):
@@ -34,6 +37,11 @@ class Account(Base):
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+    )
+
+    # Relationships
+    institution: Mapped[Optional["Institution"]] = relationship(
+        "Institution", foreign_keys=[institutionid]
     )
 
     def __repr__(self) -> str:

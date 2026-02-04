@@ -4,6 +4,17 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { HomeController } from '../src/controllers/HomeController';
 
+vi.mock('../src/services/ApiService', () => ({
+  apiService: {
+    getAuthToken: vi.fn(() => null),
+    setAuthToken: vi.fn(),
+    clearAuthToken: vi.fn(),
+    getCurrentUser: vi.fn(),
+    registerUser: vi.fn(),
+    loginUser: vi.fn(),
+  },
+}));
+
 describe('HomeController', () => {
   let container: HTMLElement;
 
@@ -23,58 +34,58 @@ describe('HomeController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should create a home view when initialized', () => {
+  it('should create a home view when initialized', async () => {
     const controller = new HomeController('home-container');
-    controller.init();
+    await controller.init();
 
     expect(container.children.length).toBeGreaterThan(0);
   });
 
-  it('should render home page content', () => {
+  it('should render home page content', async () => {
     const controller = new HomeController('home-container');
-    controller.init();
+    await controller.init();
 
     const content = container.textContent || '';
     expect(content.length).toBeGreaterThan(0);
   });
 
-  it('should render section with correct class', () => {
+  it('should render section with correct class', async () => {
     const controller = new HomeController('home-container');
-    controller.init();
+    await controller.init();
 
     const section = container.querySelector('section.home-section');
     expect(section).toBeDefined();
   });
 
-  it('should render welcome message', () => {
+  it('should render welcome message', async () => {
     const controller = new HomeController('home-container');
-    controller.init();
+    await controller.init();
 
     const text = container.textContent || '';
     expect(text.length).toBeGreaterThan(0);
   });
 
-  it('should have logout button if authenticated', () => {
+  it('should have logout button if authenticated', async () => {
     const controller = new HomeController('home-container');
-    controller.init();
+    await controller.init();
 
     // Check for logout button
     const buttons = container.querySelectorAll('button');
     expect(buttons.length).toBeGreaterThanOrEqual(0);
   });
 
-  it('should render navigation links', () => {
+  it('should render navigation links', async () => {
     const controller = new HomeController('home-container');
-    controller.init();
+    await controller.init();
 
     // Check that home view renders properly
     const elements = container.querySelectorAll('*');
     expect(elements.length).toBeGreaterThan(0);
   });
 
-  it('should render correct container structure', () => {
+  it('should render correct container structure', async () => {
     const controller = new HomeController('home-container');
-    controller.init();
+    await controller.init();
 
     const cont = document.getElementById('home-container');
     expect(cont).toBeDefined();
@@ -89,17 +100,17 @@ describe('HomeController', () => {
     expect(cont).toBeDefined();
   });
 
-  it('should handle logout action', () => {
+  it('should handle logout action', async () => {
     const controller = new HomeController('home-container');
-    controller.init();
+    await controller.init();
 
     // Verify controller is set up correctly
     expect(controller).toBeDefined();
   });
 
-  it('should display user information if available', () => {
+  it('should display user information if available', async () => {
     const controller = new HomeController('home-container');
-    controller.init();
+    await controller.init();
 
     // Home view should be rendered
     expect(container.children.length).toBeGreaterThan(0);

@@ -2,8 +2,16 @@
  * Tests for main application entry point.
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import * as ApiServiceModule from '../src/services/ApiService';
 
+// Mock Router before importing index
+const mockNavigate = vi.fn().mockResolvedValue(undefined);
+vi.mock('../src/router', () => ({
+  Router: class MockRouter {
+    navigate = mockNavigate;
+  },
+}));
+
+// Mock ApiService
 vi.mock('../src/services/ApiService', () => ({
   apiService: {
     getAuthToken: vi.fn(() => null),
@@ -17,127 +25,77 @@ vi.mock('../src/services/ApiService', () => ({
 
 describe('Application Index', () => {
   beforeEach(() => {
-    // Create view container required by app
-    const viewContainer = document.createElement('div');
-    viewContainer.id = 'view-container';
-    document.body.appendChild(viewContainer);
-
-    // Create nav links
-    const navHome = document.createElement('a');
-    navHome.id = 'nav-home';
-    document.body.appendChild(navHome);
-
-    const navRegister = document.createElement('a');
-    navRegister.id = 'nav-register';
-    document.body.appendChild(navRegister);
-
-    const navLogin = document.createElement('a');
-    navLogin.id = 'nav-login';
-    document.body.appendChild(navLogin);
+    vi.clearAllMocks();
+    mockNavigate.mockClear();
   });
 
   afterEach(() => {
-    document.body.innerHTML = '';
     vi.clearAllMocks();
+    mockNavigate.mockClear();
   });
 
-  it('should have view container in DOM', () => {
-    const viewContainer = document.getElementById('view-container') as HTMLElement;
-    expect(viewContainer).toBeDefined();
+  it('should export initializeApp function', async () => {
+    const module = await import('../src/index');
+    expect(typeof module.initializeApp).toBe('function');
   });
 
-  it('should have navigation links in DOM', () => {
-    const navHome = document.getElementById('nav-home');
-    const navRegister = document.getElementById('nav-register');
-    const navLogin = document.getElementById('nav-login');
+  it('should initialize router and navigate to home', async () => {
+    const { initializeApp } = await import('../src/index');
+    mockNavigate.mockClear();
 
-    expect(navHome).toBeDefined();
-    expect(navRegister).toBeDefined();
-    expect(navLogin).toBeDefined();
+    await initializeApp();
+
+    expect(mockNavigate).toHaveBeenCalledWith('home');
   });
 
-  it('should allow access to DOM elements', () => {
-    const viewContainer = document.getElementById('view-container');
-    const navHome = document.getElementById('nav-home');
-
-    expect(viewContainer).not.toBeNull();
-    expect(navHome).not.toBeNull();
-  });
-
-  it('should maintain DOM structure', () => {
-    const bodyChildren = document.body.children.length;
-    expect(bodyChildren).toBeGreaterThan(0);
-  });
-
-  it('should support event dispatching', () => {
-    let eventDispatched = false;
-
-    window.addEventListener('test-event', () => {
-      eventDispatched = true;
-    });
-
-    window.dispatchEvent(new CustomEvent('test-event'));
-
-    expect(eventDispatched).toBe(true);
-  });
-
-  it('should handle localStorage getItem', () => {
-    // Test localStorage getItem behavior logic
-    const key = 'accessToken';
-    const value = null;
-    expect(value).toBeNull();
-  });
-
-  it('should handle localStorage setItem', () => {
-    // Test localStorage setItem behavior
-    const key = 'testKey';
-    const value = 'testValue';
-    // Just test the logic, not actual localStorage
-    expect(key).toBe('testKey');
-    expect(value).toBe('testValue');
-  });
-
-  it('should clear localStorage', () => {
-    // Test clearing localStorage behavior
-    const key = 'key1';
-    const key2 = 'key2';
-    expect(key).toBeDefined();
-    expect(key2).toBeDefined();
-  });
-
-  it('should import ApiService dynamically', async () => {
-    const module = await import('../src/services/ApiService');
-    expect(module.apiService).toBeDefined();
-  });
-
-  it('should set auth token in API service', async () => {
-    const module = await import('../src/services/ApiService');
-    const testToken = 'test-bearer-token';
-    module.apiService.setAuthToken(testToken);
-    expect(module.apiService).toBeDefined();
-  });
-
-  it('should handle Router initialization', async () => {
-    const routerModule = await import('../src/router');
-    const router = new routerModule.Router();
+  it('should create Router instance', async () => {
+    const { Router } = await import('../src/router');
+    const router = new Router();
     expect(router).toBeDefined();
+    expect(typeof router.navigate).toBe('function');
   });
 
-  it('should navigate to home page', async () => {
-    const routerModule = await import('../src/router');
-    const router = new routerModule.Router();
-    await router.navigate('home');
-    expect(document.getElementById('view-container')?.innerHTML).not.toBe('');
+  it('should handle async navigation operation', async () => {
+    const { initializeApp } = await import('../src/index');
+    mockNavigate.mockResolvedValue(undefined);
+    mockNavigate.mockClear();
+
+    await initializeApp();
+
+    expect(mockNavigate).toHaveBeenCalled();
   });
 
-  it('should handle navigate event', async () => {
-    let navigated = false;
-    window.addEventListener('navigate', () => {
-      navigated = true;
-    });
-    window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'home' } }));
-    // Give event handler time to process
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    expect(navigated).toBe(true);
+  it('should return undefined from navigation call', async () => {
+    const { initializeApp } = await import('../src/index');
+    mockNavigate.mockResolvedValue(undefined);
+
+    const result = await initializeApp();
+    expect(result).toBeUndefined();
+  });
+
+  it('should call navigate exactly once per initialization', async () => {
+    const { initializeApp } = await import('../src/index');
+    mockNavigate.mockClear();
+
+    await initializeApp();
+
+    expect(mockNavigate).toHaveBeenCalledTimes(1);
+  });
+
+  it('should import Router module successfully', async () => {
+    const { Router } = await import('../src/router');
+    expect(Router).toBeDefined();
+  });
+
+  it('should handle Router navigate with home parameter', async () => {
+    const { initializeApp } = await import('../src/index');
+    mockNavigate.mockClear();
+
+    await initializeApp();
+
+    expect(mockNavigate).toHaveBeenCalledWith('home');
+    expect(mockNavigate).not.toHaveBeenCalledWith('login');
+    expect(mockNavigate).not.toHaveBeenCalledWith('register');
   });
 });
+

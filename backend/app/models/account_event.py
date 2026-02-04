@@ -4,7 +4,7 @@ AccountEvent model for account activity log.
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import DateTime, String, ForeignKey, Integer
+from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
