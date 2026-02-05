@@ -26,8 +26,11 @@ Welcome to the WealthTrack documentation. This directory contains all project do
 - [GSD Status](progress/GSD_STATUS.md) - Getting Stuff Done tracking
 - [Baseline Review](progress/BASELINE_REVIEW.md) - Baseline assessment and reviews
 
-### 📑 Full Documentation Index
-See [INDEX.md](INDEX.md) for the complete documentation index.
+### � Reference Materials
+- [Application Specification](reference/WealthTrack%20Application%20Specification.txt) - Original spec and requirements
+- [Architecture & Design Hints](reference/Wealth%20Track%20Architecture%20and%20design%20hints.docx) - Design considerations
+- [Data Model](reference/wealthTrack%20Data%20model.docx) - Database schema and relationships
+- [Planning Notes](reference/.planning/) - Project planning phases and notes
 
 ---
 
@@ -50,10 +53,15 @@ docs/
 │   ├── COVERAGE_STRATEGY.md
 │   ├── COVERAGE_ACHIEVEMENT.md
 │   └── FRONTEND_TEST_SUMMARY.md
-└── progress/                          # Project status and history
-    ├── SESSION_SUMMARY.md
-    ├── GSD_STATUS.md
-    └── BASELINE_REVIEW.md
+├── progress/                          # Project status and history
+│   ├── SESSION_SUMMARY.md
+│   ├── GSD_STATUS.md
+│   └── BASELINE_REVIEW.md
+└── reference/                         # Reference materials and specs
+    ├── WealthTrack Application Specification.txt
+    ├── Wealth Track Architecture and design hints.docx
+    ├── wealthTrack Data model.docx
+    └── .planning/                     # Project planning phases
 ```
 
 ## 🔍 Finding What You Need
@@ -69,6 +77,8 @@ docs/
 **Interested in test coverage?** Visit [Coverage Status](testing/COVERAGE_ACHIEVEMENT.md)
 
 **Tracking project progress?** Check [Session Summary](progress/SESSION_SUMMARY.md)
+
+**Looking for original specs?** See [Reference Materials](reference/)
 
 ---
 
