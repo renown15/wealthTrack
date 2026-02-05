@@ -10,8 +10,8 @@ describe('User Models', () => {
       const user: User = {
         id: 1,
         email: 'test@example.com',
-        username: 'testuser',
-        fullName: 'Test User',
+        firstname: 'Test',
+        surname: 'User',
         isActive: true,
         isVerified: false,
         createdAt: '2026-01-01T00:00:00Z',
@@ -19,22 +19,22 @@ describe('User Models', () => {
 
       expect(user.id).toBe(1);
       expect(user.email).toBe('test@example.com');
-      expect(user.username).toBe('testuser');
+      expect(user.firstname).toBe('Test');
       expect(user.isActive).toBe(true);
     });
 
-    it('should allow null fullName', () => {
+    it('should allow null surname', () => {
       const user: User = {
         id: 1,
         email: 'test@example.com',
-        username: 'testuser',
-        fullName: null,
+        firstname: 'Test',
+        surname: 'Unknown',
         isActive: true,
         isVerified: false,
         createdAt: '2026-01-01T00:00:00Z',
       };
 
-      expect(user.fullName).toBeNull();
+      expect(user.surname).toBe('Unknown');
     });
   });
 
@@ -42,35 +42,36 @@ describe('User Models', () => {
     it('should create valid registration data', () => {
       const registration: UserRegistration = {
         email: 'newuser@example.com',
-        username: 'newuser',
+        first_name: 'New',
+        last_name: 'User',
         password: 'SecurePass123',
-        fullName: 'New User',
       };
 
       expect(registration.email).toBe('newuser@example.com');
-      expect(registration.username).toBe('newuser');
+      expect(registration.first_name).toBe('New');
       expect(registration.password).toBe('SecurePass123');
     });
 
-    it('should allow optional fullName', () => {
+    it('should allow firstName and lastName', () => {
       const registration: UserRegistration = {
         email: 'test@example.com',
-        username: 'testuser',
+        first_name: 'Test',
+        last_name: 'User',
         password: 'SecurePass123',
       };
 
-      expect(registration.fullName).toBeUndefined();
+      expect(registration.first_name).toBe('Test');
     });
   });
 
   describe('UserLogin', () => {
     it('should create valid login credentials', () => {
       const login: UserLogin = {
-        username: 'testuser',
+        email: 'test@example.com',
         password: 'SecurePass123',
       };
 
-      expect(login.username).toBe('testuser');
+      expect(login.email).toBe('test@example.com');
       expect(login.password).toBe('SecurePass123');
     });
   });

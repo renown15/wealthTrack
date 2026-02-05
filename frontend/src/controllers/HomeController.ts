@@ -1,9 +1,9 @@
 /**
  * Home controller.
  */
-import { HomeView } from '../views/HomeView';
-import { apiService } from '../services/ApiService';
-import type { User } from '../models/User';
+import { HomeView } from '@views/HomeView';
+import { apiService } from '@services/ApiService';
+import type { User } from '@models/User';
 
 export class HomeController {
   private view: HomeView;

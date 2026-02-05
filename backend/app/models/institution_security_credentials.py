@@ -13,17 +13,17 @@ from app.database import Base
 class InstitutionSecurityCredentials(Base):
     """InstitutionSecurityCredentials model for encrypted institution credentials."""
 
-    __tablename__ = "institution_security_credentials"
+    __tablename__ = "InstitutionSecurityCredentials"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     userid: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id"), nullable=False, index=True
+        Integer, ForeignKey("UserProfile.id"), nullable=False, index=True
     )
     institutionid: Mapped[int] = mapped_column(
-        Integer, ForeignKey("institutions.id"), nullable=False, index=True
+        Integer, ForeignKey("Institution.id"), nullable=False, index=True
     )
     typeid: Mapped[int] = mapped_column(
-        Integer, ForeignKey("reference_data.id"), nullable=False
+        Integer, ForeignKey("ReferenceData.id"), nullable=False
     )
     key: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     value: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)

@@ -2,7 +2,6 @@
 Pydantic schemas for user registration and authentication.
 """
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
@@ -11,17 +10,9 @@ class UserRegistrationRequest(BaseModel):
     """Schema for user registration request."""
 
     email: EmailStr
-    username: str = Field(..., min_length=3, max_length=50)
+    first_name: str = Field(..., min_length=1, max_length=100)
+    last_name: str = Field(..., min_length=1, max_length=100)
     password: str = Field(..., min_length=8, max_length=100)
-    full_name: Optional[str] = Field(None, max_length=255)
-
-    @field_validator("username")
-    @classmethod
-    def username_alphanumeric(cls, v: str) -> str:
-        """Validate username is alphanumeric with underscores."""
-        if not v.replace("_", "").isalnum():
-            raise ValueError("Username must be alphanumeric (underscores allowed)")
-        return v
 
     @field_validator("password")
     @classmethod
@@ -41,8 +32,8 @@ class UserResponse(BaseModel):
 
     id: int
     email: str
-    username: str
-    full_name: Optional[str]
+    firstname: str
+    surname: str
     is_active: bool
     is_verified: bool
     created_at: datetime
@@ -61,5 +52,5 @@ class TokenResponse(BaseModel):
 class UserLoginRequest(BaseModel):
     """Schema for user login request."""
 
-    username: str
+    email: EmailStr
     password: str

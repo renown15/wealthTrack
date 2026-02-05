@@ -13,6 +13,12 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
+      '@controllers': resolve(__dirname, './src/controllers'),
+      '@services': resolve(__dirname, './src/services'),
+      '@views': resolve(__dirname, './src/views'),
+      '@models': resolve(__dirname, './src/models'),
+      '@composables': resolve(__dirname, './src/composables'),
+      '@styles': resolve(__dirname, './src/styles'),
     },
   },
   build: {

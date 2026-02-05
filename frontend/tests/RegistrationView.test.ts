@@ -34,7 +34,7 @@ describe('RegistrationView', () => {
   it('should display error messages', () => {
     const view = new RegistrationView('test-container');
     view.render();
-    view['showError']('Registration failed');
+    view.showError('Registration failed');
 
     const errorDiv = container.querySelector('.error-message');
     expect(errorDiv?.textContent).toContain('Registration failed');
@@ -43,7 +43,7 @@ describe('RegistrationView', () => {
   it('should display success messages', () => {
     const view = new RegistrationView('test-container');
     view.render();
-    view['showSuccess']('Registration successful');
+    view.showSuccess('Registration successful');
 
     const successDiv = container.querySelector('.success-message');
     expect(successDiv?.textContent).toContain('Registration successful');
@@ -226,7 +226,7 @@ describe('RegistrationView', () => {
 
     const view = new RegistrationView('test-container');
     view.render();
-    view['showError']('Test error');
+    view.showError('Test error');
 
     const errorDiv = container.querySelector('.error-message');
     expect(errorDiv).toBeDefined();
@@ -244,7 +244,7 @@ describe('RegistrationView', () => {
 
     const view = new RegistrationView('test-container');
     view.render();
-    view['showSuccess']('Test success');
+    view.showSuccess('Test success');
 
     const successDiv = container.querySelector('.success-message');
     expect(successDiv).toBeDefined();
@@ -279,7 +279,6 @@ describe('RegistrationView', () => {
     view.onSubmit(callback);
 
     const form = container.querySelector('form') as HTMLFormElement;
-    const formData = new FormData(form);
 
     // Fill in all fields
     const emailInput = container.querySelector('input[id="email"]') as HTMLInputElement;

@@ -16,21 +16,21 @@ if TYPE_CHECKING:
 class Account(Base):
     """Account database model for user financial accounts."""
 
-    __tablename__ = "accounts"
+    __tablename__ = "Account"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     userid: Mapped[int] = mapped_column(
-        Integer, ForeignKey("user_profile.id"), nullable=False, index=True
+        Integer, ForeignKey("UserProfile.id"), nullable=False, index=True
     )
     institutionid: Mapped[Optional[int]] = mapped_column(
-        Integer, ForeignKey("institutions.id"), nullable=True
+        Integer, ForeignKey("Institution.id"), nullable=True
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     typeid: Mapped[int] = mapped_column(
-        Integer, ForeignKey("reference_data.id"), nullable=False
+        Integer, ForeignKey("ReferenceData.id"), nullable=False
     )
     statusid: Mapped[int] = mapped_column(
-        Integer, ForeignKey("reference_data.id"), nullable=False
+        Integer, ForeignKey("ReferenceData.id"), nullable=False
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False

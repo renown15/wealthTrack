@@ -1,8 +1,8 @@
 /**
  * Home view displaying welcome message.
  */
-import { BaseView } from './BaseView';
-import type { User } from '../models/User';
+import { BaseView } from '@views/BaseView';
+import type { User } from '@models/User';
 
 export class HomeView extends BaseView {
   private onLogoutCallback?: () => void;
@@ -34,7 +34,7 @@ export class HomeView extends BaseView {
       greeting.className = 'user-greeting';
 
       const title = document.createElement('h1');
-      title.textContent = `Welcome back, ${user.fullName || user.username}!`;
+      title.textContent = `Welcome back, ${user.firstname} ${user.surname}!`;
       title.className = 'home-title';
 
       const userInfo = document.createElement('p');

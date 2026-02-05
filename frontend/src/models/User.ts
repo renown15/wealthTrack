@@ -1,11 +1,11 @@
 /**
- * User model representing user data.
+ * User model representing UserProfile data.
  */
 export interface User {
   id: number;
   email: string;
-  username: string;
-  fullName: string | null;
+  firstname: string;
+  surname: string;
   isActive: boolean;
   isVerified: boolean;
   createdAt: string;
@@ -16,17 +16,16 @@ export interface User {
  */
 export interface UserRegistration {
   email: string;
-  username: string;
+  first_name: string;
+  last_name: string;
   password: string;
-  fullName?: string;
 }
 
 /**
  * User login credentials.
  */
 export interface UserLogin {
-  email?: string;
-  username?: string;
+  email: string;
   password: string;
 }
 

@@ -73,55 +73,55 @@ describe('ValidationService', () => {
 
   describe('validateUsername', () => {
     it('should validate correct username', () => {
-      const result = ValidationService.validateUsername('valid_user123');
+      const result = ValidationService.validateName('valid_user123');
       expect(result.isValid).toBe(true);
     });
 
     it('should reject short username', () => {
-      const result = ValidationService.validateUsername('ab');
+      const result = ValidationService.validateName('ab');
       expect(result.isValid).toBe(false);
       expect(result.message).toContain('at least 3');
     });
 
     it('should reject long username', () => {
-      const result = ValidationService.validateUsername('a'.repeat(51));
+      const result = ValidationService.validateName('a'.repeat(51));
       expect(result.isValid).toBe(false);
       expect(result.message).toContain('at most 50');
     });
 
     it('should reject username with special characters', () => {
-      const result = ValidationService.validateUsername('user@name');
+      const result = ValidationService.validateName('user@name');
       expect(result.isValid).toBe(false);
       expect(result.message).toContain('alphanumeric');
     });
 
     it('should accept username with underscores', () => {
-      const result = ValidationService.validateUsername('user_name_123');
+      const result = ValidationService.validateName('user_name_123');
       expect(result.isValid).toBe(true);
     });
 
     it('should accept username with numbers', () => {
-      const result = ValidationService.validateUsername('user123');
+      const result = ValidationService.validateName('user123');
       expect(result.isValid).toBe(true);
     });
 
     it('should accept username with exactly 3 characters', () => {
-      const result = ValidationService.validateUsername('abc');
+      const result = ValidationService.validateName('abc');
       expect(result.isValid).toBe(true);
     });
 
     it('should accept username with exactly 50 characters', () => {
-      const result = ValidationService.validateUsername('a'.repeat(50));
+      const result = ValidationService.validateName('a'.repeat(50));
       expect(result.isValid).toBe(true);
     });
 
     it('should reject username with hyphens', () => {
-      const result = ValidationService.validateUsername('user-name');
+      const result = ValidationService.validateName('user-name');
       expect(result.isValid).toBe(false);
     });
 
     it('should reject username with spaces', () => {
-      const result = ValidationService.validateUsername('user name');
+      const result = ValidationService.validateName('user name');
       expect(result.isValid).toBe(false);
     });
   });
@@ -219,7 +219,7 @@ describe('ValidationService', () => {
   describe('validateLoginForm', () => {
     it('should validate complete login form', () => {
       const data = {
-        username: 'testuser',
+        email: 'test@example.com',
         password: 'TestPass123',
       };
       const result = ValidationService.validateLoginForm(data);
@@ -227,19 +227,29 @@ describe('ValidationService', () => {
       expect(Object.keys(result.errors)).toHaveLength(0);
     });
 
-    it('should reject form with missing username', () => {
+    it('should reject form with missing email', () => {
       const data = {
-        username: '',
+        email: '',
         password: 'TestPass123',
       };
       const result = ValidationService.validateLoginForm(data);
       expect(result.isValid).toBe(false);
-      expect(result.errors.username).toBeDefined();
+      expect(result.errors.email).toBeDefined();
+    });
+
+    it('should reject form with invalid email format', () => {
+      const data = {
+        email: 'invalid-email',
+        password: 'TestPass123',
+      };
+      const result = ValidationService.validateLoginForm(data);
+      expect(result.isValid).toBe(false);
+      expect(result.errors.email).toBeDefined();
     });
 
     it('should reject form with missing password', () => {
       const data = {
-        username: 'testuser',
+        email: 'test@example.com',
         password: '',
       };
       const result = ValidationService.validateLoginForm(data);
@@ -249,7 +259,7 @@ describe('ValidationService', () => {
 
     it('should reject form with both fields missing', () => {
       const data = {
-        username: '',
+        email: '',
         password: '',
       };
       const result = ValidationService.validateLoginForm(data);
@@ -259,17 +269,8 @@ describe('ValidationService', () => {
 
     it('should validate any password in login form', () => {
       const data = {
-        username: 'testuser',
+        email: 'test@example.com',
         password: 'anypassword',
-      };
-      const result = ValidationService.validateLoginForm(data);
-      expect(result.isValid).toBe(true);
-    });
-
-    it('should validate any username in login form', () => {
-      const data = {
-        username: 'any-username-123',
-        password: 'TestPass123',
       };
       const result = ValidationService.validateLoginForm(data);
       expect(result.isValid).toBe(true);
@@ -277,7 +278,7 @@ describe('ValidationService', () => {
 
     it('should return empty errors object for valid form', () => {
       const data = {
-        username: 'testuser',
+        email: 'test@example.com',
         password: 'TestPass123',
       };
       const result = ValidationService.validateLoginForm(data);
@@ -301,23 +302,23 @@ describe('ValidationService', () => {
 
   describe('validateFullName', () => {
     it('should validate short full name', () => {
-      const result = ValidationService.validateFullName('John Doe');
+      const result = ValidationService.validateName('John Doe');
       expect(result.isValid).toBe(true);
     });
 
     it('should validate long full name', () => {
-      const result = ValidationService.validateFullName('John Michael Peter Anderson Smith');
+      const result = ValidationService.validateName('John Michael Peter Anderson Smith');
       expect(result.isValid).toBe(true);
     });
 
     it('should reject full name exceeding max length', () => {
-      const result = ValidationService.validateFullName('a'.repeat(101));
+      const result = ValidationService.validateName('a'.repeat(101));
       expect(result.isValid).toBe(false);
       expect(result.message).toContain('100 characters');
     });
 
     it('should allow empty full name', () => {
-      const result = ValidationService.validateFullName('');
+      const result = ValidationService.validateName('');
       expect(result.isValid).toBe(true);
     });
   });

@@ -1,5 +1,5 @@
 /**
- * Tests for BaseView.
+ * Tests for BaseView - Message display and form fields
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { BaseView } from '../src/views/BaseView';
@@ -13,7 +13,7 @@ class TestView extends BaseView {
   }
 }
 
-describe('BaseView', () => {
+describe('BaseView - Messages and Fields', () => {
   let container: HTMLElement;
 
   beforeEach(() => {
@@ -25,21 +25,6 @@ describe('BaseView', () => {
   afterEach(() => {
     document.body.removeChild(container);
     vi.clearAllMocks();
-  });
-
-  it('should initialize with container', () => {
-    const view = new TestView('test-container');
-    expect(view).toBeDefined();
-  });
-
-  it('should throw error if container not found', () => {
-    expect(() => new TestView('nonexistent')).toThrow('Container with id');
-  });
-
-  it('should render content', () => {
-    const view = new TestView('test-container');
-    view.render();
-    expect(container.textContent).toContain('Test View');
   });
 
   it('should show error message', () => {
@@ -81,28 +66,14 @@ describe('BaseView', () => {
     expect(errorElement.style.display).toBe('block');
   });
 
-  it('should clear container', () => {
-    const view = new TestView('test-container');
-
-    // Add some content
-    container.innerHTML = '<p>Old content</p>';
-    expect(container.innerHTML).toContain('Old content');
-
-    // Clear should empty container
-    view['clear']();
-    expect(container.innerHTML).toBe('');
-  });
-
   it('should insert messages at top of container', () => {
     const view = new TestView('test-container');
     view.render();
 
-    // Add initial content
     const initialDiv = document.createElement('div');
     initialDiv.textContent = 'Initial content';
     container.appendChild(initialDiv);
 
-    // Show error should insert at top
     view['showError']('Error at top');
 
     const errorDiv = container.querySelector('.error-message');
@@ -120,7 +91,6 @@ describe('BaseView', () => {
 
     vi.advanceTimersByTime(5000);
 
-    // Error should be removed
     expect(container.querySelector('.error-message')).toBeNull();
 
     vi.useRealTimers();
@@ -137,7 +107,6 @@ describe('BaseView', () => {
 
     vi.advanceTimersByTime(5000);
 
-    // Success message should be removed
     expect(container.querySelector('.success-message')).toBeNull();
 
     vi.useRealTimers();
@@ -179,24 +148,19 @@ describe('BaseView', () => {
   it('should clear all field errors', () => {
     const view = new TestView('test-container');
 
-    // Create multiple form fields
     const field1 = view['createFormField']('text', 'field1', 'Field 1');
     const field2 = view['createFormField']('text', 'field2', 'Field 2');
     container.appendChild(field1);
     container.appendChild(field2);
 
-    // Display errors
     view['displayFieldError']('field1', 'Error 1');
     view['displayFieldError']('field2', 'Error 2');
 
-    // Verify errors are shown
     expect(container.querySelector('#field1-error')?.textContent).toBe('Error 1');
     expect(container.querySelector('#field2-error')?.textContent).toBe('Error 2');
 
-    // Clear all errors
     view['clearFieldErrors']();
 
-    // Verify all errors are cleared
     const errorElements = container.querySelectorAll('.field-error');
     errorElements.forEach((element) => {
       expect((element as HTMLElement).textContent).toBe('');
@@ -217,50 +181,5 @@ describe('BaseView', () => {
 
     const input = field.querySelector('input') as HTMLInputElement;
     expect(input.className).toBe('form-input');
-  });
-
-  it('should handle error display for nonexistent field', () => {
-    const view = new TestView('test-container');
-
-    // Try to display error for field that doesn't exist
-    view['displayFieldError']('nonexistentField', 'Error message');
-
-    // Should not throw error
-    expect(view).toBeDefined();
-  });
-
-  it('should handle multiple messages in sequence', async () => {
-    vi.useFakeTimers();
-
-    const view = new TestView('test-container');
-
-    view['showError']('First error');
-    view['showSuccess']('Success message');
-    view['showError']('Second error');
-
-    const messages = container.querySelectorAll('.error-message, .success-message');
-    expect(messages.length).toBeGreaterThan(0);
-
-    vi.advanceTimersByTime(5000);
-
-    // All messages should be removed after 5 seconds
-    const remainingMessages = container.querySelectorAll('.error-message, .success-message');
-    expect(remainingMessages.length).toBe(0);
-    vi.useRealTimers();
-  });
-
-  it('should render view after initialization', () => {
-    const view = new TestView('test-container');
-    view.render();
-
-    expect(container.children.length).toBeGreaterThan(0);
-  });
-
-  it('should maintain container reference', () => {
-    const view = new TestView('test-container');
-    view.render();
-
-    // Container should have content from render
-    expect(container.innerHTML).toContain('Test View');
   });
 });

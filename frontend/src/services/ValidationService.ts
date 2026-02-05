@@ -1,7 +1,7 @@
 /**
  * Validation service for form inputs.
  */
-import type { ValidationResult } from '../models/Form';
+import type { ValidationResult } from '@models/Form';
 
 export class ValidationService {
   /**
@@ -32,30 +32,14 @@ export class ValidationService {
   }
 
   /**
-   * Validate username format.
+   * Validate first/last name format.
    */
-  static validateUsername(username: string): { isValid: boolean; message?: string } {
-    if (username.length < 3) {
-      return { isValid: false, message: 'Username must be at least 3 characters' };
+  static validateName(name: string): { isValid: boolean; message?: string } {
+    if (name.length < 1) {
+      return { isValid: false, message: 'Name is required' };
     }
-    if (username.length > 50) {
-      return { isValid: false, message: 'Username must be at most 50 characters' };
-    }
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      return {
-        isValid: false,
-        message: 'Username must be alphanumeric (underscores allowed)',
-      };
-    }
-    return { isValid: true };
-  }
-
-  /**
-   * Validate full name format.
-   */
-  static validateFullName(fullName: string): { isValid: boolean; message?: string } {
-    if (fullName && fullName.length > 100) {
-      return { isValid: false, message: 'Full name must be at most 100 characters' };
+    if (name.length > 100) {
+      return { isValid: false, message: 'Name must be at most 100 characters' };
     }
     return { isValid: true };
   }
@@ -90,12 +74,20 @@ export class ValidationService {
       errors.email = 'Invalid email format';
     }
 
-    // Validate username
-    const usernameValidation = this.validateUsername(data.username || '');
-    if (!data.username) {
-      errors.username = 'Username is required';
-    } else if (!usernameValidation.isValid) {
-      errors.username = usernameValidation.message || 'Invalid username';
+    // Validate first name
+    const firstNameValidation = this.validateName(data.first_name || '');
+    if (!data.first_name) {
+      errors.first_name = 'First name is required';
+    } else if (!firstNameValidation.isValid) {
+      errors.first_name = firstNameValidation.message || 'Invalid first name';
+    }
+
+    // Validate last name
+    const lastNameValidation = this.validateName(data.last_name || '');
+    if (!data.last_name) {
+      errors.last_name = 'Last name is required';
+    } else if (!lastNameValidation.isValid) {
+      errors.last_name = lastNameValidation.message || 'Invalid last name';
     }
 
     // Validate password
@@ -104,14 +96,6 @@ export class ValidationService {
       errors.password = 'Password is required';
     } else if (!passwordValidation.isValid) {
       errors.password = passwordValidation.message || 'Invalid password';
-    }
-
-    // Validate full name if provided
-    if (data.fullName) {
-      const nameValidation = this.validateFullName(data.fullName);
-      if (!nameValidation.isValid) {
-        errors.fullName = nameValidation.message || 'Invalid full name';
-      }
     }
 
     return {
@@ -126,8 +110,10 @@ export class ValidationService {
   static validateLoginForm(data: Record<string, string>): ValidationResult {
     const errors: Record<string, string> = {};
 
-    if (!data.username) {
-      errors.username = 'Username is required';
+    if (!data.email) {
+      errors.email = 'Email is required';
+    } else if (!this.validateEmail(data.email)) {
+      errors.email = 'Invalid email format';
     }
 
     if (!data.password) {

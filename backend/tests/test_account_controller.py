@@ -2,14 +2,16 @@
 
 import pytest
 from fastapi import status
+from httpx import AsyncClient
 
 from app.models.account import Account
-from app.models.user import User
+from app.models.institution import Institution
+from app.models.user_profile import UserProfile
 
 
 @pytest.mark.asyncio
 async def test_get_all_accounts(
-    client, authenticated_headers: dict, user: User, account: Account
+    client: AsyncClient, authenticated_headers: dict[str, str], user: UserProfile, account: Account
 ):
     """Test retrieving all accounts for a user."""
     response = await client.get(
@@ -19,13 +21,13 @@ async def test_get_all_accounts(
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert isinstance(data, list)
-    assert len(data) > 0
+    assert len(data) > 0  # type: ignore[arg-type]
     assert data[0]["userid"] == user.id
 
 
 @pytest.mark.asyncio
 async def test_get_account_by_id(
-    client, authenticated_headers: dict, account: Account
+    client: AsyncClient, authenticated_headers: dict[str, str], account: Account
 ):
     """Test retrieving a specific account by ID."""
     response = await client.get(
@@ -40,7 +42,7 @@ async def test_get_account_by_id(
 
 @pytest.mark.asyncio
 async def test_get_account_not_found(
-    client, authenticated_headers: dict
+    client: AsyncClient, authenticated_headers: dict[str, str]
 ):
     """Test retrieving a non-existent account."""
     response = await client.get(
@@ -52,8 +54,8 @@ async def test_get_account_not_found(
 
 @pytest.mark.asyncio
 async def test_create_account(
-    client, authenticated_headers: dict, user: User, user_profile,  # noqa: F841
-    institution
+    client: AsyncClient, authenticated_headers: dict[str, str], user: UserProfile,
+    institution: Institution
 ):
     """Test creating a new account."""
     payload = {
@@ -75,7 +77,7 @@ async def test_create_account(
 
 
 @pytest.mark.asyncio
-async def test_create_account_unauthorized(client):
+async def test_create_account_unauthorized(client: AsyncClient):
     """Test creating an account without authentication."""
     payload = {
         "institutionid": 1,
@@ -92,7 +94,7 @@ async def test_create_account_unauthorized(client):
 
 @pytest.mark.asyncio
 async def test_update_account(
-    client, authenticated_headers: dict, account: Account
+    client: AsyncClient, authenticated_headers: dict[str, str], account: Account
 ):
     """Test updating an account."""
     payload = {
@@ -111,7 +113,7 @@ async def test_update_account(
 
 @pytest.mark.asyncio
 async def test_update_account_partial(
-    client, authenticated_headers: dict, account: Account
+    client: AsyncClient, authenticated_headers: dict[str, str], account: Account
 ):
     """Test partially updating an account (only name)."""
     original_typeid = account.typeid
@@ -129,7 +131,7 @@ async def test_update_account_partial(
 
 @pytest.mark.asyncio
 async def test_update_account_not_found(
-    client, authenticated_headers: dict
+    client: AsyncClient, authenticated_headers: dict[str, str]
 ):
     """Test updating a non-existent account."""
     payload = {"name": "Updated Name"}
@@ -143,7 +145,7 @@ async def test_update_account_not_found(
 
 @pytest.mark.asyncio
 async def test_delete_account(
-    client, authenticated_headers: dict, account: Account
+    client: AsyncClient, authenticated_headers: dict[str, str], account: Account
 ):
     """Test deleting an account."""
     account_id = account.id
@@ -163,7 +165,7 @@ async def test_delete_account(
 
 @pytest.mark.asyncio
 async def test_delete_account_not_found(
-    client, authenticated_headers: dict
+    client: AsyncClient, authenticated_headers: dict[str, str]
 ):
     """Test deleting a non-existent account."""
     response = await client.delete(
@@ -175,7 +177,7 @@ async def test_delete_account_not_found(
 
 @pytest.mark.asyncio
 async def test_account_list_empty(
-    client, authenticated_headers: dict
+    client: AsyncClient, authenticated_headers: dict[str, str]
 ):
     """Test retrieving accounts when none exist."""
     # This test verifies the list endpoint works with no accounts

@@ -1,16 +1,10 @@
 {
   "typeCheckingMode": "strict",
   "exclude": [
-    "**/node_modules",
-    "**/__pycache__",
-    "alembic/**",
-    ".venv",
-    "venv",
-    "htmlcov",
-    "tests/**"
+    "tests",
+    "tests/**",
+    "conftest.py"
   ],
   "pythonVersion": "3.12",
-  "pythonPath": ".",
-  "reportMissingImports": true,
-  "reportMissingTypeStubs": false
+  "pythonPath": "."
 }

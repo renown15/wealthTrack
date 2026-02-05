@@ -1,7 +1,7 @@
 /**
  * Login form view.
  */
-import { BaseView } from './BaseView';
+import { BaseView } from '@views/BaseView';
 
 export class LoginView extends BaseView {
   private onSubmitCallback?: (data: Record<string, string>) => Promise<void>;
@@ -35,7 +35,7 @@ export class LoginView extends BaseView {
     form.id = 'login-form';
 
     // Create form fields
-    form.appendChild(this.createFormField('text', 'username', 'Username', 'Your username'));
+    form.appendChild(this.createFormField('email', 'email', 'Email', 'your.email@example.com'));
     form.appendChild(this.createFormField('password', 'password', 'Password', 'Your password'));
 
     // Submit button

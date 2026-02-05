@@ -1,351 +1,136 @@
 /**
- * API service for making HTTP requests to the backend.
+ * API service facade for backwards compatibility.
+ * Re-exports specialized services for cleaner organization.
  */
-import axios, { AxiosInstance, AxiosError } from 'axios';
-import type { User, UserRegistration, UserLogin, AuthToken, ApiError } from '../models/User';
+import type {
+  User,
+  UserRegistration,
+  UserLogin,
+  AuthToken,
+} from '@models/User';
 import type {
   Portfolio,
   Account,
-  Institution,
   AccountCreateRequest,
   AccountUpdateRequest,
+  Institution,
   InstitutionCreateRequest,
   InstitutionUpdateRequest,
-} from '../models/Portfolio';
+} from '@models/Portfolio';
+import axios, { type AxiosInstance } from 'axios';
+import { authService } from '@services/AuthService';
+import { portfolioFetchService } from '@services/PortfolioFetchService';
+import { accountCrudService } from '@services/AccountCrudService';
+import { institutionCrudService } from '@services/InstitutionCrudService';
 
+/**
+ * Facade service that aggregates all API operations.
+ * Maintains backwards compatibility with existing code.
+ */
 class ApiService {
-  private client: AxiosInstance;
-  private baseURL: string;
-  private maxRetries = 3;
-  private retryDelay = 1000;
+  // Shared axios client for backwards compatibility with tests
+  public client: AxiosInstance;
 
   constructor() {
-    this.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+    const baseURL = (import.meta.env.VITE_API_URL as string | undefined) || 'http://localhost:8000';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.client = axios.create({
-      baseURL: this.baseURL,
+      baseURL,
       headers: {
         'Content-Type': 'application/json',
       },
-    });
+    }) as unknown as AxiosInstance;
+
+    // Share the client across all services
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+    authService['client'] = this.client;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+    portfolioFetchService['client'] = this.client;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+    accountCrudService['client'] = this.client;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+    institutionCrudService['client'] = this.client;
   }
 
-  /**
-   * Retry logic with exponential backoff.
-   */
-  private async retryRequest<T>(
-    fn: () => Promise<T>,
-    retries = 0,
-  ): Promise<T> {
-    try {
-      return await fn();
-    } catch (error) {
-      if (retries < this.maxRetries && this.isRetryableError(error)) {
-        const delay = this.retryDelay * Math.pow(2, retries);
-        await new Promise((resolve) => setTimeout(resolve, delay));
-        return this.retryRequest(fn, retries + 1);
-      }
-      throw error;
-    }
-  }
-
-  /**
-   * Check if error is retryable.
-   */
-  private isRetryableError(error: unknown): boolean {
-    if (!axios.isAxiosError(error)) return false;
-    const status = error.response?.status;
-    return status ? [408, 429, 500, 502, 503, 504].includes(status) : true;
-  }
-
-  /**
-   * Register a new user.
-   */
+  // Auth operations
   async registerUser(userData: UserRegistration): Promise<User> {
-    try {
-      const response = await this.retryRequest(() =>
-        this.client.post<User>('/api/v1/auth/register', userData),
-      );
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<ApiError>;
-        const detail = axiosError.response?.data?.detail || 'Registration failed';
-        throw new Error(detail);
-      }
-      throw new Error('An unexpected error occurred');
-    }
+    return authService.registerUser(userData);
   }
 
-  /**
-   * Login user and get access token.
-   */
   async loginUser(credentials: UserLogin): Promise<AuthToken> {
-    try {
-      const response = await this.retryRequest(() =>
-        this.client.post<AuthToken>('/api/v1/auth/login', credentials),
-      );
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<ApiError>;
-        const detail = axiosError.response?.data?.detail || 'Login failed';
-        throw new Error(detail);
-      }
-      throw new Error('An unexpected error occurred');
-    }
+    return authService.loginUser(credentials);
   }
 
-  /**
-   * Get current authenticated user.
-   */
   async getCurrentUser(): Promise<User> {
-    try {
-      const response = await this.retryRequest(() =>
-        this.client.get<User>('/api/v1/auth/me'),
-      );
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<ApiError>;
-        const detail = axiosError.response?.data?.detail || 'Failed to fetch user';
-        throw new Error(detail);
-      }
-      throw new Error('An unexpected error occurred');
-    }
+    return authService.getCurrentUser();
   }
 
-  /**
-   * Set authentication token for future requests.
-   */
-  setAuthToken(token: string): void {
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  }
-
-  /**
-   * Clear authentication token.
-   */
-  clearAuthToken(): void {
-    delete this.client.defaults.headers.common['Authorization'];
-  }
-
-  /**
-   * Get current auth token from headers.
-   */
-  getAuthToken(): string | undefined {
-    const auth = this.client.defaults.headers.common['Authorization'] as
-      | string
-      | undefined;
-    return auth?.replace('Bearer ', '');
-  }
-
-  /**
-   * Get user portfolio with all accounts and institutions.
-   */
+  // Portfolio operations
   async getPortfolio(): Promise<Portfolio> {
-    try {
-      const response = await this.retryRequest(() =>
-        this.client.get<Portfolio>('/api/v1/portfolio'),
-      );
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<ApiError>;
-        const detail = axiosError.response?.data?.detail || 'Failed to fetch portfolio';
-        throw new Error(detail);
-      }
-      throw new Error('An unexpected error occurred');
-    }
+    return portfolioFetchService.getPortfolio();
   }
 
-  /**
-   * Get all accounts for current user.
-   */
+  // Account operations
   async getAccounts(): Promise<Account[]> {
-    try {
-      const response = await this.retryRequest(() =>
-        this.client.get<Account[]>('/api/v1/accounts'),
-      );
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<ApiError>;
-        const detail = axiosError.response?.data?.detail || 'Failed to fetch accounts';
-        throw new Error(detail);
-      }
-      throw new Error('An unexpected error occurred');
-    }
+    return accountCrudService.getAccounts();
   }
 
-  /**
-   * Get a specific account by ID.
-   */
   async getAccount(accountId: number): Promise<Account> {
-    try {
-      const response = await this.retryRequest(() =>
-        this.client.get<Account>(`/api/v1/accounts/${accountId}`),
-      );
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<ApiError>;
-        const detail = axiosError.response?.data?.detail || 'Failed to fetch account';
-        throw new Error(detail);
-      }
-      throw new Error('An unexpected error occurred');
-    }
+    return accountCrudService.getAccount(accountId);
   }
 
-  /**
-   * Create a new account.
-   */
   async createAccount(data: AccountCreateRequest): Promise<Account> {
-    try {
-      const response = await this.retryRequest(() =>
-        this.client.post<Account>('/api/v1/accounts', data),
-      );
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<ApiError>;
-        const detail = axiosError.response?.data?.detail || 'Failed to create account';
-        throw new Error(detail);
-      }
-      throw new Error('An unexpected error occurred');
-    }
+    return accountCrudService.createAccount(data);
   }
 
-  /**
-   * Update an existing account.
-   */
   async updateAccount(accountId: number, data: AccountUpdateRequest): Promise<Account> {
-    try {
-      const response = await this.retryRequest(() =>
-        this.client.put<Account>(`/api/v1/accounts/${accountId}`, data),
-      );
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<ApiError>;
-        const detail = axiosError.response?.data?.detail || 'Failed to update account';
-        throw new Error(detail);
-      }
-      throw new Error('An unexpected error occurred');
-    }
+    return accountCrudService.updateAccount(accountId, data);
   }
 
-  /**
-   * Delete an account.
-   */
   async deleteAccount(accountId: number): Promise<void> {
-    try {
-      await this.retryRequest(() =>
-        this.client.delete(`/api/v1/accounts/${accountId}`),
-      );
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<ApiError>;
-        const detail = axiosError.response?.data?.detail || 'Failed to delete account';
-        throw new Error(detail);
-      }
-      throw new Error('An unexpected error occurred');
-    }
+    return accountCrudService.deleteAccount(accountId);
   }
 
-  /**
-   * Get all institutions for current user.
-   */
+  // Institution operations
   async getInstitutions(): Promise<Institution[]> {
-    try {
-      const response = await this.retryRequest(() =>
-        this.client.get<Institution[]>('/api/v1/institutions'),
-      );
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<ApiError>;
-        const detail = axiosError.response?.data?.detail || 'Failed to fetch institutions';
-        throw new Error(detail);
-      }
-      throw new Error('An unexpected error occurred');
-    }
+    return institutionCrudService.getInstitutions();
   }
 
-  /**
-   * Get a specific institution by ID.
-   */
   async getInstitution(institutionId: number): Promise<Institution> {
-    try {
-      const response = await this.retryRequest(() =>
-        this.client.get<Institution>(`/api/v1/institutions/${institutionId}`),
-      );
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<ApiError>;
-        const detail = axiosError.response?.data?.detail || 'Failed to fetch institution';
-        throw new Error(detail);
-      }
-      throw new Error('An unexpected error occurred');
-    }
+    return institutionCrudService.getInstitution(institutionId);
   }
 
-  /**
-   * Create a new institution.
-   */
   async createInstitution(data: InstitutionCreateRequest): Promise<Institution> {
-    try {
-      const response = await this.retryRequest(() =>
-        this.client.post<Institution>('/api/v1/institutions', data),
-      );
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<ApiError>;
-        const detail = axiosError.response?.data?.detail || 'Failed to create institution';
-        throw new Error(detail);
-      }
-      throw new Error('An unexpected error occurred');
-    }
+    return institutionCrudService.createInstitution(data);
   }
 
-  /**
-   * Update an existing institution.
-   */
   async updateInstitution(
     institutionId: number,
     data: InstitutionUpdateRequest,
   ): Promise<Institution> {
-    try {
-      const response = await this.retryRequest(() =>
-        this.client.put<Institution>(`/api/v1/institutions/${institutionId}`, data),
-      );
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<ApiError>;
-        const detail = axiosError.response?.data?.detail || 'Failed to update institution';
-        throw new Error(detail);
-      }
-      throw new Error('An unexpected error occurred');
-    }
+    return institutionCrudService.updateInstitution(institutionId, data);
   }
 
-  /**
-   * Delete an institution.
-   */
   async deleteInstitution(institutionId: number): Promise<void> {
-    try {
-      await this.retryRequest(() =>
-        this.client.delete(`/api/v1/institutions/${institutionId}`),
-      );
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<ApiError>;
-        const detail = axiosError.response?.data?.detail || 'Failed to delete institution';
-        throw new Error(detail);
-      }
-      throw new Error('An unexpected error occurred');
-    }
+    return institutionCrudService.deleteInstitution(institutionId);
+  }
+
+  // Token management (exposed from BaseApiClient)
+  setAuthToken(token: string): void {
+    authService.setAuthToken(token);
+    // Also set in the shared client for backwards compatibility
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  }
+
+  clearAuthToken(): void {
+    authService.clearAuthToken();
+    // Also clear in the shared client
+    delete this.client.defaults.headers.common['Authorization'];
+  }
+
+  getAuthToken(): string | undefined {
+    return authService.getAuthToken();
   }
 }
 

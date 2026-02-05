@@ -1,5 +1,5 @@
 """
-UserProfile model for user account data.
+UserProfile model for user account data - the primary user entity.
 """
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Optional
@@ -18,23 +18,26 @@ class UserProfile(Base):
     User profile with personal details and encrypted password.
 
     Links to ReferenceData for user type classification.
+    Email serves as the unique userid string for the application.
     """
 
-    __tablename__ = "user_profile"
+    __tablename__ = "UserProfile"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     firstname: Mapped[str] = mapped_column(String(100), nullable=False)
     surname: Mapped[str] = mapped_column(String(100), nullable=False)
-    emailaddress: Mapped[str] = mapped_column(
+    email: Mapped[str] = mapped_column(
         String(255), unique=True, index=True, nullable=False
     )
     profile: Mapped[Optional[dict[str, Any]]] = mapped_column(
         JSON, nullable=True
     )
     typeid: Mapped[int] = mapped_column(
-        ForeignKey("reference_data.id"), nullable=False
+        ForeignKey("ReferenceData.id"), nullable=False
     )
     password: Mapped[str] = mapped_column(String(255), nullable=False)
+    is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
+    is_verified: Mapped[bool] = mapped_column(default=False, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False
     )
@@ -49,6 +52,6 @@ class UserProfile(Base):
 
     def __repr__(self) -> str:
         return (
-            f"<UserProfile(id={self.id}, email={self.emailaddress}, "
+            f"<UserProfile(id={self.id}, email={self.email}, "
             f"name={self.firstname} {self.surname})>"
         )

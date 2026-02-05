@@ -14,7 +14,6 @@ from app.main import app
 from app.models.account import Account
 from app.models.institution import Institution
 from app.models.reference_data import ReferenceData
-from app.models.user import User
 from app.models.user_profile import UserProfile
 from app.services.auth import create_access_token
 
@@ -48,6 +47,17 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
         await conn.run_sync(Base.metadata.create_all)
 
     async with test_async_session_maker() as session:
+        # Create default ReferenceData entries for tests
+        ref_data_entries = [
+            ReferenceData(classkey="user_type:STANDARD", referencevalue="Standard User", sortindex=1),
+            ReferenceData(classkey="account_type:CHECKING", referencevalue="Checking Account", sortindex=1),
+            ReferenceData(classkey="account_status:ACTIVE", referencevalue="Active", sortindex=1),
+            ReferenceData(classkey="event_type:BALANCE_UPDATE", referencevalue="Balance Update", sortindex=1),
+        ]
+        for ref in ref_data_entries:
+            session.add(ref)
+        await session.flush()
+        
         yield session
         await session.rollback()
 
@@ -68,13 +78,26 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
 
 
 @pytest.fixture(scope="function")
-async def user(db_session: AsyncSession) -> User:
-    """Create a test user."""
-    user_obj = User(
+async def user(db_session: AsyncSession) -> UserProfile:
+    """Create a test user profile."""
+    # First create reference data for user type
+    ref_data = ReferenceData(
+        classkey="user_profile_type:STANDARD",
+        referencevalue="Standard User",
+        sortindex=1,
+    )
+    db_session.add(ref_data)
+    await db_session.flush()
+    await db_session.refresh(ref_data)
+
+    # Create user profile
+    user_obj = UserProfile(
+        firstname="Test",
+        surname="User",
         email="test@example.com",
-        username="testuser",
-        hashed_password="hashed_password",
+        password="hashed_password",
         is_active=True,
+        typeid=ref_data.id,
     )
     db_session.add(user_obj)
     await db_session.flush()
@@ -83,36 +106,10 @@ async def user(db_session: AsyncSession) -> User:
 
 
 @pytest.fixture(scope="function")
-async def user_profile(db_session: AsyncSession, user: User) -> UserProfile:
-    """Create a test user profile (required for institutions/accounts FK)."""
-    # First create reference data for user type
-    ref_data = ReferenceData()
-    ref_data.class_ = "UserType"
-    ref_data.key = "Personal"
-    ref_data.referencevalue = "Personal user"
-    db_session.add(ref_data)
-    await db_session.flush()
-    await db_session.refresh(ref_data)
-
-    # Use user.id so institution/account FK can point to this ID
-    profile = UserProfile()
-    profile.id = user.id  # Use same ID as User for FK relationships
-    profile.firstname = "Test"
-    profile.surname = "User"
-    profile.emailaddress = "testprofile@example.com"
-    profile.password = "encrypted_password_hash"
-    profile.typeid = ref_data.id
-    db_session.add(profile)
-    await db_session.flush()
-    await db_session.refresh(profile)
-    return profile
-
-
-@pytest.fixture(scope="function")
-async def institution(db_session: AsyncSession, user_profile: UserProfile) -> Institution:
+async def institution(db_session: AsyncSession, user: UserProfile) -> Institution:
     """Create a test institution."""
     inst = Institution(
-        userid=user_profile.id,
+        userid=user.id,
         name="Test Bank",
     )
     db_session.add(inst)
@@ -123,11 +120,11 @@ async def institution(db_session: AsyncSession, user_profile: UserProfile) -> In
 
 @pytest.fixture(scope="function")
 async def account(
-    db_session: AsyncSession, user_profile: UserProfile, institution: Institution
+    db_session: AsyncSession, user: UserProfile, institution: Institution
 ) -> Account:
     """Create a test account."""
     acc = Account(
-        userid=user_profile.id,
+        userid=user.id,
         institutionid=institution.id,
         name="Test Checking Account",
         typeid=1,
@@ -140,7 +137,7 @@ async def account(
 
 
 @pytest.fixture(scope="function")
-def authenticated_headers(user: User) -> dict:
+def authenticated_headers(user: UserProfile) -> dict[str, str]:
     """Create authenticated headers with JWT token using user id."""
     token = create_access_token(data={"sub": str(user.id)})
     return {"Authorization": f"Bearer {token}"}

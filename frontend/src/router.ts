@@ -1,9 +1,9 @@
 /**
  * Router for handling navigation between pages.
  */
-import { HomeController } from './controllers/HomeController';
-import { RegistrationController } from './controllers/RegistrationController';
-import { LoginController } from './controllers/LoginController';
+import { HomeController } from '@controllers/HomeController';
+import { RegistrationController } from '@controllers/RegistrationController';
+import { LoginController } from '@controllers/LoginController';
 
 export class Router {
   private currentController:

@@ -3,14 +3,14 @@
  * Wraps ApiService to provide a clean interface for portfolio operations
  */
 
-import { apiService } from './ApiService';
-import type { Account, Institution, Portfolio } from '../models/Portfolio';
+import { apiService } from '@services/ApiService';
+import type { Account, Institution, Portfolio } from '@models/Portfolio';
 import type {
   AccountCreateRequest,
   AccountUpdateRequest,
   InstitutionCreateRequest,
   InstitutionUpdateRequest,
-} from '../models/Portfolio';
+} from '@models/Portfolio';
 
 export class PortfolioService {
   /**

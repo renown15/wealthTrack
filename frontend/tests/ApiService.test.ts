@@ -19,8 +19,8 @@ describe('ApiService Instance', () => {
       const userData = {
         email: 'test@example.com',
         password: 'password123',
-        firstName: 'John',
-        lastName: 'Doe',
+        first_name: 'John',
+        last_name: 'Doe',
       };
       const result = apiService.registerUser(userData);
       expect(result).toBeInstanceOf(Promise);
@@ -103,7 +103,7 @@ describe('ApiService Instance', () => {
     });
 
     it('createAccount returns Promise', () => {
-      const result = apiService.createAccount({ name: 'Test' });
+      const result = apiService.createAccount({ institutionid: 1, name: 'Test' });
       expect(result).toBeInstanceOf(Promise);
     });
 
@@ -143,8 +143,8 @@ describe('ApiService Instance', () => {
       const userData = {
         email: 'test@example.com',
         password: 'password123',
-        firstName: 'John',
-        lastName: 'Doe',
+        first_name: 'John',
+        last_name: 'Doe',
       };
 
       // Create a mock error that mimics axios error
@@ -160,7 +160,7 @@ describe('ApiService Instance', () => {
 
       try {
         await apiService.registerUser(userData);
-        fail('Should have thrown');
+        throw new Error('Should have thrown');
       } catch (error) {
         expect((error as Error).message).toBe('Email already exists');
       }
@@ -179,7 +179,7 @@ describe('ApiService Instance', () => {
 
       try {
         await apiService.loginUser(credentials);
-        fail('Should have thrown');
+        throw new Error('Should have thrown');
       } catch (error) {
         expect((error as Error).message).toBe('Login failed');
       }
@@ -196,7 +196,7 @@ describe('ApiService Instance', () => {
 
       try {
         await apiService.getCurrentUser();
-        fail('Should have thrown');
+        throw new Error('Should have thrown');
       } catch (error) {
         expect((error as Error).message).toBe('Unauthorized');
       }
@@ -213,7 +213,7 @@ describe('ApiService Instance', () => {
 
       try {
         await apiService.getPortfolio();
-        fail('Should have thrown');
+        throw new Error('Should have thrown');
       } catch (error) {
         expect((error as Error).message).toBe('Portfolio not found');
       }
@@ -230,7 +230,7 @@ describe('ApiService Instance', () => {
 
       try {
         await apiService.getAccounts();
-        fail('Should have thrown');
+        throw new Error('Should have thrown');
       } catch (error) {
         expect((error as Error).message).toBe('Access denied');
       }
@@ -246,8 +246,8 @@ describe('ApiService Instance', () => {
       const clientSpy = vi.spyOn(apiService['client'], 'post').mockRejectedValueOnce(mockError);
 
       try {
-        await apiService.createAccount({ name: 'Test' });
-        fail('Should have thrown');
+        await apiService.createAccount({ institutionid: 1, name: 'Test' });
+        throw new Error('Should have thrown');
       } catch (error) {
         expect((error as Error).message).toBe('Invalid account data');
       }
@@ -264,7 +264,7 @@ describe('ApiService Instance', () => {
 
       try {
         await apiService.updateAccount(1, { name: 'Updated' });
-        fail('Should have thrown');
+        throw new Error('Should have thrown');
       } catch (error) {
         expect((error as Error).message).toBe('Account not found');
       }
@@ -281,7 +281,7 @@ describe('ApiService Instance', () => {
 
       try {
         await apiService.deleteAccount(1);
-        fail('Should have thrown');
+        throw new Error('Should have thrown');
       } catch (error) {
         expect((error as Error).message).toBe('Cannot delete account');
       }
@@ -298,7 +298,7 @@ describe('ApiService Instance', () => {
 
       try {
         await apiService.getInstitutions();
-        fail('Should have thrown');
+        throw new Error('Should have thrown');
       } catch (error) {
         expect((error as Error).message).toBe('Unauthorized');
       }
@@ -315,7 +315,7 @@ describe('ApiService Instance', () => {
 
       try {
         await apiService.createInstitution({ name: 'Bank' });
-        fail('Should have thrown');
+        throw new Error('Should have thrown');
       } catch (error) {
         expect((error as Error).message).toBe('Institution exists');
       }
@@ -332,7 +332,7 @@ describe('ApiService Instance', () => {
 
       try {
         await apiService.updateInstitution(1, { name: 'Bank' });
-        fail('Should have thrown');
+        throw new Error('Should have thrown');
       } catch (error) {
         expect((error as Error).message).toBe('Institution not found');
       }
@@ -349,7 +349,7 @@ describe('ApiService Instance', () => {
 
       try {
         await apiService.deleteInstitution(1);
-        fail('Should have thrown');
+        throw new Error('Should have thrown');
       } catch (error) {
         expect((error as Error).message).toBe('Cannot delete');
       }
@@ -361,15 +361,15 @@ describe('ApiService Instance', () => {
       const userData = {
         email: 'test@example.com',
         password: 'password123',
-        firstName: 'John',
-        lastName: 'Doe',
+        first_name: 'John',
+        last_name: 'Doe',
       };
 
       const clientSpy = vi.spyOn(apiService['client'], 'post').mockRejectedValueOnce(new Error('Generic error'));
 
       try {
         await apiService.registerUser(userData);
-        fail('Should have thrown');
+        throw new Error('Should have thrown');
       } catch (error) {
         expect((error as Error).message).toBe('An unexpected error occurred');
       }
@@ -381,16 +381,16 @@ describe('ApiService Instance', () => {
       const userData = {
         email: 'new@example.com',
         password: 'password123',
-        firstName: 'John',
-        lastName: 'Doe',
+        first_name: 'John',
+        last_name: 'Doe',
       };
 
       const mockResponse = {
         data: {
           id: 1,
           email: 'new@example.com',
-          firstName: 'John',
-          lastName: 'Doe',
+          first_name: 'John',
+          last_name: 'Doe',
         },
       };
 
@@ -413,7 +413,7 @@ describe('ApiService Instance', () => {
       const clientSpy = vi.spyOn(apiService['client'], 'post').mockResolvedValueOnce(mockResponse);
 
       const result = await apiService.loginUser(credentials);
-      expect(result.access_token).toBe('token123');
+      expect(result.accessToken).toBe('token123');
 
       clientSpy.mockRestore();
     });
@@ -423,8 +423,8 @@ describe('ApiService Instance', () => {
         data: {
           id: 1,
           email: 'test@example.com',
-          firstName: 'John',
-          lastName: 'Doe',
+          first_name: 'John',
+          last_name: 'Doe',
         },
       };
 
@@ -475,7 +475,7 @@ describe('ApiService Instance', () => {
 
       const clientSpy = vi.spyOn(apiService['client'], 'post').mockResolvedValueOnce(mockResponse);
 
-      const result = await apiService.createAccount({ name: 'Test' });
+      const result = await apiService.createAccount({ institutionid: 1, name: 'Test' });
       expect(result.name).toBe('Test');
 
       clientSpy.mockRestore();
@@ -495,7 +495,7 @@ describe('ApiService Instance', () => {
     it('deleteAccount succeeds', async () => {
       const clientSpy = vi.spyOn(apiService['client'], 'delete').mockResolvedValueOnce({ data: null });
 
-      const result = await apiService.deleteAccount(1);
+      await apiService.deleteAccount(1);
       expect(clientSpy).toHaveBeenCalled();
 
       clientSpy.mockRestore();
@@ -552,8 +552,8 @@ describe('ApiService Instance', () => {
       const userData = {
         email: 'test@example.com',
         password: 'password123',
-        firstName: 'John',
-        lastName: 'Doe',
+        first_name: 'John',
+        last_name: 'Doe',
       };
 
       // First call returns 503 (retryable), second call succeeds
@@ -580,8 +580,8 @@ describe('ApiService Instance', () => {
       const userData = {
         email: 'test@example.com',
         password: 'password123',
-        firstName: 'John',
-        lastName: 'Doe',
+        first_name: 'John',
+        last_name: 'Doe',
       };
 
       // 400 is not retryable
@@ -593,7 +593,7 @@ describe('ApiService Instance', () => {
 
       try {
         await apiService.registerUser(userData);
-        fail('Should have thrown');
+        throw new Error('Should have thrown');
       } catch (error) {
         expect((error as Error).message).toBe('Invalid data');
       }
@@ -608,8 +608,8 @@ describe('ApiService Instance', () => {
       const userData = {
         email: 'test@example.com',
         password: 'password123',
-        firstName: 'John',
-        lastName: 'Doe',
+        first_name: 'John',
+        last_name: 'Doe',
       };
 
       // Axios error without response (network error) is retryable
@@ -640,7 +640,7 @@ describe('ApiService Instance', () => {
 
       try {
         await apiService.deleteInstitution(1);
-        fail('Should have thrown');
+        throw new Error('Should have thrown');
       } catch (error) {
         expect((error as Error).message).toBe('An unexpected error occurred');
       }
@@ -652,8 +652,8 @@ describe('ApiService Instance', () => {
       const userData = {
         email: 'test@example.com',
         password: 'password123',
-        firstName: 'John',
-        lastName: 'Doe',
+        first_name: 'John',
+        last_name: 'Doe',
       };
 
       // 400 is not retryable
@@ -666,7 +666,7 @@ describe('ApiService Instance', () => {
 
       try {
         await apiService.registerUser(userData);
-        fail('Should have thrown');
+        throw new Error('Should have thrown');
       } catch (error) {
         expect((error as Error).message).toBe('Invalid data');
       }
@@ -867,7 +867,7 @@ describe('ApiService Instance', () => {
 
   describe('Data Type Compatibility', () => {
     it('should accept proper account creation data', () => {
-      const accountData = { name: 'Test Account', institution_id: 1 };
+      const accountData = { name: 'Test Account', institutionid: 1 };
       const result = apiService.createAccount(accountData);
       expect(result).toBeInstanceOf(Promise);
     });
@@ -1059,7 +1059,7 @@ describe('ApiService Instance', () => {
       expect(apiService.getAccounts()).toBeInstanceOf(Promise);
       expect(apiService.getInstitutions()).toBeInstanceOf(Promise);
       expect(apiService.getPortfolio()).toBeInstanceOf(Promise);
-      expect(apiService.createAccount({ name: 'Test' })).toBeInstanceOf(Promise);
+      expect(apiService.createAccount({ institutionid: 1, name: 'Test' })).toBeInstanceOf(Promise);
       expect(apiService.createInstitution({ name: 'Test' })).toBeInstanceOf(Promise);
     });
   });
@@ -1169,7 +1169,7 @@ describe('ApiService Instance', () => {
 
     it('account methods should accept proper parameters', () => {
       expect(apiService.getAccount(1)).toBeInstanceOf(Promise);
-      expect(apiService.createAccount({ name: 'Test' })).toBeInstanceOf(Promise);
+      expect(apiService.createAccount({ institutionid: 1, name: 'Test' })).toBeInstanceOf(Promise);
       expect(apiService.updateAccount(1, { name: 'Updated' })).toBeInstanceOf(Promise);
       expect(apiService.deleteAccount(1)).toBeInstanceOf(Promise);
     });

@@ -50,19 +50,18 @@ describe('HomeView', () => {
     const mockUser: User = {
       id: 1,
       email: 'test@example.com',
-      username: 'testuser',
-      fullName: 'Test User',
+      firstname: 'Test',
+      surname: 'User',
       isActive: true,
       isVerified: true,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
 
     view.render(mockUser);
 
     const content = container.textContent || '';
     expect(content).toContain('Welcome back');
-    expect(content).toContain('Test User');
+    expect(content).toContain('Test');
     expect(content).toContain('test@example.com');
     expect(content).toContain('Logout');
   });
@@ -72,12 +71,11 @@ describe('HomeView', () => {
     const mockUser: User = {
       id: 1,
       email: 'test@example.com',
-      username: 'testuser',
-      fullName: 'Test User',
+      firstname: 'Test',
+      surname: 'User',
       isActive: true,
       isVerified: true,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
 
     const logoutCallback = vi.fn();

@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.controllers.dependencies import get_current_user
 from app.database import get_db
 from app.models.institution import Institution
-from app.models.user import User
+from app.models.user_profile import UserProfile
 from app.repositories.institution_repository import InstitutionRepository
 from app.schemas.institution import InstitutionCreate, InstitutionResponse, InstitutionUpdate
 from app.services.institution_service import InstitutionService
@@ -18,7 +18,7 @@ router = APIRouter(prefix="/institutions", tags=["institutions"])
 @router.get("", response_model=list[InstitutionResponse])
 async def list_institutions(
     session: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: UserProfile = Depends(get_current_user),
 ) -> list[InstitutionResponse]:
     """List all institutions for the current user."""
     repo = InstitutionRepository(session)
@@ -30,7 +30,7 @@ async def list_institutions(
 async def get_institution(
     institution_id: int,
     session: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: UserProfile = Depends(get_current_user),
 ) -> InstitutionResponse:
     """Get a specific institution by ID."""
     repo = InstitutionRepository(session)
@@ -47,7 +47,7 @@ async def get_institution(
 async def create_institution(
     institution_data: InstitutionCreate,
     session: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: UserProfile = Depends(get_current_user),
 ) -> InstitutionResponse:
     """Create a new institution for the current user."""
     # Create institution (object instantiation, not model construction)
@@ -65,7 +65,7 @@ async def update_institution(
     institution_id: int,
     inst_data: InstitutionUpdate,
     session: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: UserProfile = Depends(get_current_user),
 ) -> InstitutionResponse:
     """Update an institution."""
     service = InstitutionService(session)
@@ -92,7 +92,7 @@ async def update_institution(
 async def delete_institution(
     institution_id: int,
     session: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: UserProfile = Depends(get_current_user),
 ) -> None:
     """Delete an institution."""
     service = InstitutionService(session)

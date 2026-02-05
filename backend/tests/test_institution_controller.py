@@ -2,14 +2,15 @@
 
 import pytest
 from fastapi import status
+from httpx import AsyncClient
 
 from app.models.institution import Institution
-from app.models.user import User
+from app.models.user_profile import UserProfile
 
 
 @pytest.mark.asyncio
 async def test_get_all_institutions(
-    client, authenticated_headers: dict, user: User, institution: Institution
+    client: AsyncClient, authenticated_headers: dict[str, str], user: UserProfile, institution: Institution
 ):
     """Test retrieving all institutions for a user."""
     response = await client.get(
@@ -19,13 +20,13 @@ async def test_get_all_institutions(
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert isinstance(data, list)
-    assert len(data) > 0
+    assert len(data) > 0  # type: ignore[arg-type]
     assert data[0]["userid"] == user.id
 
 
 @pytest.mark.asyncio
 async def test_get_institution_by_id(
-    client, authenticated_headers: dict, institution: Institution
+    client: AsyncClient, authenticated_headers: dict[str, str], institution: Institution
 ):
     """Test retrieving a specific institution by ID."""
     response = await client.get(
@@ -40,7 +41,7 @@ async def test_get_institution_by_id(
 
 @pytest.mark.asyncio
 async def test_get_institution_not_found(
-    client, authenticated_headers: dict
+    client: AsyncClient, authenticated_headers: dict[str, str]
 ):
     """Test retrieving a non-existent institution."""
     response = await client.get(
@@ -52,7 +53,7 @@ async def test_get_institution_not_found(
 
 @pytest.mark.asyncio
 async def test_create_institution(
-    client, authenticated_headers: dict, user: User, user_profile  # noqa: F841
+    client: AsyncClient, authenticated_headers: dict[str, str], user: UserProfile
 ):
     """Test creating a new institution."""
     payload = {
@@ -70,7 +71,7 @@ async def test_create_institution(
 
 
 @pytest.mark.asyncio
-async def test_create_institution_unauthorized(client):
+async def test_create_institution_unauthorized(client: AsyncClient):
     """Test creating an institution without authentication."""
     payload = {
         "name": "New Bank",
@@ -84,7 +85,7 @@ async def test_create_institution_unauthorized(client):
 
 @pytest.mark.asyncio
 async def test_update_institution(
-    client, authenticated_headers: dict, institution: Institution
+    client: AsyncClient, authenticated_headers: dict[str, str], institution: Institution
 ):
     """Test updating an institution."""
     payload = {
@@ -103,7 +104,7 @@ async def test_update_institution(
 
 @pytest.mark.asyncio
 async def test_update_institution_not_found(
-    client, authenticated_headers: dict
+    client: AsyncClient, authenticated_headers: dict[str, str]
 ):
     """Test updating a non-existent institution."""
     payload = {"name": "Updated Name"}
@@ -117,7 +118,7 @@ async def test_update_institution_not_found(
 
 @pytest.mark.asyncio
 async def test_delete_institution(
-    client, authenticated_headers: dict, institution: Institution
+    client: AsyncClient, authenticated_headers: dict[str, str], institution: Institution
 ):
     """Test deleting an institution."""
     institution_id = institution.id
@@ -137,7 +138,7 @@ async def test_delete_institution(
 
 @pytest.mark.asyncio
 async def test_delete_institution_not_found(
-    client, authenticated_headers: dict
+    client: AsyncClient, authenticated_headers: dict[str, str]
 ):
     """Test deleting a non-existent institution."""
     response = await client.delete(
@@ -149,7 +150,7 @@ async def test_delete_institution_not_found(
 
 @pytest.mark.asyncio
 async def test_institution_list_empty(
-    client, authenticated_headers: dict
+    client: AsyncClient, authenticated_headers: dict[str, str]
 ):
     """Test retrieving institutions when none exist."""
     # This test verifies the list endpoint works with no institutions

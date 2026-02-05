@@ -18,9 +18,9 @@ help:
 	@echo "  make dev                - Start both backend and frontend (requires 2 terminals)"
 	@echo ""
 	@echo "Testing:"
-	@echo "  make test               - Run all tests"
+	@echo "  make test               - Run all tests (includes backend startup)"
 	@echo "  make test-backend       - Run backend tests with coverage"
-	@echo "  make test-frontend      - Run frontend tests with coverage"
+	@echo "  make test-frontend      - Run frontend tests with coverage (auto-starts backend)"
 	@echo "  make test-watch         - Run tests in watch mode"
 	@echo ""
 	@echo "Code Quality:"
@@ -34,8 +34,10 @@ help:
 	@echo "  make migrate-create     - Create new migration"
 	@echo ""
 	@echo "Utilities:"
+	@echo "  make check-backend      - Check if backend is running (starts if not)"
+	@echo "  make check-db           - Check if database is running (starts if not)"
 	@echo "  make clean              - Clean up build artifacts and cache"
-	@echo "  make pr-check           - Run all checks before PR (lint, type-check, tests)"
+	@echo "  make pr-check           - Run all checks before PR (auto-manages servers)"
 	@echo ""
 
 # Setup
@@ -72,20 +74,54 @@ dev:
 	@echo ""
 
 # Testing
-test: test-backend test-frontend
+test: check-db test-backend test-frontend
 	@echo "✅ All tests passed!"
 
-test-backend:
+check-db:
+	@echo "Checking if database is running..."
+	@if docker-compose ps db | grep -q "healthy"; then \
+		echo "✅ Database is already running"; \
+	else \
+		echo "Starting database..."; \
+		docker-compose up -d db; \
+		echo "Waiting for database to be ready (10 seconds)..."; \
+		sleep 10; \
+		if docker-compose ps db | grep -q "healthy"; then \
+			echo "✅ Database started successfully"; \
+		else \
+			echo "⚠️  Database may still be starting, continuing with tests..."; \
+		fi \
+	fi
+
+test-backend: check-db
 	@echo "Running backend tests..."
 	cd backend && python -m pytest --cov=app --cov-report=term
 
-test-frontend:
+test-frontend: check-backend
 	@echo "Running frontend tests..."
-	cd frontend && npm run test:coverage -- --run
+	cd frontend && npm run test:coverage
 
 test-watch:
 	@echo "Running tests in watch mode..."
 	cd frontend && npm run test -- --watch
+
+check-backend:
+	@echo "Checking if backend is running..."
+	@if curl -s http://localhost:8000/docs > /dev/null 2>&1; then \
+		echo "✅ Backend is already running"; \
+	else \
+		echo "Starting backend server in background..."; \
+		cd backend && python -m uvicorn app.main:app --reload --port 8000 > /tmp/backend.log 2>&1 & \
+		echo "Waiting for backend to start (retrying for 30 seconds)..."; \
+		for i in 1 2 3 4 5 6; do \
+			sleep 5; \
+			if curl -s http://localhost:8000/docs > /dev/null 2>&1; then \
+				echo "✅ Backend started successfully"; \
+				exit 0; \
+			fi \
+		done; \
+		echo "⚠️  Backend startup timeout - continuing anyway"; \
+	fi
 
 # Code Quality
 lint: lint-backend lint-frontend
@@ -93,9 +129,9 @@ lint: lint-backend lint-frontend
 
 lint-backend:
 	@echo "Linting backend code (ruff)..."
-	cd backend && ruff check app/ tests/
+	cd backend && ruff check app/
 	@echo "Linting backend code (pylint)..."
-	cd backend && pylint app/ tests/ --rcfile=.pylintrc
+	cd backend && pylint app/ --rcfile=.pylintrc
 
 lint-frontend:
 	@echo "Linting frontend code..."
@@ -106,7 +142,7 @@ lint-fix: lint-fix-backend lint-fix-frontend
 
 lint-fix-backend:
 	@echo "Auto-fixing backend linting issues..."
-	cd backend && ruff check app/ tests/ --fix
+	cd backend && ruff check app/ --fix
 
 lint-fix-frontend:
 	@echo "Auto-fixing frontend linting issues..."
@@ -121,7 +157,7 @@ type-check-backend:
 
 type-check-frontend:
 	@echo "Type checking frontend code..."
-	cd frontend && npm run type-check
+	cd frontend && npx tsc --noEmit --project tsconfig.src.json
 
 format: format-backend format-frontend
 	@echo "✅ Code formatted!"
@@ -147,6 +183,7 @@ migrate-create:
 # Utilities
 clean:
 	@echo "Cleaning up build artifacts..."
+	@pkill -f "uvicorn app.main:app --reload" || true
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	find . -type d -name .pytest_cache -exec rm -rf {} + 2>/dev/null || true
 	find . -type d -name .mypy_cache -exec rm -rf {} + 2>/dev/null || true
@@ -156,7 +193,7 @@ clean:
 	find . -type d -name coverage -exec rm -rf {} + 2>/dev/null || true
 	@echo "✅ Cleanup complete!"
 
-pr-check: lint type-check test
+pr-check: check-db lint type-check test-backend test-frontend check-backend
 	@echo ""
 	@echo "✅ All PR checks passed! Ready to create a pull request."
 

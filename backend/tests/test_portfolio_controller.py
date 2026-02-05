@@ -2,13 +2,14 @@
 
 import pytest
 from fastapi import status
+from httpx import AsyncClient
 
-from app.models.user import User
+from app.models.user_profile import UserProfile
 
 
 @pytest.mark.asyncio
 async def test_get_portfolio(
-    client, authenticated_headers: dict, user: User
+    client: AsyncClient, authenticated_headers: dict[str, str], user: UserProfile
 ):
     """Test retrieving user's portfolio."""
     response = await client.get(
@@ -21,7 +22,7 @@ async def test_get_portfolio(
 
 
 @pytest.mark.asyncio
-async def test_get_portfolio_unauthorized(client):
+async def test_get_portfolio_unauthorized(client: AsyncClient):
     """Test retrieving portfolio without authentication."""
     response = await client.get(
         "/api/v1/portfolio",

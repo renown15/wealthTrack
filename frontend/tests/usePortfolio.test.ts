@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { usePortfolio } from '@/composables/usePortfolio';
-import * as apiServiceModule from '@/services/ApiService';
+import { usePortfolio } from '@composables/usePortfolio';
+import * as apiServiceModule from '@services/ApiService';
 
 // Mock the API service
 vi.mock('@/services/ApiService', () => ({

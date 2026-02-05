@@ -6,7 +6,7 @@ from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.user import User
+from app.models.user_profile import UserProfile
 from app.schemas.user import UserRegistrationRequest
 from app.services.auth import hash_password, verify_password
 
@@ -23,7 +23,7 @@ class UserService:
         """
         self.db = db
 
-    async def get_user_by_email(self, email: str) -> Optional[User]:
+    async def get_user_by_email(self, email: str) -> Optional[UserProfile]:
         """
         Retrieve user by email.
 
@@ -31,25 +31,12 @@ class UserService:
             email: User email
 
         Returns:
-            User object or None if not found
+            UserProfile object or None if not found
         """
-        result = await self.db.execute(select(User).where(User.email == email))
+        result = await self.db.execute(select(UserProfile).where(UserProfile.email == email))
         return result.scalars().first()
 
-    async def get_user_by_username(self, username: str) -> Optional[User]:
-        """
-        Retrieve user by username.
-
-        Args:
-            username: Username
-
-        Returns:
-            User object or None if not found
-        """
-        result = await self.db.execute(select(User).where(User.username == username))
-        return result.scalars().first()
-
-    async def get_user_by_id(self, user_id: int) -> Optional[User]:
+    async def get_user_by_id(self, user_id: int) -> Optional[UserProfile]:
         """
         Retrieve user by ID.
 
@@ -57,12 +44,12 @@ class UserService:
             user_id: User ID
 
         Returns:
-            User object or None if not found
+            UserProfile object or None if not found
         """
-        result = await self.db.execute(select(User).where(User.id == user_id))
+        result = await self.db.execute(select(UserProfile).where(UserProfile.id == user_id))
         return result.scalars().first()
 
-    async def create_user(self, user_data: UserRegistrationRequest) -> User:
+    async def create_user(self, user_data: UserRegistrationRequest) -> UserProfile:
         """
         Create a new user.
 
@@ -70,7 +57,7 @@ class UserService:
             user_data: User registration data
 
         Returns:
-            Created user object
+            Created UserProfile object
 
         Raises:
             ValueError: If user already exists
@@ -80,17 +67,14 @@ class UserService:
         if existing_user:
             raise ValueError("User with this email already exists")
 
-        existing_username = await self.get_user_by_username(user_data.username)
-        if existing_username:
-            raise ValueError("User with this username already exists")
-
         # Create new user
         hashed_password = hash_password(user_data.password)
-        new_user = User(
+        new_user = UserProfile(
+            firstname=user_data.first_name,
+            surname=user_data.last_name,
             email=user_data.email,
-            username=user_data.username,
-            hashed_password=hashed_password,
-            full_name=user_data.full_name,
+            password=hashed_password,
+            typeid=1,  # Standard user type (from ReferenceData)
         )  # type: ignore
 
         self.db.add(new_user)
@@ -99,21 +83,21 @@ class UserService:
 
         return new_user
 
-    async def authenticate_user(self, username: str, password: str) -> Optional[User]:
+    async def authenticate_user(self, email: str, password: str) -> Optional[UserProfile]:
         """
-        Authenticate a user with username and password.
+        Authenticate a user with email and password.
 
         Args:
-            username: Username
+            email: User email
             password: Plain text password
 
         Returns:
-            User object if authentication successful, None otherwise
+            UserProfile object if authentication successful, None otherwise
         """
-        user = await self.get_user_by_username(username)
+        user = await self.get_user_by_email(email)
         if not user:
             return None
-        if not verify_password(password, user.hashed_password):
+        if not verify_password(password, user.password):
             return None
         if not user.is_active:
             return None

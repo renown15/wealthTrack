@@ -1,7 +1,7 @@
 /**
  * Registration form view.
  */
-import { BaseView } from './BaseView';
+import { BaseView } from '@views/BaseView';
 
 export class RegistrationView extends BaseView {
   private onSubmitCallback?: (data: Record<string, string>) => Promise<void>;
@@ -36,9 +36,9 @@ export class RegistrationView extends BaseView {
 
     // Create form fields
     form.appendChild(this.createFormField('email', 'email', 'Email', 'your.email@example.com'));
-    form.appendChild(this.createFormField('text', 'username', 'Username', 'Choose a username'));
-    form.appendChild(this.createFormField('password', 'password', 'Password', 'Min 8 characters'));
-    form.appendChild(this.createFormField('text', 'fullName', 'Full Name (Optional)', 'John Doe'));
+    form.appendChild(this.createFormField('text', 'first_name', 'First Name', 'John'));
+    form.appendChild(this.createFormField('text', 'last_name', 'Last Name', 'Doe'));
+    form.appendChild(this.createFormField('password', 'password', 'Password', 'Min 8 characters (Upper, Lower, Digit)'));
 
     // Submit button
     const submitButton = document.createElement('button');

@@ -1,7 +1,7 @@
 /**
  * Main application entry point.
  */
-import { Router } from './router';
+import { Router } from '@/router';
 
 /**
  * Initialize the application.

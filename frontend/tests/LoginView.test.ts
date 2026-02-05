@@ -34,7 +34,7 @@ describe('LoginView', () => {
   it('should display error messages', () => {
     const view = new LoginView('test-container');
     view.render();
-    view['showError']('Login failed');
+    view.showError('Login failed');
 
     const errorDiv = container.querySelector('.error-message');
     expect(errorDiv?.textContent).toContain('Login failed');
@@ -43,7 +43,7 @@ describe('LoginView', () => {
   it('should display success messages', () => {
     const view = new LoginView('test-container');
     view.render();
-    view['showSuccess']('Login successful');
+    view.showSuccess('Login successful');
 
     const successDiv = container.querySelector('.success-message');
     expect(successDiv?.textContent).toContain('Login successful');
@@ -209,7 +209,7 @@ describe('LoginView', () => {
 
     const view = new LoginView('test-container');
     view.render();
-    view['showError']('Test error');
+    view.showError('Test error');
 
     const errorDiv = container.querySelector('.error-message');
     expect(errorDiv).toBeDefined();
@@ -227,7 +227,7 @@ describe('LoginView', () => {
 
     const view = new LoginView('test-container');
     view.render();
-    view['showSuccess']('Test success');
+    view.showSuccess('Test success');
 
     const successDiv = container.querySelector('.success-message');
     expect(successDiv).toBeDefined();

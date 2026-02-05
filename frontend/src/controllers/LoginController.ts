@@ -1,10 +1,10 @@
 /**
  * Login controller handling login logic.
  */
-import { LoginView } from '../views/LoginView';
-import { apiService } from '../services/ApiService';
-import { ValidationService } from '../services/ValidationService';
-import type { UserLogin } from '../models/User';
+import { LoginView } from '@views/LoginView';
+import { apiService } from '@services/ApiService';
+import { ValidationService } from '@services/ValidationService';
+import type { UserLogin } from '@models/User';
 
 export class LoginController {
   private view: LoginView;
@@ -35,7 +35,7 @@ export class LoginController {
 
     // Prepare login data
     const loginData: UserLogin = {
-      username: data.username,
+      email: data.email,
       password: data.password,
     };
 

@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.controllers.dependencies import get_current_user
 from app.database import get_db
 from app.models.account import Account
-from app.models.user import User
+from app.models.user_profile import UserProfile
 from app.repositories.account_repository import AccountRepository
 from app.schemas.account import AccountCreate, AccountResponse, AccountUpdate
 from app.services.account_service import AccountService
@@ -20,7 +20,7 @@ router = APIRouter(prefix="/accounts", tags=["accounts"])
 @router.get("", response_model=list[AccountResponse])
 async def list_accounts(
     session: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: UserProfile = Depends(get_current_user),
 ) -> list[AccountResponse]:
     """List all accounts for the current user."""
     repo = AccountRepository(session)
@@ -32,7 +32,7 @@ async def list_accounts(
 async def get_account(
     account_id: int,
     session: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: UserProfile = Depends(get_current_user),
 ) -> AccountResponse:
     """Get a specific account by ID."""
     repo = AccountRepository(session)
@@ -49,7 +49,7 @@ async def get_account(
 async def create_account(
     account_data: AccountCreate,
     session: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: UserProfile = Depends(get_current_user),
 ) -> AccountResponse:
     """Create a new account for the current user."""
     # Create account (object instantiation, not model construction)
@@ -70,7 +70,7 @@ async def update_account(
     account_id: int,
     account_data: AccountUpdate,
     session: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: UserProfile = Depends(get_current_user),
 ) -> AccountResponse:
     """Update an account."""
     service = AccountService(session)
@@ -105,7 +105,7 @@ async def update_account(
 async def delete_account(
     account_id: int,
     session: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: UserProfile = Depends(get_current_user),
 ) -> None:
     """Delete an account."""
     service = AccountService(session)

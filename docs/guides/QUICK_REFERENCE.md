@@ -99,6 +99,31 @@ make lint
 make type-check
 ```
 
+## Import Conventions
+
+The frontend uses **TypeScript path aliases** for clean imports:
+
+```typescript
+// ✅ Good: Use path aliases
+import { ApiService } from '@services/ApiService';
+import type { User } from '@models/User';
+import { LoginView } from '@views/LoginView';
+
+// ❌ Bad: Don't use relative imports
+import { ApiService } from '../../../services/ApiService';
+```
+
+**Available Aliases:**
+- `@/` - Root src directory
+- `@controllers/` - Controller classes
+- `@services/` - API and services
+- `@views/` - View components
+- `@models/` - Data models
+- `@composables/` - Vue composables
+- `@styles/` - Stylesheets
+
+See [PATH_ALIASES.md](./PATH_ALIASES.md) for detailed guide.
+
 ## GitHub PR Workflow
 
 1. Create branch: `git checkout -b feature/name`

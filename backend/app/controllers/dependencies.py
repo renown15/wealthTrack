@@ -8,7 +8,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.models.user import User
+from app.models.user_profile import UserProfile
 from app.services.auth import decode_access_token
 from app.services.user import UserService
 
@@ -47,7 +47,7 @@ async def get_current_user_from_token(
 async def get_current_user(
     token_payload: dict[str, str] = Depends(get_current_user_from_token),
     session: AsyncSession = Depends(get_db),
-) -> User:
+) -> UserProfile:
     """
     Get the current authenticated user from token payload.
 
@@ -56,7 +56,7 @@ async def get_current_user(
         session: Database session
 
     Returns:
-        Current authenticated user
+        Current authenticated UserProfile
 
     Raises:
         HTTPException: If user not found or invalid token

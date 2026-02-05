@@ -14,17 +14,17 @@ async def test_create_user(db_session: AsyncSession) -> None:
     user_service = UserService(db_session)
     user_data = UserRegistrationRequest(
         email="test@example.com",
-        username="testuser",
+        first_name="Test",
+        last_name="User",
         password="TestPass123",
-        full_name="Test User",
     )
 
     user = await user_service.create_user(user_data)
 
     assert user.id is not None
     assert user.email == "test@example.com"
-    assert user.username == "testuser"
-    assert user.full_name == "Test User"
+    assert user.firstname == "Test"
+    assert user.surname == "User"
     assert user.is_active is True
     assert user.is_verified is False
 
@@ -35,7 +35,8 @@ async def test_create_duplicate_email(db_session: AsyncSession) -> None:
     user_service = UserService(db_session)
     user_data = UserRegistrationRequest(
         email="duplicate@example.com",
-        username="user1",
+        first_name="User",
+        last_name="One",
         password="TestPass123",
     )
 
@@ -44,34 +45,12 @@ async def test_create_duplicate_email(db_session: AsyncSession) -> None:
     # Try to create another user with same email
     duplicate_data = UserRegistrationRequest(
         email="duplicate@example.com",
-        username="user2",
+        first_name="User",
+        last_name="Two",
         password="TestPass123",
     )
 
     with pytest.raises(ValueError, match="User with this email already exists"):
-        await user_service.create_user(duplicate_data)
-
-
-@pytest.mark.asyncio
-async def test_create_duplicate_username(db_session: AsyncSession) -> None:
-    """Test that creating a user with duplicate username raises ValueError."""
-    user_service = UserService(db_session)
-    user_data = UserRegistrationRequest(
-        email="user1@example.com",
-        username="duplicate",
-        password="TestPass123",
-    )
-
-    await user_service.create_user(user_data)
-
-    # Try to create another user with same username
-    duplicate_data = UserRegistrationRequest(
-        email="user2@example.com",
-        username="duplicate",
-        password="TestPass123",
-    )
-
-    with pytest.raises(ValueError, match="User with this username already exists"):
         await user_service.create_user(duplicate_data)
 
 
@@ -81,7 +60,8 @@ async def test_get_user_by_email(db_session: AsyncSession) -> None:
     user_service = UserService(db_session)
     user_data = UserRegistrationRequest(
         email="find@example.com",
-        username="findme",
+        first_name="Find",
+        last_name="Me",
         password="TestPass123",
     )
 
@@ -94,38 +74,21 @@ async def test_get_user_by_email(db_session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_get_user_by_username(db_session: AsyncSession) -> None:
-    """Test retrieving user by username."""
-    user_service = UserService(db_session)
-    user_data = UserRegistrationRequest(
-        email="user@example.com",
-        username="finduser",
-        password="TestPass123",
-    )
-
-    created_user = await user_service.create_user(user_data)
-    found_user = await user_service.get_user_by_username("finduser")
-
-    assert found_user is not None
-    assert found_user.id == created_user.id
-    assert found_user.username == "finduser"
-
-
-@pytest.mark.asyncio
 async def test_authenticate_user_success(db_session: AsyncSession) -> None:
-    """Test successful user authentication."""
+    """Test successful user authentication by email."""
     user_service = UserService(db_session)
     user_data = UserRegistrationRequest(
         email="auth@example.com",
-        username="authuser",
+        first_name="Auth",
+        last_name="User",
         password="TestPass123",
     )
 
     await user_service.create_user(user_data)
-    authenticated_user = await user_service.authenticate_user("authuser", "TestPass123")
+    authenticated_user = await user_service.authenticate_user("auth@example.com", "TestPass123")
 
     assert authenticated_user is not None
-    assert authenticated_user.username == "authuser"
+    assert authenticated_user.email == "auth@example.com"
 
 
 @pytest.mark.asyncio
@@ -134,12 +97,13 @@ async def test_authenticate_user_wrong_password(db_session: AsyncSession) -> Non
     user_service = UserService(db_session)
     user_data = UserRegistrationRequest(
         email="auth@example.com",
-        username="authuser",
+        first_name="Auth",
+        last_name="User",
         password="TestPass123",
     )
 
     await user_service.create_user(user_data)
-    authenticated_user = await user_service.authenticate_user("authuser", "WrongPass123")
+    authenticated_user = await user_service.authenticate_user("auth@example.com", "WrongPass123")
 
     assert authenticated_user is None
 
@@ -148,7 +112,7 @@ async def test_authenticate_user_wrong_password(db_session: AsyncSession) -> Non
 async def test_authenticate_nonexistent_user(db_session: AsyncSession) -> None:
     """Test authentication with nonexistent user."""
     user_service = UserService(db_session)
-    authenticated_user = await user_service.authenticate_user("nonexistent", "TestPass123")
+    authenticated_user = await user_service.authenticate_user("nonexistent@example.com", "TestPass123")
 
     assert authenticated_user is None
 
@@ -158,7 +122,8 @@ async def test_get_user_by_id(db_session: AsyncSession) -> None:
     user_service = UserService(db_session)
     user_data = UserRegistrationRequest(
         email="byid@example.com",
-        username="byiduser",
+        first_name="By",
+        last_name="Id",
         password="TestPass123",
     )
 

@@ -7,12 +7,10 @@ from app.models.account_event import AccountEvent
 from app.models.institution import Institution
 from app.models.institution_security_credentials import InstitutionSecurityCredentials
 from app.models.reference_data import ReferenceData
-from app.models.user import User
 from app.models.user_profile import UserProfile
 
 __all__ = [
     "ReferenceData",
-    "User",
     "UserProfile",
     "Account",
     "Institution",

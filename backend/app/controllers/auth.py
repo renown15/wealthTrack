@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.controllers.dependencies import get_current_user
 from app.database import get_db
-from app.models.user import User
+from app.models.user_profile import UserProfile
 from app.schemas.user import (
     TokenResponse,
     UserLoginRequest,
@@ -72,18 +72,18 @@ async def login_user(
     """
     user_service = UserService(db)
 
-    user = await user_service.authenticate_user(login_data.username, login_data.password)
+    user = await user_service.authenticate_user(login_data.email, login_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
     # Create access token with user ID
     access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
     access_token = create_access_token(
-        data={"sub": str(user.id), "username": user.username},
+        data={"sub": str(user.id), "email": user.email},
         expires_delta=access_token_expires,
     )
 
@@ -92,7 +92,7 @@ async def login_user(
 
 @router.get("/me", response_model=UserResponse)
 async def get_me(
-    user: User = Depends(get_current_user),
+    user: UserProfile = Depends(get_current_user),
 ) -> UserResponse:
     """
     Get current authenticated user from JWT token.

@@ -12,11 +12,11 @@ from app.database import Base
 class Institution(Base):
     """Institution database model for financial institutions."""
 
-    __tablename__ = "institutions"
+    __tablename__ = "Institution"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     userid: Mapped[int] = mapped_column(
-        Integer, ForeignKey("user_profile.id"), nullable=False, index=True
+        Integer, ForeignKey("UserProfile.id"), nullable=False, index=True
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     created_at: Mapped[datetime] = mapped_column(

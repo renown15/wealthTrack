@@ -1,9 +1,7 @@
 #!/bin/bash
 
 # WealthTrack Development Environment Startup Script
-# Starts database, backend API, and frontend dev server
-
-set -e
+# Starts database, backend API, and frontend dev server (all in background)
 
 # Get the root directory (parent of scripts/)
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -16,37 +14,6 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
-
-BACKEND_PID=""
-FRONTEND_PID=""
-
-# Cleanup function
-cleanup() {
-    echo ""
-    echo -e "${RED}Shutting down development environment...${NC}"
-    
-    if [ ! -z "$BACKEND_PID" ]; then
-        echo "Stopping backend (PID: $BACKEND_PID)..."
-        kill $BACKEND_PID 2>/dev/null || true
-    fi
-    
-    if [ ! -z "$FRONTEND_PID" ]; then
-        echo "Stopping frontend (PID: $FRONTEND_PID)..."
-        kill $FRONTEND_PID 2>/dev/null || true
-    fi
-    
-    echo "Stopping database..."
-    cd "$ROOT_DIR"
-    docker compose down 2>/dev/null || true
-    
-    rm -f /tmp/wealthtrack.pids
-    
-    echo -e "${GREEN}✓ Cleanup complete${NC}"
-    exit 0
-}
-
-# Set trap to cleanup on exit or Ctrl+C
-trap cleanup SIGINT SIGTERM EXIT
 
 # Start database
 echo -e "${BLUE}1/3 Starting PostgreSQL database...${NC}"
@@ -68,6 +35,13 @@ echo ""
 # Start frontend
 echo -e "${BLUE}3/3 Starting Vite frontend dev server...${NC}"
 cd "$ROOT_DIR/frontend"
+nohup npm run dev > /tmp/frontend.log 2>&1 &
+FRONTEND_PID=$!
+echo -e "${GREEN}✓ Frontend running on http://localhost:3000${NC}"
+echo "  (PID: $FRONTEND_PID, logs: tail -f /tmp/frontend.log)"
+echo ""
+
+# Save PIDs for cleanup
 echo "$BACKEND_PID" > /tmp/wealthtrack.pids
 echo "$FRONTEND_PID" >> /tmp/wealthtrack.pids
 
@@ -79,9 +53,12 @@ echo "  📊 Database:  localhost:5433 (PostgreSQL)"
 echo "  🔌 API:       http://localhost:8000 (FastAPI)"
 echo "  🎨 Frontend:  http://localhost:3000 (Vite)"
 echo ""
-echo "Press Ctrl+C to stop all services and cleanup"
-echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
+echo "View logs:"
+echo "  Backend:  tail -f /tmp/backend.log"
+echo "  Frontend: tail -f /tmp/frontend.log"
 echo ""
-
-# Keep script running
-wait
+echo "To stop services:"
+echo "  kill $BACKEND_PID     # Stop backend"
+echo "  kill $FRONTEND_PID    # Stop frontend"
+echo "  docker-compose down   # Stop database"
+echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
