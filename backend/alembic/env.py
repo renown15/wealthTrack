@@ -7,16 +7,17 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 from app.database import Base  # type: ignore[import-not-found]
+
 # These imports register models with SQLAlchemy metadata during migrations
 from app.models import (  # type: ignore[import-not-found]
+    Account,
+    AccountAttribute,
+    AccountEvent,
+    Institution,
+    InstitutionSecurityCredentials,
     ReferenceData,
     User,
     UserProfile,
-    Account,
-    Institution,
-    AccountAttribute,
-    AccountEvent,
-    InstitutionSecurityCredentials,
 )
 
 # Ensure models are available for migration context (used by SQLAlchemy metadata)

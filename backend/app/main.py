@@ -8,7 +8,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
+from app.controllers.account import router as account_router
 from app.controllers.auth import router as auth_router
+from app.controllers.institution import router as institution_router
+from app.controllers.portfolio import router as portfolio_router
 from app.database import Base, engine
 
 
@@ -47,6 +50,9 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth_router, prefix=settings.api_v1_prefix)
+app.include_router(account_router, prefix=settings.api_v1_prefix)
+app.include_router(institution_router, prefix=settings.api_v1_prefix)
+app.include_router(portfolio_router, prefix=settings.api_v1_prefix)
 
 
 @app.get("/")

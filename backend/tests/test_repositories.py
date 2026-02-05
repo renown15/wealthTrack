@@ -178,3 +178,43 @@ async def test_portfolio_repository_get_account_current_balance():
     result = await repo.get_account_current_balance(1, 1)
     assert result == "1000.00"
     mock_session.execute.assert_called_once()
+
+
+# =============================================================================
+# Integration Tests with Real Database
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_account_repository_with_data(
+    db_session, user_profile, account
+):
+    """Test account repository with real data."""
+    repo = AccountRepository(db_session)
+    accounts = await repo.get_by_user(user_profile.id)
+    assert len(accounts) >= 1
+    assert any(a.id == account.id for a in accounts)
+
+
+@pytest.mark.asyncio
+async def test_institution_repository_with_data(
+    db_session, user_profile, institution
+):
+    """Test institution repository with real data."""
+    repo = InstitutionRepository(db_session)
+    institutions = await repo.get_by_user(user_profile.id)
+    assert len(institutions) >= 1
+    assert any(i.id == institution.id for i in institutions)
+
+
+@pytest.mark.asyncio
+async def test_portfolio_repository_with_data(
+    db_session, user_profile, account
+):
+    """Test portfolio repository with real data."""
+    repo = PortfolioRepository(db_session)
+    portfolio = await repo.get_user_portfolio(user_profile.id)
+    assert isinstance(portfolio, list)
+    assert len(portfolio) >= 1
+    assert portfolio[0]["account"].id == account.id
+

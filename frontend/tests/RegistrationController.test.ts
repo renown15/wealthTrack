@@ -376,4 +376,29 @@ describe('RegistrationController', () => {
 
     vi.restoreAllMocks();
   });
+
+  it('should handle non-Error rejection (fallback message)', async () => {
+    // Test when API rejects with a string instead of an Error object
+    const mockRegisterUser = vi.spyOn(ApiServiceModule.apiService, 'registerUser')
+      .mockRejectedValue('String error instead of Error object');
+
+    const controller = new RegistrationController('registration-container');
+    controller.init();
+
+    const form = container.querySelector('form') as HTMLFormElement;
+    const emailInput = form.querySelector('input[id="email"]') as HTMLInputElement;
+    const usernameInput = form.querySelector('input[id="username"]') as HTMLInputElement;
+    const passwordInput = form.querySelector('input[id="password"]') as HTMLInputElement;
+
+    emailInput.value = 'nonError@example.com';
+    usernameInput.value = 'nonErrorUser';
+    passwordInput.value = 'NonErrorPass123';
+
+    const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    submitButton.click();
+
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
+    vi.restoreAllMocks();
+  });
 });

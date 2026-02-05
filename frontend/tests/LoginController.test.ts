@@ -394,4 +394,27 @@ describe('LoginController', () => {
     }
 
     vi.restoreAllMocks();
+  });
+
+  it('should handle non-Error rejection (fallback message)', async () => {
+    // Test when API rejects with a string instead of an Error object
+    const mockLoginUser = vi.spyOn(ApiServiceModule.apiService, 'loginUser')
+      .mockRejectedValue('String error instead of Error object');
+
+    const controller = new LoginController('login-container');
+    controller.init();
+
+    const form = container.querySelector('form') as HTMLFormElement;
+    const usernameInput = form.querySelector('input[id="username"]') as HTMLInputElement;
+    const passwordInput = form.querySelector('input[id="password"]') as HTMLInputElement;
+
+    usernameInput.value = 'testuser';
+    passwordInput.value = 'TestPass123';
+
+    const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    submitButton.click();
+
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
+    vi.restoreAllMocks();
   });});

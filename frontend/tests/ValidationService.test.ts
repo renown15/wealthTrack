@@ -380,5 +380,42 @@ describe('ValidationService', () => {
       const result = ValidationService.validateRegistrationForm(data);
       expect(result.isValid).toBe(true);
     });
+
+    it('should validate username validation message in registration', () => {
+      // Test with username that is too short (triggers validation message)
+      const data = {
+        email: 'test@example.com',
+        username: 'ab', // Too short
+        password: 'TestPass123',
+      };
+      const result = ValidationService.validateRegistrationForm(data);
+      expect(result.isValid).toBe(false);
+      expect(result.errors.username).toContain('at least 3 characters');
+    });
+
+    it('should validate password validation message in registration', () => {
+      // Test with password that is too short (triggers validation message)
+      const data = {
+        email: 'test@example.com',
+        username: 'testuser',
+        password: 'Short1', // Too short
+      };
+      const result = ValidationService.validateRegistrationForm(data);
+      expect(result.isValid).toBe(false);
+      expect(result.errors.password).toContain('at least 8 characters');
+    });
+
+    it('should validate fullName validation message in registration', () => {
+      // Test with fullName that is too long (triggers validation message)
+      const data = {
+        email: 'test@example.com',
+        username: 'testuser',
+        password: 'TestPass123',
+        fullName: 'a'.repeat(101), // Too long
+      };
+      const result = ValidationService.validateRegistrationForm(data);
+      expect(result.isValid).toBe(false);
+      expect(result.errors.fullName).toContain('at most 100 characters');
+    });
   });
 });

@@ -6,8 +6,11 @@ import { RegistrationController } from './controllers/RegistrationController';
 import { LoginController } from './controllers/LoginController';
 
 export class Router {
-  private currentController: HomeController | RegistrationController | LoginController | null =
-    null;
+  private currentController:
+    | HomeController
+    | RegistrationController
+    | LoginController
+    | null = null;
 
   constructor() {
     this.setupEventListeners();

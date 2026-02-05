@@ -5,12 +5,12 @@ Revises: 001
 Create Date: 2026-02-04 00:00:00.000000
 
 """
+from datetime import datetime
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
-from datetime import datetime
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "002"
@@ -86,7 +86,7 @@ def upgrade() -> None:
 
     # Combine all reference data
     all_reference_data = (
-        account_types + account_statuses + account_event_types + 
+        account_types + account_statuses + account_event_types +
         credential_types + user_profile_types + account_attribute_types
     )
 
