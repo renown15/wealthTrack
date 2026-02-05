@@ -5,6 +5,9 @@
 
 set -e
 
+# Get the root directory (parent of scripts/)
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
 echo "🚀 WealthTrack Development Environment Setup"
 echo "==========================================="
 echo ""
@@ -38,7 +41,7 @@ echo ""
 echo "📦 Setting up Backend..."
 echo "----------------------"
 
-cd backend
+cd "$ROOT_DIR/backend"
 
 # Create virtual environment
 if [ ! -d "venv" ]; then
@@ -71,13 +74,11 @@ fi
 echo "✅ Backend setup complete"
 echo ""
 
-cd ..
-
 # Frontend Setup
 echo "📦 Setting up Frontend..."
 echo "------------------------"
 
-cd frontend
+cd "$ROOT_DIR/frontend"
 
 # Install dependencies
 echo "Installing Node dependencies..."
@@ -86,15 +87,15 @@ npm ci
 echo "✅ Frontend setup complete"
 echo ""
 
-cd ..
-
 # Docker Setup
 echo "🐳 Setting up Docker..."
 echo "----------------------"
 
+cd "$ROOT_DIR"
+
 if command -v docker &> /dev/null; then
     echo "Starting PostgreSQL container..."
-    docker-compose up -d postgres
+    docker-compose up -d db
     
     # Wait for PostgreSQL to be ready
     echo "Waiting for PostgreSQL to be ready..."
@@ -103,7 +104,7 @@ if command -v docker &> /dev/null; then
     echo "✅ PostgreSQL is running"
 else
     echo "⚠️  Docker not found. Skipping database setup."
-    echo "    Run 'docker-compose up -d postgres' manually when Docker is installed."
+    echo "    Run 'docker-compose up -d db' manually when Docker is installed."
 fi
 
 echo ""
@@ -112,7 +113,7 @@ echo ""
 echo "🗄️  Running database migrations..."
 echo "-----------------------------------"
 
-cd backend
+cd "$ROOT_DIR/backend"
 source venv/bin/activate
 
 # Check if alembic is installed
@@ -123,8 +124,6 @@ else
     echo "⚠️  Alembic not found in PATH. Run manually:"
     echo "    cd backend && alembic upgrade head"
 fi
-
-cd ..
 
 echo ""
 echo "✅ Development environment setup complete!"
