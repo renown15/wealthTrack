@@ -8,13 +8,13 @@ git clone <repo>
 cd wealthtrack
 
 # Make scripts executable
-chmod +x setup-dev.sh setup-hooks.sh
+chmod +x scripts/setup-dev.sh scripts/setup-hooks.sh
 
 # Automated setup
-./setup-dev.sh
+./scripts/setup-dev.sh
 
 # Optional: Set up pre-commit hooks
-./setup-hooks.sh
+./scripts/setup-hooks.sh
 ```
 
 ## Daily Development
@@ -119,7 +119,7 @@ make type-check
 | Type errors | Run `make type-check` for details |
 | Docker won't start | Ensure Docker is installed: `docker --version` |
 | Node modules missing | Run `npm ci` in frontend directory |
-| Python venv issues | Delete `venv/` and run `setup-dev.sh` again |
+| Python venv issues | Delete `venv/` and run `./scripts/setup-dev.sh` again |
 
 ## File Locations
 
@@ -128,8 +128,8 @@ make type-check
 | `.github/workflows/ci.yml` | GitHub Actions CI pipeline |
 | `CONTRIBUTING.md` | Full development guide |
 | `Makefile` | Development commands |
-| `setup-dev.sh` | Automated setup script |
-| `setup-hooks.sh` | Pre-commit hooks setup |
+| `scripts/setup-dev.sh` | Automated setup script |
+| `scripts/setup-hooks.sh` | Pre-commit hooks setup |
 | `frontend/package.json` | Frontend scripts |
 | `backend/requirements.txt` | Backend dependencies |
 

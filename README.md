@@ -122,17 +122,17 @@ Complete documentation is organized in the [docs/](./docs) folder:
 
 ### Quick Setup (Automated)
 
-We provide automated setup scripts for convenience:
+We provide automated setup scripts in the [scripts/](./scripts) folder:
 
 ```bash
 # Make setup scripts executable
-chmod +x setup-dev.sh setup-hooks.sh
+chmod +x scripts/setup-dev.sh scripts/setup-hooks.sh
 
 # Run full setup
-./setup-dev.sh
+./scripts/setup-dev.sh
 
 # Set up pre-commit hooks (optional but recommended)
-./setup-hooks.sh
+./scripts/setup-hooks.sh
 ```
 
 Or use Make (if installed):

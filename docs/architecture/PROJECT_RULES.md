@@ -71,7 +71,7 @@ These rules are non-negotiable and must be followed throughout the entire projec
 1. Write tests FIRST (TDD approach)
 2. Ensure new code brings total coverage to ≥90%
 3. Never commit code that drops coverage below 90%
-4. Run `./dev.sh` to start environment and run tests
+4. Run `./scripts/dev.sh` to start environment and run tests
 
 ### When Modifying Code
 1. Run full test suite: `python -m pytest tests/ --cov=app --cov-fail-under=90`

@@ -39,8 +39,8 @@
 ### 4. **Development Tools & Scripts**
 
    **Setup Scripts:**
-   - ✅ `setup-dev.sh` - Automated full environment setup
-   - ✅ `setup-hooks.sh` - Pre-commit hook installation
+   - ✅ `scripts/setup-dev.sh` - Automated full environment setup
+   - ✅ `scripts/setup-hooks.sh` - Pre-commit hook installation
    
    **Makefile** - Common development commands:
    - ✅ `make setup` - Full environment setup
@@ -59,7 +59,7 @@
    - ✅ Checklist for reviewers
    - ✅ Guidelines for testing and coverage
 
-### 6. **Pre-commit Hooks** (setup-hooks.sh)
+### 6. **Pre-commit Hooks** (scripts/setup-hooks.sh)
    - ✅ Automatic frontend checks before commit
    - ✅ Automatic backend checks before commit
    - ✅ Commit message template and guidelines
@@ -72,13 +72,13 @@
 
 ```bash
 # 1. Make scripts executable
-chmod +x setup-dev.sh setup-hooks.sh
+chmod +x scripts/setup-dev.sh scripts/setup-hooks.sh
 
 # 2. Run full setup
-./setup-dev.sh
+./scripts/setup-dev.sh
 
 # 3. Install pre-commit hooks
-./setup-hooks.sh
+./scripts/setup-hooks.sh
 
 # 4. Verify everything works
 make pr-check

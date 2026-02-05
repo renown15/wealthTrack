@@ -41,7 +41,7 @@ help:
 # Setup
 setup:
 	@echo "Setting up development environment..."
-	@bash setup-dev.sh
+	@bash scripts/setup-dev.sh
 
 docker-up:
 	@echo "Starting Docker containers..."
