@@ -106,6 +106,18 @@ wealthtrack/
    - Backend API: http://localhost:8000
    - API Documentation: http://localhost:8000/docs
 
+## � Documentation
+
+Complete documentation is organized in the [docs/](./docs) folder:
+
+- **[Setup & Quickstart](./docs/setup/)** - Getting started quickly
+- **[Guides & References](./docs/guides/)** - How-to guides and common tasks
+- **[Architecture](./docs/architecture/)** - Design decisions and principles
+- **[Testing](./docs/testing/)** - Test coverage and quality metrics
+- **[Progress](./docs/progress/)** - Project status and session notes
+
+👉 **[Start with the Documentation Index →](./docs/README.md)**
+
 ## 🔧 Development Setup
 
 ### Quick Setup (Automated)
@@ -140,7 +152,7 @@ For all available commands, run: `make help`
 
 ### Feature Branch Workflow
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed instructions on:
+See [Contributing Guide](./docs/setup/CONTRIBUTING.md) for detailed instructions on:
 - Branch naming conventions
 - Code quality standards
 - Testing requirements
