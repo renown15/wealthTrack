@@ -117,28 +117,50 @@ test-watch:
 	cd frontend && npm run test -- --watch
 
 test-e2e:
-	@echo "Installing E2E test dependencies..."
-	cd frontend && npm install --save-dev @playwright/test pg
-	@echo "Running E2E tests with isolated Docker containers..."
-	cd frontend && npm run test:e2e
+	@echo "============================================"
+	@echo "  E2E Test Suite (Isolated Docker)"
+	@echo "============================================"
+	@echo ""
+	@echo "[1/4] Checking dependencies..."
+	cd frontend && npm install --save-dev @playwright/test pg 2>&1 | grep -E "(added|up to date|vulnerabilities)" || true
+	@echo ""
+	bash scripts/e2e-setup.sh || (echo "Setup failed"; bash scripts/e2e-teardown.sh; exit 1)
+	@echo ""
+	@echo "[3/4] Running E2E tests..."
+	cd frontend && npm run test:e2e; TEST_RESULT=$$?; bash scripts/e2e-teardown.sh; exit $$TEST_RESULT
 
 test-e2e-ui:
-	@echo "Installing E2E test dependencies..."
-	cd frontend && npm install --save-dev @playwright/test pg
-	@echo "Running E2E tests with UI..."
-	cd frontend && npm run test:e2e:ui
+	@echo "============================================"
+	@echo "  E2E Tests (Interactive UI Mode)"
+	@echo "============================================"
+	cd frontend && npm install --save-dev @playwright/test pg >/dev/null 2>&1
+	bash scripts/e2e-setup.sh || (bash scripts/e2e-teardown.sh; exit 1)
+	@echo ""
+	@echo "Starting Playwright UI..."
+	@echo ""
+	cd frontend && npm run test:e2e:ui; TEST_RESULT=$$?; bash scripts/e2e-teardown.sh; exit $$TEST_RESULT
 
 test-e2e-headed:
-	@echo "Installing E2E test dependencies..."
-	cd frontend && npm install --save-dev @playwright/test pg
-	@echo "Running E2E tests in headed mode..."
-	cd frontend && npm run test:e2e:headed
+	@echo "============================================"
+	@echo "  E2E Tests (Visible Browser)"
+	@echo "============================================"
+	cd frontend && npm install --save-dev @playwright/test pg >/dev/null 2>&1
+	bash scripts/e2e-setup.sh || (bash scripts/e2e-teardown.sh; exit 1)
+	@echo ""
+	@echo "Starting tests in headed mode..."
+	@echo ""
+	cd frontend && npm run test:e2e:headed; TEST_RESULT=$$?; bash scripts/e2e-teardown.sh; exit $$TEST_RESULT
 
 test-e2e-debug:
-	@echo "Installing E2E test dependencies..."
-	cd frontend && npm install --save-dev @playwright/test pg
-	@echo "Running E2E tests in debug mode..."
-	cd frontend && npm run test:e2e:debug
+	@echo "============================================"
+	@echo "  E2E Tests (Debug Mode - Step Through)"
+	@echo "============================================"
+	cd frontend && npm install --save-dev @playwright/test pg >/dev/null 2>&1
+	bash scripts/e2e-setup.sh || (bash scripts/e2e-teardown.sh; exit 1)
+	@echo ""
+	@echo "Starting debugger..."
+	@echo ""
+	cd frontend && npm run test:e2e:debug; TEST_RESULT=$$?; bash scripts/e2e-teardown.sh; exit $$TEST_RESULT
 
 check-backend:
 	@echo "Checking if backend is running..."

@@ -2,6 +2,15 @@ import { test, expect } from '@playwright/test';
 import { getTestUser, queryTestDb } from './fixtures';
 
 test.describe('E2E - Error Handling & Recovery', () => {
+  test.beforeEach(async ({ page }) => {
+    console.log('\\n📋 [ERROR HANDLING TEST] Starting test...');
+  });
+
+  test.afterEach(async ({}, testInfo) => {
+    const status = testInfo.status === 'passed' ? '✅' : '❌';
+    console.log(`   ${status} ${testInfo.title} (${testInfo.duration}ms)`);
+  });
+
   async function setupUser(page: any) {
     const email = `error-test-${Date.now()}@example.com`;
     const password = 'ErrorTest123!';

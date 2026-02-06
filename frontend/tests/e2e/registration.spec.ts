@@ -2,6 +2,15 @@ import { test, expect } from '@playwright/test';
 import { getTestUser, getTestUserProfile, verifyPasswordHashed } from './fixtures';
 
 test.describe('E2E - User Registration', () => {
+  test.beforeEach(async ({ page }) => {
+    console.log('\\n📋 [REGISTRATION TEST] Starting test...');
+  });
+
+  test.afterEach(async ({}, testInfo) => {
+    const status = testInfo.status === 'passed' ? '✅' : '❌';
+    console.log(`   ${status} ${testInfo.title} (${testInfo.duration}ms)`);
+  });
+
   test('should register new user with valid data', async ({ page }) => {
     // Navigate to registration page
     await page.goto('/');

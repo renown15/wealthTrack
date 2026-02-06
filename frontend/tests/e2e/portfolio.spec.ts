@@ -2,6 +2,15 @@ import { test, expect } from '@playwright/test';
 import { getTestUser, getUserAccounts, queryTestDb } from './fixtures';
 
 test.describe('E2E - Portfolio & Accounts', () => {
+  test.beforeEach(async ({ page }) => {
+    console.log('\\n📋 [PORTFOLIO TEST] Starting test...');
+  });
+
+  test.afterEach(async ({}, testInfo) => {
+    const status = testInfo.status === 'passed' ? '✅' : '❌';
+    console.log(`   ${status} ${testInfo.title} (${testInfo.duration}ms)`);
+  });
+
   async function loginAndNavigateToPortfolio(page: any) {
     const testEmail = `portfolio-${Date.now()}@example.com`;
     const testPassword = 'PortfolioTest123!';

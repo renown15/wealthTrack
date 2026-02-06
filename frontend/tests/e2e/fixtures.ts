@@ -2,11 +2,11 @@ import { Pool } from 'pg';
 
 // Connect to test database (port 5434 as per .env.test)
 const pool = new Pool({
-  user: process.env.DB_USER || 'wealthtrack_test',
-  password: process.env.DB_PASSWORD || 'test_password',
+  user: process.env.DB_USER || 'wealthtrack',
+  password: process.env.DB_PASSWORD || 'wealthtrack_dev_password',
   host: 'localhost',
   port: parseInt(process.env.DB_PORT || '5434'),
-  database: process.env.DB_NAME || 'wealthtrack_test',
+  database: process.env.DB_NAME || 'wealthtrack',
 });
 
 /**
@@ -28,23 +28,18 @@ export async function queryTestDb(sql: string, values?: unknown[]) {
 export async function clearTestDatabase() {
   const client = await pool.connect();
   try {
-    // Disable foreign key checks temporarily
-    await client.query('SET session_replication_role = REPLICA');
+    console.log('   🗑️  Clearing test database...');
+    const tableNames = ['AccountEvent', 'AccountAttribute', 'InstitutionSecurityCredentials', 'Account', 'Institution', 'UserProfile', 'ReferenceData'];
     
-    // Truncate all tables
-    await client.query(`
-      TRUNCATE TABLE account_events CASCADE;
-      TRUNCATE TABLE account_attributes CASCADE;
-      TRUNCATE TABLE institution_security_credentials CASCADE;
-      TRUNCATE TABLE accounts CASCADE;
-      TRUNCATE TABLE institutions CASCADE;
-      TRUNCATE TABLE user_profile CASCADE;
-      TRUNCATE TABLE users CASCADE;
-      TRUNCATE TABLE reference_data CASCADE;
-    `);
+    for (const table of tableNames) {
+      try {
+        await client.query(`TRUNCATE TABLE "${table}" CASCADE`);
+      } catch (e) {
+        // Ignore if table doesn't exist
+      }
+    }
     
-    // Re-enable foreign key checks
-    await client.query('SET session_replication_role = DEFAULT');
+    console.log('   ✅ Database cleared');
   } finally {
     client.release();
   }
@@ -54,6 +49,7 @@ export async function clearTestDatabase() {
  * Seed baseline reference data (account types, statuses, etc)
  */
 export async function seedReferenceData() {
+  console.log('   🌱 Seeding reference data...');
   const referenceData = [
     // Account types
     { class: 'ACCOUNT_TYPE', key: 'CHECKING', referenceValue: 'Checking Account', sortIndex: 1 },
@@ -78,14 +74,16 @@ export async function seedReferenceData() {
     { class: 'ATTRIBUTE_TYPE', key: 'CREDIT_LIMIT', referenceValue: 'Credit Limit', sortIndex: 3 },
   ];
 
+  let inserted = 0;
   for (const ref of referenceData) {
     await queryTestDb(
-      `INSERT INTO reference_data (class, key, reference_value, sort_index, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, NOW(), NOW())
-       ON CONFLICT (class, key) DO NOTHING`,
-      [ref.class, ref.key, ref.referenceValue, ref.sortIndex]
+      `INSERT INTO "ReferenceData" (classkey, referencevalue, sortindex, created_at, updated_at)
+       VALUES ($1, $2, $3, NOW(), NOW())`,
+      [`${ref.class}:${ref.key}`, ref.referenceValue, ref.sortIndex]
     );
+    inserted++;
   }
+  console.log(`   ✅ Reference data seeded (${inserted} items)`);
 }
 
 /**

@@ -3,12 +3,18 @@ import { getTestUser, queryTestDb, seedReferenceData } from './fixtures';
 
 test.describe('E2E - User Login', () => {
   test.beforeEach(async ({ page }) => {
+    console.log('\\n📋 [LOGIN TEST] Starting test...');
     // Ensure we have a test user to log in
     await seedReferenceData();
 
     // Create test user for login tests
     const hashedPassword = '$2b$12$wUEeVpEgHUPh3GHlnNkrvu'; // This would need actual bcrypt
     // For testing, we'll rely on the registration test creating users, or seed manually
+  });
+
+  test.afterEach(async ({}, testInfo) => {
+    const status = testInfo.status === 'passed' ? '✅' : '❌';
+    console.log(`   ${status} ${testInfo.title} (${testInfo.duration}ms)`);
   });
 
   test('should login with valid credentials', async ({ page }) => {

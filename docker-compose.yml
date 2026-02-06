@@ -13,8 +13,8 @@ services:
     ports:
       - "${DB_PORT:-5432}:5432"
     volumes:
-      - ${DB_VOLUME:-pgdata}:/var/lib/postgresql/data
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql
+      - wealthtrack_pgdata:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 10s
@@ -29,7 +29,7 @@ services:
     container_name: ${BACKEND_CONTAINER:-wealthtrack-backend}
     profiles: [ "dev", "test", "prod" ]
     environment:
-      DATABASE_URL: postgresql://${DB_USER:-wealthtrack}:${DB_PASSWORD:-wealthtrack_dev_password}@db:5432/${DB_NAME:-wealthtrack}
+      DATABASE_URL: postgresql+asyncpg://${DB_USER:-wealthtrack}:${DB_PASSWORD:-wealthtrack_dev_password}@db:5432/${DB_NAME:-wealthtrack}
       ENVIRONMENT: ${ENVIRONMENT:-development}
       SECRET_KEY: ${SECRET_KEY:-dev-secret-key}
     ports:
@@ -47,17 +47,15 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: ${FRONTEND_CONTAINER:-wealthtrack-frontend}
-    profiles: [ "dev", "prod" ]
+    profiles: [ "dev", "test", "prod" ]
     environment:
       VITE_API_URL: ${VITE_API_URL:-http://localhost:${BACKEND_PORT:-8000}}
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     depends_on:
       - backend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    command: npm run dev
+    command: >
+      sh -c "npm run build && npm run preview -- --host 0.0.0.0 --port 3000"
 
 volumes:
-  ${DB_VOLUME:-pgdata}:
+  wealthtrack_pgdata:

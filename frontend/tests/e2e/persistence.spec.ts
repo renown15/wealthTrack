@@ -2,6 +2,15 @@ import { test, expect, Browser, BrowserContext } from '@playwright/test';
 import { getTestUser, getUserAccounts, queryTestDb } from './fixtures';
 
 test.describe('E2E - Data Persistence', () => {
+  test.beforeEach(async ({ page }) => {
+    console.log('\\n📋 [PERSISTENCE TEST] Starting test...');
+  });
+
+  test.afterEach(async ({}, testInfo) => {
+    const status = testInfo.status === 'passed' ? '✅' : '❌';
+    console.log(`   ${status} ${testInfo.title} (${testInfo.duration}ms)`);
+  });
+
   async function registerUser(email: string, password: string, page: any) {
     await page.goto('/');
     await page.click('text=Register');
