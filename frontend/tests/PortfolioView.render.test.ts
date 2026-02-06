@@ -85,11 +85,11 @@ describe('PortfolioView - Rendering', () => {
   it('should display multiple accounts with correct data', () => {
     const mockAccount1 = createMockAccount({
       account: { id: 1, name: 'Savings' },
-      latest_balance: { value: '5000.00' },
+      latestBalance: { value: '5000.00' },
     });
     const mockAccount2 = createMockAccount({
       account: { id: 2, name: 'Checking' },
-      latest_balance: { value: '3000.00' },
+      latestBalance: { value: '3000.00' },
     });
 
     mockUsePortfolio.mockReturnValue(

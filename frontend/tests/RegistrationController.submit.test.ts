@@ -57,8 +57,8 @@ describe('RegistrationController - Form Submission', () => {
     const mockUser = {
       id: 1,
       email: 'success@example.com',
-      firstname: 'Success',
-      lastname: 'User',
+      firstName: 'Success',
+      lastName: 'User',
       isActive: true,
       isVerified: false,
       createdAt: new Date().toISOString(),
@@ -71,8 +71,8 @@ describe('RegistrationController - Form Submission', () => {
 
     const form = container.querySelector('form') as HTMLFormElement;
     const emailInput = form.querySelector('input[id="email"]') as HTMLInputElement;
-    const firstNameInput = form.querySelector('input[id="first_name"]') as HTMLInputElement;
-    const lastNameInput = form.querySelector('input[id="last_name"]') as HTMLInputElement;
+    const firstNameInput = form.querySelector('input[id="firstName"]') as HTMLInputElement;
+    const lastNameInput = form.querySelector('input[id="lastName"]') as HTMLInputElement;
     const passwordInput = form.querySelector('input[id="password"]') as HTMLInputElement;
 
     if (emailInput && firstNameInput && lastNameInput && passwordInput) {
@@ -94,8 +94,8 @@ describe('RegistrationController - Form Submission', () => {
     const mockUser = {
       id: 2,
       email: 'newreg@example.com',
-      firstname: 'New',
-      lastname: 'Register',
+      firstName: 'New',
+      lastName: 'Register',
       isActive: true,
       isVerified: false,
       createdAt: new Date().toISOString(),
@@ -108,8 +108,8 @@ describe('RegistrationController - Form Submission', () => {
 
     const form = container.querySelector('form') as HTMLFormElement;
     const emailInput = form.querySelector('input[id="email"]') as HTMLInputElement;
-    const firstNameInput = form.querySelector('input[id="first_name"]') as HTMLInputElement;
-    const lastNameInput = form.querySelector('input[id="last_name"]') as HTMLInputElement;
+    const firstNameInput = form.querySelector('input[id="firstName"]') as HTMLInputElement;
+    const lastNameInput = form.querySelector('input[id="lastName"]') as HTMLInputElement;
     const passwordInput = form.querySelector('input[id="password"]') as HTMLInputElement;
 
     if (emailInput && firstNameInput && lastNameInput && passwordInput) {
@@ -126,8 +126,8 @@ describe('RegistrationController - Form Submission', () => {
       expect(mockRegisterUser).toHaveBeenCalledWith(
         expect.objectContaining({
           email: 'newreg@example.com',
-          first_name: 'New',
-          last_name: 'Register',
+          firstName: 'New',
+          lastName: 'Register',
           password: 'NewRegPass1',
         })
       );
@@ -142,8 +142,8 @@ describe('RegistrationController - Form Submission', () => {
 
     const form = container.querySelector('form') as HTMLFormElement;
     const emailInput = form.querySelector('input[id="email"]') as HTMLInputElement;
-    const firstNameInput = form.querySelector('input[id="first_name"]') as HTMLInputElement;
-    const lastNameInput = form.querySelector('input[id="last_name"]') as HTMLInputElement;
+    const firstNameInput = form.querySelector('input[id="firstName"]') as HTMLInputElement;
+    const lastNameInput = form.querySelector('input[id="lastName"]') as HTMLInputElement;
     const passwordInput = form.querySelector('input[id="password"]') as HTMLInputElement;
 
     if (emailInput && firstNameInput && lastNameInput && passwordInput) {

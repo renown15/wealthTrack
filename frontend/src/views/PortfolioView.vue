@@ -79,14 +79,14 @@
 
               <div class="account-info">
                 <span class="label">Balance</span>
-                <span class="value balance">{{ formatCurrency(item.latest_balance?.value) }}</span>
+                <span class="value balance">{{ formatCurrency(item.latestBalance?.value) }}</span>
               </div>
 
               <div class="account-info">
                 <span class="label">Last Updated</span>
                 <span class="value">{{
-                  item.latest_balance?.created_at
-                    ? formatDate(item.latest_balance.created_at)
+                  item.latestBalance?.createdAt
+                    ? formatDate(item.latestBalance.createdAt)
                     : 'Never'
                 }}</span>
               </div>

@@ -33,6 +33,7 @@ export class Router {
     // Load appropriate controller
     switch (page) {
       case 'home':
+      case 'dashboard':
         this.currentController = new HomeController('view-container');
         await this.currentController.init();
         break;

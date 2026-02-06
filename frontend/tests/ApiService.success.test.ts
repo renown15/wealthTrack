@@ -30,11 +30,11 @@ describe('ApiService - Success Cases', () => {
 
   it('loginUser succeeds with valid credentials', async () => {
     const credentials = { email: 'test@example.com', password: 'password' };
-    const mockResponse = { data: { access_token: 'token123', token_type: 'bearer' } };
+    const mockResponse = { data: { accessToken: 'token123', tokenType: 'bearer' } };
 
     const clientSpy = vi.spyOn(apiService['client'], 'post').mockResolvedValueOnce(mockResponse);
     const result = await apiService.loginUser(credentials);
-    expect(result.access_token).toBe('token123');
+    expect(result.accessToken).toBe('token123');
     clientSpy.mockRestore();
   });
 
@@ -74,10 +74,10 @@ describe('ApiService - Success Cases', () => {
   });
 
   it('createAccount succeeds', async () => {
-    const mockResponse = { data: { id: 1, name: 'Test', balance: 0 } };
+    const mockResponse = { data: { id: 1, userId: 1, institutionId: 1, name: 'Test', typeId: 1, statusId: 1, createdAt: '', updatedAt: '' } };
 
     const clientSpy = vi.spyOn(apiService['client'], 'post').mockResolvedValueOnce(mockResponse);
-    const result = await apiService.createAccount({ name: 'Test' });
+    const result = await apiService.createAccount({ institutionId: 1, name: 'Test' });
     expect(result.name).toBe('Test');
     clientSpy.mockRestore();
   });

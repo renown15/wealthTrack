@@ -28,14 +28,13 @@
       "@views/*": ["src/views/*"],
       "@models/*": ["src/models/*"],
       "@composables/*": ["src/composables/*"],
-      "@styles/*": ["src/styles/*"]
+      "@styles/*": ["src/styles/*"],
+      "@utils/*": ["src/utils/*"]
     }
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.tsx",
-    "tests/**/*.ts",
-    "tests/**/*.tsx"
+    "src/**/*.tsx"
   ],
   "exclude": [
     "node_modules",

@@ -36,7 +36,7 @@ describe('PortfolioView - Component Structure', () => {
   it('should render section elements for portfolio content', () => {
     const mockAccount = createMockAccount({
       account: { name: 'Checking' },
-      latest_balance: { value: '2500.00' },
+      latestBalance: { value: '2500.00' },
     });
 
     mockUsePortfolio.mockReturnValue(
@@ -53,7 +53,7 @@ describe('PortfolioView - Component Structure', () => {
 
   it('should render account grid when data present', () => {
     const mockAccount = createMockAccount({
-      latest_balance: { value: '2500.00' },
+      latestBalance: { value: '2500.00' },
     });
 
     mockUsePortfolio.mockReturnValue(
@@ -70,7 +70,7 @@ describe('PortfolioView - Component Structure', () => {
   it('should render content sections for portfolio', () => {
     const mockAccount = createMockAccount({
       account: { name: 'Checking' },
-      latest_balance: { value: '1500.00' },
+      latestBalance: { value: '1500.00' },
     });
     const mockInstitution = createMockInstitution();
 

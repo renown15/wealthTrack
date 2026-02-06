@@ -1,37 +1,39 @@
 version: '3.8'
 
 services:
-  # PostgreSQL Database
+  # PostgreSQL Database - Available in all environments
   db:
     image: postgres:15-alpine
-    container_name: wealthtrack-db
+    container_name: ${DB_CONTAINER:-wealthtrack-db}
+    profiles: [ "dev", "test", "prod" ]
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres_password
-      POSTGRES_DB: wealthtrack
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_password}
+      POSTGRES_DB: ${DB_NAME:-wealthtrack}
     ports:
-      - "5433:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ${DB_VOLUME:-pgdata}:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # Backend API
+  # Backend API - Available in all environments
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: wealthtrack-backend
+    container_name: ${BACKEND_CONTAINER:-wealthtrack-backend}
+    profiles: [ "dev", "test", "prod" ]
     environment:
-      DATABASE_URL: postgresql://wealthtrack:wealthtrack_dev_password@db:5432/wealthtrack
-      ENVIRONMENT: development
-      SECRET_KEY: dev-secret-key-change-in-production
+      DATABASE_URL: postgresql://${DB_USER:-wealthtrack}:${DB_PASSWORD:-wealthtrack_dev_password}@db:5432/${DB_NAME:-wealthtrack}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key}
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     depends_on:
       db:
         condition: service_healthy
@@ -39,16 +41,17 @@ services:
       - ./backend:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-  # Frontend
+  # Frontend - Only in dev and prod, not in test (E2E tests use Vite dev server)
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: wealthtrack-frontend
+    container_name: ${FRONTEND_CONTAINER:-wealthtrack-frontend}
+    profiles: [ "dev", "prod" ]
     environment:
-      API_URL: http://localhost:8000
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:${BACKEND_PORT:-8000}}
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT:-3000}:3000"
     depends_on:
       - backend
     volumes:
@@ -57,4 +60,4 @@ services:
     command: npm run dev
 
 volumes:
-  pgdata:
+  ${DB_VOLUME:-pgdata}:

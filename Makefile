@@ -1,7 +1,7 @@
 # WealthTrack Development Makefile
 # Provides convenient commands for common development tasks
 
-.PHONY: help setup dev backend-dev frontend-dev test lint type-check format clean docker-up docker-down
+.PHONY: help setup dev backend-dev frontend-dev test lint type-check format clean docker-up docker-down build-frontend
 
 help:
 	@echo "WealthTrack Development Commands"
@@ -9,8 +9,8 @@ help:
 	@echo ""
 	@echo "Setup and Environment:"
 	@echo "  make setup              - Full development environment setup"
-	@echo "  make docker-up          - Start PostgreSQL container"
-	@echo "  make docker-down        - Stop PostgreSQL container"
+	@echo "  make docker-up          - Start development containers (db + api)"
+	@echo "  make docker-down        - Stop development containers"
 	@echo ""
 	@echo "Development:"
 	@echo "  make backend-dev        - Start backend development server"
@@ -21,6 +21,9 @@ help:
 	@echo "  make test               - Run all tests (includes backend startup)"
 	@echo "  make test-backend       - Run backend tests with coverage"
 	@echo "  make test-frontend      - Run frontend tests with coverage (auto-starts backend)"
+	@echo "  make test-e2e           - Run E2E tests with isolated test containers"
+	@echo "  make test-e2e:ui        - Run E2E tests with interactive UI"
+	@echo "  make test-e2e:headed    - Run E2E tests with visible browser"
 	@echo "  make test-watch         - Run tests in watch mode"
 	@echo ""
 	@echo "Code Quality:"
@@ -39,6 +42,11 @@ help:
 	@echo "  make clean              - Clean up build artifacts and cache"
 	@echo "  make pr-check           - Run all checks before PR (auto-manages servers)"
 	@echo ""
+	@echo "Docker Environments (.env files):"
+	@echo "  Development:  docker-compose --env-file .env.dev up -d"
+	@echo "  Test:         docker-compose --env-file .env.test --profile test up -d"
+	@echo "  Production:   docker-compose --env-file .env.prod up -d"
+	@echo ""
 
 # Setup
 setup:
@@ -46,13 +54,15 @@ setup:
 	@bash scripts/setup-dev.sh
 
 docker-up:
-	@echo "Starting Docker containers..."
-	docker-compose up -d db
-	@echo "PostgreSQL is running on localhost:5433"
+	@echo "Starting Docker containers for development..."
+	@echo "Loading environment from .env.dev"
+	docker-compose --env-file .env.dev --profile dev up -d db backend
+	@echo "✅ Database and API running on: localhost:5433 and localhost:8000"
 
 docker-down:
 	@echo "Stopping Docker containers..."
-	docker-compose down
+	docker-compose --env-file .env.dev -f docker-compose.yml down
+
 
 # Development Servers
 backend-dev:
@@ -79,19 +89,20 @@ test: check-db test-backend test-frontend
 
 check-db:
 	@echo "Checking if database is running..."
-	@if docker-compose ps db | grep -q "healthy"; then \
-		echo "✅ Database is already running"; \
+	@if docker-compose --env-file .env.dev ps db 2>/dev/null | grep -q "Up"; then \
+		echo "✅ Database is already running on localhost:5433"; \
 	else \
 		echo "Starting database..."; \
-		docker-compose up -d db; \
+		docker-compose --env-file .env.dev up -d db; \
 		echo "Waiting for database to be ready (10 seconds)..."; \
 		sleep 10; \
-		if docker-compose ps db | grep -q "healthy"; then \
-			echo "✅ Database started successfully"; \
+		if docker-compose --env-file .env.dev ps db 2>/dev/null | grep -q "Up"; then \
+			echo "✅ Database started successfully on localhost:5433"; \
 		else \
 			echo "⚠️  Database may still be starting, continuing with tests..."; \
 		fi \
 	fi
+
 
 test-backend: check-db
 	@echo "Running backend tests..."
@@ -104,6 +115,30 @@ test-frontend: check-backend
 test-watch:
 	@echo "Running tests in watch mode..."
 	cd frontend && npm run test -- --watch
+
+test-e2e:
+	@echo "Installing E2E test dependencies..."
+	cd frontend && npm install --save-dev @playwright/test pg
+	@echo "Running E2E tests with isolated Docker containers..."
+	cd frontend && npm run test:e2e
+
+test-e2e-ui:
+	@echo "Installing E2E test dependencies..."
+	cd frontend && npm install --save-dev @playwright/test pg
+	@echo "Running E2E tests with UI..."
+	cd frontend && npm run test:e2e:ui
+
+test-e2e-headed:
+	@echo "Installing E2E test dependencies..."
+	cd frontend && npm install --save-dev @playwright/test pg
+	@echo "Running E2E tests in headed mode..."
+	cd frontend && npm run test:e2e:headed
+
+test-e2e-debug:
+	@echo "Installing E2E test dependencies..."
+	cd frontend && npm install --save-dev @playwright/test pg
+	@echo "Running E2E tests in debug mode..."
+	cd frontend && npm run test:e2e:debug
 
 check-backend:
 	@echo "Checking if backend is running..."
@@ -159,6 +194,13 @@ type-check-frontend:
 	@echo "Type checking frontend code..."
 	cd frontend && npx tsc --noEmit --project tsconfig.src.json
 
+# Build frontend for production - runs tsc type checking + vite build
+build-frontend:
+	@echo "Building frontend..."
+	@echo "Running TypeScript compiler and Vite build..."
+	cd frontend && npm run build
+	@echo "✅ Frontend build complete!"
+
 format: format-backend format-frontend
 	@echo "✅ Code formatted!"
 
@@ -193,7 +235,7 @@ clean:
 	find . -type d -name coverage -exec rm -rf {} + 2>/dev/null || true
 	@echo "✅ Cleanup complete!"
 
-pr-check: check-db lint type-check test-backend test-frontend check-backend
+pr-check: check-db lint type-check test-backend test-frontend build-frontend check-backend
 	@echo ""
 	@echo "✅ All PR checks passed! Ready to create a pull request."
 

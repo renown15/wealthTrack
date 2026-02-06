@@ -4,6 +4,7 @@
 import { LoginView } from '@views/LoginView';
 import { apiService } from '@services/ApiService';
 import { ValidationService } from '@services/ValidationService';
+import { debug } from '@utils/debug';
 import type { UserLogin } from '@models/User';
 
 export class LoginController {
@@ -42,10 +43,18 @@ export class LoginController {
     try {
       // Call API to login user
       const authToken = await apiService.loginUser(loginData);
+      debug.log('[Auth] Login response received:', authToken);
 
       // Store token
-      localStorage.setItem('accessToken', authToken.accessToken);
-      apiService.setAuthToken(authToken.accessToken);
+      if (authToken.accessToken) {
+        debug.log('[Auth] Storing token:', authToken.accessToken.substring(0, 20) + '...');
+        localStorage.setItem('accessToken', authToken.accessToken);
+        apiService.setAuthToken(authToken.accessToken);
+        debug.log('[Auth] Token stored successfully');
+      } else {
+        debug.error('[Auth] No accessToken in response:', authToken);
+        throw new Error('No access token in login response');
+      }
 
       // Show success message
       this.view.showSuccess('Login successful! Redirecting to dashboard...');

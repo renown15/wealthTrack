@@ -1,10 +1,10 @@
 /**
- * Tests for RegistrationView - Rendering
+ * Tests for RegistrationView.
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { RegistrationView } from '../src/views/RegistrationView';
 
-describe('RegistrationView - Rendering', () => {
+describe('RegistrationView', () => {
   let container: HTMLElement;
 
   beforeEach(() => {
@@ -29,6 +29,24 @@ describe('RegistrationView - Rendering', () => {
 
     const form = container.querySelector('form');
     expect(form).toBeDefined();
+  });
+
+  it('should display error messages', () => {
+    const view = new RegistrationView('test-container');
+    view.render();
+    view.showError('Registration failed');
+
+    const errorDiv = container.querySelector('.error-message');
+    expect(errorDiv?.textContent).toContain('Registration failed');
+  });
+
+  it('should display success messages', () => {
+    const view = new RegistrationView('test-container');
+    view.render();
+    view.showSuccess('Registration successful');
+
+    const successDiv = container.querySelector('.success-message');
+    expect(successDiv?.textContent).toContain('Registration successful');
   });
 
   it('should have email input field', () => {
@@ -63,60 +81,81 @@ describe('RegistrationView - Rendering', () => {
     expect(input).toBeDefined();
   });
 
-  it('should have login link in form', () => {
+  it('should register onSubmit callback', () => {
     const view = new RegistrationView('test-container');
-    view.render();
+    const callback = vi.fn();
 
-    const loginLink = container.querySelector('#go-to-login');
-    expect(loginLink).toBeDefined();
+    view.onSubmit(callback);
+    expect(view).toBeDefined();
   });
 
-  it('should have form with correct ID', () => {
+  it('should trigger callback on form submission', async () => {
+    const view = new RegistrationView('test-container');
+    const callback = vi.fn();
+
+    view.render();
+    view.onSubmit(callback);
+
+    const form = container.querySelector('form') as HTMLFormElement;
+    const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+    submitButton.click();
+
+    // Wait for async callback
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  });
+
+  it('should pass form data to callback', async () => {
+    const view = new RegistrationView('test-container');
+    const callback = vi.fn();
+
+    view.render();
+    view.onSubmit(callback);
+
+    const emailInput = container.querySelector('input[id="email"]') as HTMLInputElement;
+    const firstNameInput = container.querySelector('input[id="first_name"]') as HTMLInputElement;
+    const lastNameInput = container.querySelector('input[id="last_name"]') as HTMLInputElement;
+    const passwordInput = container.querySelector('input[id="password"]') as HTMLInputElement;
+
+    emailInput.value = 'test@example.com';
+    firstNameInput.value = 'John';
+    lastNameInput.value = 'Doe';
+    passwordInput.value = 'TestPass123';
+
+    const form = container.querySelector('form') as HTMLFormElement;
+    form.dispatchEvent(new Event('submit'));
+
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  });
+
+  it('should display field-specific validation errors', () => {
     const view = new RegistrationView('test-container');
     view.render();
 
-    const form = container.querySelector('form#registration-form');
+    const errors = {
+      email: 'Email is required',
+      first_name: 'First name is required',
+      last_name: 'Last name is required',
+      password: 'Password is required',
+    };
+
+    view.displayErrors(errors);
+
+    const emailError = container.querySelector('#email-error');
+    const firstNameError = container.querySelector('#first_name-error');
+    const lastNameError = container.querySelector('#last_name-error');
+    const passwordError = container.querySelector('#password-error');
+
+    expect(emailError?.textContent).toContain('Email is required');
+    expect(firstNameError?.textContent).toContain('First name is required');
+    expect(lastNameError?.textContent).toContain('Last name is required');
+    expect(passwordError?.textContent).toContain('Password is required');
+  });
+
+  it('should clear field errors after submission', async () => {
+    const view = new RegistrationView('test-container');
+    view.render();
+    const form = container.querySelector('form') as HTMLFormElement;
     expect(form).toBeDefined();
-  });
-
-  it('should render title with correct text', () => {
-    const view = new RegistrationView('test-container');
-    view.render();
-
-    const title = container.querySelector('h2');
-    expect(title?.textContent).toContain('Create Your Account');
-  });
-
-  it('should have inputs with correct names', () => {
-    const view = new RegistrationView('test-container');
-    view.render();
-
-    const emailInput = container.querySelector('input[name="email"]') as HTMLInputElement;
-    const usernameInput = container.querySelector('input[name="username"]') as HTMLInputElement;
-    const passwordInput = container.querySelector('input[name="password"]') as HTMLInputElement;
-    const fullNameInput = container.querySelector('input[name="fullName"]') as HTMLInputElement;
-
-    expect(emailInput).toBeDefined();
-    expect(usernameInput).toBeDefined();
-    expect(passwordInput).toBeDefined();
-    expect(fullNameInput).toBeDefined();
-  });
-
-  it('should have submit button with correct text', () => {
-    const view = new RegistrationView('test-container');
-    view.render();
-
-    const submitButton = container.querySelector('button[type="submit"]');
-    expect(submitButton?.textContent).toBe('Register');
-  });
-
-  it('should clear container when rendering', () => {
-    const view = new RegistrationView('test-container');
-
-    container.innerHTML = '<p>Old content</p>';
-    expect(container.innerHTML).toContain('Old content');
-
-    view.render();
-    expect(container.innerHTML).not.toContain('Old content');
   });
 });

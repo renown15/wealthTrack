@@ -10,8 +10,8 @@ describe('User Models', () => {
       const user: User = {
         id: 1,
         email: 'test@example.com',
-        firstname: 'Test',
-        surname: 'User',
+        firstName: 'Test',
+        lastName: 'User',
         isActive: true,
         isVerified: false,
         createdAt: '2026-01-01T00:00:00Z',
@@ -19,22 +19,22 @@ describe('User Models', () => {
 
       expect(user.id).toBe(1);
       expect(user.email).toBe('test@example.com');
-      expect(user.firstname).toBe('Test');
+      expect(user.firstName).toBe('Test');
       expect(user.isActive).toBe(true);
     });
 
-    it('should allow null surname', () => {
+    it('should allow null lastName', () => {
       const user: User = {
         id: 1,
         email: 'test@example.com',
-        firstname: 'Test',
-        surname: 'Unknown',
+        firstName: 'Test',
+        lastName: 'Unknown',
         isActive: true,
         isVerified: false,
         createdAt: '2026-01-01T00:00:00Z',
       };
 
-      expect(user.surname).toBe('Unknown');
+      expect(user.lastName).toBe('Unknown');
     });
   });
 
@@ -42,25 +42,25 @@ describe('User Models', () => {
     it('should create valid registration data', () => {
       const registration: UserRegistration = {
         email: 'newuser@example.com',
-        first_name: 'New',
-        last_name: 'User',
+        firstName: 'New',
+        lastName: 'User',
         password: 'SecurePass123',
       };
 
       expect(registration.email).toBe('newuser@example.com');
-      expect(registration.first_name).toBe('New');
+      expect(registration.firstName).toBe('New');
       expect(registration.password).toBe('SecurePass123');
     });
 
     it('should allow firstName and lastName', () => {
       const registration: UserRegistration = {
         email: 'test@example.com',
-        first_name: 'Test',
-        last_name: 'User',
+        firstName: 'Test',
+        lastName: 'User',
         password: 'SecurePass123',
       };
 
-      expect(registration.first_name).toBe('Test');
+      expect(registration.firstName).toBe('Test');
     });
   });
 

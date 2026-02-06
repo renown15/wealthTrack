@@ -54,7 +54,12 @@ out/
 
 # Docker
 *.log
+# Exclude environment files (contain secrets and local config)
+# BUT include .example files so developers know what to configure
 .env
+.env.dev
+.env.test
+.env.prod
 .env.local
 .env.*.local
 

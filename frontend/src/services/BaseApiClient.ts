@@ -1,7 +1,10 @@
 /**
  * Base API client for HTTP requests with retry logic.
+ * Simple, straightforward implementation without interceptors.
  */
-import axios, { AxiosInstance, AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
+import type { AxiosInstance } from 'axios';
+import { debug } from '@utils/debug';
 import type { ApiError } from '@models/User';
 
 export class BaseApiClient {
@@ -11,15 +14,14 @@ export class BaseApiClient {
   private retryDelay = 1000;
 
   constructor() {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    this.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    this.baseURL = (import.meta.env.VITE_API_URL as string | undefined) || 'http://localhost:8000';
     this.client = axios.create({
       baseURL: this.baseURL,
       headers: {
         'Content-Type': 'application/json',
       },
-    }) as unknown as AxiosInstance;
+    });
+    debug.log('[API] BaseApiClient initialized with baseURL:', this.baseURL);
   }
 
   /**

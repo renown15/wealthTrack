@@ -38,7 +38,7 @@ describe('PortfolioView - Modal Interactions', () => {
     const wrapper = mount(PortfolioView);
     const vm = wrapper.vm as any;
 
-    vm.formData = { name: 'Test', institutionid: 1 };
+    vm.formData = { name: 'Test', institutionId: 1 };
     vm.modalOpen = true;
 
     vm.closeModal();
@@ -99,9 +99,12 @@ describe('PortfolioView - Modal Interactions', () => {
     const account: Account = {
       id: 1,
       name: 'Test Account',
-      institution_id: 2,
-      account_type: 'checking',
-      balance: 1000,
+      userId: 1,
+      institutionId: 2,
+      typeId: 1,
+      statusId: 1,
+      createdAt: '',
+      updatedAt: '',
     };
 
     vm.openEditAccountModal(account);

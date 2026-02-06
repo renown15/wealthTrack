@@ -7,6 +7,7 @@ export default defineConfig({
   test: {
     environment: 'happy-dom',
     globals: true,
+    setupFiles: ['./vitest.setup.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
@@ -28,6 +29,7 @@ export default defineConfig({
       '@models': resolve(__dirname, './src/models'),
       '@composables': resolve(__dirname, './src/composables'),
       '@styles': resolve(__dirname, './src/styles'),
+      '@utils': resolve(__dirname, './src/utils'),
     },
   },
 });

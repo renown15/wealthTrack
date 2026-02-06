@@ -82,8 +82,6 @@ describe('Router - Navigation', () => {
   });
 
   it('should handle navigation via CustomEvent', () => {
-    const router = new Router();
-
     const event = new CustomEvent('navigate', { detail: { page: 'login' } });
     window.dispatchEvent(event);
 

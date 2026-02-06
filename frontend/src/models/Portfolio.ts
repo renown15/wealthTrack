@@ -4,37 +4,37 @@
 
 export interface Account {
   id: number;
-  userid: number;
-  institutionid: number;
+  userId: number;
+  institutionId: number;
   name: string;
-  typeid: number;
-  statusid: number;
-  created_at: string;
-  updated_at: string;
+  typeId: number;
+  statusId: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Institution {
   id: number;
-  userid: number;
+  userId: number;
   name: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AccountEvent {
   id: number;
-  accountid: number;
-  userid: number;
-  eventtype: string;
+  accountId: number;
+  userId: number;
+  eventType: string;
   value: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface PortfolioItem {
   account: Account;
   institution: Institution | null;
-  latest_balance: AccountEvent | null;
+  latestBalance: AccountEvent | null;
 }
 
 export interface Portfolio {
@@ -44,16 +44,16 @@ export interface Portfolio {
 }
 
 export interface AccountCreateRequest {
-  institutionid: number;
+  institutionId: number;
   name: string;
-  typeid?: number;
-  statusid?: number;
+  typeId?: number;
+  statusId?: number;
 }
 
 export interface AccountUpdateRequest {
   name?: string;
-  typeid?: number;
-  statusid?: number;
+  typeId?: number;
+  statusId?: number;
 }
 
 export interface InstitutionCreateRequest {

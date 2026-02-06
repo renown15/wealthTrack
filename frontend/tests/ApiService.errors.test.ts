@@ -89,7 +89,7 @@ describe('ApiService - Error Handling', () => {
     const clientSpy = vi.spyOn(apiService['client'], 'post').mockRejectedValueOnce(mockError);
 
     try {
-      await apiService.createAccount({ name: 'Test' });
+      await apiService.createAccount({ institutionId: 1, name: 'Test' });
       expect.fail('Should have thrown');
     } catch (error) {
       expect((error as Error).message).toBe('Invalid account data');

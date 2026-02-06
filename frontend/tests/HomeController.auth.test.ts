@@ -40,7 +40,7 @@ describe('HomeController - Authentication', () => {
   });
 
   it('should load authenticated user if token exists', async () => {
-    const mockUser = { id: 1, email: 'test@example.com', firstname: 'Test', lastname: 'User' };
+    const mockUser = { id: 1, email: 'test@example.com', firstName: 'Test', lastName: 'User' };
     mockApiService.getAuthToken.mockReturnValue('valid-token');
     mockApiService.getCurrentUser.mockResolvedValue(mockUser);
 
@@ -55,45 +55,33 @@ describe('HomeController - Authentication', () => {
     mockApiService.getAuthToken.mockReturnValue('invalid-token');
     mockApiService.getCurrentUser.mockRejectedValue(new Error('Unauthorized'));
 
-    const localStorageMock = {
-      removeItem: vi.fn(),
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-      clear: vi.fn(),
-      key: vi.fn(),
-      length: 0,
-    };
-    global.localStorage = localStorageMock as any;
+    const removeItemSpy = vi.spyOn(localStorage, 'removeItem');
 
     const controller = new HomeController('home-container');
     await controller.init();
 
     expect(mockApiService.clearAuthToken).toHaveBeenCalled();
-    expect(localStorageMock.removeItem).toHaveBeenCalledWith('accessToken');
+    expect(removeItemSpy).toHaveBeenCalledWith('accessToken');
+    
+    removeItemSpy.mockRestore();
   });
 
   it('should render home view with no user if token invalid', async () => {
     mockApiService.getAuthToken.mockReturnValue('invalid-token');
     mockApiService.getCurrentUser.mockRejectedValue(new Error('Unauthorized'));
 
-    const localStorageMock = {
-      removeItem: vi.fn(),
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-      clear: vi.fn(),
-      key: vi.fn(),
-      length: 0,
-    };
-    global.localStorage = localStorageMock as any;
+    const removeItemSpy = vi.spyOn(localStorage, 'removeItem');
 
     const controller = new HomeController('home-container');
     await controller.init();
 
     expect(container.children.length).toBeGreaterThan(0);
+    
+    removeItemSpy.mockRestore();
   });
 
   it('should set up logout handler if user is authenticated', async () => {
-    const mockUser = { id: 1, email: 'test@example.com', firstname: 'Test', lastname: 'User' };
+    const mockUser = { id: 1, email: 'test@example.com', firstName: 'Test', lastName: 'User' };
     mockApiService.getAuthToken.mockReturnValue('valid-token');
     mockApiService.getCurrentUser.mockResolvedValue(mockUser);
 
@@ -104,7 +92,7 @@ describe('HomeController - Authentication', () => {
   });
 
   it('should handle logout with localStorage cleanup', () => {
-    const mockUser = { id: 1, email: 'test@example.com', firstname: 'Test', lastname: 'User' };
+    const mockUser = { id: 1, email: 'test@example.com', firstName: 'Test', lastName: 'User' };
     mockApiService.getAuthToken.mockReturnValue('valid-token');
     mockApiService.getCurrentUser.mockResolvedValue(mockUser);
 

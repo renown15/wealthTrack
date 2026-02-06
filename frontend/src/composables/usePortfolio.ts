@@ -35,8 +35,8 @@ export function usePortfolio(): {
 
   const totalValue = computed(() => {
     return state.items.reduce((sum, item) => {
-      if (item.latest_balance?.value) {
-        return sum + parseFloat(item.latest_balance.value);
+      if (item.latestBalance?.value) {
+        return sum + parseFloat(item.latestBalance.value);
       }
       return sum;
     }, 0);
@@ -63,11 +63,11 @@ export function usePortfolio(): {
     }
   };
 
-  const createAccount = async (institutionid: number, name: string): Promise<void> => {
+  const createAccount = async (institutionId: number, name: string): Promise<void> => {
     try {
       state.error = null;
       await apiService.createAccount({
-        institutionid,
+        institutionId,
         name,
       });
       await loadPortfolio();

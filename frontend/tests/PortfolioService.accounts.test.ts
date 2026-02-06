@@ -30,9 +30,9 @@ describe('PortfolioService - Account Operations', () => {
       const mockPortfolio = {
         items: [
           {
-            account: { id: 1, name: 'Savings', userid: 1, institutionid: 1, typeid: 1, statusid: 1, created_at: '', updated_at: '' },
-            institution: { id: 1, name: 'Bank A', userid: 1, created_at: '', updated_at: '' },
-            latest_balance: { id: 1, value: '1000.00', accountid: 1, userid: 1, eventtype: 'balance', created_at: '', updated_at: '' },
+            account: { id: 1, name: 'Savings', userId: 1, institutionId: 1, typeId: 1, statusId: 1, createdAt: '', updatedAt: '' },
+            institution: { id: 1, name: 'Bank A', userId: 1, createdAt: '', updatedAt: '' },
+            latestBalance: { id: 1, value: '1000.00', accountId: 1, userId: 1, eventType: 'balance', createdAt: '', updatedAt: '' },
           },
         ],
         totalValue: 1000,
@@ -57,16 +57,16 @@ describe('PortfolioService - Account Operations', () => {
 
   describe('createAccount', () => {
     it('should create an account with provided data', async () => {
-      const createData = { name: 'New Savings', institutionid: 1, typeid: 1 };
+      const createData = { name: 'New Savings', institutionId: 1, typeId: 1 };
       const mockAccount = {
         id: 2,
         name: 'New Savings',
-        userid: 1,
-        institutionid: 1,
-        typeid: 1,
-        statusid: 1,
-        created_at: '',
-        updated_at: '',
+        userId: 1,
+        institutionId: 1,
+        typeId: 1,
+        statusId: 1,
+        createdAt: '',
+        updatedAt: '',
       };
       mockApiService.createAccount.mockResolvedValue(mockAccount);
 
@@ -77,7 +77,7 @@ describe('PortfolioService - Account Operations', () => {
     });
 
     it('should pass through errors from apiService', async () => {
-      const createData = { name: 'New Account', institutionid: 1, typeid: 1 };
+      const createData = { name: 'New Account', institutionId: 1, typeId: 1 };
       const error = new Error('Duplicate account');
       mockApiService.createAccount.mockRejectedValue(error);
 
@@ -92,12 +92,12 @@ describe('PortfolioService - Account Operations', () => {
       const mockAccount = {
         id: 1,
         name: 'Updated Savings',
-        userid: 1,
-        institutionid: 1,
-        typeid: 1,
-        statusid: 1,
-        created_at: '',
-        updated_at: '',
+        userId: 1,
+        institutionId: 1,
+        typeId: 1,
+        statusId: 1,
+        createdAt: '',
+        updatedAt: '',
       };
       mockApiService.updateAccount.mockResolvedValue(mockAccount);
 

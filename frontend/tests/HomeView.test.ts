@@ -50,8 +50,8 @@ describe('HomeView', () => {
     const mockUser: User = {
       id: 1,
       email: 'test@example.com',
-      firstname: 'Test',
-      surname: 'User',
+      firstName: 'Test',
+      lastName: 'User',
       isActive: true,
       isVerified: true,
       createdAt: new Date().toISOString(),
@@ -71,8 +71,8 @@ describe('HomeView', () => {
     const mockUser: User = {
       id: 1,
       email: 'test@example.com',
-      firstname: 'Test',
-      surname: 'User',
+      firstName: 'Test',
+      lastName: 'User',
       isActive: true,
       isVerified: true,
       createdAt: new Date().toISOString(),

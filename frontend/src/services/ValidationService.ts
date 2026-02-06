@@ -75,19 +75,19 @@ export class ValidationService {
     }
 
     // Validate first name
-    const firstNameValidation = this.validateName(data.first_name || '');
-    if (!data.first_name) {
-      errors.first_name = 'First name is required';
+    const firstNameValidation = this.validateName(data.firstName || '');
+    if (!data.firstName) {
+      errors.firstName = 'First name is required';
     } else if (!firstNameValidation.isValid) {
-      errors.first_name = firstNameValidation.message || 'Invalid first name';
+      errors.firstName = firstNameValidation.message || 'Invalid first name';
     }
 
     // Validate last name
-    const lastNameValidation = this.validateName(data.last_name || '');
-    if (!data.last_name) {
-      errors.last_name = 'Last name is required';
+    const lastNameValidation = this.validateName(data.lastName || '');
+    if (!data.lastName) {
+      errors.lastName = 'Last name is required';
     } else if (!lastNameValidation.isValid) {
-      errors.last_name = lastNameValidation.message || 'Invalid last name';
+      errors.lastName = lastNameValidation.message || 'Invalid last name';
     }
 
     // Validate password

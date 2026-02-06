@@ -4,8 +4,8 @@
 export interface User {
   id: number;
   email: string;
-  firstname: string;
-  surname: string;
+  firstName: string;
+  lastName: string;
   isActive: boolean;
   isVerified: boolean;
   createdAt: string;
@@ -16,8 +16,8 @@ export interface User {
  */
 export interface UserRegistration {
   email: string;
-  first_name: string;
-  last_name: string;
+  firstName: string;
+  lastName: string;
   password: string;
 }
 

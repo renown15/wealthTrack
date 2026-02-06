@@ -9,8 +9,8 @@ describe('ValidationService - Form Validation', () => {
     it('should validate complete registration form', () => {
       const data = {
         email: 'test@example.com',
-        first_name: 'Test',
-        last_name: 'User',
+        firstName: 'Test',
+        lastName: 'User',
         password: 'TestPass123',
       };
       const result = ValidationService.validateRegistrationForm(data);
@@ -19,57 +19,57 @@ describe('ValidationService - Form Validation', () => {
     });
 
     it('should reject form with missing email', () => {
-      const data = { email: '', first_name: 'Test', last_name: 'User', password: 'TestPass123' };
+      const data = { email: '', firstName: 'Test', lastName: 'User', password: 'TestPass123' };
       const result = ValidationService.validateRegistrationForm(data);
       expect(result.isValid).toBe(false);
       expect(result.errors.email).toBeDefined();
     });
 
     it('should reject form with invalid email', () => {
-      const data = { email: 'invalid-email', first_name: 'Test', last_name: 'User', password: 'TestPass123' };
+      const data = { email: 'invalid-email', firstName: 'Test', lastName: 'User', password: 'TestPass123' };
       const result = ValidationService.validateRegistrationForm(data);
       expect(result.isValid).toBe(false);
       expect(result.errors.email).toContain('Invalid email');
     });
 
     it('should reject form with weak password', () => {
-      const data = { email: 'test@example.com', first_name: 'Test', last_name: 'User', password: 'weak' };
+      const data = { email: 'test@example.com', firstName: 'Test', lastName: 'User', password: 'weak' };
       const result = ValidationService.validateRegistrationForm(data);
       expect(result.isValid).toBe(false);
       expect(result.errors.password).toBeDefined();
     });
 
-    it('should reject form with missing first_name', () => {
-      const data = { email: 'test@example.com', first_name: '', last_name: 'User', password: 'TestPass123' };
+    it('should reject form with missing firstName', () => {
+      const data = { email: 'test@example.com', firstName: '', lastName: 'User', password: 'TestPass123' };
       const result = ValidationService.validateRegistrationForm(data);
       expect(result.isValid).toBe(false);
-      expect(result.errors.first_name).toBeDefined();
+      expect(result.errors.firstName).toBeDefined();
     });
 
-    it('should reject form with missing last_name', () => {
-      const data = { email: 'test@example.com', first_name: 'Test', last_name: '', password: 'TestPass123' };
+    it('should reject form with missing lastName', () => {
+      const data = { email: 'test@example.com', firstName: 'Test', lastName: '', password: 'TestPass123' };
       const result = ValidationService.validateRegistrationForm(data);
       expect(result.isValid).toBe(false);
-      expect(result.errors.last_name).toBeDefined();
+      expect(result.errors.lastName).toBeDefined();
     });
 
     it('should validate all required fields', () => {
-      const data = { email: 'invalid', first_name: '', last_name: '', password: 'weak' };
+      const data = { email: 'invalid', firstName: '', lastName: '', password: 'weak' };
       const result = ValidationService.validateRegistrationForm(data);
       expect(result.isValid).toBe(false);
       expect(Object.keys(result.errors).length).toBeGreaterThan(1);
     });
 
-    it('should reject registration with first_name exceeding max length', () => {
+    it('should reject registration with firstName exceeding max length', () => {
       const data = {
         email: 'test@example.com',
-        first_name: 'a'.repeat(101),
-        last_name: 'User',
+        firstName: 'a'.repeat(101),
+        lastName: 'User',
         password: 'TestPass123',
       };
       const result = ValidationService.validateRegistrationForm(data);
       expect(result.isValid).toBe(false);
-      expect(result.errors.first_name).toBeDefined();
+      expect(result.errors.firstName).toBeDefined();
     });
   });
 

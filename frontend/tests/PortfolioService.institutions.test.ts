@@ -28,8 +28,8 @@ describe('PortfolioService - Institution Operations', () => {
   describe('getInstitutions', () => {
     it('should fetch institutions from apiService', async () => {
       const mockInstitutions = [
-        { id: 1, name: 'Bank A', userid: 1, created_at: '', updated_at: '' },
-        { id: 2, name: 'Bank B', userid: 1, created_at: '', updated_at: '' },
+        { id: 1, name: 'Bank A', userId: 1, createdAt: '', updatedAt: '' },
+        { id: 2, name: 'Bank B', userId: 1, createdAt: '', updatedAt: '' },
       ];
       mockApiService.getInstitutions.mockResolvedValue(mockInstitutions);
 
@@ -51,7 +51,7 @@ describe('PortfolioService - Institution Operations', () => {
   describe('createInstitution', () => {
     it('should create an institution with provided name', async () => {
       const createData = { name: 'New Bank' };
-      const mockInstitution = { id: 3, name: 'New Bank', userid: 1, created_at: '', updated_at: '' };
+      const mockInstitution = { id: 3, name: 'New Bank', userId: 1, createdAt: '', updatedAt: '' };
       mockApiService.createInstitution.mockResolvedValue(mockInstitution);
 
       const result = await portfolioService.createInstitution(createData);
@@ -75,9 +75,9 @@ describe('PortfolioService - Institution Operations', () => {
       const mockInstitution = {
         id: 1,
         name: 'Updated Bank',
-        userid: 1,
-        created_at: '',
-        updated_at: '',
+        userId: 1,
+        createdAt: '',
+        updatedAt: '',
       };
       mockApiService.updateInstitution.mockResolvedValue(mockInstitution);
 

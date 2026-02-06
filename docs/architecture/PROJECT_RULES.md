@@ -102,6 +102,34 @@ python -m pytest tests/ --cov=app --cov-report=html
 # Open htmlcov/index.html to view detailed coverage
 ```
 
+## 🐛 Frontend Debug Logging
+
+### Debug Utility
+All debug/diagnostic logging must go through the centralized `debug` utility at `frontend/src/utils/debug.ts`.
+
+**Usage:**
+```typescript
+import { debug } from '@utils/debug';
+
+debug.log('[Category] Message', data);   // Respects debug mode
+debug.error('[Category] Error', error);  // Error logging
+debug.warn('[Category] Warning', data);  // Warning logging
+debug.info('[Category] Info', data);     // Info logging
+```
+
+**Control:**
+- **Dev mode**: Debug enabled by default (controlled by `import.meta.env.DEV`)
+- **Production**: Debug disabled by default
+- **Override**: `localStorage.setItem('debugMode', 'true')` or `'false'` to override
+
+**Rule:** Direct `console.debug()`, `console.error()`, `console.warn()` calls are forbidden outside the debug utility. Use ESLint rule to enforce.
+
+**Rationale:**
+- Single control point for debug output
+- Easy toggle between dev and production logging
+- Consistent logging format across frontend
+- Browser localStorage allows runtime control without code changes
+
 ## ✅ Verification Checklist
 
 Before submitting any changes:
@@ -110,6 +138,7 @@ Before submitting any changes:
 - [ ] No files exceed 200 lines: `pytest tests/test_file_constraints.py -v`
 - [ ] No files were deleted without approval
 - [ ] Git status shows only intended changes
+- [ ] All debug logging uses `debug` utility, not direct `console` calls
 
 ## 📝 Historical Notes
 
@@ -123,3 +152,17 @@ Before submitting any changes:
 - This violated the file preservation rule
 - Rule was subsequently emphasized as non-negotiable
 - Documentation updated to prevent future violations
+
+**TypeScript Test File Size Violation (Known Technical Debt)**:
+- Some frontend test files exceed 200-line limit (ApiService.test.ts: 991 lines)
+- Created during initial schema fix session
+- **Action Required**: These files must be refactored into smaller modules
+- New files created respect the limit (debug.ts: 86 lines, debug.enforcement.test.ts: 60 lines)
+
+**Debug Utility Implemented** (Session 2/5/2026):
+- Created centralized debug logging utility to replace direct console calls
+- Added ESLint rule enforcement: `no-console` rule forbids direct console usage
+- Added Vitest test to catch console calls in source code
+- All services updated to use debug utility instead of console.debug/error/warn
+- Documented in PROJECT_RULES.md under "Frontend Debug Logging" section
+- Full backward compatibility: localStorage override allows runtime debug toggle

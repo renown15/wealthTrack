@@ -10,10 +10,18 @@
     "test": "vitest --run",
     "test:watch": "vitest",
     "test:coverage": "vitest --coverage --run",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
     "lint": "eslint src --ext .ts --max-warnings 0",
     "type-check": "tsc --noEmit"
   },
-  "keywords": ["wealth", "management", "finance"],
+  "keywords": [
+    "wealth",
+    "management",
+    "finance"
+  ],
   "author": "WealthTrack Team",
   "license": "MIT",
   "dependencies": {
@@ -21,14 +29,16 @@
     "vue": "^3.3.13"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.1",
     "@types/node": "^20.10.6",
     "@typescript-eslint/eslint-plugin": "^6.17.0",
     "@typescript-eslint/parser": "^6.17.0",
+    "@vitejs/plugin-vue": "^5.0.0",
     "@vitest/coverage-v8": "^1.1.1",
     "@vue/test-utils": "^2.4.3",
-    "@vitejs/plugin-vue": "^5.0.0",
     "eslint": "^8.56.0",
     "happy-dom": "^12.10.3",
+    "pg": "^8.18.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.11",
     "vitest": "^1.1.1"

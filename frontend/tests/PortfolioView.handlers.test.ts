@@ -105,7 +105,7 @@ describe('PortfolioView - Handlers', () => {
     vm.modalResourceType = 'institution';
     vm.modalType = 'edit';
     vm.editingItem = { id: 1, name: 'Old Bank' };
-    vm.formData = { name: 'Updated Bank', institutionid: 0 };
+    vm.formData = { name: 'Updated Bank', institutionId: 0 };
 
     await vm.handleSave();
 
@@ -125,7 +125,7 @@ describe('PortfolioView - Handlers', () => {
     vm.modalResourceType = 'account';
     vm.modalType = 'edit';
     vm.editingItem = { id: 1, name: 'Old Account' };
-    vm.formData = { name: 'Updated Account', institutionid: 2 };
+    vm.formData = { name: 'Updated Account', institutionId: 2 };
 
     await vm.handleSave();
 

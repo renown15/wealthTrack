@@ -31,13 +31,13 @@ describe('RegistrationController - Rendering', () => {
     expect(form).toBeDefined();
   });
 
-  it('should have email, first_name, last_name, and password input fields', () => {
+  it('should have email, firstName, lastName, and password input fields', () => {
     const controller = new RegistrationController('registration-container');
     controller.init();
 
     const emailInput = container.querySelector('input[id="email"]');
-    const firstNameInput = container.querySelector('input[id="first_name"]');
-    const lastNameInput = container.querySelector('input[id="last_name"]');
+    const firstNameInput = container.querySelector('input[id="firstName"]');
+    const lastNameInput = container.querySelector('input[id="lastName"]');
     const passwordInput = container.querySelector('input[id="password"]');
 
     expect(emailInput).toBeDefined();
@@ -104,7 +104,7 @@ describe('RegistrationController - Rendering', () => {
     expect(passwordInput.type).toBe('password');
   });
 
-  it('should have first_name and last_name inputs of type text', () => {
+  it('should have firstName and lastName inputs of type text', () => {
     const controller = new RegistrationController('registration-container');
     controller.init();
 
@@ -138,8 +138,8 @@ describe('RegistrationController - Rendering', () => {
     controller.init();
 
     const emailInput = container.querySelector('input[id="email"]') as HTMLInputElement;
-    const firstNameInput = container.querySelector('input[id="first_name"]') as HTMLInputElement;
-    const lastNameInput = container.querySelector('input[id="last_name"]') as HTMLInputElement;
+    const firstNameInput = container.querySelector('input[id="firstName"]') as HTMLInputElement;
+    const lastNameInput = container.querySelector('input[id="lastName"]') as HTMLInputElement;
     const passwordInput = container.querySelector('input[id="password"]') as HTMLInputElement;
 
     if (emailInput && firstNameInput && lastNameInput && passwordInput) {

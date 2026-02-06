@@ -19,6 +19,7 @@ export default defineConfig({
       '@models': resolve(__dirname, './src/models'),
       '@composables': resolve(__dirname, './src/composables'),
       '@styles': resolve(__dirname, './src/styles'),
+      '@utils': resolve(__dirname, './src/utils'),
     },
   },
   build: {

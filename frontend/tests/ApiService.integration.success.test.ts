@@ -18,8 +18,8 @@ describe('ApiService Integration - Success Paths', () => {
       const user: User = {
         id: 1,
         email: 'newuser@example.com',
-        username: 'newuser',
-        fullName: 'New User',
+        firstName: 'New',
+        lastName: 'User',
         isActive: true,
         isVerified: false,
         createdAt: new Date().toISOString(),
@@ -46,14 +46,14 @@ describe('ApiService Integration - Success Paths', () => {
       const user: User = {
         id: 2,
         email: 'minimal@example.com',
-        username: 'minimal',
-        fullName: null,
+        firstName: 'Min',
+        lastName: 'Imal',
         isActive: true,
         isVerified: false,
         createdAt: new Date().toISOString(),
       };
 
-      expect(user.fullName).toBeNull();
+      expect(user.isActive).toBe(true);
       expect(user.email).toBe('minimal@example.com');
     });
   });
@@ -62,31 +62,31 @@ describe('ApiService Integration - Success Paths', () => {
     it('should construct registration request body', () => {
       const data: UserRegistration = {
         email: 'test@example.com',
-        username: 'testuser',
+        firstName: 'Test',
+        lastName: 'User',
         password: 'TestPass123',
-        fullName: 'Test User',
       };
 
       expect(data.email).toBe('test@example.com');
-      expect(data.username).toBe('testuser');
+      expect(data.firstName).toBe('Test');
       expect(data.password).toBe('TestPass123');
-      expect(data.fullName).toBe('Test User');
     });
 
     it('should construct login request body', () => {
       const data: UserLogin = {
-        username: 'user@example.com',
+        email: 'user@example.com',
         password: 'UserPass123',
       };
 
-      expect(data.username).toBe('user@example.com');
+      expect(data.email).toBe('user@example.com');
       expect(data.password).toBe('UserPass123');
     });
 
     it('should serialize request to JSON', () => {
       const data: UserRegistration = {
         email: 'test@example.com',
-        username: 'testuser',
+        firstName: 'Test',
+        lastName: 'User',
         password: 'Pass123',
       };
 
@@ -94,35 +94,36 @@ describe('ApiService Integration - Success Paths', () => {
       const parsed = JSON.parse(json);
 
       expect(parsed.email).toBe('test@example.com');
-      expect(parsed.username).toBe('testuser');
+      expect(parsed.firstName).toBe('Test');
     });
 
     it('should include all registration fields in request', () => {
       const data: UserRegistration = {
         email: 'full@example.com',
-        username: 'fulluser',
+        firstName: 'Full',
+        lastName: 'User',
         password: 'FullPass123',
-        fullName: 'Full User',
       };
 
       const json = JSON.stringify(data);
       expect(json).toContain('email');
-      expect(json).toContain('username');
+      expect(json).toContain('firstName');
       expect(json).toContain('password');
-      expect(json).toContain('fullName');
+      expect(json).toContain('lastName');
     });
 
     it('should omit undefined optional fields', () => {
       const data: UserRegistration = {
         email: 'test@example.com',
-        username: 'testuser',
+        firstName: 'Test',
+        lastName: 'User',
         password: 'Pass123',
       };
 
       const json = JSON.stringify(data);
       const parsed = JSON.parse(json);
 
-      expect('fullName' in parsed).toBe(false);
+      expect('optional_field' in parsed).toBe(false);
     });
   });
 
@@ -131,8 +132,8 @@ describe('ApiService Integration - Success Paths', () => {
       const responseData = {
         id: 1,
         email: 'test@example.com',
-        username: 'testuser',
-        fullName: 'Test User',
+        firstName: 'Test',
+        lastName: 'User',
         isActive: true,
         isVerified: false,
         createdAt: '2026-01-24T00:00:00Z',
@@ -140,7 +141,7 @@ describe('ApiService Integration - Success Paths', () => {
 
       expect(responseData.id).toBe(1);
       expect(responseData.email).toBe('test@example.com');
-      expect(responseData.username).toBe('testuser');
+      expect(responseData.firstName).toBe('Test');
     });
 
     it('should parse login response', () => {
@@ -169,14 +170,14 @@ describe('ApiService Integration - Success Paths', () => {
       const response: User = {
         id: 1,
         email: 'user@example.com',
-        username: 'username',
-        fullName: 'User Name',
+        firstName: 'User',
+        lastName: 'Name',
         isActive: true,
         isVerified: false,
         createdAt: '2026-01-24T00:00:00Z',
       };
 
-      expect(response.username).toBe('username');
+      expect(response.firstName).toBe('User');
       expect(response.email).toBe('user@example.com');
     });
   });

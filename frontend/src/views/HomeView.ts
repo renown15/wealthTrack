@@ -34,7 +34,7 @@ export class HomeView extends BaseView {
       greeting.className = 'user-greeting';
 
       const title = document.createElement('h1');
-      title.textContent = `Welcome back, ${user.firstname} ${user.surname}!`;
+      title.textContent = `Welcome back, ${user.firstName} ${user.lastName}!`;
       title.className = 'home-title';
 
       const userInfo = document.createElement('p');
