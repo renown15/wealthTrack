@@ -19,8 +19,8 @@ test.describe('E2E - Portfolio & Accounts', () => {
     await page.goto('/');
     await page.click('text=Register');
     await page.fill('input[id="email"]', testEmail);
-    await page.fill('input[id="first_name"]', 'Portfolio');
-    await page.fill('input[id="last_name"]', 'Tester');
+    await page.fill('input[id="firstName"]', 'Portfolio');
+    await page.fill('input[id="lastName"]', 'Tester');
     await page.fill('input[id="password"]', testPassword);
     await page.click('button[type="submit"]');
     await expect(page.locator('text=Registration successful')).toBeVisible({

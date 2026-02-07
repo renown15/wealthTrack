@@ -50,8 +50,8 @@ describe('RegistrationController - Error Handling', () => {
       // Simulate form submission
       const form = container.querySelector('form') as HTMLFormElement;
       const emailInput = container.querySelector('input[id="email"]') as HTMLInputElement;
-      const firstNameInput = container.querySelector('input[id="first_name"]') as HTMLInputElement;
-      const lastNameInput = container.querySelector('input[id="last_name"]') as HTMLInputElement;
+      const firstNameInput = container.querySelector('input[id="firstName"]') as HTMLInputElement;
+      const lastNameInput = container.querySelector('input[id="lastName"]') as HTMLInputElement;
       const passwordInput = container.querySelector('input[id="password"]') as HTMLInputElement;
 
       if (emailInput) emailInput.value = 'test@example.com';

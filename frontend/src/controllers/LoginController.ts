@@ -9,6 +9,7 @@ import type { UserLogin } from '@models/User';
 
 export class LoginController {
   private view: LoginView;
+  private isSubmitting = false;
 
   constructor(containerId: string) {
     this.view = new LoginView(containerId);
@@ -26,11 +27,22 @@ export class LoginController {
    * Handle user login.
    */
   private async handleLogin(data: Record<string, string>): Promise<void> {
+    // Prevent duplicate submissions
+    if (this.isSubmitting) {
+      console.log('[Login] Submission already in progress, ignoring duplicate');
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.view.disableSubmit(true);
+
     // Validate form data
     const validation = ValidationService.validateLoginForm(data);
 
     if (!validation.isValid) {
       this.view.displayErrors(validation.errors);
+      this.view.disableSubmit(false);
+      this.isSubmitting = false;
       return;
     }
 
@@ -65,8 +77,20 @@ export class LoginController {
       }, 1000);
     } catch (error) {
       // Show error message
-      const errorMessage = error instanceof Error ? error.message : 'Login failed';
+      console.error('[Login] Error occurred:', error);
+      console.error('[Login] Error type:', typeof error);
+      if (error instanceof Error) {
+        console.error('[Login] Error.message:', error.message);
+        console.error('[Login] Error.name:', error.name);
+      }
+      let errorMessage = error instanceof Error ? error.message : String(error);
+      if (!errorMessage || errorMessage.trim().length === 0) {
+        errorMessage = 'Login failed. Please try again.';
+      }
+      console.log('[Login] Showing error message:', errorMessage);
       this.view.showError(errorMessage);
+      this.view.disableSubmit(false);
+      this.isSubmitting = false;
     }
   }
 }

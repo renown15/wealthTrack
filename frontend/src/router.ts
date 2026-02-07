@@ -2,12 +2,15 @@
  * Router for handling navigation between pages.
  */
 import { HomeController } from '@controllers/HomeController';
+import { PortfolioController } from '@controllers/PortfolioController';
 import { RegistrationController } from '@controllers/RegistrationController';
 import { LoginController } from '@controllers/LoginController';
+import { apiService } from '@services/ApiService';
 
 export class Router {
   private currentController:
     | HomeController
+    | PortfolioController
     | RegistrationController
     | LoginController
     | null = null;
@@ -33,10 +36,20 @@ export class Router {
     // Load appropriate controller
     switch (page) {
       case 'home':
-      case 'dashboard':
-        this.currentController = new HomeController('view-container');
-        await this.currentController.init();
+      case 'dashboard': {
+        // Check if user is authenticated
+        const token = apiService.getAuthToken();
+        if (token) {
+          // Show portfolio view for authenticated users
+          this.currentController = new PortfolioController('view-container');
+          await this.currentController.init();
+        } else {
+          // Show home view for non-authenticated users
+          this.currentController = new HomeController('view-container');
+          await this.currentController.init();
+        }
         break;
+      }
       case 'register':
         this.currentController = new RegistrationController('view-container');
         this.currentController.init();
@@ -72,6 +85,9 @@ export class Router {
       } else if (target.id === 'nav-login' || target.id === 'go-to-login') {
         e.preventDefault();
         void this.navigate('login');
+      } else if (target.id === 'nav-portfolio' || target.id === 'nav-dashboard') {
+        e.preventDefault();
+        void this.navigate('dashboard');
       }
     });
 

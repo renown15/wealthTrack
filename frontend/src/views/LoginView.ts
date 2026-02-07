@@ -5,6 +5,7 @@ import { BaseView } from '@views/BaseView';
 
 export class LoginView extends BaseView {
   private onSubmitCallback?: (data: Record<string, string>) => Promise<void>;
+  private submitButton?: HTMLButtonElement;
 
   constructor(containerId: string) {
     super(containerId);
@@ -15,6 +16,18 @@ export class LoginView extends BaseView {
    */
   onSubmit(callback: (data: Record<string, string>) => Promise<void>): void {
     this.onSubmitCallback = callback;
+  }
+
+  /**
+   * Disable/enable the submit button.
+   */
+  disableSubmit(disabled: boolean): void {
+    if (this.submitButton) {
+      this.submitButton.disabled = disabled;
+      this.submitButton.textContent = disabled ? 'Logging in...' : 'Login';
+      this.submitButton.style.opacity = disabled ? '0.6' : '1';
+      this.submitButton.style.cursor = disabled ? 'not-allowed' : 'pointer';
+    }
   }
 
   /**
@@ -39,12 +52,12 @@ export class LoginView extends BaseView {
     form.appendChild(this.createFormField('password', 'password', 'Password', 'Your password'));
 
     // Submit button
-    const submitButton = document.createElement('button');
-    submitButton.type = 'submit';
-    submitButton.textContent = 'Login';
-    submitButton.className = 'btn btn-primary';
+    this.submitButton = document.createElement('button');
+    this.submitButton.type = 'submit';
+    this.submitButton.textContent = 'Login';
+    this.submitButton.className = 'btn btn-primary';
 
-    form.appendChild(submitButton);
+    form.appendChild(this.submitButton);
 
     // Register link
     const registerLink = document.createElement('p');

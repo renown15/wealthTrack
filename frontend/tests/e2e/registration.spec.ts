@@ -18,8 +18,8 @@ test.describe('E2E - User Registration', () => {
 
     // Fill registration form
     await page.fill('input[id="email"]', 'newuser@example.com');
-    await page.fill('input[id="first_name"]', 'John');
-    await page.fill('input[id="last_name"]', 'Doe');
+    await page.fill('input[id="firstName"]', 'John');
+    await page.fill('input[id="lastName"]', 'Doe');
     await page.fill('input[id="password"]', 'SecurePass123!');
 
     // Submit form
@@ -53,8 +53,8 @@ test.describe('E2E - User Registration', () => {
 
     // Try invalid email
     await page.fill('input[id="email"]', 'not-an-email');
-    await page.fill('input[id="first_name"]', 'John');
-    await page.fill('input[id="last_name"]', 'Doe');
+    await page.fill('input[id="firstName"]', 'John');
+    await page.fill('input[id="lastName"]', 'Doe');
     await page.fill('input[id="password"]', 'SecurePass123!');
 
     await page.click('button[type="submit"]');
@@ -76,8 +76,8 @@ test.describe('E2E - User Registration', () => {
     await page.click('text=Register');
 
     await page.fill('input[id="email"]', 'weakpass@example.com');
-    await page.fill('input[id="first_name"]', 'John');
-    await page.fill('input[id="last_name"]', 'Doe');
+    await page.fill('input[id="firstName"]', 'John');
+    await page.fill('input[id="lastName"]', 'Doe');
     await page.fill('input[id="password"]', '123'); // Too weak
 
     await page.click('button[type="submit"]');
@@ -95,8 +95,8 @@ test.describe('E2E - User Registration', () => {
     await page.click('text=Register');
 
     await page.fill('input[id="email"]', email);
-    await page.fill('input[id="first_name"]', 'First');
-    await page.fill('input[id="last_name"]', 'User');
+    await page.fill('input[id="firstName"]', 'First');
+    await page.fill('input[id="lastName"]', 'User');
     await page.fill('input[id="password"]', 'SecurePass123!');
 
     await page.click('button[type="submit"]');
@@ -109,8 +109,8 @@ test.describe('E2E - User Registration', () => {
     await page.click('text=Register');
 
     await page.fill('input[id="email"]', email);
-    await page.fill('input[id="first_name"]', 'Second');
-    await page.fill('input[id="last_name"]', 'User');
+    await page.fill('input[id="firstName"]', 'Second');
+    await page.fill('input[id="lastName"]', 'User');
     await page.fill('input[id="password"]', 'AnotherPass123!');
 
     await page.click('button[type="submit"]');

@@ -55,10 +55,10 @@ async def create_account(
     # Create account (object instantiation, not model construction)
     account = Account()
     account.userid = current_user.id
-    account.institutionid = account_data.institutionid
+    account.institutionid = account_data.institution_id
     account.name = account_data.name
-    account.typeid = account_data.typeid
-    account.statusid = account_data.statusid
+    account.typeid = account_data.type_id
+    account.statusid = account_data.status_id
     session.add(account)
     await session.flush()
     await session.refresh(account)
@@ -77,10 +77,10 @@ async def update_account(
     update_dict: dict[str, Any] = {}
     if account_data.name is not None:
         update_dict["name"] = account_data.name
-    if account_data.typeid is not None:
-        update_dict["typeid"] = account_data.typeid
-    if account_data.statusid is not None:
-        update_dict["statusid"] = account_data.statusid
+    if account_data.type_id is not None:
+        update_dict["typeid"] = account_data.type_id
+    if account_data.status_id is not None:
+        update_dict["statusid"] = account_data.status_id
 
     try:
         await service.update(account_id, current_user.id, **update_dict)

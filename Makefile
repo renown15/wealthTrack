@@ -11,6 +11,7 @@ help:
 	@echo "  make setup              - Full development environment setup"
 	@echo "  make docker-up          - Start development containers (db + api)"
 	@echo "  make docker-down        - Stop development containers"
+	@echo "  make seed-db            - Seed database with reference data (all environments)"
 	@echo ""
 	@echo "Development:"
 	@echo "  make backend-dev        - Start backend development server"
@@ -62,6 +63,11 @@ docker-up:
 docker-down:
 	@echo "Stopping Docker containers..."
 	docker-compose --env-file .env.dev -f docker-compose.yml down
+
+seed-db:
+	@echo "Seeding database with reference data (User and SuperUser types)..."
+	DB_HOST=localhost DB_PORT=5433 DB_USER=wealthtrack DB_PASSWORD=wealthtrack_dev_password DB_NAME=wealthtrack python scripts/seed-db.py
+	@echo "✅ Database seeded with User/SuperUser types and reference data"
 
 
 # Development Servers

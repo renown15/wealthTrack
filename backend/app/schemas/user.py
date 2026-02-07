@@ -5,8 +5,10 @@ from datetime import datetime
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
+from app.schemas.base import BaseSchema
 
-class UserRegistrationRequest(BaseModel):
+
+class UserRegistrationRequest(BaseSchema):
     """Schema for user registration request."""
 
     email: EmailStr
@@ -27,13 +29,13 @@ class UserRegistrationRequest(BaseModel):
         return v
 
 
-class UserResponse(BaseModel):
+class UserResponse(BaseSchema):
     """Schema for user response."""
 
     id: int
     email: str
-    firstname: str
-    surname: str
+    first_name: str = Field(..., validation_alias="firstname")
+    last_name: str = Field(..., validation_alias="surname")
     is_active: bool
     is_verified: bool
     created_at: datetime
@@ -42,14 +44,14 @@ class UserResponse(BaseModel):
         from_attributes = True
 
 
-class TokenResponse(BaseModel):
+class TokenResponse(BaseSchema):
     """Schema for authentication token response."""
 
     access_token: str
-    token_type: str = "bearer"
+    token_type: str = Field(default="bearer")
 
 
-class UserLoginRequest(BaseModel):
+class UserLoginRequest(BaseSchema):
     """Schema for user login request."""
 
     email: EmailStr

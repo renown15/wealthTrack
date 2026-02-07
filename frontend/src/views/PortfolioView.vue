@@ -152,7 +152,7 @@
 
           <div v-if="modalResourceType === 'account' && modalType === 'create'" class="form-group">
             <label for="institution-select">Institution</label>
-            <select v-model.number="formData.institutionid" id="institution-select">
+            <select v-model.number="formData.institutionId" id="institution-select">
               <option value="">Select Institution</option>
               <option v-for="inst in state.institutions" :key="inst.id" :value="inst.id">
                 {{ inst.name }}
@@ -205,7 +205,7 @@ const { state, totalValue, accountCount, loadPortfolio, createAccount, updateAcc
 const modalOpen = ref(false);
 const modalType = ref<'create' | 'edit'>('create');
 const modalResourceType = ref<'account' | 'institution'>('account');
-const formData = ref({ name: '', institutionid: 0 });
+const formData = ref({ name: '', institutionId: 0 });
 const editingItem = ref<Account | Institution | null>(null);
 
 // Delete confirmation state
@@ -239,7 +239,7 @@ const formatDate = (dateStr: string): string => {
 const openCreateAccountModal = (): void => {
   modalType.value = 'create';
   modalResourceType.value = 'account';
-  formData.value = { name: '', institutionid: 0 };
+  formData.value = { name: '', institutionId: 0 };
   editingItem.value = null;
   modalOpen.value = true;
 };
@@ -247,7 +247,7 @@ const openCreateAccountModal = (): void => {
 const openCreateInstitutionModal = (): void => {
   modalType.value = 'create';
   modalResourceType.value = 'institution';
-  formData.value = { name: '', institutionid: 0 };
+  formData.value = { name: '', institutionId: 0 };
   editingItem.value = null;
   modalOpen.value = true;
 };
@@ -255,7 +255,7 @@ const openCreateInstitutionModal = (): void => {
 const openEditAccountModal = (account: Account): void => {
   modalType.value = 'edit';
   modalResourceType.value = 'account';
-  formData.value = { name: account.name, institutionid: 0 };
+  formData.value = { name: account.name, institutionId: 0 };
   editingItem.value = account;
   modalOpen.value = true;
 };

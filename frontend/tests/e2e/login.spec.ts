@@ -25,8 +25,8 @@ test.describe('E2E - User Login', () => {
     await page.goto('/');
     await page.click('text=Register');
     await page.fill('input[id="email"]', testEmail);
-    await page.fill('input[id="first_name"]', 'Login');
-    await page.fill('input[id="last_name"]', 'Tester');
+    await page.fill('input[id="firstName"]', 'Login');
+    await page.fill('input[id="lastName"]', 'Tester');
     await page.fill('input[id="password"]', testPassword);
     await page.click('button[type="submit"]');
     await expect(page.locator('text=Registration successful')).toBeVisible({
@@ -91,8 +91,8 @@ test.describe('E2E - User Login', () => {
     await page.goto('/');
     await page.click('text=Register');
     await page.fill('input[id="email"]', testEmail);
-    await page.fill('input[id="first_name"]', 'Wrong');
-    await page.fill('input[id="last_name"]', 'Pass');
+    await page.fill('input[id="firstName"]', 'Wrong');
+    await page.fill('input[id="lastName"]', 'Pass');
     await page.fill('input[id="password"]', correctPassword);
     await page.click('button[type="submit"]');
     await expect(page.locator('text=Registration successful')).toBeVisible({
@@ -174,8 +174,8 @@ test.describe('E2E - User Login', () => {
     await page.goto('/');
     await page.click('text=Register');
     await page.fill('input[id="email"]', testEmail);
-    await page.fill('input[id="first_name"]', 'Refresh');
-    await page.fill('input[id="last_name"]', 'Test');
+    await page.fill('input[id="firstName"]', 'Refresh');
+    await page.fill('input[id="lastName"]', 'Test');
     await page.fill('input[id="password"]', testPassword);
     await page.click('button[type="submit"]');
     await expect(page.locator('text=Registration successful')).toBeVisible({

@@ -11,12 +11,19 @@ class AuthService extends BaseApiClient {
    */
   async registerUser(userData: UserRegistration): Promise<User> {
     try {
+      console.log('[AuthService] Calling registerUser with:', userData);
       const response = await this.retryRequest(() =>
         this.client.post<User>('/api/v1/auth/register', userData),
       );
+      console.log('[AuthService] Register response:', response.data);
       debug.log('[Auth] Register response:', response.data);
       return response.data;
     } catch (error) {
+      console.error('[AuthService] Register error caught:', error);
+      console.error('[AuthService] Error type:', typeof error);
+      if (error instanceof Error) {
+        console.error('[AuthService] Error message:', error.message);
+      }
       throw this.handleError(error, 'Registration failed');
     }
   }

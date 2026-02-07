@@ -226,8 +226,8 @@ describe('Integration - Full App Browser Flow', () => {
       expect(form).toBeDefined();
 
       const emailInput = regContainer.querySelector('input[id="email"]');
-      const firstNameInput = regContainer.querySelector('input[id="first_name"]');
-      const lastNameInput = regContainer.querySelector('input[id="last_name"]');
+      const firstNameInput = regContainer.querySelector('input[id="firstName"]');
+      const lastNameInput = regContainer.querySelector('input[id="lastName"]');
       const passwordInput = regContainer.querySelector('input[id="password"]');
 
       expect(emailInput).toBeDefined();
@@ -347,8 +347,8 @@ describe('Integration - Full App Browser Flow', () => {
       regController.init();
 
       const emailInput = regContainer.querySelector('input[id="email"]') as HTMLInputElement;
-      const firstNameInput = regContainer.querySelector('input[id="first_name"]') as HTMLInputElement;
-      const lastNameInput = regContainer.querySelector('input[id="last_name"]') as HTMLInputElement;
+      const firstNameInput = regContainer.querySelector('input[id="firstName"]') as HTMLInputElement;
+      const lastNameInput = regContainer.querySelector('input[id="lastName"]') as HTMLInputElement;
       const passwordInput = regContainer.querySelector('input[id="password"]') as HTMLInputElement;
 
       if (emailInput) emailInput.value = 'newuser@example.com';

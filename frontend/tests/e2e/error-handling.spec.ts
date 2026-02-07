@@ -18,8 +18,8 @@ test.describe('E2E - Error Handling & Recovery', () => {
     await page.goto('/');
     await page.click('text=Register');
     await page.fill('input[id="email"]', email);
-    await page.fill('input[id="first_name"]', 'Error');
-    await page.fill('input[id="last_name"]', 'Test');
+    await page.fill('input[id="firstName"]', 'Error');
+    await page.fill('input[id="lastName"]', 'Test');
     await page.fill('input[id="password"]', password);
     await page.click('button[type="submit"]');
     await expect(page.locator('text=Registration successful')).toBeVisible({
@@ -36,8 +36,8 @@ test.describe('E2E - Error Handling & Recovery', () => {
 
     // Enter invalid email
     await page.fill('input[id="email"]', 'not-valid-email');
-    await page.fill('input[id="first_name"]', 'Test');
-    await page.fill('input[id="last_name"]', 'User');
+    await page.fill('input[id="firstName"]', 'Test');
+    await page.fill('input[id="lastName"]', 'User');
     await page.fill('input[id="password"]', 'ValidPass123!');
 
     await page.click('button[type="submit"]');
@@ -134,7 +134,7 @@ test.describe('E2E - Error Handling & Recovery', () => {
     await page.fill('input[id="email"]', 'recovery@example.com');
     await page.fill('input[id="password"]', 'ValidPass123!');
 
-    // Missing first_name
+    // Missing firstName
     await page.click('button[type="submit"]');
 
     // Should show validation error
@@ -143,8 +143,8 @@ test.describe('E2E - Error Handling & Recovery', () => {
     ).toBeVisible({ timeout: 5000 });
 
     // Now fill the missing field
-    await page.fill('input[id="first_name"]', 'John');
-    await page.fill('input[id="last_name"]', 'Doe');
+    await page.fill('input[id="firstName"]', 'John');
+    await page.fill('input[id="lastName"]', 'Doe');
 
     // Submit again - should succeed
     await page.click('button[type="submit"]');

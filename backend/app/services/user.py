@@ -6,6 +6,7 @@ from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.reference_data import ReferenceData
 from app.models.user_profile import UserProfile
 from app.schemas.user import UserRegistrationRequest
 from app.services.auth import hash_password, verify_password
@@ -36,17 +37,19 @@ class UserService:
         result = await self.db.execute(select(UserProfile).where(UserProfile.email == email))
         return result.scalars().first()
 
-    async def get_user_by_id(self, user_id: int) -> Optional[UserProfile]:
+    async def get_reference_data_by_classkey(self, classkey: str) -> Optional[ReferenceData]:
         """
-        Retrieve user by ID.
+        Retrieve reference data by classkey.
 
         Args:
-            user_id: User ID
+            classkey: Reference data classkey (e.g., 'user_type:user')
 
         Returns:
-            UserProfile object or None if not found
+            ReferenceData object or None if not found
         """
-        result = await self.db.execute(select(UserProfile).where(UserProfile.id == user_id))
+        result = await self.db.execute(
+            select(ReferenceData).where(ReferenceData.classkey == classkey)
+        )
         return result.scalars().first()
 
     async def create_user(self, user_data: UserRegistrationRequest) -> UserProfile:
@@ -67,6 +70,11 @@ class UserService:
         if existing_user:
             raise ValueError("User with this email already exists")
 
+        # Get User type from ReferenceData
+        user_type = await self.get_reference_data_by_classkey("user_type:user")
+        if not user_type:
+            raise ValueError("User type not found in reference data. Run seed-db.py to initialize.")
+
         # Create new user
         hashed_password = hash_password(user_data.password)
         new_user = UserProfile(
@@ -74,7 +82,7 @@ class UserService:
             surname=user_data.last_name,
             email=user_data.email,
             password=hashed_password,
-            typeid=1,  # Standard user type (from ReferenceData)
+            typeid=user_type.id,  # Use User type from ReferenceData
         )  # type: ignore
 
         self.db.add(new_user)

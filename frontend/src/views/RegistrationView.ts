@@ -5,6 +5,7 @@ import { BaseView } from '@views/BaseView';
 
 export class RegistrationView extends BaseView {
   private onSubmitCallback?: (data: Record<string, string>) => Promise<void>;
+  private submitButton?: HTMLButtonElement;
 
   constructor(containerId: string) {
     super(containerId);
@@ -15,6 +16,18 @@ export class RegistrationView extends BaseView {
    */
   onSubmit(callback: (data: Record<string, string>) => Promise<void>): void {
     this.onSubmitCallback = callback;
+  }
+
+  /**
+   * Disable/enable the submit button.
+   */
+  disableSubmit(disabled: boolean): void {
+    if (this.submitButton) {
+      this.submitButton.disabled = disabled;
+      this.submitButton.textContent = disabled ? 'Registering...' : 'Register';
+      this.submitButton.style.opacity = disabled ? '0.6' : '1';
+      this.submitButton.style.cursor = disabled ? 'not-allowed' : 'pointer';
+    }
   }
 
   /**
@@ -36,17 +49,17 @@ export class RegistrationView extends BaseView {
 
     // Create form fields
     form.appendChild(this.createFormField('email', 'email', 'Email', 'your.email@example.com'));
-    form.appendChild(this.createFormField('text', 'first_name', 'First Name', 'John'));
-    form.appendChild(this.createFormField('text', 'last_name', 'Last Name', 'Doe'));
+    form.appendChild(this.createFormField('text', 'firstName', 'First Name', 'John'));
+    form.appendChild(this.createFormField('text', 'lastName', 'Last Name', 'Doe'));
     form.appendChild(this.createFormField('password', 'password', 'Password', 'Min 8 characters (Upper, Lower, Digit)'));
 
     // Submit button
-    const submitButton = document.createElement('button');
-    submitButton.type = 'submit';
-    submitButton.textContent = 'Register';
-    submitButton.className = 'btn btn-primary';
+    this.submitButton = document.createElement('button');
+    this.submitButton.type = 'submit';
+    this.submitButton.textContent = 'Register';
+    this.submitButton.className = 'btn btn-primary';
 
-    form.appendChild(submitButton);
+    form.appendChild(this.submitButton);
 
     // Login link
     const loginLink = document.createElement('p');

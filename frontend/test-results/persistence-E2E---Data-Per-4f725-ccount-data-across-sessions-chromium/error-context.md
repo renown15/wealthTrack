@@ -1,0 +1,46 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - heading "WealthTrack" [level=1] [ref=e5]
+      - navigation [ref=e6]:
+        - link "Home" [ref=e7] [cursor=pointer]:
+          - /url: "#"
+        - link "Register" [ref=e8] [cursor=pointer]:
+          - /url: "#"
+        - link "Login" [ref=e9] [cursor=pointer]:
+          - /url: "#"
+  - main [ref=e10]:
+    - generic [ref=e13]:
+      - heading "Create Your Account" [level=2] [ref=e14]
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - generic [ref=e17]: Email
+          - textbox "Email" [ref=e18]:
+            - /placeholder: your.email@example.com
+            - text: persist-account-1770387822580@example.com
+        - generic [ref=e19]:
+          - generic [ref=e20]: First Name
+          - textbox "First Name" [ref=e21]:
+            - /placeholder: John
+            - text: Persist
+        - generic [ref=e22]:
+          - generic [ref=e23]: Last Name
+          - textbox "Last Name" [ref=e24]:
+            - /placeholder: Doe
+            - text: Test
+        - generic [ref=e25]:
+          - generic [ref=e26]: Password
+          - textbox "Password" [ref=e27]:
+            - /placeholder: Min 8 characters (Upper, Lower, Digit)
+            - text: AccountPersist123!
+        - button "Register" [active] [ref=e28] [cursor=pointer]
+      - paragraph [ref=e29]:
+        - text: Already have an account?
+        - link "Login here" [ref=e30] [cursor=pointer]:
+          - /url: "#"
+  - contentinfo [ref=e31]:
+    - paragraph [ref=e33]: © 2026 WealthTrack. All rights reserved.
+```

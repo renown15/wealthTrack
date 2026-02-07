@@ -15,8 +15,8 @@ test.describe('E2E - Data Persistence', () => {
     await page.goto('/');
     await page.click('text=Register');
     await page.fill('input[id="email"]', email);
-    await page.fill('input[id="first_name"]', 'Persist');
-    await page.fill('input[id="last_name"]', 'Test');
+    await page.fill('input[id="firstName"]', 'Persist');
+    await page.fill('input[id="lastName"]', 'Test');
     await page.fill('input[id="password"]', password);
     await page.click('button[type="submit"]');
     await expect(page.locator('text=Registration successful')).toBeVisible({
