@@ -267,8 +267,9 @@ describe('Integration - Full App Browser Flow', () => {
     it('should calculate total portfolio value', async () => {
       const portfolioResponse = await apiService.getPortfolio();
 
-      const totalValue = portfolioResponse.accounts.reduce((sum, account) => {
-        return sum + (account.latestBalance?.value || 0);
+      const totalValue = portfolioResponse.accounts.reduce((sum: number, account: Record<string, unknown>) => {
+        const latestBalance = account.latestBalance as Record<string, unknown> | undefined;
+        return sum + (Number(latestBalance?.value) || 0);
       }, 0);
 
       expect(totalValue).toBe(30000);

@@ -21,7 +21,7 @@ async def test_get_all_institutions(
     data = response.json()
     assert isinstance(data, list)
     assert len(data) > 0  # type: ignore[arg-type]
-    assert data[0]["userid"] == user.id
+    assert data[0]["userId"] == user.id
 
 
 @pytest.mark.asyncio
@@ -67,7 +67,7 @@ async def test_create_institution(
     assert response.status_code == status.HTTP_201_CREATED
     data = response.json()
     assert data["name"] == "New Bank"
-    assert data["userid"] == user.id
+    assert data["userId"] == user.id
 
 
 @pytest.mark.asyncio

@@ -45,7 +45,7 @@ describe('PortfolioView - Modal Interactions', () => {
 
     expect(vm.modalOpen).toBe(false);
     expect(vm.formData.name).toBe('');
-    expect(vm.formData.institutionid).toBe(0);
+    expect(vm.formData.institutionId).toBe(0);
     expect(vm.editingItem).toBeNull();
   });
 

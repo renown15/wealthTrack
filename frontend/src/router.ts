@@ -1,11 +1,12 @@
 /**
  * Router for handling navigation between pages.
+ * Simplified, synchronous navigation without event dispatching.
  */
 import { HomeController } from '@controllers/HomeController';
 import { PortfolioController } from '@controllers/PortfolioController';
 import { RegistrationController } from '@controllers/RegistrationController';
 import { LoginController } from '@controllers/LoginController';
-import { apiService } from '@services/ApiService';
+import { authModule } from '@/modules/auth';
 
 export class Router {
   private currentController:
@@ -15,14 +16,10 @@ export class Router {
     | LoginController
     | null = null;
 
-  constructor() {
-    this.setupEventListeners();
-  }
-
   /**
-   * Navigate to a specific page.
+   * Navigate to a specific page synchronously
    */
-  async navigate(page: string): Promise<void> {
+  navigate(page: string): void {
     // Update active nav link
     document.querySelectorAll('.nav-link').forEach((link) => {
       link.classList.remove('active');
@@ -38,15 +35,14 @@ export class Router {
       case 'home':
       case 'dashboard': {
         // Check if user is authenticated
-        const token = apiService.getAuthToken();
-        if (token) {
+        if (authModule.isAuthenticated()) {
           // Show portfolio view for authenticated users
           this.currentController = new PortfolioController('view-container');
-          await this.currentController.init();
+          this.currentController.init();
         } else {
           // Show home view for non-authenticated users
           this.currentController = new HomeController('view-container');
-          await this.currentController.init();
+          this.currentController.init();
         }
         break;
       }
@@ -60,40 +56,42 @@ export class Router {
         break;
       default:
         this.currentController = new HomeController('view-container');
-        await this.currentController.init();
+        this.currentController.init();
     }
   }
 
   /**
-   * Setup navigation event listeners.
+   * Setup navigation event listeners for links
    */
-  private setupEventListeners(): void {
-    // Handle navigation links
+  setupNavigation(): void {
     document.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
 
-      if (target.id === 'nav-home' || target.id === 'cta-register') {
+      // Handle navigation link clicks
+      if (target.id === 'nav-home') {
         e.preventDefault();
-        void this.navigate('home');
-      } else if (
-        target.id === 'nav-register' ||
-        target.id === 'go-to-register' ||
-        target.id === 'cta-register'
-      ) {
+        this.navigate('home');
+      } else if (target.id === 'nav-register' || target.id === 'go-to-register' || target.id === 'cta-register') {
         e.preventDefault();
-        void this.navigate('register');
+        this.navigate('register');
       } else if (target.id === 'nav-login' || target.id === 'go-to-login') {
         e.preventDefault();
-        void this.navigate('login');
+        this.navigate('login');
       } else if (target.id === 'nav-portfolio' || target.id === 'nav-dashboard') {
         e.preventDefault();
-        void this.navigate('dashboard');
+        this.navigate('dashboard');
       }
     });
-
-    // Handle custom navigation events
-    window.addEventListener('navigate', ((e: CustomEvent<{ page: string }>) => {
-      void this.navigate(e.detail.page);
-    }) as EventListener);
   }
+}
+
+// Global router instance
+let globalRouter: Router | null = null;
+
+export function getRouter(): Router {
+  if (!globalRouter) {
+    globalRouter = new Router();
+    globalRouter.setupNavigation();
+  }
+  return globalRouter;
 }

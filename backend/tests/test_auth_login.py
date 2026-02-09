@@ -28,8 +28,8 @@ async def test_login_success(client: AsyncClient) -> None:
 
     assert response.status_code == 200
     data = response.json()
-    assert "access_token" in data
-    assert data["token_type"] == "bearer"
+    assert "accessToken" in data
+    assert data["tokenType"] == "bearer"
 
 
 @pytest.mark.asyncio
@@ -90,7 +90,7 @@ async def test_get_current_user_success(client: AsyncClient) -> None:
             "password": "SecurePass123",
         },
     )
-    token = login_response.json()["access_token"]
+    token = login_response.json()["accessToken"]
 
     response = await client.get(
         "/api/v1/auth/me",
@@ -100,5 +100,5 @@ async def test_get_current_user_success(client: AsyncClient) -> None:
     assert response.status_code == 200
     data = response.json()
     assert data["email"] == "current@example.com"
-    assert data["firstname"] == "Current"
-    assert data["surname"] == "User"
+    assert data["firstName"] == "Current"
+    assert data["lastName"] == "User"

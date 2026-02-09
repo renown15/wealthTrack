@@ -24,9 +24,9 @@ class ReferenceData(Base):
     __tablename__ = "ReferenceData"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    classkey: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
-    referencevalue: Mapped[str] = mapped_column(String(255), nullable=False)
-    sortindex: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    class_key: Mapped[str] = mapped_column("classkey", String(100), nullable=False, index=True)
+    reference_value: Mapped[str] = mapped_column("referencevalue", String(255), nullable=False)
+    sort_index: Mapped[int] = mapped_column("sortindex", Integer, default=0, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False
     )
@@ -40,6 +40,6 @@ class ReferenceData(Base):
 
     def __repr__(self) -> str:
         return (
-            f"<ReferenceData(id={self.id}, classkey={self.classkey}, "
-            f"value={self.referencevalue})>"
+            f"<ReferenceData(id={self.id}, class_key={self.class_key}, "
+            f"value={self.reference_value})>"
         )

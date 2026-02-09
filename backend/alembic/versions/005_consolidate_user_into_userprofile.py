@@ -20,35 +20,35 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Consolidate User table into UserProfile, using email as the userid identifier."""
-    
+
     # Rename emailaddress to email (using the existing unique column)
     op.alter_column("UserProfile", "emailaddress", new_column_name="email")
-    
+
     # Add additional fields from User table to UserProfile
     op.add_column("UserProfile", sa.Column("is_active", sa.Boolean(), nullable=True, default=True))
     op.add_column("UserProfile", sa.Column("is_verified", sa.Boolean(), nullable=True, default=False))
-    
+
     # Copy data from User to UserProfile
     op.execute("""
         UPDATE "UserProfile" up
-        SET 
+        SET
             is_active = u.is_active,
             is_verified = u.is_verified
         FROM "User" u
         WHERE up.id = u.id
     """)
-    
+
     # Make the new columns NOT NULL
     op.alter_column("UserProfile", "is_active", nullable=False, existing_type=sa.Boolean())
     op.alter_column("UserProfile", "is_verified", nullable=False, existing_type=sa.Boolean())
-    
+
     # Drop the User table
     op.drop_table("User")
 
 
 def downgrade() -> None:
     """Recreate User table and revert UserProfile changes."""
-    
+
     # Recreate User table
     op.create_table(
         "User",
@@ -68,17 +68,17 @@ def downgrade() -> None:
         sa.UniqueConstraint("email"),
         sa.UniqueConstraint("username"),
     )
-    
+
     # Copy data back from UserProfile to User
     op.execute("""
         INSERT INTO "User" (id, email, username, hashed_password, full_name, is_active, is_verified, created_at, updated_at)
         SELECT id, email, SUBSTRING(LOWER(firstname) FROM 1 FOR 1) || SUBSTRING(LOWER(surname) FROM 1 FOR 1), password, CONCAT(firstname, ' ', surname), is_active, is_verified, created_at, updated_at
         FROM "UserProfile"
     """)
-    
+
     # Remove the new columns from UserProfile
     op.drop_column("UserProfile", "is_active")
     op.drop_column("UserProfile", "is_verified")
-    
+
     # Rename email back to emailaddress
     op.alter_column("UserProfile", "email", new_column_name="emailaddress")

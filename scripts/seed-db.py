@@ -18,10 +18,10 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import select
 
-from app.models.reference_data import ReferenceData
+from app.models.reference_data import ReferenceData  # type: ignore
 
 
-async def seed_database():
+async def seed_database() -> None:
     """Seed the database with reference data."""
     # Get database connection from environment or use defaults
     db_host = os.getenv("DB_HOST", "localhost")
@@ -42,7 +42,7 @@ async def seed_database():
     )
 
     async_session = sessionmaker(
-        engine, class_=AsyncSession, expire_on_commit=False
+        engine, class_=AsyncSession, expire_on_commit=False  # type: ignore
     )
 
     async with async_session() as session:

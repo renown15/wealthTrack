@@ -3,6 +3,7 @@
  */
 import { createApp } from 'vue';
 import { apiService } from '@services/ApiService';
+import { getRouter } from '@/router';
 
 export class PortfolioController {
   private containerId: string;
@@ -12,44 +13,42 @@ export class PortfolioController {
   }
 
   /**
-   * Initialize the portfolio controller.
+   * Initialize the portfolio controller synchronously.
    */
-  async init(): Promise<void> {
-    // Try to load current user if authenticated
+  init(): void {
+    // Verify token exists
     const token = apiService.getAuthToken();
     if (!token) {
-      // Redirect to login if not authenticated
-      window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'login' } }));
-      return;
-    }
-
-    try {
-      await apiService.getCurrentUser();
-    } catch (error) {
-      // Token is invalid or user not found - clear it and redirect to login
-      localStorage.removeItem('accessToken');
-      apiService.clearAuthToken();
-      window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'login' } }));
+      getRouter().navigate('login');
       return;
     }
 
     // Mount Vue app to container with PortfolioView
     const container = document.getElementById(this.containerId);
     if (!container) {
-      console.error(`Container with id ${this.containerId} not found`);
       return;
     }
 
     // Clear container
     container.innerHTML = '';
 
-    // Dynamically import PortfolioView to avoid TS module resolution issues
-    // @ts-ignore - Vue modules are resolved by Vite at bundling time
-    const { default: PortfolioView } = await import('../views/PortfolioView.vue');
+    // Dynamically import AccountHub
+    import('../views/AccountHub/AccountHub.vue').then(({ default: AccountHub }: { default: unknown }) => {
+      const app = createApp(AccountHub as never);
+      app.mount(container);
+    }).catch((_error) => {
+      // Still try to validate token in background
+      apiService.getCurrentUser().catch(() => {
+        getRouter().navigate('login');
+      });
+    });
 
-    // Create and mount Vue app
-    const app = createApp(PortfolioView);
-    app.mount(container);
+    // Validate token in background (async)
+    apiService.getCurrentUser().catch((_error) => {
+      // Clear token and redirect to login
+      apiService.clearAuthToken();
+      getRouter().navigate('login');
+    });
   }
 }
 

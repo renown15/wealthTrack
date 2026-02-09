@@ -28,6 +28,7 @@
       "@views/*": ["src/views/*"],
       "@models/*": ["src/models/*"],
       "@composables/*": ["src/composables/*"],
+      "@modules/*": ["src/modules/*"],
       "@styles/*": ["src/styles/*"],
       "@utils/*": ["src/utils/*"]
     }

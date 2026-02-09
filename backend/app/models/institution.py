@@ -15,8 +15,8 @@ class Institution(Base):
     __tablename__ = "Institution"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    userid: Mapped[int] = mapped_column(
-        Integer, ForeignKey("UserProfile.id"), nullable=False, index=True
+    user_id: Mapped[int] = mapped_column(
+        "userid", Integer, ForeignKey("UserProfile.id"), nullable=False, index=True
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
@@ -27,4 +27,4 @@ class Institution(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<Institution(id={self.id}, userid={self.userid}, name={self.name})>"
+        return f"<Institution(id={self.id}, user_id={self.user_id}, name={self.name})>"

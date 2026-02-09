@@ -4,7 +4,7 @@ UserProfile model for user account data - the primary user entity.
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Optional
 
-from sqlalchemy import JSON, DateTime, ForeignKey, String
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -24,16 +24,16 @@ class UserProfile(Base):
     __tablename__ = "UserProfile"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    firstname: Mapped[str] = mapped_column(String(100), nullable=False)
-    surname: Mapped[str] = mapped_column(String(100), nullable=False)
+    first_name: Mapped[str] = mapped_column("firstname", String(100), nullable=False)
+    last_name: Mapped[str] = mapped_column("surname", String(100), nullable=False)
     email: Mapped[str] = mapped_column(
         String(255), unique=True, index=True, nullable=False
     )
     profile: Mapped[Optional[dict[str, Any]]] = mapped_column(
         JSON, nullable=True
     )
-    typeid: Mapped[int] = mapped_column(
-        ForeignKey("ReferenceData.id"), nullable=False
+    type_id: Mapped[int] = mapped_column(
+        "typeid", Integer, ForeignKey("ReferenceData.id"), nullable=False
     )
     password: Mapped[str] = mapped_column(String(255), nullable=False)
     is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
@@ -47,11 +47,11 @@ class UserProfile(Base):
 
     # Relationship to ReferenceData for user type
     user_type: Mapped["ReferenceData"] = relationship(
-        "ReferenceData", foreign_keys=[typeid]
+        "ReferenceData", foreign_keys=[type_id]
     )
 
     def __repr__(self) -> str:
         return (
             f"<UserProfile(id={self.id}, email={self.email}, "
-            f"name={self.firstname} {self.surname})>"
+            f"name={self.first_name} {self.last_name})>"
         )

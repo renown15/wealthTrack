@@ -108,8 +108,8 @@ describe('RegistrationController - Rendering', () => {
     const controller = new RegistrationController('registration-container');
     controller.init();
 
-    const firstNameInput = container.querySelector('input[id="first_name"]') as HTMLInputElement;
-    const lastNameInput = container.querySelector('input[id="last_name"]') as HTMLInputElement;
+    const firstNameInput = container.querySelector('input[id="firstName"]') as HTMLInputElement;
+    const lastNameInput = container.querySelector('input[id="lastName"]') as HTMLInputElement;
     expect(firstNameInput).toBeDefined();
     expect(lastNameInput).toBeDefined();
     expect(firstNameInput?.type).toBe('text');

@@ -34,7 +34,7 @@ async def test_account_service_update_success():
     service = AccountService(mock_session)
 
     # Mock repository get_by_id
-    mock_account = Account(id=1, userid=1, institutionid=1, name="Old Name")
+    mock_account = Account(id=1, user_id=1, institution_id=1, name="Old Name")
     service.repository.get_by_id = AsyncMock(return_value=mock_account)
 
     result = await service.update(1, 1, name="New Name")
@@ -62,16 +62,16 @@ async def test_account_service_update_with_multiple_fields():
     service = AccountService(mock_session)
 
     # Mock repository get_by_id
-    mock_account = Account(id=1, userid=1, institutionid=1, name="Old")
-    mock_account.typeid = 1
-    mock_account.statusid = 1
+    mock_account = Account(id=1, user_id=1, institution_id=1, name="Old")
+    mock_account.type_id = 1
+    mock_account.status_id = 1
     service.repository.get_by_id = AsyncMock(return_value=mock_account)
 
-    result = await service.update(1, 1, name="New", typeid=2, statusid=3)
+    result = await service.update(1, 1, name="New", type_id=2, status_id=3)
     assert result is True
     assert mock_account.name == "New"
-    assert mock_account.typeid == 2
-    assert mock_account.statusid == 3
+    assert mock_account.type_id == 2
+    assert mock_account.status_id == 3
 
 
 @pytest.mark.asyncio
@@ -81,7 +81,7 @@ async def test_account_service_delete_success():
     service = AccountService(mock_session)
 
     # Mock repository get_by_id
-    mock_account = Account(id=1, userid=1, institutionid=1, name="Test Account")
+    mock_account = Account(id=1, user_id=1, institution_id=1, name="Test Account")
     service.repository.get_by_id = AsyncMock(return_value=mock_account)
 
     result = await service.delete(1, 1)
@@ -124,7 +124,7 @@ async def test_institution_service_update_success():
     service = InstitutionService(mock_session)
 
     # Mock repository get_by_id
-    mock_institution = Institution(id=1, userid=1, name="Old Bank")
+    mock_institution = Institution(id=1, user_id=1, name="Old Bank")
     service.repository.get_by_id = AsyncMock(return_value=mock_institution)
 
     result = await service.update(1, 1, "New Bank")
@@ -152,7 +152,7 @@ async def test_institution_service_delete_success():
     service = InstitutionService(mock_session)
 
     # Mock repository get_by_id
-    mock_institution = Institution(id=1, userid=1, name="Old Bank")
+    mock_institution = Institution(id=1, user_id=1, name="Old Bank")
     service.repository.get_by_id = AsyncMock(return_value=mock_institution)
 
     result = await service.delete(1, 1)
@@ -194,7 +194,7 @@ async def test_account_event_service_log_event_success():
     service = AccountEventService(mock_session)
 
     # Mock account repository get_by_id
-    mock_account = Account(id=1, userid=1, institutionid=1, name="Test Account")
+    mock_account = Account(id=1, user_id=1, institution_id=1, name="Test Account")
     service.account_repository.get_by_id = AsyncMock(return_value=mock_account)
 
     result = await service.log_event(1, 1, 1, "1000.00")
@@ -221,7 +221,7 @@ async def test_account_event_service_log_multiple_events():
     service = AccountEventService(mock_session)
 
     # Mock account repository get_by_id
-    mock_account = Account(id=1, userid=1, institutionid=1, name="Test Account")
+    mock_account = Account(id=1, user_id=1, institution_id=1, name="Test Account")
     service.account_repository.get_by_id = AsyncMock(return_value=mock_account)
 
     # Log multiple events

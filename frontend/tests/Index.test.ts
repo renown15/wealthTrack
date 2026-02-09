@@ -26,10 +26,18 @@ Object.defineProperty(window, 'localStorage', {
 
 // Mock Router before importing index
 const mockNavigate = vi.fn().mockResolvedValue(undefined);
+const mockSetupNavigation = vi.fn();
+const mockRouter = {
+  navigate: mockNavigate,
+  setupNavigation: mockSetupNavigation,
+};
+
 vi.mock('../src/router', () => ({
   Router: class MockRouter {
     navigate = mockNavigate;
+    setupNavigation = mockSetupNavigation;
   },
+  getRouter: () => mockRouter,
 }));
 
 // Mock ApiService

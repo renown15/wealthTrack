@@ -16,14 +16,14 @@ class AccountEvent(Base):
     __tablename__ = "AccountEvent"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    userid: Mapped[int] = mapped_column(
-        Integer, ForeignKey("UserProfile.id"), nullable=False, index=True
+    user_id: Mapped[int] = mapped_column(
+        "userid", Integer, ForeignKey("UserProfile.id"), nullable=False, index=True
     )
-    accountid: Mapped[int] = mapped_column(
-        Integer, ForeignKey("Account.id"), nullable=False, index=True
+    account_id: Mapped[int] = mapped_column(
+        "accountid", Integer, ForeignKey("Account.id"), nullable=False, index=True
     )
-    typeid: Mapped[int] = mapped_column(
-        Integer, ForeignKey("ReferenceData.id"), nullable=False
+    type_id: Mapped[int] = mapped_column(
+        "typeid", Integer, ForeignKey("ReferenceData.id"), nullable=False
     )
     value: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -34,4 +34,4 @@ class AccountEvent(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<AccountEvent(id={self.id}, accountid={self.accountid})>"
+        return f"<AccountEvent(id={self.id}, account_id={self.account_id})>"

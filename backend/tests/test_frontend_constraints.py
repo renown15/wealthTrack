@@ -2,8 +2,6 @@
 Test file size constraints for frontend tests (max 200 lines per file).
 """
 import pathlib
-import subprocess
-import json
 
 
 def count_lines(file_path: pathlib.Path) -> int:
@@ -20,7 +18,7 @@ def test_frontend_test_files_under_200_lines():
     # - ApiService.test.ts: 1237 lines (should be split)
     # - PortfolioView.test.ts: 1470 lines (should be split)
     # - Multiple other files exceed 200 lines
-    
+
     # For now, document what needs to be done
     # TODO: Split test files to comply with 200-line limit
     pass

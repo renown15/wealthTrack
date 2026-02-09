@@ -16,14 +16,14 @@ class InstitutionSecurityCredentials(Base):
     __tablename__ = "InstitutionSecurityCredentials"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    userid: Mapped[int] = mapped_column(
-        Integer, ForeignKey("UserProfile.id"), nullable=False, index=True
+    user_id: Mapped[int] = mapped_column(
+        "userid", Integer, ForeignKey("UserProfile.id"), nullable=False, index=True
     )
-    institutionid: Mapped[int] = mapped_column(
-        Integer, ForeignKey("Institution.id"), nullable=False, index=True
+    institution_id: Mapped[int] = mapped_column(
+        "institutionid", Integer, ForeignKey("Institution.id"), nullable=False, index=True
     )
-    typeid: Mapped[int] = mapped_column(
-        Integer, ForeignKey("ReferenceData.id"), nullable=False
+    type_id: Mapped[int] = mapped_column(
+        "typeid", Integer, ForeignKey("ReferenceData.id"), nullable=False
     )
     key: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     value: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
@@ -35,4 +35,5 @@ class InstitutionSecurityCredentials(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<InstitutionSecurityCredentials(id={self.id}, institutionid={self.institutionid})>"
+        inst_id = self.institution_id
+        return f"<InstitutionSecurityCredentials(id={self.id}, institution_id={inst_id})>"

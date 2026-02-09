@@ -2,7 +2,6 @@
 Base schema with automatic camelCase serialization for all API responses.
 All schemas should inherit from this to automatically convert snake_case to camelCase.
 """
-import json
 from pydantic import BaseModel, ConfigDict
 
 

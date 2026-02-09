@@ -73,10 +73,16 @@ seed-db:
 # Development Servers
 backend-dev:
 	@echo "Starting backend development server..."
+	@echo "Cleaning up port 8000..."
+	@lsof -ti :8000 2>/dev/null | xargs -r kill -9 || true
+	@sleep 1
 	cd backend && source venv/bin/activate && uvicorn app.main:app --reload
 
 frontend-dev:
 	@echo "Starting frontend development server..."
+	@echo "Cleaning up port 3001..."
+	@lsof -ti :3001 2>/dev/null | xargs -r kill -9 || true
+	@sleep 1
 	cd frontend && npm run dev
 
 dev:

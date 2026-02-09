@@ -37,6 +37,19 @@ class UserService:
         result = await self.db.execute(select(UserProfile).where(UserProfile.email == email))
         return result.scalars().first()
 
+    async def get_user_by_id(self, user_id: int) -> Optional[UserProfile]:
+        """
+        Retrieve user by ID.
+
+        Args:
+            user_id: User ID
+
+        Returns:
+            UserProfile object or None if not found
+        """
+        result = await self.db.execute(select(UserProfile).where(UserProfile.id == user_id))
+        return result.scalars().first()
+
     async def get_reference_data_by_classkey(self, classkey: str) -> Optional[ReferenceData]:
         """
         Retrieve reference data by classkey.
@@ -48,7 +61,7 @@ class UserService:
             ReferenceData object or None if not found
         """
         result = await self.db.execute(
-            select(ReferenceData).where(ReferenceData.classkey == classkey)
+            select(ReferenceData).where(ReferenceData.class_key == classkey)
         )
         return result.scalars().first()
 
@@ -78,11 +91,11 @@ class UserService:
         # Create new user
         hashed_password = hash_password(user_data.password)
         new_user = UserProfile(
-            firstname=user_data.first_name,
-            surname=user_data.last_name,
+            first_name=user_data.first_name,
+            last_name=user_data.last_name,
             email=user_data.email,
             password=hashed_password,
-            typeid=user_type.id,  # Use User type from ReferenceData
+            type_id=user_type.id,  # Use User type from ReferenceData
         )  # type: ignore
 
         self.db.add(new_user)

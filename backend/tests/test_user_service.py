@@ -23,8 +23,8 @@ async def test_create_user(db_session: AsyncSession) -> None:
 
     assert user.id is not None
     assert user.email == "test@example.com"
-    assert user.firstname == "Test"
-    assert user.surname == "User"
+    assert user.first_name == "Test"
+    assert user.last_name == "User"
     assert user.is_active is True
     assert user.is_verified is False
 

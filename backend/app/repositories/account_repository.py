@@ -22,7 +22,7 @@ class AccountRepository:
         stmt = (
             select(Account)
             .where(Account.id == account_id)
-            .where(Account.userid == user_id)
+            .where(Account.user_id == user_id)
             .options(selectinload(Account.institution))
         )
         result = await self.session.execute(stmt)
@@ -32,7 +32,7 @@ class AccountRepository:
         """Get all accounts for user with institutions."""
         stmt = (
             select(Account)
-            .where(Account.userid == user_id)
+            .where(Account.user_id == user_id)
             .options(selectinload(Account.institution))
             .order_by(Account.created_at.desc())
         )
@@ -45,8 +45,8 @@ class AccountRepository:
         """Get accounts for user filtered by institution."""
         stmt = (
             select(Account)
-            .where(Account.userid == user_id)
-            .where(Account.institutionid == institution_id)
+            .where(Account.user_id == user_id)
+            .where(Account.institution_id == institution_id)
             .options(selectinload(Account.institution))
             .order_by(Account.created_at.desc())
         )

@@ -28,12 +28,10 @@ export abstract class BaseView {
    * Show error message.
    */
   showError(message: string): void {
-    console.log('[BaseView] Displaying error message:', message);
     const errorDiv = document.createElement('div');
     errorDiv.className = 'error-message';
     errorDiv.textContent = message;
     this.container.insertBefore(errorDiv, this.container.firstChild);
-    console.log('[BaseView] Error message inserted to DOM');
 
     // Auto-remove after 5 seconds
     setTimeout(() => {
@@ -45,12 +43,10 @@ export abstract class BaseView {
    * Show success message.
    */
   showSuccess(message: string): void {
-    console.log('[BaseView] Displaying success message:', message);
     const successDiv = document.createElement('div');
     successDiv.className = 'success-message';
     successDiv.textContent = message;
     this.container.insertBefore(successDiv, this.container.firstChild);
-    console.log('[BaseView] Success message inserted to DOM');
 
     // Auto-remove after 5 seconds
     setTimeout(() => {

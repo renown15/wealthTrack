@@ -3,7 +3,7 @@ Pydantic schemas for user registration and authentication.
 """
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import EmailStr, Field, field_validator
 
 from app.schemas.base import BaseSchema
 
@@ -34,8 +34,8 @@ class UserResponse(BaseSchema):
 
     id: int
     email: str
-    first_name: str = Field(..., validation_alias="firstname")
-    last_name: str = Field(..., validation_alias="surname")
+    first_name: str = Field(..., validation_alias="first_name")
+    last_name: str = Field(..., validation_alias="last_name")
     is_active: bool
     is_verified: bool
     created_at: datetime

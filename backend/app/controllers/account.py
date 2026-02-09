@@ -54,11 +54,11 @@ async def create_account(
     """Create a new account for the current user."""
     # Create account (object instantiation, not model construction)
     account = Account()
-    account.userid = current_user.id
-    account.institutionid = account_data.institution_id
+    account.user_id = current_user.id
+    account.institution_id = account_data.institution_id
     account.name = account_data.name
-    account.typeid = account_data.type_id
-    account.statusid = account_data.status_id
+    account.type_id = account_data.type_id
+    account.status_id = account_data.status_id
     session.add(account)
     await session.flush()
     await session.refresh(account)

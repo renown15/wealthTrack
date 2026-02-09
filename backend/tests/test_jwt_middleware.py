@@ -102,14 +102,16 @@ class TestGetCurrentUserFromToken:
     @pytest.mark.asyncio
     async def test_get_current_user_with_valid_token(self) -> None:
         """Test extracting user with valid token."""
+        from unittest.mock import MagicMock
+
         data = {"sub": "testuser", "user_id": "123"}
         token = create_access_token(data)
 
-        # Create mock credentials object
-        from fastapi.security import HTTPAuthorizationCredentials
-        credentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
+        # Create mock request object with Authorization header
+        mock_request = MagicMock()
+        mock_request.headers.get.return_value = f"Bearer {token}"
 
-        payload = await get_current_user_from_token(credentials)
+        payload = await get_current_user_from_token(mock_request)
 
         assert payload["sub"] == "testuser"
         assert payload["user_id"] == "123"
@@ -117,14 +119,14 @@ class TestGetCurrentUserFromToken:
     @pytest.mark.asyncio
     async def test_get_current_user_with_invalid_token(self) -> None:
         """Test that invalid token raises HTTPException."""
-        from fastapi.security import HTTPAuthorizationCredentials
+        from unittest.mock import MagicMock
 
-        credentials = HTTPAuthorizationCredentials(
-            scheme="Bearer", credentials="invalid.token.here"
-        )
+        # Create mock request with invalid token
+        mock_request = MagicMock()
+        mock_request.headers.get.return_value = "Bearer invalid.token.here"
 
         with pytest.raises(HTTPException) as exc_info:
-            await get_current_user_from_token(credentials)
+            await get_current_user_from_token(mock_request)
 
         assert exc_info.value.status_code == status.HTTP_401_UNAUTHORIZED
         assert "Invalid or expired token" in exc_info.value.detail
@@ -132,13 +134,17 @@ class TestGetCurrentUserFromToken:
     @pytest.mark.asyncio
     async def test_get_current_user_with_expired_token(self) -> None:
         """Test that expired token raises HTTPException."""
-        from fastapi.security import HTTPAuthorizationCredentials
+        from unittest.mock import MagicMock
+
         data = {"sub": "testuser"}
         expired_token = create_access_token(data, expires_delta=timedelta(hours=-1))
-        credentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials=expired_token)
+
+        # Create mock request with expired token
+        mock_request = MagicMock()
+        mock_request.headers.get.return_value = f"Bearer {expired_token}"
 
         with pytest.raises(HTTPException) as exc_info:
-            await get_current_user_from_token(credentials)
+            await get_current_user_from_token(mock_request)
 
         assert exc_info.value.status_code == status.HTTP_401_UNAUTHORIZED
 

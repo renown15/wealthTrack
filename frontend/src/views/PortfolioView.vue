@@ -263,14 +263,14 @@ const openEditAccountModal = (account: Account): void => {
 const openEditInstitutionModal = (institution: Institution): void => {
   modalType.value = 'edit';
   modalResourceType.value = 'institution';
-  formData.value = { name: institution.name, institutionid: 0 };
+  formData.value = { name: institution.name, institutionId: 0 };
   editingItem.value = institution;
   modalOpen.value = true;
 };
 
 const closeModal = (): void => {
   modalOpen.value = false;
-  formData.value = { name: '', institutionid: 0 };
+  formData.value = { name: '', institutionId: 0 };
   editingItem.value = null;
 };
 
@@ -278,11 +278,11 @@ const handleSave = async (): Promise<void> => {
   try {
     if (modalResourceType.value === 'account') {
       if (modalType.value === 'create') {
-        if (!formData.value.name || !formData.value.institutionid) {
+        if (!formData.value.name || !formData.value.institutionId) {
           state.error = 'Please fill in all required fields';
           return;
         }
-        await createAccount(formData.value.institutionid, formData.value.name);
+        await createAccount(formData.value.institutionId, formData.value.name);
       } else if (modalType.value === 'edit' && editingItem.value && 'id' in editingItem.value) {
         await updateAccount(editingItem.value.id, formData.value.name);
       }

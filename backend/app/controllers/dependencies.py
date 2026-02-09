@@ -3,8 +3,7 @@ Authentication dependencies for FastAPI endpoints.
 """
 from typing import Optional
 
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi import Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -12,18 +11,15 @@ from app.models.user_profile import UserProfile
 from app.services.auth import decode_access_token
 from app.services.user import UserService
 
-# HTTP Bearer authentication scheme
-security = HTTPBearer()
-
 
 async def get_current_user_from_token(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    request: Request,
 ) -> dict[str, str]:
     """
     Extract and validate JWT token from Authorization header.
 
     Args:
-        credentials: HTTP Bearer token from header
+        request: HTTP request object
 
     Returns:
         Decoded token payload
@@ -31,7 +27,25 @@ async def get_current_user_from_token(
     Raises:
         HTTPException: If token is invalid or expired
     """
-    token = credentials.credentials
+    auth_header = request.headers.get("authorization")
+
+    if not auth_header:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing authorization header",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Parse Bearer token
+    parts = auth_header.split()
+    if len(parts) != 2 or parts[0].lower() != "bearer":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authorization header format",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    token = parts[1]
     payload = decode_access_token(token)
 
     if payload is None:

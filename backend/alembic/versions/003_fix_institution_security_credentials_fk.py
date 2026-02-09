@@ -24,7 +24,7 @@ def upgrade() -> None:
         "institution_security_credentials",
         type_="foreignkey"
     )
-    
+
     # Create the correct foreign key constraint to user_profile
     op.create_foreign_key(
         "institution_security_credentials_userid_fkey",
@@ -43,7 +43,7 @@ def downgrade() -> None:
         "institution_security_credentials",
         type_="foreignkey"
     )
-    
+
     # Recreate the old (incorrect) foreign key
     op.create_foreign_key(
         "institution_security_credentials_userid_fkey",

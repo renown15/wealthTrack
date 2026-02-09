@@ -4,6 +4,8 @@
 import { LoginView } from '@views/LoginView';
 import { apiService } from '@services/ApiService';
 import { ValidationService } from '@services/ValidationService';
+import { authModule } from '@/modules/auth';
+import { getRouter } from '@/router';
 import { debug } from '@utils/debug';
 import type { UserLogin } from '@models/User';
 
@@ -29,7 +31,6 @@ export class LoginController {
   private async handleLogin(data: Record<string, string>): Promise<void> {
     // Prevent duplicate submissions
     if (this.isSubmitting) {
-      console.log('[Login] Submission already in progress, ignoring duplicate');
       return;
     }
 
@@ -57,11 +58,10 @@ export class LoginController {
       const authToken = await apiService.loginUser(loginData);
       debug.log('[Auth] Login response received:', authToken);
 
-      // Store token
+      // Store token and update auth state
       if (authToken.accessToken) {
         debug.log('[Auth] Storing token:', authToken.accessToken.substring(0, 20) + '...');
-        localStorage.setItem('accessToken', authToken.accessToken);
-        apiService.setAuthToken(authToken.accessToken);
+        authModule.setToken(authToken.accessToken);
         debug.log('[Auth] Token stored successfully');
       } else {
         debug.error('[Auth] No accessToken in response:', authToken);
@@ -73,21 +73,14 @@ export class LoginController {
 
       // Redirect to dashboard after 1 second
       setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'dashboard' } }));
+        getRouter().navigate('dashboard');
       }, 1000);
     } catch (error) {
       // Show error message
-      console.error('[Login] Error occurred:', error);
-      console.error('[Login] Error type:', typeof error);
-      if (error instanceof Error) {
-        console.error('[Login] Error.message:', error.message);
-        console.error('[Login] Error.name:', error.name);
-      }
       let errorMessage = error instanceof Error ? error.message : String(error);
       if (!errorMessage || errorMessage.trim().length === 0) {
         errorMessage = 'Login failed. Please try again.';
       }
-      console.log('[Login] Showing error message:', errorMessage);
       this.view.showError(errorMessage);
       this.view.disableSubmit(false);
       this.isSubmitting = false;

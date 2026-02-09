@@ -52,7 +52,7 @@ async def create_institution(
     """Create a new institution for the current user."""
     # Create institution (object instantiation, not model construction)
     institution = Institution()
-    institution.userid = current_user.id
+    institution.user_id = current_user.id
     institution.name = institution_data.name
     session.add(institution)
     await session.flush()

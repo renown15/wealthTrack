@@ -25,9 +25,9 @@ class AccountEventService:
             raise ValueError(f"Account {account_id} not found")
 
         event = AccountEvent()
-        event.userid = user_id
-        event.accountid = account_id
-        event.typeid = type_id
+        event.user_id = user_id
+        event.account_id = account_id
+        event.type_id = type_id
         event.value = value
 
         self.session.add(event)

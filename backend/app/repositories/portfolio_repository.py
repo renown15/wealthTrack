@@ -27,7 +27,7 @@ class PortfolioRepository:
         # Get all accounts with institutions
         stmt = (
             select(Account)
-            .where(Account.userid == user_id)
+            .where(Account.user_id == user_id)
             .options(selectinload(Account.institution))
             .order_by(Account.created_at.desc())
         )
@@ -40,7 +40,7 @@ class PortfolioRepository:
             # Get latest balance event
             balance_stmt = (
                 select(AccountEvent)
-                .where(AccountEvent.accountid == account.id)
+                .where(AccountEvent.account_id == account.id)
                 .order_by(desc(AccountEvent.created_at))
                 .limit(1)
             )
@@ -62,8 +62,8 @@ class PortfolioRepository:
         """Get the most recent balance value for an account."""
         stmt = (
             select(AccountEvent.value)
-            .where(AccountEvent.accountid == account_id)
-            .where(AccountEvent.userid == user_id)
+            .where(AccountEvent.account_id == account_id)
+            .where(AccountEvent.user_id == user_id)
             .order_by(desc(AccountEvent.created_at))
             .limit(1)
         )

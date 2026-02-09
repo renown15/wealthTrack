@@ -22,7 +22,7 @@ class AccountService:
         if not account:
             raise ValueError(f"Account {account_id} not found")
 
-        allowed_fields = {"name", "typeid", "statusid"}
+        allowed_fields = {"name", "type_id", "status_id"}
         for key, value in kwargs.items():
             if key in allowed_fields and value is not None:
                 setattr(account, key, value)

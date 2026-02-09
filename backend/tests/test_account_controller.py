@@ -22,7 +22,7 @@ async def test_get_all_accounts(
     data = response.json()
     assert isinstance(data, list)
     assert len(data) > 0  # type: ignore[arg-type]
-    assert data[0]["userid"] == user.id
+    assert data[0]["userId"] == user.id
 
 
 @pytest.mark.asyncio
@@ -59,10 +59,10 @@ async def test_create_account(
 ):
     """Test creating a new account."""
     payload = {
-        "institutionid": institution.id,
+        "institutionId": institution.id,
         "name": "New Checking Account",
-        "typeid": 1,
-        "statusid": 1,
+        "typeId": 1,
+        "statusId": 1,
     }
     response = await client.post(
         "/api/v1/accounts",
@@ -72,18 +72,18 @@ async def test_create_account(
     assert response.status_code == status.HTTP_201_CREATED
     data = response.json()
     assert data["name"] == "New Checking Account"
-    assert data["userid"] == user.id
-    assert data["institutionid"] == institution.id
+    assert data["userId"] == user.id
+    assert data["institutionId"] == institution.id
 
 
 @pytest.mark.asyncio
 async def test_create_account_unauthorized(client: AsyncClient):
     """Test creating an account without authentication."""
     payload = {
-        "institutionid": 1,
+        "institutionId": 1,
         "name": "New Account",
-        "typeid": 1,
-        "statusid": 1,
+        "typeId": 1,
+        "statusId": 1,
     }
     response = await client.post(
         "/api/v1/accounts",
@@ -116,7 +116,7 @@ async def test_update_account_partial(
     client: AsyncClient, authenticated_headers: dict[str, str], account: Account
 ):
     """Test partially updating an account (only name)."""
-    original_typeid = account.typeid
+    original_type_id = account.type_id
     payload = {"name": "New Name Only"}
     response = await client.put(
         f"/api/v1/accounts/{account.id}",
@@ -126,7 +126,7 @@ async def test_update_account_partial(
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert data["name"] == "New Name Only"
-    assert data["typeid"] == original_typeid
+    assert data["typeId"] == original_type_id
 
 
 @pytest.mark.asyncio

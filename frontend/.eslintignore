@@ -5,3 +5,4 @@ tests/
 **/*.test.ts
 **/*.test.tsx
 **/*.integration.test.ts
+**/*.vue

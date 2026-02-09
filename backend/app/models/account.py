@@ -19,18 +19,18 @@ class Account(Base):
     __tablename__ = "Account"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    userid: Mapped[int] = mapped_column(
-        Integer, ForeignKey("UserProfile.id"), nullable=False, index=True
+    user_id: Mapped[int] = mapped_column(
+        "userid", Integer, ForeignKey("UserProfile.id"), nullable=False, index=True
     )
-    institutionid: Mapped[Optional[int]] = mapped_column(
-        Integer, ForeignKey("Institution.id"), nullable=True
+    institution_id: Mapped[Optional[int]] = mapped_column(
+        "institutionid", Integer, ForeignKey("Institution.id"), nullable=True
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    typeid: Mapped[int] = mapped_column(
-        Integer, ForeignKey("ReferenceData.id"), nullable=False
+    type_id: Mapped[int] = mapped_column(
+        "typeid", Integer, ForeignKey("ReferenceData.id"), nullable=False
     )
-    statusid: Mapped[int] = mapped_column(
-        Integer, ForeignKey("ReferenceData.id"), nullable=False
+    status_id: Mapped[int] = mapped_column(
+        "statusid", Integer, ForeignKey("ReferenceData.id"), nullable=False
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False
@@ -41,8 +41,8 @@ class Account(Base):
 
     # Relationships
     institution: Mapped[Optional["Institution"]] = relationship(
-        "Institution", foreign_keys=[institutionid]
+        "Institution", foreign_keys=[institution_id]
     )
 
     def __repr__(self) -> str:
-        return f"<Account(id={self.id}, userid={self.userid}, name={self.name})>"
+        return f"<Account(id={self.id}, user_id={self.user_id}, name={self.name})>"

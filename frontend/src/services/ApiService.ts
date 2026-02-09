@@ -32,8 +32,7 @@ class ApiService {
   public client: AxiosInstance;
 
   constructor() {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-    const baseURL = (import.meta.env.VITE_API_URL as string | undefined) || 'http://localhost:8000';
+    const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.client = axios.create({
       baseURL,

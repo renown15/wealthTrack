@@ -64,14 +64,14 @@ describe('RegistrationView - Interactions', () => {
 
     const errors = {
       email: 'Email is required',
-      first_name: 'First name is required',
+      firstName: 'First name is required',
       password: 'Password is required',
     };
 
     view.displayErrors(errors);
 
     const emailError = container.querySelector('#email-error');
-    const firstNameError = container.querySelector('#first_name-error');
+    const firstNameError = container.querySelector('#firstName-error');
     const passwordError = container.querySelector('#password-error');
 
     expect(emailError?.textContent).toContain('Email is required');

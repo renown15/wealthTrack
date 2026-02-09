@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     # Application
     environment: str = "development"
     api_v1_prefix: str = "/api/v1"
-    
+
     # Frontend
     frontend_port: int = 3000
     frontend_host: str = "localhost"

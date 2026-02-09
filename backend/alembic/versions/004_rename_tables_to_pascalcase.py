@@ -20,7 +20,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Rename all tables to PascalCase to match spec."""
-    
+
     # Drop all foreign keys first
     op.drop_constraint("user_profile_typeid_fkey", "user_profile", type_="foreignkey")
     op.drop_constraint("accounts_typeid_fkey", "accounts", type_="foreignkey")
@@ -37,7 +37,7 @@ def upgrade() -> None:
     op.drop_constraint("account_events_typeid_fkey", "account_events", type_="foreignkey")
     op.drop_constraint("account_events_accountid_fkey", "account_events", type_="foreignkey")
     op.drop_constraint("account_events_userid_fkey", "account_events", type_="foreignkey")
-    
+
     # Step 1: Rename reference_data to ReferenceData and fix columns
     # First, create new ReferenceData table with correct schema
     op.create_table(
@@ -52,23 +52,23 @@ def upgrade() -> None:
         sa.Index("ix_ReferenceData_classkey", "classkey"),
         sa.Index("ix_ReferenceData_id", "id"),
     )
-    
+
     # Copy data from old reference_data to ReferenceData
     # Combine class and key into classkey (e.g., "account_type:SAVINGS")
     op.execute("""
         INSERT INTO "ReferenceData" (id, classkey, referencevalue, sortindex, created_at, updated_at)
-        SELECT id, 
+        SELECT id,
                CONCAT(class, ':', key) as classkey,
-               referencevalue, 
-               sortindex, 
-               created_at, 
+               referencevalue,
+               sortindex,
+               created_at,
                updated_at
         FROM reference_data
     """)
-    
+
     # Drop old reference_data table
     op.drop_table("reference_data")
-    
+
     # Step 2: Rename all other tables
     op.rename_table("user_profile", "UserProfile")
     op.rename_table("users", "User")
@@ -77,7 +77,7 @@ def upgrade() -> None:
     op.rename_table("account_attributes", "AccountAttribute")
     op.rename_table("account_events", "AccountEvent")
     op.rename_table("institution_security_credentials", "InstitutionSecurityCredentials")
-    
+
     # Recreate all foreign keys with new table names
     op.create_foreign_key("UserProfile_typeid_fkey", "UserProfile", "ReferenceData", ["typeid"], ["id"])
     op.create_foreign_key("Account_typeid_fkey", "Account", "ReferenceData", ["typeid"], ["id"])
@@ -98,7 +98,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Revert table names to snake_case."""
-    
+
     # Rename tables back to snake_case
     op.rename_table("InstitutionSecurityCredentials", "institution_security_credentials")
     op.rename_table("AccountEvent", "account_events")
@@ -107,7 +107,7 @@ def downgrade() -> None:
     op.rename_table("Account", "accounts")
     op.rename_table("User", "users")
     op.rename_table("UserProfile", "user_profile")
-    
+
     # Recreate old reference_data table
     op.create_table(
         "reference_data",
@@ -123,7 +123,7 @@ def downgrade() -> None:
         sa.Index("ix_reference_data_class", "class"),
         sa.Index("ix_reference_data_id", "id"),
     )
-    
+
     # Copy data back, splitting classkey back into class and key
     op.execute("""
         INSERT INTO reference_data (id, class, key, referencevalue, sortindex, created_at, updated_at)
@@ -136,6 +136,6 @@ def downgrade() -> None:
                updated_at
         FROM "ReferenceData"
     """)
-    
+
     # Drop ReferenceData table
     op.drop_table("ReferenceData")

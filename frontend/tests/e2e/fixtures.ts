@@ -1,3 +1,4 @@
+// @ts-expect-error - pg module types not installed, but library available at runtime
 import { Pool } from 'pg';
 
 // Connect to test database (port 5434 as per .env.test)

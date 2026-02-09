@@ -21,12 +21,12 @@ async def test_register_user(client: AsyncClient) -> None:
     assert response.status_code == 201
     data = response.json()
     assert data["email"] == "newuser@example.com"
-    assert data["firstname"] == "New"
-    assert data["surname"] == "User"
-    assert data["is_active"] is True
-    assert data["is_verified"] is False
+    assert data["firstName"] == "New"
+    assert data["lastName"] == "User"
+    assert data["isActive"] is True
+    assert data["isVerified"] is False
     assert "id" in data
-    assert "created_at" in data
+    assert "createdAt" in data
 
 
 @pytest.mark.asyncio

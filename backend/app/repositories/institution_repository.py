@@ -21,7 +21,7 @@ class InstitutionRepository:
         stmt = (
             select(Institution)
             .where(Institution.id == institution_id)
-            .where(Institution.userid == user_id)
+            .where(Institution.user_id == user_id)
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
@@ -30,7 +30,7 @@ class InstitutionRepository:
         """Get all institutions for user."""
         stmt = (
             select(Institution)
-            .where(Institution.userid == user_id)
+            .where(Institution.user_id == user_id)
             .order_by(Institution.created_at.desc())
         )
         result = await self.session.execute(stmt)

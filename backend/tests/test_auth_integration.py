@@ -12,7 +12,7 @@ from app.services.auth import create_access_token
 async def test_missing_auth_header(client: AsyncClient) -> None:
     """Test accessing protected endpoint without auth header."""
     response = await client.get("/api/v1/auth/me")
-    assert response.status_code == 403
+    assert response.status_code == 401
 
 
 @pytest.mark.asyncio

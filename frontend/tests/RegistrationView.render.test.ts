@@ -113,8 +113,8 @@ describe('RegistrationView', () => {
     view.onSubmit(callback);
 
     const emailInput = container.querySelector('input[id="email"]') as HTMLInputElement;
-    const firstNameInput = container.querySelector('input[id="first_name"]') as HTMLInputElement;
-    const lastNameInput = container.querySelector('input[id="last_name"]') as HTMLInputElement;
+    const firstNameInput = container.querySelector('input[id="firstName"]') as HTMLInputElement;
+    const lastNameInput = container.querySelector('input[id="lastName"]') as HTMLInputElement;
     const passwordInput = container.querySelector('input[id="password"]') as HTMLInputElement;
 
     emailInput.value = 'test@example.com';
@@ -134,16 +134,16 @@ describe('RegistrationView', () => {
 
     const errors = {
       email: 'Email is required',
-      first_name: 'First name is required',
-      last_name: 'Last name is required',
+      firstName: 'First name is required',
+      lastName: 'Last name is required',
       password: 'Password is required',
     };
 
     view.displayErrors(errors);
 
     const emailError = container.querySelector('#email-error');
-    const firstNameError = container.querySelector('#first_name-error');
-    const lastNameError = container.querySelector('#last_name-error');
+    const firstNameError = container.querySelector('#firstName-error');
+    const lastNameError = container.querySelector('#lastName-error');
     const passwordError = container.querySelector('#password-error');
 
     expect(emailError?.textContent).toContain('Email is required');
