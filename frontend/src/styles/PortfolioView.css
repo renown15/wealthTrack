@@ -287,6 +287,12 @@
   gap: 0.5rem;
 }
 
+.btn-credentials {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+}
+
 /* Modal */
 .modal-overlay {
   position: fixed;
@@ -309,6 +315,18 @@
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
+}
+
+.modal-content--small {
+  max-width: 420px;
+}
+
+.modal-content--medium {
+  max-width: 560px;
+}
+
+.modal-content--large {
+  max-width: 720px;
 }
 
 .modal-header {

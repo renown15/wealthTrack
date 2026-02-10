@@ -103,6 +103,33 @@ REFERENCE_DATA_ITEMS: list[ReferenceDataItem] = [
         reference_value="Credit Limit",
         sort_index=3,
     ),
+
+    # Credential types
+    ReferenceDataItem(
+        class_key="credential_type:username",
+        reference_value="Username",
+        sort_index=1,
+    ),
+    ReferenceDataItem(
+        class_key="credential_type:password",
+        reference_value="Password",
+        sort_index=2,
+    ),
+    ReferenceDataItem(
+        class_key="credential_type:security_question",
+        reference_value="Security Question",
+        sort_index=3,
+    ),
+    ReferenceDataItem(
+        class_key="credential_type:mother_maiden",
+        reference_value="Mother's Maiden Name",
+        sort_index=4,
+    ),
+    ReferenceDataItem(
+        class_key="credential_type:phone_pin",
+        reference_value="Phone PIN",
+        sort_index=5,
+    ),
 ]
 
 

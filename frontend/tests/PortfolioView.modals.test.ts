@@ -1,23 +1,35 @@
 /**
  * Tests for PortfolioView - Modal and form interactions
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { mount } from '@vue/test-utils';
 import type { Account } from '@/models/Portfolio';
 import PortfolioView from '@/views/PortfolioView.vue';
 import * as usePortfolioModule from '@/composables/usePortfolio';
 import { createMockPortfolioReturn, createMockInstitution } from './helpers/portfolioViewTestHelper';
+import { apiService } from '@/services/ApiService';
+
+vi.mock('@/services/ApiService', () => ({
+  apiService: {
+    getReferenceData: vi.fn().mockResolvedValue([]),
+  },
+}));
+
+const mockGetReferenceData = vi.mocked(apiService).getReferenceData as Mock;
 
 vi.mock('@/composables/usePortfolio', () => ({
   usePortfolio: vi.fn(),
 }));
 
 const mockUsePortfolio = usePortfolioModule.usePortfolio as any;
+let portfolioReturn: ReturnType<typeof createMockPortfolioReturn>;
 
 describe('PortfolioView - Modal Interactions', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUsePortfolio.mockReturnValue(createMockPortfolioReturn());
+    portfolioReturn = createMockPortfolioReturn();
+    mockUsePortfolio.mockReturnValue(portfolioReturn);
+    mockGetReferenceData.mockResolvedValue([]);
   });
 
   it('should properly open and close delete confirmation', async () => {
@@ -133,4 +145,39 @@ describe('PortfolioView - Modal Interactions', () => {
     expect(vm.modalType).toBe('create');
     expect(vm.modalOpen).toBe(true);
   });
+
+  it('should create an account when handleSave runs in create mode', async () => {
+    const wrapper = mount(PortfolioView);
+    const vm = wrapper.vm as any;
+
+    vm.modalResourceType = 'account';
+    vm.modalType = 'create';
+    vm.modalOpen = true;
+    vm.formData = {
+      name: 'Test Account',
+      institutionId: 2,
+      typeId: 3,
+      statusId: 4,
+    };
+
+    await vm.handleSave();
+
+    expect(portfolioReturn.createAccount).toHaveBeenCalledWith(2, 'Test Account', 3, 4);
+    expect(vm.modalOpen).toBe(false);
+  });
+
+  it('should delete account when handleConfirmDelete is invoked for account', async () => {
+    const wrapper = mount(PortfolioView);
+    const vm = wrapper.vm as any;
+
+    vm.deleteConfirmType = 'account';
+    vm.deleteConfirmId = 12;
+    vm.deleteConfirmOpen = true;
+
+    await vm.handleConfirmDelete();
+
+    expect(portfolioReturn.deleteAccount).toHaveBeenCalledWith(12);
+    expect(vm.deleteConfirmOpen).toBe(false);
+  });
+
 });

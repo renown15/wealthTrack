@@ -10,6 +10,9 @@ from sqlalchemy.orm import selectinload
 from app.models.account import Account
 from app.models.account_event import AccountEvent
 from app.models.reference_data import ReferenceData
+from app.schemas.account import AccountResponse
+from app.schemas.account_event import AccountEventResponse
+from app.schemas.institution import InstitutionResponse
 
 
 class PortfolioRepository:
@@ -65,12 +68,24 @@ class PortfolioRepository:
             event_count_result = await self.session.execute(event_count_stmt)
             event_count = event_count_result.scalar_one() or 0
 
+            account_payload = AccountResponse.model_validate(account).model_dump(by_alias=True)
+            institution_payload = (
+                InstitutionResponse.model_validate(account.institution).model_dump(by_alias=True)
+                if account.institution
+                else None
+            )
+            latest_balance_payload = (
+                AccountEventResponse.model_validate(latest_balance).model_dump(by_alias=True)
+                if latest_balance
+                else None
+            )
+
             portfolio_item: dict[str, Any] = {
-                "account": account,
-                "institution": account.institution,
-                "latest_balance": latest_balance,
-                "account_type": account_type,
-                "event_count": event_count,
+                "account": account_payload,
+                "institution": institution_payload,
+                "latestBalance": latest_balance_payload,
+                "accountType": account_type,
+                "eventCount": event_count,
             }
             portfolio.append(portfolio_item)
 

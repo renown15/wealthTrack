@@ -6,7 +6,14 @@
         <span class="institution-name">{{ institution.name }}</span>
         <div class="institution-actions">
           <button class="btn-icon edit" @click="emitEdit(institution)" title="Edit">✎</button>
-          <button class="btn-icon delete" @click="emitDelete(institution.id, institution.name)" title="Delete">✕</button>
+              <button class="btn-icon delete" @click="emitDelete(institution.id, institution.name)" title="Delete">✕</button>
+              <button
+                class="btn btn-secondary btn-credentials"
+                type="button"
+                @click="emitManage(institution)"
+              >
+                Credentials
+              </button>
         </div>
       </div>
     </div>
@@ -23,6 +30,7 @@ defineProps<{
 const emit = defineEmits<{
   editInstitution: [institution: Institution];
   deleteInstitution: [id: number, name: string];
+      manageCredentials: [institution: Institution];
 }>();
 
 const emitEdit = (institution: Institution): void => {
@@ -32,6 +40,10 @@ const emitEdit = (institution: Institution): void => {
 const emitDelete = (id: number, name: string): void => {
   emit('deleteInstitution', id, name);
 };
+    
+    const emitManage = (institution: Institution): void => {
+      emit('manageCredentials', institution);
+    };
 </script>
 
 <style scoped src="@/styles/PortfolioView.css"></style>

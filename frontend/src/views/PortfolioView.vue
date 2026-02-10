@@ -217,7 +217,11 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import { usePortfolio } from '@/composables/usePortfolio';
-import type { Account, Institution } from '@/models/Portfolio';
+import type {
+  Account,
+  Institution,
+  InstitutionCredential,
+} from '@/models/Portfolio';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 import { apiService } from '@/services/ApiService';
 
@@ -237,15 +241,45 @@ const {
 
 const accountTypes = ref<ReferenceDataItem[]>([]);
 const accountStatuses = ref<ReferenceDataItem[]>([]);
+const credentialTypes = ref<ReferenceDataItem[]>([]);
+
+type InstitutionCredentialEditable = InstitutionCredential & {
+  saving?: boolean;
+  error?: string | null;
+};
+
+type InstitutionCredentialDraft = {
+  typeId: number;
+  key: string;
+  value: string;
+};
+
+const credentialModalOpen = ref(false);
+const credentialRows = ref<InstitutionCredentialEditable[]>([]);
+const credentialLoading = ref(false);
+const credentialModalError = ref<string | null>(null);
+const credentialCreateError = ref<string | null>(null);
+const credentialCreating = ref(false);
+const activeInstitution = ref<Institution | null>(null);
+const newCredential = ref<InstitutionCredentialDraft>({
+  typeId: 0,
+  key: '',
+  value: '',
+});
 
 const loadReferenceData = async (): Promise<void> => {
   try {
-    const [types, statuses] = await Promise.all([
+    const [types, statuses, credentials] = await Promise.all([
       apiService.getReferenceData('account_type'),
       apiService.getReferenceData('account_status'),
+      apiService.getReferenceData('credential_type'),
     ]);
     accountTypes.value = types;
     accountStatuses.value = statuses;
+    credentialTypes.value = credentials;
+    if (!newCredential.value.typeId && credentialTypes.value.length) {
+      newCredential.value.typeId = credentialTypes.value[0].id;
+    }
   } catch (error) {
     state.error = error instanceof Error ? error.message : 'Failed to load account metadata';
   }
@@ -302,6 +336,16 @@ watch(
   () => {
     if (modalOpen.value && modalResourceType.value === 'account') {
       applyReferenceDefaults();
+    }
+  },
+  { deep: true },
+);
+
+watch(
+  credentialTypes,
+  () => {
+    if (credentialTypes.value.length && !newCredential.value.typeId) {
+      newCredential.value.typeId = credentialTypes.value[0].id;
     }
   },
   { deep: true },
@@ -448,6 +492,118 @@ const handleConfirmDelete = async (): Promise<void> => {
     closeDeleteConfirm();
   } catch (error) {
     // Error already set in state
+  }
+};
+
+const resetNewCredentialForm = (): void => {
+  newCredential.value.typeId = credentialTypes.value[0]?.id ?? 0;
+  newCredential.value.key = '';
+  newCredential.value.value = '';
+  credentialCreateError.value = null;
+};
+
+const loadInstitutionCredentials = async (): Promise<void> => {
+  if (!activeInstitution.value) return;
+  credentialLoading.value = true;
+  credentialModalError.value = null;
+  try {
+    const credentials = await apiService.listInstitutionCredentials(activeInstitution.value.id);
+    credentialRows.value = credentials.map((credential) => ({
+      ...credential,
+      saving: false,
+      error: null,
+    }));
+    resetNewCredentialForm();
+  } catch (error) {
+    credentialModalError.value = error instanceof Error ? error.message : 'Failed to load credentials';
+  } finally {
+    credentialLoading.value = false;
+  }
+};
+
+const openCredentialsModal = async (institutionParam: Institution): Promise<void> => {
+  activeInstitution.value = institutionParam;
+  credentialModalOpen.value = true;
+  await loadInstitutionCredentials();
+};
+
+const closeCredentialsModal = (): void => {
+  credentialModalOpen.value = false;
+  activeInstitution.value = null;
+  credentialRows.value = [];
+  credentialModalError.value = null;
+  credentialCreateError.value = null;
+};
+
+const saveCredential = async (credential: InstitutionCredentialEditable): Promise<void> => {
+  if (!activeInstitution.value) return;
+  credential.saving = true;
+  credential.error = null;
+  try {
+    const payload = {
+      typeId: credential.typeId,
+      key: credential.key ?? '',
+      value: credential.value ?? '',
+    };
+    const updated = await apiService.updateInstitutionCredential(
+      activeInstitution.value.id,
+      credential.id,
+      payload,
+    );
+    credential.typeId = updated.typeId;
+    credential.typeLabel = updated.typeLabel;
+    credential.key = updated.key ?? '';
+    credential.value = updated.value ?? '';
+    credential.updatedAt = updated.updatedAt;
+  } catch (error) {
+    credential.error = error instanceof Error ? error.message : 'Failed to save credential';
+  } finally {
+    credential.saving = false;
+  }
+};
+
+const removeCredential = async (credential: InstitutionCredentialEditable): Promise<void> => {
+  if (!activeInstitution.value) return;
+  credential.saving = true;
+  credential.error = null;
+  try {
+    await apiService.deleteInstitutionCredential(activeInstitution.value.id, credential.id);
+    credentialRows.value = credentialRows.value.filter((row) => row.id !== credential.id);
+  } catch (error) {
+    credential.error = error instanceof Error ? error.message : 'Failed to remove credential';
+  } finally {
+    credential.saving = false;
+  }
+};
+
+const createCredential = async (): Promise<void> => {
+  if (!activeInstitution.value) return;
+  const typeId = newCredential.value.typeId;
+  const key = newCredential.value.key.trim();
+  const value = newCredential.value.value.trim();
+  if (!typeId || !key || !value) {
+    credentialCreateError.value = 'All fields are required';
+    return;
+  }
+
+  credentialCreating.value = true;
+  credentialCreateError.value = null;
+  try {
+    const created = await apiService.createInstitutionCredential(activeInstitution.value.id, {
+      typeId,
+      key,
+      value,
+    });
+    credentialRows.value.unshift({
+      ...created,
+      saving: false,
+      error: null,
+    });
+    resetNewCredentialForm();
+  } catch (error) {
+    credentialCreateError.value = error instanceof Error ? error.message : 'Failed to create credential';
+  } finally {
+    credentialCreating.value = false;
   }
 };
 </script>

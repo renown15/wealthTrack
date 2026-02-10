@@ -216,5 +216,6 @@ async def test_portfolio_repository_with_data(
     portfolio = await repo.get_user_portfolio(user.id)
     assert isinstance(portfolio, list)
     assert len(portfolio) >= 1
-    assert portfolio[0]["account"].id == account.id
+    assert isinstance(portfolio[0]["account"], dict)
+    assert portfolio[0]["account"]["id"] == account.id
 

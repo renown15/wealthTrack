@@ -1,10 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { mount } from '@vue/test-utils';
 import { computed } from 'vue';
+import { mount } from '@vue/test-utils';
 import AccountHub from '@views/AccountHub/AccountHub.vue';
 import * as usePortfolioModule from '@/composables/usePortfolio';
+import type { Account, AccountEvent, Institution } from '@/models/Portfolio';
+import type { ReferenceDataItem } from '@/models/ReferenceData';
+
+const mockGetReferenceData = vi.fn<(classKey: string) => Promise<ReferenceDataItem[]>>();
+const mockGetAccountEvents = vi.fn<(accountId: number) => Promise<AccountEvent[]>>();
 
 vi.mock('@/composables/usePortfolio');
+vi.mock('@/services/ApiService', () => ({
+  apiService: {
+    getReferenceData: (...args: Parameters<typeof mockGetReferenceData>) => mockGetReferenceData(...args),
+    getAccountEvents: (...args: Parameters<typeof mockGetAccountEvents>) => mockGetAccountEvents(...args),
+  },
+}));
 vi.mock('@views/AccountHub/AccountHubStats.vue', () => ({
   default: { name: 'MockStats', template: '<div>stats</div>' },
 }));
@@ -21,103 +32,199 @@ vi.mock('@views/AccountHub/InstitutionsList.vue', () => ({
   default: { name: 'MockList', template: '<div>list</div>' },
 }));
 
+const flushPromises = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
+
+type PortfolioState = {
+  loading: boolean;
+  error: string | null;
+  items: Account[];
+  institutions: Institution[];
+};
+
+type PortfolioMock = {
+  state: PortfolioState;
+  totalValue: ReturnType<typeof computed>;
+  accountCount: ReturnType<typeof computed>;
+  loadPortfolio: ReturnType<typeof vi.fn>;
+  createAccount: ReturnType<typeof vi.fn>;
+  updateAccount: ReturnType<typeof vi.fn>;
+  deleteAccount: ReturnType<typeof vi.fn>;
+  createInstitution: ReturnType<typeof vi.fn>;
+  updateInstitution: ReturnType<typeof vi.fn>;
+  deleteInstitution: ReturnType<typeof vi.fn>;
+  clearError: ReturnType<typeof vi.fn>;
+};
+
+type PortfolioMockOverrides = Partial<Omit<PortfolioMock, 'state'>> & {
+  state?: Partial<PortfolioState>;
+};
+
+const createUsePortfolioMock = (overrides: PortfolioMockOverrides = {}): PortfolioMock => {
+  const state: PortfolioState = {
+    loading: false,
+    error: null,
+    items: [],
+    institutions: [],
+    ...(overrides.state ?? {}),
+  };
+
+  const base: PortfolioMock = {
+    state,
+    totalValue: computed(() => 0),
+    accountCount: computed(() => state.items.length),
+    loadPortfolio: vi.fn(),
+    createAccount: vi.fn(),
+    updateAccount: vi.fn(),
+    deleteAccount: vi.fn(),
+    createInstitution: vi.fn(),
+    updateInstitution: vi.fn(),
+    deleteInstitution: vi.fn(),
+    clearError: vi.fn(),
+  };
+
+  const { state: _state, ...rest } = overrides;
+
+  return {
+    ...base,
+    ...rest,
+    state,
+  };
+};
+
+const mountAccountHub = async (portfolioMock?: PortfolioMock) => {
+  const mockInstance = portfolioMock ?? createUsePortfolioMock();
+  vi.mocked(usePortfolioModule.usePortfolio).mockImplementation(() => mockInstance);
+  const wrapper = mount(AccountHub);
+  await flushPromises();
+  return { wrapper, portfolioMock: mockInstance };
+};
+
+type AccountHubVm = {
+  modalOpen: boolean;
+  modalType: 'create' | 'edit';
+  modalResourceType: 'account' | 'institution';
+  eventsModalOpen: boolean;
+  eventsLoading: boolean;
+  events: AccountEvent[];
+  eventsError?: string;
+  eventsTitle: string;
+  deleteConfirmOpen: boolean;
+  deleteConfirmName: string;
+  openDeleteConfirm: (type: 'account' | 'institution', id: number, name: string) => void;
+  handleConfirmDelete: () => Promise<void>;
+  closeDeleteConfirm: () => void;
+  openEventsModal: (accountId: number, accountName: string, eventCount: number) => Promise<void>;
+  closeEventsModal: () => void;
+};
+
 describe('AccountHub', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetReferenceData.mockResolvedValue([]);
+    mockGetAccountEvents.mockResolvedValue([]);
   });
 
-  it('renders loading state initially', () => {
-    const mockUsePortfolio = vi.fn(() => ({
-      state: { loading: true, error: null, items: [], institutions: [] },
-      totalValue: computed(() => 0),
-      accountCount: computed(() => 0),
-      loadPortfolio: vi.fn(),
-      createAccount: vi.fn(),
-      updateAccount: vi.fn(),
-      deleteAccount: vi.fn(),
-      createInstitution: vi.fn(),
-      updateInstitution: vi.fn(),
-      deleteInstitution: vi.fn(),
-      clearError: vi.fn(),
-    }));
-    vi.mocked(usePortfolioModule.usePortfolio).mockImplementation(mockUsePortfolio);
+  it('renders loading state initially', async () => {
+    const { wrapper } = await mountAccountHub(
+      createUsePortfolioMock({ state: { loading: true } }),
+    );
 
-    const wrapper = mount(AccountHub);
     expect(wrapper.text()).toContain('Loading portfolio');
   });
 
-  it('renders empty state when no accounts', () => {
-    const mockUsePortfolio = vi.fn(() => ({
-      state: { loading: false, error: null, items: [], institutions: [] },
-      totalValue: computed(() => 0),
-      accountCount: computed(() => 0),
-      loadPortfolio: vi.fn(),
-      createAccount: vi.fn(),
-      updateAccount: vi.fn(),
-      deleteAccount: vi.fn(),
-      createInstitution: vi.fn(),
-      updateInstitution: vi.fn(),
-      deleteInstitution: vi.fn(),
-      clearError: vi.fn(),
-    }));
-    vi.mocked(usePortfolioModule.usePortfolio).mockImplementation(mockUsePortfolio);
+  it('renders empty state when no accounts', async () => {
+    const { wrapper } = await mountAccountHub();
 
-    const wrapper = mount(AccountHub);
     expect(wrapper.text()).toContain('No accounts yet');
     expect(wrapper.text()).toContain('Create your first account');
   });
 
-  it('displays error banner when error exists', () => {
+  it('displays error banner when error exists', async () => {
     const clearErrorMock = vi.fn();
-    const mockUsePortfolio = vi.fn(() => ({
-      state: { loading: false, error: 'Test error message', items: [], institutions: [] },
-      totalValue: computed(() => 0),
-      accountCount: computed(() => 0),
-      loadPortfolio: vi.fn(),
-      createAccount: vi.fn(),
-      updateAccount: vi.fn(),
-      deleteAccount: vi.fn(),
-      createInstitution: vi.fn(),
-      updateInstitution: vi.fn(),
-      deleteInstitution: vi.fn(),
-      clearError: clearErrorMock,
-    }));
-    vi.mocked(usePortfolioModule.usePortfolio).mockImplementation(mockUsePortfolio);
+    const { wrapper } = await mountAccountHub(
+      createUsePortfolioMock({ state: { error: 'Test error message' }, clearError: clearErrorMock }),
+    );
 
-    const wrapper = mount(AccountHub);
     expect(wrapper.text()).toContain('Test error message');
 
     const closeBtn = wrapper.find('.error-banner button');
-    closeBtn.trigger('click');
+    await closeBtn.trigger('click');
     expect(clearErrorMock).toHaveBeenCalled();
   });
 
   it('emits createAccount from stats', async () => {
-    const mockUsePortfolio = vi.fn(() => ({
-      state: { loading: false, error: null, items: [], institutions: [] },
-      totalValue: computed(() => 0),
-      accountCount: computed(() => 0),
-      loadPortfolio: vi.fn(),
-      createAccount: vi.fn(),
-      updateAccount: vi.fn(),
-      deleteAccount: vi.fn(),
-      createInstitution: vi.fn(),
-      updateInstitution: vi.fn(),
-      deleteInstitution: vi.fn(),
-      clearError: vi.fn(),
-    }));
-    vi.mocked(usePortfolioModule.usePortfolio).mockImplementation(mockUsePortfolio);
-
-    const wrapper = mount(AccountHub);
-    // Trigger the stats component's createAccount event
+    const { wrapper } = await mountAccountHub();
     const statsComponent = wrapper.findComponent({ name: 'MockStats' });
+
     await statsComponent.vm.$emit('create-account');
     await wrapper.vm.$nextTick();
 
-    // Modal should be visible - use type assertion for internal state
-    const vm = wrapper.vm as unknown as { modalOpen: boolean; modalType: string; modalResourceType: string };
+    const vm = wrapper.vm as AccountHubVm;
     expect(vm.modalOpen).toBe(true);
     expect(vm.modalType).toBe('create');
     expect(vm.modalResourceType).toBe('account');
+  });
+
+  it('opens institution modal when stats requests it', async () => {
+    const { wrapper } = await mountAccountHub();
+    const statsComponent = wrapper.findComponent({ name: 'MockStats' });
+
+    await statsComponent.vm.$emit('create-institution');
+    await wrapper.vm.$nextTick();
+
+    const vm = wrapper.vm as AccountHubVm;
+    expect(vm.modalOpen).toBe(true);
+    expect(vm.modalResourceType).toBe('institution');
+    expect(vm.modalType).toBe('create');
+  });
+
+  it('handles institution delete confirmation flow', async () => {
+    const deleteInstitutionMock = vi.fn(() => Promise.resolve());
+    const { wrapper, portfolioMock } = await mountAccountHub(
+      createUsePortfolioMock({ deleteInstitution: deleteInstitutionMock }),
+    );
+
+    const vm = wrapper.vm as AccountHubVm;
+    vm.openDeleteConfirm('institution', 12, 'Institution Foo');
+    expect(vm.deleteConfirmOpen).toBe(true);
+    expect(vm.deleteConfirmName).toBe('Institution Foo');
+
+    await vm.handleConfirmDelete();
+    await flushPromises();
+
+    expect(portfolioMock.deleteInstitution).toHaveBeenCalledWith(12);
+    expect(vm.deleteConfirmOpen).toBe(false);
+  });
+
+  it('loads events into the modal and closes it', async () => {
+    const sampleEvents: AccountEvent[] = [
+      {
+        id: 1,
+        accountId: 10,
+        userId: 4,
+        eventType: 'created',
+        value: 'Sample',
+        createdAt: '2026-02-10T00:00:00Z',
+        updatedAt: '2026-02-10T00:00:00Z',
+      },
+    ];
+    mockGetAccountEvents.mockResolvedValue(sampleEvents);
+
+    const { wrapper } = await mountAccountHub();
+    const vm = wrapper.vm as AccountHubVm;
+
+    await vm.openEventsModal(10, 'Savings', 2);
+    await flushPromises();
+
+    expect(mockGetAccountEvents).toHaveBeenCalledWith(10);
+    expect(vm.eventsModalOpen).toBe(true);
+    expect(vm.eventsLoading).toBe(false);
+    expect(vm.events).toEqual(sampleEvents);
+    expect(vm.eventsTitle).toContain('Savings');
+
+    vm.closeEventsModal();
+    expect(vm.eventsModalOpen).toBe(false);
+    expect(vm.events).toEqual([]);
+    expect(vm.eventsError).toBeUndefined();
   });
 });

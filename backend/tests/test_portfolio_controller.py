@@ -18,7 +18,8 @@ async def test_get_portfolio(
     )
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
-    assert isinstance(data, list)
+    assert isinstance(data, dict)
+    assert set(data.keys()) >= {"items", "totalValue", "accountCount"}
 
 
 @pytest.mark.asyncio
@@ -41,4 +42,5 @@ async def test_get_portfolio_empty(
     )
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
-    assert isinstance(data, list)
+    assert isinstance(data, dict)
+    assert data["items"] == []

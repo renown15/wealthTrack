@@ -1,75 +1,71 @@
 <template>
-  <div v-if="open" class="modal-overlay" @click.self="emitClose">
-    <div class="modal-content" @click.stop>
-      <header class="modal-header">
-        <h2>
-          {{ type === 'create' ? 'New' : 'Edit' }}
-          {{ resourceType === 'account' ? 'Account' : 'Institution' }}
-        </h2>
-        <button class="btn-close" @click="emitClose">×</button>
-      </header>
-
-      <div class="modal-body">
-        <div class="form-group">
-          <label :for="`${resourceType}-name`">
-            {{ resourceType === 'account' ? 'Account' : 'Institution' }} Name
-          </label>
-          <input
-            :id="`${resourceType}-name`"
-            v-model="formData.name"
-            type="text"
-            :placeholder="
-              resourceType === 'account'
-                ? 'e.g., Checking, Savings'
-                : 'e.g., Chase Bank, Wells Fargo'
-            "
-          />
-        </div>
-
-        <div v-if="resourceType === 'account' && type === 'create'" class="form-group">
-          <label for="institution-select">Institution</label>
-          <select v-model.number="formData.institutionId" id="institution-select">
-            <option value="">Select Institution</option>
-            <option v-for="inst in institutions" :key="inst.id" :value="inst.id">
-              {{ inst.name }}
-            </option>
-          </select>
-        </div>
-
-        <div v-if="resourceType === 'account'" class="form-group">
-          <label for="accountType">Account Type</label>
-          <select id="accountType" v-model.number="formData.typeId">
-            <option value="">Select Account Type</option>
-            <option v-for="type in accountTypes" :key="type.id" :value="type.id">
-              {{ type.referenceValue }}
-            </option>
-          </select>
-        </div>
-
-        <div v-if="resourceType === 'account'" class="form-group">
-          <label for="accountStatus">Account Status</label>
-          <select id="accountStatus" v-model.number="formData.statusId">
-            <option value="">Select Account Status</option>
-            <option v-for="status in accountStatuses" :key="status.id" :value="status.id">
-              {{ status.referenceValue }}
-            </option>
-          </select>
-        </div>
+  <BaseModal
+    :open="open"
+    :title="modalTitle"
+    size="medium"
+    @close="emitClose"
+  >
+    <template #default>
+      <div class="form-group">
+        <label :for="`${resourceType}-name`">
+          {{ resourceType === 'account' ? 'Account' : 'Institution' }} Name
+        </label>
+        <input
+          :id="`${resourceType}-name`"
+          v-model="formData.name"
+          type="text"
+          :placeholder="
+            resourceType === 'account'
+              ? 'e.g., Checking, Savings'
+              : 'e.g., Chase Bank, Wells Fargo'
+          "
+        />
       </div>
 
-      <footer class="modal-footer">
-        <button class="btn btn-secondary" @click="emitClose">Cancel</button>
-        <button class="btn btn-primary" @click="handleSave">
-          {{ type === 'create' ? 'Create' : 'Save' }}
-        </button>
-      </footer>
-    </div>
-  </div>
+      <div v-if="resourceType === 'account' && type === 'create'" class="form-group">
+        <label for="institution-select">Institution</label>
+        <select v-model.number="formData.institutionId" id="institution-select">
+          <option value="">Select Institution</option>
+          <option v-for="inst in institutions" :key="inst.id" :value="inst.id">
+            {{ inst.name }}
+          </option>
+        </select>
+      </div>
+
+      <div v-if="resourceType === 'account'" class="form-group">
+        <label for="accountType">Account Type</label>
+        <select id="accountType" v-model.number="formData.typeId">
+          <option value="">Select Account Type</option>
+          <option v-for="type in accountTypes" :key="type.id" :value="type.id">
+            {{ type.referenceValue }}
+          </option>
+        </select>
+      </div>
+
+      <div v-if="resourceType === 'account'" class="form-group">
+        <label for="accountStatus">Account Status</label>
+        <select id="accountStatus" v-model.number="formData.statusId">
+          <option value="">Select Account Status</option>
+          <option v-for="status in accountStatuses" :key="status.id" :value="status.id">
+            {{ status.referenceValue }}
+          </option>
+        </select>
+      </div>
+    </template>
+
+    <template #footer>
+      <button class="btn btn-secondary" @click="emitClose">Cancel</button>
+      <button class="btn btn-primary" @click="handleSave">
+        {{ type === 'create' ? 'Create' : 'Save' }}
+      </button>
+    </template>
+  </BaseModal>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import type { Institution } from '@/models/Portfolio';
+import BaseModal from '@/components/BaseModal.vue';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 
 interface Props {
@@ -198,6 +194,12 @@ watch(
 const emitClose = (): void => {
   emit('close');
 };
+
+const modalTitle = computed(() => {
+  const verb = props.type === 'create' ? 'New' : 'Edit';
+  const resourceLabel = props.resourceType === 'account' ? 'Account' : 'Institution';
+  return `${verb} ${resourceLabel}`;
+});
 
 const handleSave = (): void => {
   if (!formData.value.name) {

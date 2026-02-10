@@ -18,6 +18,9 @@ import type {
   Institution,
   InstitutionCreateRequest,
   InstitutionUpdateRequest,
+  InstitutionCredential,
+  InstitutionCredentialCreate,
+  InstitutionCredentialUpdate,
 } from '@models/Portfolio';
 import axios, { type AxiosInstance } from 'axios';
 import { authService } from '@services/AuthService';
@@ -25,6 +28,7 @@ import { portfolioFetchService } from '@services/PortfolioFetchService';
 import { accountCrudService } from '@services/AccountCrudService';
 import { institutionCrudService } from '@services/InstitutionCrudService';
 import { referenceDataService } from '@services/ReferenceDataService';
+import { institutionCredentialService } from '@services/InstitutionCredentialService';
 
 /**
  * Facade service that aggregates all API operations.
@@ -122,6 +126,34 @@ class ApiService {
 
   async deleteInstitution(institutionId: number): Promise<void> {
     return institutionCrudService.deleteInstitution(institutionId);
+  }
+
+  async listInstitutionCredentials(
+    institutionId: number,
+  ): Promise<InstitutionCredential[]> {
+    return institutionCredentialService.list(institutionId);
+  }
+
+  async createInstitutionCredential(
+    institutionId: number,
+    payload: InstitutionCredentialCreate,
+  ): Promise<InstitutionCredential> {
+    return institutionCredentialService.create(institutionId, payload);
+  }
+
+  async updateInstitutionCredential(
+    institutionId: number,
+    credentialId: number,
+    payload: InstitutionCredentialUpdate,
+  ): Promise<InstitutionCredential> {
+    return institutionCredentialService.update(institutionId, credentialId, payload);
+  }
+
+  async deleteInstitutionCredential(
+    institutionId: number,
+    credentialId: number,
+  ): Promise<void> {
+    return institutionCredentialService.delete(institutionId, credentialId);
   }
 
   async getReferenceData(classKey: string): Promise<ReferenceDataItem[]> {

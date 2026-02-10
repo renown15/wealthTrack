@@ -21,6 +21,29 @@ export interface Institution {
   updatedAt: string;
 }
 
+export interface InstitutionCredential {
+  id: number;
+  institutionId: number;
+  typeId: number;
+  typeLabel: string;
+  key?: string;
+  value?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InstitutionCredentialCreate {
+  typeId: number;
+  key: string;
+  value: string;
+}
+
+export interface InstitutionCredentialUpdate {
+  typeId?: number;
+  key?: string;
+  value?: string;
+}
+
 export interface AccountEvent {
   id: number;
   accountId: number;

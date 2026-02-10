@@ -43,10 +43,11 @@
 
       <!-- Institutions List -->
       <InstitutionsList
-        :institutions="state.institutions"
-        @edit-institution="openEditInstitutionModal"
-        @delete-institution="handleDeleteInstitution"
-      />
+          :institutions="state.institutions"
+          @edit-institution="openEditInstitutionModal"
+          @delete-institution="handleDeleteInstitution"
+          @manage-credentials="openCredentialsModal"
+        />
 
       <AccountEventsModal
         :open="eventsModalOpen"
@@ -81,6 +82,23 @@
       @close="closeDeleteConfirm"
       @confirm="handleConfirmDelete"
     />
+
+    <InstitutionCredentialsModal
+      :open="credentialModalOpen"
+      :institution="credentialInstitution"
+      :credential-types="credentialTypes"
+      :credentials="credentials"
+      :loading="credentialLoading"
+      :saving="credentialSaving"
+      :deleting-id="credentialDeletingId"
+      :error="credentialError"
+      :editing-credential="editingCredential"
+      @close="closeCredentialsModal"
+      @save="handleCredentialSave"
+      @edit="handleCredentialEdit"
+      @cancel-edit="cancelCredentialEdit"
+      @remove="handleCredentialDelete"
+    />
   </div>
 </template>
 
@@ -95,7 +113,10 @@ import AddAccountModal from '@views/AccountHub/AddAccountModal.vue';
 import DeleteConfirmModal from '@views/AccountHub/DeleteConfirmModal.vue';
 import InstitutionsList from '@views/AccountHub/InstitutionsList.vue';
 import AccountEventsModal from '@views/AccountHub/AccountEventsModal.vue';
+import InstitutionCredentialsModal from '@views/AccountHub/InstitutionCredentialsModal.vue';
 import { apiService } from '@/services/ApiService';
+import { institutionCredentialsService } from '@/services/InstitutionCredentialsService';
+import type { InstitutionCredential } from '@/models/InstitutionCredential';
 
 const {
   state,
@@ -115,14 +136,17 @@ const institutionCount = computed(() => state.institutions.length);
 const eventCount = computed(() => state.items.reduce((total, account) => total + (account.eventCount || 0), 0));
 const accountTypes = ref<ReferenceDataItem[]>([]);
 const accountStatuses = ref<ReferenceDataItem[]>([]);
+const credentialTypes = ref<ReferenceDataItem[]>([]);
 const loadReferenceData = async (): Promise<void> => {
   try {
-    const [types, statuses] = await Promise.all([
+    const [types, statuses, credentialOptions] = await Promise.all([
       apiService.getReferenceData('account_type'),
       apiService.getReferenceData('account_status'),
+      apiService.getReferenceData('credential_type'),
     ]);
     accountTypes.value = types;
     accountStatuses.value = statuses;
+    credentialTypes.value = credentialOptions;
   } catch (error) {
     state.error = error instanceof Error ? error.message : 'Failed to load reference data';
   }
@@ -156,6 +180,15 @@ const deleteConfirmOpen = ref(false);
 const deleteConfirmType = ref<'account' | 'institution'>('account');
 const deleteConfirmId = ref(0);
 const deleteConfirmName = ref('');
+
+const credentialModalOpen = ref(false);
+const credentialInstitution = ref<Institution | null>(null);
+const credentials = ref<InstitutionCredential[]>([]);
+const credentialLoading = ref(false);
+const credentialSaving = ref(false);
+const credentialDeletingId = ref<number | null>(null);
+const credentialError = ref<string | null>(null);
+const editingCredential = ref<InstitutionCredential | null>(null);
 
 // Load portfolio on mount
 onMounted(async () => {
@@ -256,6 +289,91 @@ const handleConfirmDelete = async (): Promise<void> => {
     closeDeleteConfirm();
   } catch (error) {
     // Error already set in state
+  }
+};
+
+const fetchCredentials = async (institutionId: number): Promise<void> => {
+  credentialLoading.value = true;
+  credentialError.value = null;
+  try {
+    credentials.value = await institutionCredentialsService.listCredentials(institutionId);
+  } catch (error) {
+    credentialError.value = error instanceof Error ? error.message : 'Unable to load credentials';
+  } finally {
+    credentialLoading.value = false;
+  }
+};
+
+const openCredentialsModal = async (institution: Institution): Promise<void> => {
+  credentialInstitution.value = institution;
+  credentialModalOpen.value = true;
+  editingCredential.value = null;
+  await fetchCredentials(institution.id);
+};
+
+const closeCredentialsModal = (): void => {
+  credentialModalOpen.value = false;
+  credentialInstitution.value = null;
+  credentials.value = [];
+  credentialError.value = null;
+  editingCredential.value = null;
+  credentialDeletingId.value = null;
+};
+
+interface CredentialFormPayload {
+  typeId: number;
+  key: string;
+  value: string;
+}
+
+const handleCredentialSave = async (payload: CredentialFormPayload): Promise<void> => {
+  if (!credentialInstitution.value) return;
+  credentialSaving.value = true;
+  credentialError.value = null;
+  try {
+    if (editingCredential.value) {
+      await institutionCredentialsService.updateCredential(
+        credentialInstitution.value.id,
+        editingCredential.value.id,
+        payload,
+      );
+    } else {
+      await institutionCredentialsService.createCredential(
+        credentialInstitution.value.id,
+        payload,
+      );
+    }
+    await fetchCredentials(credentialInstitution.value.id);
+    editingCredential.value = null;
+  } catch (error) {
+    credentialError.value = error instanceof Error ? error.message : 'Unable to save credential';
+  } finally {
+    credentialSaving.value = false;
+  }
+};
+
+const handleCredentialEdit = (credential: InstitutionCredential): void => {
+  editingCredential.value = credential;
+};
+
+const cancelCredentialEdit = (): void => {
+  editingCredential.value = null;
+};
+
+const handleCredentialDelete = async (credentialId: number): Promise<void> => {
+  if (!credentialInstitution.value) return;
+  credentialDeletingId.value = credentialId;
+  credentialError.value = null;
+  try {
+    await institutionCredentialsService.deleteCredential(
+      credentialInstitution.value.id,
+      credentialId,
+    );
+    await fetchCredentials(credentialInstitution.value.id);
+  } catch (error) {
+    credentialError.value = error instanceof Error ? error.message : 'Unable to delete credential';
+  } finally {
+    credentialDeletingId.value = null;
   }
 };
 
