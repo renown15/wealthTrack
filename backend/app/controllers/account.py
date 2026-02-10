@@ -10,8 +10,10 @@ from app.controllers.dependencies import get_current_user
 from app.database import get_db
 from app.models.account import Account
 from app.models.user_profile import UserProfile
+from app.repositories.account_event_repository import AccountEventRepository
 from app.repositories.account_repository import AccountRepository
 from app.schemas.account import AccountCreate, AccountResponse, AccountUpdate
+from app.schemas.account_event import AccountEventResponse
 from app.services.account_service import AccountService
 
 router = APIRouter(prefix="/accounts", tags=["accounts"])
@@ -78,9 +80,9 @@ async def update_account(
     if account_data.name is not None:
         update_dict["name"] = account_data.name
     if account_data.type_id is not None:
-        update_dict["typeid"] = account_data.type_id
+        update_dict["type_id"] = account_data.type_id
     if account_data.status_id is not None:
-        update_dict["statusid"] = account_data.status_id
+        update_dict["status_id"] = account_data.status_id
 
     try:
         await service.update(account_id, current_user.id, **update_dict)
@@ -116,3 +118,23 @@ async def delete_account(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e),
         ) from e
+
+
+@router.get("/{account_id}/events", response_model=list[AccountEventResponse])
+async def list_account_events(
+    account_id: int,
+    session: AsyncSession = Depends(get_db),
+    current_user: UserProfile = Depends(get_current_user),
+) -> list[AccountEventResponse]:
+    """Return the event timeline for the requested account."""
+    account_repo = AccountRepository(session)
+    account = await account_repo.get_by_id(account_id, current_user.id)
+    if not account:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Account not found",
+        )
+
+    event_repo = AccountEventRepository(session)
+    events = await event_repo.list_events(account_id, current_user.id)
+    return [AccountEventResponse(**event) for event in events]

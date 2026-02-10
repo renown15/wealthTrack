@@ -4,6 +4,8 @@
     <AccountHubStats
       :total-value="totalValue"
       :account-count="accountCount"
+      :institution-count="institutionCount"
+      :event-count="eventCount"
       @create-account="openCreateAccountModal"
       @create-institution="openCreateInstitutionModal"
     />
@@ -35,6 +37,8 @@
         :items="state.items"
         @edit-account="openEditAccountModal"
         @delete-item="openDeleteConfirm"
+        @add-account="openCreateAccountModal"
+        @show-events="openEventsModal"
       />
 
       <!-- Institutions List -->
@@ -42,6 +46,15 @@
         :institutions="state.institutions"
         @edit-institution="openEditInstitutionModal"
         @delete-institution="handleDeleteInstitution"
+      />
+
+      <AccountEventsModal
+        :open="eventsModalOpen"
+        :title="eventsTitle"
+        :events="events"
+        :loading="eventsLoading"
+        :error="eventsError"
+        @close="closeEventsModal"
       />
     </div>
 
@@ -51,8 +64,12 @@
       :type="modalType"
       :resource-type="modalResourceType"
       :institutions="state.institutions"
+      :account-types="accountTypes"
+      :account-statuses="accountStatuses"
       :initial-name="initialModalName"
       :initial-institution-id="initialModalInstitutionId"
+      :initial-type-id="initialModalTypeId"
+      :initial-status-id="initialModalStatusId"
       @close="closeModal"
       @save="handleSave"
     />
@@ -70,12 +87,15 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { usePortfolio } from '@/composables/usePortfolio';
-import type { Account, Institution } from '@/models/Portfolio';
+import type { Account, AccountEvent, Institution } from '@/models/Portfolio';
+import type { ReferenceDataItem } from '@/models/ReferenceData';
 import AccountHubStats from '@views/AccountHub/AccountHubStats.vue';
 import AccountHubTable from '@views/AccountHub/AccountHubTable.vue';
 import AddAccountModal from '@views/AccountHub/AddAccountModal.vue';
 import DeleteConfirmModal from '@views/AccountHub/DeleteConfirmModal.vue';
 import InstitutionsList from '@views/AccountHub/InstitutionsList.vue';
+import AccountEventsModal from '@views/AccountHub/AccountEventsModal.vue';
+import { apiService } from '@/services/ApiService';
 
 const {
   state,
@@ -91,6 +111,23 @@ const {
   clearError,
 } = usePortfolio();
 
+const institutionCount = computed(() => state.institutions.length);
+const eventCount = computed(() => state.items.reduce((total, account) => total + (account.eventCount || 0), 0));
+const accountTypes = ref<ReferenceDataItem[]>([]);
+const accountStatuses = ref<ReferenceDataItem[]>([]);
+const loadReferenceData = async (): Promise<void> => {
+  try {
+    const [types, statuses] = await Promise.all([
+      apiService.getReferenceData('account_type'),
+      apiService.getReferenceData('account_status'),
+    ]);
+    accountTypes.value = types;
+    accountStatuses.value = statuses;
+  } catch (error) {
+    state.error = error instanceof Error ? error.message : 'Failed to load reference data';
+  }
+};
+
 // Modal state
 const modalOpen = ref(false);
 const modalType = ref<'create' | 'edit'>('create');
@@ -105,6 +142,14 @@ const initialModalInstitutionId = computed(() => {
   if (!editingItem.value || !('institutionId' in editingItem.value)) return 0;
   return (editingItem.value as Account).institutionId;
 });
+const initialModalTypeId = computed(() => {
+  if (!editingItem.value || !('typeId' in editingItem.value)) return 0;
+  return editingItem.value.typeId;
+});
+const initialModalStatusId = computed(() => {
+  if (!editingItem.value || !('statusId' in editingItem.value)) return 0;
+  return editingItem.value.statusId;
+});
 
 // Delete confirmation state
 const deleteConfirmOpen = ref(false);
@@ -114,7 +159,7 @@ const deleteConfirmName = ref('');
 
 // Load portfolio on mount
 onMounted(async () => {
-  await loadPortfolio();
+  await Promise.all([loadPortfolio(), loadReferenceData()]);
 });
 const openCreateAccountModal = (): void => {
   modalType.value = 'create';
@@ -153,18 +198,36 @@ const closeModal = (): void => {
   editingItem.value = null;
 };
 
-const handleSave = async (name: string, institutionId: number): Promise<void> => {
+interface AddAccountSavePayload {
+  name: string;
+  institutionId: number;
+  typeId?: number;
+  statusId?: number;
+}
+
+const handleSave = async (payload: AddAccountSavePayload): Promise<void> => {
   try {
     if (modalResourceType.value === 'account') {
       if (modalType.value === 'create') {
-        await createAccount(institutionId, name);
+        const resolvedTypeId = payload.typeId ?? accountTypes.value[0]?.id;
+        const resolvedStatusId = payload.statusId ?? accountStatuses.value[0]?.id;
+        if (!resolvedTypeId || !resolvedStatusId) {
+          state.error = 'Please select a valid account type and status';
+          return;
+        }
+        await createAccount(
+          payload.institutionId,
+          payload.name,
+          resolvedTypeId,
+          resolvedStatusId,
+        );
       } else if (editingItem.value && 'id' in editingItem.value) {
-        await updateAccount(editingItem.value.id, name);
+        await updateAccount(editingItem.value.id, payload.name);
       }
     } else if (modalType.value === 'create') {
-      await createInstitution(name);
+      await createInstitution(payload.name);
     } else if (editingItem.value && 'id' in editingItem.value) {
-      await updateInstitution(editingItem.value.id, name);
+      await updateInstitution(editingItem.value.id, payload.name);
     }
     closeModal();
   } catch (error) {
@@ -194,6 +257,38 @@ const handleConfirmDelete = async (): Promise<void> => {
   } catch (error) {
     // Error already set in state
   }
+};
+
+const eventsModalOpen = ref(false);
+const eventsTitle = ref('');
+const eventsLoading = ref(false);
+const eventsError = ref<string | undefined>(undefined);
+const events = ref<AccountEvent[]>([]);
+
+const openEventsModal = async (
+  accountId: number,
+  accountName: string,
+  _eventCount: number,
+): Promise<void> => {
+  eventsModalOpen.value = true;
+  eventsTitle.value = `${accountName} · Events`;
+  eventsLoading.value = true;
+  eventsError.value = undefined;
+  events.value = [];
+
+  try {
+    events.value = await apiService.getAccountEvents(accountId);
+  } catch (error) {
+    eventsError.value = error instanceof Error ? error.message : 'Unable to load events';
+  } finally {
+    eventsLoading.value = false;
+  }
+};
+
+const closeEventsModal = (): void => {
+  eventsModalOpen.value = false;
+  events.value = [];
+  eventsError.value = undefined;
 };
 </script>
 

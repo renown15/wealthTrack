@@ -7,7 +7,6 @@ import { apiService } from '../src/services/ApiService';
 import { debug } from '../src/utils/debug';
 import { LoginController } from '../src/controllers/LoginController';
 import { RegistrationController } from '../src/controllers/RegistrationController';
-import { HomeController } from '../src/controllers/HomeController';
 
 describe('Integration - Full App Browser Flow', () => {
   let appContainer: HTMLElement;
@@ -238,22 +237,6 @@ describe('Integration - Full App Browser Flow', () => {
   });
 
   describe('Portfolio Hub Display', () => {
-    it('should render home view and display portfolio data', async () => {
-      const homeContainer = document.createElement('div');
-      homeContainer.id = 'home-container';
-      appContainer.appendChild(homeContainer);
-
-      // Set auth token to simulate logged-in state
-      localStorage.setItem('accessToken', 'mock-jwt-token-123');
-
-      const controller = new HomeController('home-container');
-      await controller.init();
-
-      // Verify home view was rendered
-      const homeView = homeContainer.querySelector('.home-view');
-      expect(homeContainer.children.length).toBeGreaterThan(0);
-    });
-
     it('should handle portfolio data with multiple accounts', async () => {
       const portfolioResponse = await apiService.getPortfolio();
 
@@ -338,8 +321,7 @@ describe('Integration - Full App Browser Flow', () => {
   });
 
   describe('Browser-like User Journey', () => {
-    it('should complete full user flow: register -> login -> view portfolio -> logout', async () => {
-      // Step 1: Registration
+    it('should complete register -> login -> logout flow', async () => {
       const regContainer = document.createElement('div');
       regContainer.id = 'registration-container';
       appContainer.appendChild(regContainer);
@@ -359,7 +341,6 @@ describe('Integration - Full App Browser Flow', () => {
 
       expect(emailInput?.value).toBe('newuser@example.com');
 
-      // Step 2: Login
       const loginContainer = document.createElement('div');
       loginContainer.id = 'login-container';
       appContainer.appendChild(loginContainer);
@@ -373,20 +354,14 @@ describe('Integration - Full App Browser Flow', () => {
       if (loginEmail) loginEmail.value = 'test@example.com';
       if (loginPassword) loginPassword.value = 'Password123!';
 
-      // Step 3: View portfolio
-      const homeContainer = document.createElement('div');
-      homeContainer.id = 'home-container';
-      appContainer.appendChild(homeContainer);
-
       localStorage.setItem('accessToken', 'mock-jwt-token-123');
-      const homeController = new HomeController('home-container');
-      await homeController.init();
+      await apiService.getPortfolio();
 
-      // Step 4: Logout
       localStorage.removeItem('accessToken');
       apiService.clearAuthToken();
 
       expect(localStorage.getItem('accessToken')).toBeNull();
+      expect(apiService.clearAuthToken).toHaveBeenCalled();
     });
   });
 });

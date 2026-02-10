@@ -11,6 +11,12 @@ vi.mock('@/composables/usePortfolio', () => ({
   usePortfolio: vi.fn(),
 }));
 
+vi.mock('@/services/ApiService', () => ({
+  apiService: {
+    getReferenceData: vi.fn().mockResolvedValue([]),
+  },
+}));
+
 const mockUsePortfolio = usePortfolioModule.usePortfolio as any;
 
 describe('PortfolioView - Error Handling', () => {

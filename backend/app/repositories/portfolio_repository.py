@@ -3,12 +3,13 @@ Repository for portfolio data - accounts with balances and institutions.
 """
 from typing import Any, Optional
 
-from sqlalchemy import desc, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.account import Account
 from app.models.account_event import AccountEvent
+from app.models.reference_data import ReferenceData
 
 
 class PortfolioRepository:
@@ -47,10 +48,29 @@ class PortfolioRepository:
             balance_result = await self.session.execute(balance_stmt)
             latest_balance = balance_result.scalar_one_or_none()
 
+            # Get readable account type label
+            type_stmt = (
+                select(ReferenceData.reference_value)
+                .where(ReferenceData.id == account.type_id)
+            )
+            type_result = await self.session.execute(type_stmt)
+            account_type = type_result.scalar_one_or_none() or 'Unknown'
+
+            # Count related account events
+            event_count_stmt = (
+                select(func.count(AccountEvent.id))  # pylint: disable=not-callable
+                .where(AccountEvent.account_id == account.id)
+                .where(AccountEvent.user_id == user_id)
+            )
+            event_count_result = await self.session.execute(event_count_stmt)
+            event_count = event_count_result.scalar_one() or 0
+
             portfolio_item: dict[str, Any] = {
                 "account": account,
                 "institution": account.institution,
                 "latest_balance": latest_balance,
+                "account_type": account_type,
+                "event_count": event_count,
             }
             portfolio.append(portfolio_item)
 

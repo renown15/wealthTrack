@@ -12,7 +12,9 @@ from app.controllers.account import router as account_router
 from app.controllers.auth import router as auth_router
 from app.controllers.institution import router as institution_router
 from app.controllers.portfolio import router as portfolio_router
-from app.database import Base, engine
+from app.controllers.reference_data import router as reference_data_router
+from app.database import Base, async_session_maker, engine
+from app.services.reference_data import seed_reference_data
 
 
 @asynccontextmanager
@@ -24,6 +26,10 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     # Startup: Create database tables
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+    # Seed reference data so foreign keys have valid defaults
+    async with async_session_maker() as session:
+        await seed_reference_data(session)
 
     yield
 
@@ -67,6 +73,7 @@ app.include_router(auth_router, prefix=settings.api_v1_prefix)
 app.include_router(account_router, prefix=settings.api_v1_prefix)
 app.include_router(institution_router, prefix=settings.api_v1_prefix)
 app.include_router(portfolio_router, prefix=settings.api_v1_prefix)
+app.include_router(reference_data_router, prefix=settings.api_v1_prefix)
 
 
 @app.get("/")

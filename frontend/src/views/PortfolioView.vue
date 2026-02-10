@@ -159,6 +159,26 @@
               </option>
             </select>
           </div>
+
+          <div v-if="modalResourceType === 'account'" class="form-group">
+            <label for="accountType">Account Type</label>
+            <select id="accountType" v-model.number="formData.typeId">
+              <option value="">Select Account Type</option>
+              <option v-for="type in accountTypes" :key="type.id" :value="type.id">
+                {{ type.referenceValue }}
+              </option>
+            </select>
+          </div>
+
+          <div v-if="modalResourceType === 'account'" class="form-group">
+            <label for="accountStatus">Account Status</label>
+            <select id="accountStatus" v-model.number="formData.statusId">
+              <option value="">Select Account Status</option>
+              <option v-for="status in accountStatuses" :key="status.id" :value="status.id">
+                {{ status.referenceValue }}
+              </option>
+            </select>
+          </div>
         </div>
 
         <footer class="modal-footer">
@@ -195,28 +215,100 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { usePortfolio } from '@/composables/usePortfolio';
 import type { Account, Institution } from '@/models/Portfolio';
+import type { ReferenceDataItem } from '@/models/ReferenceData';
+import { apiService } from '@/services/ApiService';
 
-const { state, totalValue, accountCount, loadPortfolio, createAccount, updateAccount, deleteAccount, createInstitution, updateInstitution, deleteInstitution, clearError } = usePortfolio();
+const {
+  state,
+  totalValue,
+  accountCount,
+  loadPortfolio,
+  createAccount,
+  updateAccount,
+  deleteAccount,
+  createInstitution,
+  updateInstitution,
+  deleteInstitution,
+  clearError,
+} = usePortfolio();
 
-// Modal state
+const accountTypes = ref<ReferenceDataItem[]>([]);
+const accountStatuses = ref<ReferenceDataItem[]>([]);
+
+const loadReferenceData = async (): Promise<void> => {
+  try {
+    const [types, statuses] = await Promise.all([
+      apiService.getReferenceData('account_type'),
+      apiService.getReferenceData('account_status'),
+    ]);
+    accountTypes.value = types;
+    accountStatuses.value = statuses;
+  } catch (error) {
+    state.error = error instanceof Error ? error.message : 'Failed to load account metadata';
+  }
+};
+
+const applyReferenceDefaults = (): void => {
+  if (modalResourceType.value !== 'account') {
+    return;
+  }
+
+  if (
+    !formData.value.typeId ||
+    !accountTypes.value.some((type) => type.id === formData.value.typeId)
+  ) {
+    formData.value.typeId = accountTypes.value[0]?.id ?? 0;
+  }
+
+  if (
+    !formData.value.statusId ||
+    !accountStatuses.value.some((status) => status.id === formData.value.statusId)
+  ) {
+    formData.value.statusId = accountStatuses.value[0]?.id ?? 0;
+  }
+};
+
 const modalOpen = ref(false);
 const modalType = ref<'create' | 'edit'>('create');
 const modalResourceType = ref<'account' | 'institution'>('account');
-const formData = ref({ name: '', institutionId: 0 });
+const formData = ref({
+  name: '',
+  institutionId: 0,
+  typeId: 0,
+  statusId: 0,
+});
 const editingItem = ref<Account | Institution | null>(null);
 
-// Delete confirmation state
 const deleteConfirmOpen = ref(false);
 const deleteConfirmType = ref<'account' | 'institution'>('account');
 const deleteConfirmId = ref(0);
 const deleteConfirmName = ref('');
 
-// Load portfolio on mount
+watch(
+  accountTypes,
+  () => {
+    if (modalOpen.value && modalResourceType.value === 'account') {
+      applyReferenceDefaults();
+    }
+  },
+  { deep: true },
+);
+
+watch(
+  accountStatuses,
+  () => {
+    if (modalOpen.value && modalResourceType.value === 'account') {
+      applyReferenceDefaults();
+    }
+  },
+  { deep: true },
+);
+
 onMounted(async () => {
-  await loadPortfolio();
+  await Promise.all([loadPortfolio(), loadReferenceData()]);
 });
 
 const formatCurrency = (value?: string | number): string => {
@@ -236,10 +328,22 @@ const formatDate = (dateStr: string): string => {
   return new Date(dateStr).toLocaleDateString();
 };
 
+const resetForm = (partial: { name?: string; institutionId?: number; typeId?: number; statusId?: number } = {}): void => {
+  formData.value = {
+    name: partial.name ?? '',
+    institutionId: partial.institutionId ?? 0,
+    typeId: partial.typeId ?? 0,
+    statusId: partial.statusId ?? 0,
+  };
+};
+
 const openCreateAccountModal = (): void => {
   modalType.value = 'create';
   modalResourceType.value = 'account';
-  formData.value = { name: '', institutionId: 0 };
+  resetForm({
+    typeId: accountTypes.value[0]?.id ?? 0,
+    statusId: accountStatuses.value[0]?.id ?? 0,
+  });
   editingItem.value = null;
   modalOpen.value = true;
 };
@@ -247,7 +351,7 @@ const openCreateAccountModal = (): void => {
 const openCreateInstitutionModal = (): void => {
   modalType.value = 'create';
   modalResourceType.value = 'institution';
-  formData.value = { name: '', institutionId: 0 };
+  resetForm();
   editingItem.value = null;
   modalOpen.value = true;
 };
@@ -255,7 +359,11 @@ const openCreateInstitutionModal = (): void => {
 const openEditAccountModal = (account: Account): void => {
   modalType.value = 'edit';
   modalResourceType.value = 'account';
-  formData.value = { name: account.name, institutionId: 0 };
+  resetForm({
+    name: account.name,
+    typeId: account.typeId,
+    statusId: account.statusId,
+  });
   editingItem.value = account;
   modalOpen.value = true;
 };
@@ -263,14 +371,14 @@ const openEditAccountModal = (account: Account): void => {
 const openEditInstitutionModal = (institution: Institution): void => {
   modalType.value = 'edit';
   modalResourceType.value = 'institution';
-  formData.value = { name: institution.name, institutionId: 0 };
+  resetForm({ name: institution.name });
   editingItem.value = institution;
   modalOpen.value = true;
 };
 
 const closeModal = (): void => {
   modalOpen.value = false;
-  formData.value = { name: '', institutionId: 0 };
+  resetForm();
   editingItem.value = null;
 };
 
@@ -278,11 +386,21 @@ const handleSave = async (): Promise<void> => {
   try {
     if (modalResourceType.value === 'account') {
       if (modalType.value === 'create') {
-        if (!formData.value.name || !formData.value.institutionId) {
+        if (
+          !formData.value.name ||
+          !formData.value.institutionId ||
+          !formData.value.typeId ||
+          !formData.value.statusId
+        ) {
           state.error = 'Please fill in all required fields';
           return;
         }
-        await createAccount(formData.value.institutionId, formData.value.name);
+        await createAccount(
+          formData.value.institutionId,
+          formData.value.name,
+          formData.value.typeId,
+          formData.value.statusId,
+        );
       } else if (modalType.value === 'edit' && editingItem.value && 'id' in editingItem.value) {
         await updateAccount(editingItem.value.id, formData.value.name);
       }

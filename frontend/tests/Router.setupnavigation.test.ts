@@ -5,13 +5,6 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Router } from '@/router';
 import { authModule } from '@modules/auth';
 
-// Mock controllers
-vi.mock('@controllers/HomeController', () => ({
-  HomeController: vi.fn().mockImplementation(() => ({
-    init: vi.fn(),
-  })),
-}));
-
 vi.mock('@controllers/PortfolioController', () => ({
   PortfolioController: vi.fn().mockImplementation(() => ({
     init: vi.fn(),

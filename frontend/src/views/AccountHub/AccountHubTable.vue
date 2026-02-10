@@ -1,49 +1,55 @@
 <template>
   <section class="accounts-section">
-    <h2>Accounts</h2>
-    <div class="accounts-grid">
-      <article v-for="item in items" :key="item.account.id" class="account-card">
-        <header class="account-header">
-          <h3>{{ item.account.name }}</h3>
-          <div class="account-actions">
-            <button
-              class="btn-icon edit"
-              @click="emitEdit(item.account)"
-              title="Edit account"
-            >
-              ✎
-            </button>
-            <button
-              class="btn-icon delete"
-              @click="emitDelete('account', item.account.id, item.account.name)"
-              title="Delete account"
-            >
-              ✕
-            </button>
-          </div>
-        </header>
+    <header class="table-head">
+      <div>
+        <p class="eyebrow">Portal Grid</p>
+        <h2>Accounts</h2>
+        <p class="subtitle">Denormalized view of every account with the latest balance snapshot.</p>
+      </div>
+      <button class="btn btn-primary" type="button" @click="emitAddAccount">+ADD ACCOUNT</button>
+    </header>
 
-        <div class="account-body">
-          <div class="account-info">
-            <span class="label">Institution</span>
-            <span class="value">{{ item.institution?.name || 'None' }}</span>
-          </div>
-
-          <div class="account-info">
-            <span class="label">Balance</span>
-            <span class="value balance">{{ formatCurrency(item.latestBalance?.value) }}</span>
-          </div>
-
-          <div class="account-info">
-            <span class="label">Last Updated</span>
-            <span class="value">{{
-              item.latestBalance?.createdAt
-                ? formatDate(item.latestBalance.createdAt)
-                : 'Never'
-            }}</span>
-          </div>
-        </div>
-      </article>
+    <div class="table-wrapper">
+      <table class="account-table">
+        <thead>
+          <tr>
+            <th>Institution</th>
+            <th>Account Name</th>
+            <th>Account Type</th>
+            <th>Latest Balance</th>
+            <th>Events</th>
+            <th class="actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in items" :key="item.account.id">
+            <td>{{ item.institution?.name || 'Unassigned' }}</td>
+            <td>{{ item.account.name }}</td>
+            <td>{{ item.accountType || 'Unknown' }}</td>
+            <td>{{ formatCurrency(item.latestBalance?.value) }}</td>
+            <td>
+              <button
+                class="btn btn-secondary btn-events"
+                type="button"
+                @click="emitShowEvents(item.account.id, item.account.name, item.eventCount ?? 0)"
+              >
+                {{ item.eventCount ?? 0 }} Events
+              </button>
+            </td>
+            <td class="actions-col">
+              <button class="btn-icon edit" type="button" @click="emitEdit(item.account)" title="Edit account">✎</button>
+              <button
+                class="btn-icon delete"
+                type="button"
+                @click="emitDelete('account', item.account.id, item.account.name)"
+                title="Delete account"
+              >
+                ✕
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </section>
 </template>
@@ -58,23 +64,18 @@ defineProps<{
 const emit = defineEmits<{
   editAccount: [account: Account];
   deleteItem: [type: 'account' | 'institution', id: number, name: string];
+  showEvents: [accountId: number, accountName: string, eventCount: number];
+  addAccount: [];
 }>();
 
-const formatCurrency = (value?: string | number): string => {
-  if (!value) return '$0.00';
-  try {
-    const num = typeof value === 'string' ? parseFloat(value) : value;
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(num);
-  } catch {
-    return '$0.00';
-  }
-};
-
-const formatDate = (dateStr: string): string => {
-  return new Date(dateStr).toLocaleDateString();
+const formatCurrency = (value?: string | number | null): string => {
+  if (!value) return '—';
+  const numeric = typeof value === 'string' ? parseFloat(value) : value;
+  if (Number.isNaN(numeric)) return '—';
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(numeric);
 };
 
 const emitEdit = (account: Account): void => {
@@ -83,6 +84,14 @@ const emitEdit = (account: Account): void => {
 
 const emitDelete = (type: 'account' | 'institution', id: number, name: string): void => {
   emit('deleteItem', type, id, name);
+};
+
+const emitShowEvents = (accountId: number, accountName: string, eventCount: number): void => {
+  emit('showEvents', accountId, accountName, eventCount);
+};
+
+const emitAddAccount = (): void => {
+  emit('addAccount');
 };
 </script>
 

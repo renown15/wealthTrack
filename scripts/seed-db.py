@@ -60,79 +60,23 @@ async def seed_database() -> None:
                 "sortindex": 2,
             },
             # Account types
-            {
-                "classkey": "account_type:checking",
-                "referencevalue": "Checking Account",
-                "sortindex": 1,
-            },
-            {
-                "classkey": "account_type:savings",
-                "referencevalue": "Savings Account",
-                "sortindex": 2,
-            },
-            {
-                "classkey": "account_type:stocks_isa",
-                "referencevalue": "Stocks ISA",
-                "sortindex": 3,
-            },
-            {
-                "classkey": "account_type:sipp",
-                "referencevalue": "SIPP",
-                "sortindex": 4,
-            },
-            {
-                "classkey": "account_type:credit_card",
-                "referencevalue": "Credit Card",
-                "sortindex": 5,
-            },
+            {"classkey": "account_type", "referencevalue": "Checking Account", "sortindex": 1},
+            {"classkey": "account_type", "referencevalue": "Savings Account", "sortindex": 2},
+            {"classkey": "account_type", "referencevalue": "Stocks ISA", "sortindex": 3},
+            {"classkey": "account_type", "referencevalue": "SIPP", "sortindex": 4},
+            {"classkey": "account_type", "referencevalue": "Credit Card", "sortindex": 5},
             # Account statuses
-            {
-                "classkey": "account_status:active",
-                "referencevalue": "Active",
-                "sortindex": 1,
-            },
-            {
-                "classkey": "account_status:closed",
-                "referencevalue": "Closed",
-                "sortindex": 2,
-            },
-            {
-                "classkey": "account_status:dormant",
-                "referencevalue": "Dormant",
-                "sortindex": 3,
-            },
+            {"classkey": "account_status", "referencevalue": "Active", "sortindex": 1},
+            {"classkey": "account_status", "referencevalue": "Closed", "sortindex": 2},
+            {"classkey": "account_status", "referencevalue": "Dormant", "sortindex": 3},
             # Event types
-            {
-                "classkey": "event_type:balance_update",
-                "referencevalue": "Balance Update",
-                "sortindex": 1,
-            },
-            {
-                "classkey": "event_type:transaction",
-                "referencevalue": "Transaction",
-                "sortindex": 2,
-            },
-            {
-                "classkey": "event_type:fee",
-                "referencevalue": "Fee",
-                "sortindex": 3,
-            },
+            {"classkey": "event_type", "referencevalue": "Balance Update", "sortindex": 1},
+            {"classkey": "event_type", "referencevalue": "Transaction", "sortindex": 2},
+            {"classkey": "event_type", "referencevalue": "Fee", "sortindex": 3},
             # Attribute types
-            {
-                "classkey": "attribute_type:interest_rate",
-                "referencevalue": "Interest Rate",
-                "sortindex": 1,
-            },
-            {
-                "classkey": "attribute_type:overdraft_limit",
-                "referencevalue": "Overdraft Limit",
-                "sortindex": 2,
-            },
-            {
-                "classkey": "attribute_type:credit_limit",
-                "referencevalue": "Credit Limit",
-                "sortindex": 3,
-            },
+            {"classkey": "attribute_type", "referencevalue": "Interest Rate", "sortindex": 1},
+            {"classkey": "attribute_type", "referencevalue": "Overdraft Limit", "sortindex": 2},
+            {"classkey": "attribute_type", "referencevalue": "Credit Limit", "sortindex": 3},
         ]
 
         inserted = 0
@@ -141,8 +85,8 @@ async def seed_database() -> None:
         for data in reference_data:
             # Check if already exists
             result = await session.execute(
-                select(ReferenceData).where(
-                    ReferenceData.classkey == data["classkey"]
+                    select(ReferenceData).where(
+                        ReferenceData.class_key == data["classkey"]
                 )
             )
             existing = result.scalars().first()
@@ -152,9 +96,9 @@ async def seed_database() -> None:
                 print(f"  ⏭️  Skipping {data['referencevalue']} (already exists)")
             else:
                 ref_data = ReferenceData(
-                    classkey=data["classkey"],
-                    referencevalue=data["referencevalue"],
-                    sortindex=data["sortindex"],
+                        class_key=data["classkey"],
+                        reference_value=data["referencevalue"],
+                        sort_index=data["sortindex"],
                 )
                 session.add(ref_data)
                 inserted += 1

@@ -46,11 +46,11 @@ wealthtrack/
 │   │   │   └── Form.ts       # ValidationResult, FormField interfaces
 │   │   ├── views/            # UI view classes
 │   │   │   ├── BaseView.ts   # Abstract base class for all views
-│   │   │   ├── HomeView.ts   # Homepage view
 │   │   │   ├── RegistrationView.ts
-│   │   │   └── LoginView.ts
+│   │   │   ├── LoginView.ts
+│   │   │   └── AccountHub/   # Dashboard Vue components
 │   │   ├── controllers/      # View controllers (MVC controllers)
-│   │   │   ├── HomeController.ts
+│   │   │   ├── PortfolioController.ts
 │   │   │   ├── RegistrationController.ts
 │   │   │   └── LoginController.ts
 │   │   ├── services/         # API and validation services
@@ -123,12 +123,12 @@ wealthtrack/
 **frontend/src/views/:**
 - Purpose: UI rendering classes (MVC View layer)
 - Contains: `BaseView` abstract class with DOM utilities, concrete views for each page
-- Key files: `BaseView.ts` (template), `RegistrationView.ts`, `LoginView.ts`, `HomeView.ts`
+- Key files: `BaseView.ts` (template), `RegistrationView.ts`, `LoginView.ts`
 
 **frontend/src/controllers/:**
 - Purpose: MVC Controller layer coordinating user interaction with views and services
 - Contains: Controller for each major page feature
-- Key files: `RegistrationController.ts`, `LoginController.ts`, `HomeController.ts`
+- Key files: `RegistrationController.ts`, `LoginController.ts`, `PortfolioController.ts`
 
 **frontend/src/services/:**
 - Purpose: Shared business logic services

@@ -18,7 +18,7 @@ export function usePortfolio(): {
   totalValue: import('vue').ComputedRef<number>;
   accountCount: import('vue').ComputedRef<number>;
   loadPortfolio: () => Promise<void>;
-  createAccount: (institutionid: number, name: string) => Promise<void>;
+  createAccount: (institutionid: number, name: string, typeId?: number, statusId?: number) => Promise<void>;
   updateAccount: (accountId: number, name: string) => Promise<void>;
   deleteAccount: (accountId: number) => Promise<void>;
   createInstitution: (name: string) => Promise<void>;
@@ -63,12 +63,19 @@ export function usePortfolio(): {
     }
   };
 
-  const createAccount = async (institutionId: number, name: string): Promise<void> => {
+  const createAccount = async (
+    institutionId: number,
+    name: string,
+    typeId?: number,
+    statusId?: number,
+  ): Promise<void> => {
     try {
       state.error = null;
       await apiService.createAccount({
         institutionId,
         name,
+        typeId,
+        statusId,
       });
       await loadPortfolio();
     } catch (error) {

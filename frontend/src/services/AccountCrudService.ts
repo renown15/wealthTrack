@@ -4,6 +4,7 @@
 import type {
   Account,
   AccountCreateRequest,
+  AccountEvent,
   AccountUpdateRequest,
 } from '@models/Portfolio';
 import { BaseApiClient } from '@services/BaseApiClient';
@@ -73,6 +74,17 @@ class AccountCrudService extends BaseApiClient {
       await this.retryRequest(() => this.client.delete(`/api/v1/accounts/${accountId}`));
     } catch (error) {
       throw this.handleError(error, 'Failed to delete account');
+    }
+  }
+
+  async getAccountEvents(accountId: number): Promise<AccountEvent[]> {
+    try {
+      const response = await this.retryRequest(() =>
+        this.client.get<AccountEvent[]>(`/api/v1/accounts/${accountId}/events`),
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error, 'Failed to fetch account events');
     }
   }
 }

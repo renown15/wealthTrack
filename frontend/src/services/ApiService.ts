@@ -8,9 +8,11 @@ import type {
   UserLogin,
   AuthToken,
 } from '@models/User';
+import type { ReferenceDataItem } from '@models/ReferenceData';
 import type {
   Portfolio,
   Account,
+  AccountEvent,
   AccountCreateRequest,
   AccountUpdateRequest,
   Institution,
@@ -22,6 +24,7 @@ import { authService } from '@services/AuthService';
 import { portfolioFetchService } from '@services/PortfolioFetchService';
 import { accountCrudService } from '@services/AccountCrudService';
 import { institutionCrudService } from '@services/InstitutionCrudService';
+import { referenceDataService } from '@services/ReferenceDataService';
 
 /**
  * Facade service that aggregates all API operations.
@@ -50,6 +53,8 @@ class ApiService {
     accountCrudService['client'] = this.client;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
     institutionCrudService['client'] = this.client;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+    referenceDataService['client'] = this.client;
   }
 
   // Auth operations
@@ -91,6 +96,10 @@ class ApiService {
     return accountCrudService.deleteAccount(accountId);
   }
 
+  async getAccountEvents(accountId: number): Promise<AccountEvent[]> {
+    return accountCrudService.getAccountEvents(accountId);
+  }
+
   // Institution operations
   async getInstitutions(): Promise<Institution[]> {
     return institutionCrudService.getInstitutions();
@@ -113,6 +122,10 @@ class ApiService {
 
   async deleteInstitution(institutionId: number): Promise<void> {
     return institutionCrudService.deleteInstitution(institutionId);
+  }
+
+  async getReferenceData(classKey: string): Promise<ReferenceDataItem[]> {
+    return referenceDataService.listByClass(classKey);
   }
 
   // Token management (exposed from BaseApiClient)

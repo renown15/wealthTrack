@@ -1,22 +1,38 @@
 <template>
-  <header class="portfolio-header">
-    <div class="header-content">
-      <h1>Portfolio Dashboard</h1>
-      <div class="header-stats">
-        <div class="stat">
-          <span class="stat-label">Total Value</span>
-          <span class="stat-value">{{ formatCurrency(totalValue) }}</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Accounts</span>
-          <span class="stat-value">{{ accountCount }}</span>
-        </div>
+  <header class="portfolio-header stats-header">
+    <div class="header-flex">
+      <div class="header-content">
+        <p class="eyebrow">WealthTrack</p>
+        <h1>Account Hub</h1>
+        <p class="subtitle">Snapshot of your portfolio with fast actions to add or manage accounts.</p>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn btn-primary" @click="emitCreateAccount">+ ADD ACCOUNT</button>
+        <button class="btn btn-secondary" @click="emitCreateInstitution">+ ADD INSTITUTION</button>
       </div>
     </div>
 
-    <div class="header-actions">
-      <button class="btn btn-primary" @click="emitCreateAccount">+ New Account</button>
-      <button class="btn btn-secondary" @click="emitCreateInstitution">+ New Institution</button>
+    <div class="stats-grid">
+      <article class="stat-card">
+        <p class="stat-label">Total Value</p>
+        <p class="stat-value">{{ formatCurrency(totalValue) }}</p>
+      </article>
+
+      <article class="stat-card">
+        <p class="stat-label">Accounts</p>
+        <p class="stat-value">{{ accountCount }}</p>
+      </article>
+
+      <article class="stat-card">
+        <p class="stat-label">Institutions</p>
+        <p class="stat-value">{{ institutionCount }}</p>
+      </article>
+
+      <article class="stat-card">
+        <p class="stat-label">Events</p>
+        <p class="stat-value">{{ eventCount }}</p>
+      </article>
     </div>
   </header>
 </template>
@@ -25,6 +41,8 @@
 const props = defineProps<{
   totalValue: number;
   accountCount: number;
+  institutionCount: number;
+  eventCount: number;
 }>();
 
 const emit = defineEmits<{

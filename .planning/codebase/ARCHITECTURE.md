@@ -25,7 +25,7 @@
 **Controller Layer (Frontend):**
 - Purpose: Handle user interactions, coordinate views and services, manage page state
 - Location: `frontend/src/controllers/`
-- Contains: `RegistrationController`, `LoginController`, `HomeController` - each handles a specific page/feature
+- Contains: `RegistrationController`, `LoginController`, `PortfolioController` - each handles a specific page/feature (covering registration, login, and the authenticated portfolio/dashboard screens)
 - Depends on: Views, ApiService, ValidationService
 - Used by: Router
 
@@ -110,7 +110,7 @@
 
 **BaseView (Frontend):**
 - Purpose: Abstract base for all view classes, provides common DOM utilities
-- Examples: `RegistrationView`, `LoginView`, `HomeView` all extend `BaseView`
+- Examples: `RegistrationView`, `LoginView` extend `BaseView`; the authenticated dashboard area lives under `AccountHub/` and is orchestrated by `PortfolioController` with components such as `PortfolioView.vue`
 - Pattern: Template method pattern with abstract `render()` method; subclasses override `render()` and use protected helper methods like `createFormField()`, `showError()`, `showSuccess()`
 - Location: `frontend/src/views/BaseView.ts`
 

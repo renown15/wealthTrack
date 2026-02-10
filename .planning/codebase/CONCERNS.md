@@ -76,13 +76,13 @@
 
 **Untested View Rendering:**
 - What's not tested: HTML generation, form field creation, error display formatting, message auto-removal timing
-- Files: `frontend/src/views/BaseView.ts`, `frontend/src/views/LoginView.ts`, `frontend/src/views/RegistrationView.ts`, `frontend/src/views/HomeView.ts`
+- Files: `frontend/src/views/BaseView.ts`, `frontend/src/views/LoginView.ts`, `frontend/src/views/RegistrationView.ts`
 - Risk: UI could be broken and undetected until manual testing
 - Priority: High
 
 **Untested Controllers:**
 - What's not tested: Controller initialization, event callback handling, API service integration, success/error flows
-- Files: `frontend/src/controllers/LoginController.ts`, `frontend/src/controllers/RegistrationController.ts`, `frontend/src/controllers/HomeController.ts`
+- Files: `frontend/src/controllers/LoginController.ts`, `frontend/src/controllers/RegistrationController.ts`, `frontend/src/controllers/PortfolioController.ts`
 - Risk: Business logic bugs in request/response handling
 - Priority: Medium
 
@@ -166,8 +166,8 @@
 
 ## Scaling Limits
 
-**Single Page State Management:**
-- Current capacity: Handles 3 pages (home, login, register) with no client-side data persistence between navigations
+- **Single Page State Management:**
+- Current capacity: Handles login, registration, and dashboard views with no client-side data persistence between navigations
 - Limit: Adding features like shopping cart, user preferences, pagination would require complete rewrite of state system
 - Scaling path: Implement a state management system (Zustand, Jotai, Redux) before adding multi-page data dependencies
 

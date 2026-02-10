@@ -6,6 +6,25 @@
 # Get the root directory (parent of scripts/)
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# Load development environment overrides if they exist so docker-compose uses curated ports
+if [ -f "$ROOT_DIR/.env.dev" ]; then
+	set -a
+	# shellcheck disable=SC1090
+	source "$ROOT_DIR/.env.dev"
+	set +a
+fi
+
+# Kill previous backend/frontend processes (if any) so new run can bind the target ports
+PID_FILE="/tmp/wealthtrack.pids"
+if [ -f "$PID_FILE" ]; then
+	while IFS= read -r pid; do
+		if [ -n "$pid" ]; then
+			kill "$pid" >/dev/null 2>&1 || true
+		fi
+	done < "$PID_FILE"
+	rm -f "$PID_FILE"
+fi
+
 echo "🚀 Starting WealthTrack Development Environment"
 echo ""
 
@@ -18,26 +37,49 @@ NC='\033[0m' # No Color
 # Start database
 echo -e "${BLUE}1/3 Starting PostgreSQL database...${NC}"
 cd "$ROOT_DIR"
-docker compose up -d db > /dev/null 2>&1
+docker compose up -d --force-recreate db > /dev/null 2>&1
 sleep 2
 echo -e "${GREEN}✓ Database running on port 5433${NC}"
 echo ""
 
+# Prime database with required reference data before backend starts
+echo -e "${BLUE}1.5/3 Ensuring reference data seeding...${NC}"
+DB_HOST=localhost DB_PORT=${DB_PORT:-5433} DB_USER=${DB_USER:-wealthtrack} \
+	DB_PASSWORD=${DB_PASSWORD:-wealthtrack_dev_password} DB_NAME=${DB_NAME:-wealthtrack} \
+	python "$ROOT_DIR/scripts/seed-db.py" > /tmp/seed-db.log 2>&1 || true
+echo -e "${GREEN}✓ Reference data seeded (idempotent)${NC}"
+echo ""
+
+# Terminate any existing backend before starting new one so ports are free
+pkill -f "uvicorn app.main:app" >/dev/null 2>&1 || true
+
 # Start backend
 echo -e "${BLUE}2/3 Starting FastAPI backend...${NC}"
 cd "$ROOT_DIR/backend"
-nohup python -m uvicorn app.main:app --reload --port 8000 > /tmp/backend.log 2>&1 &
+	export DATABASE_URL="postgresql+asyncpg://wealthtrack:wealthtrack_dev_password@localhost:5433/wealthtrack"
+export ENVIRONMENT="development"
+nohup python -m uvicorn app.main:app --reload --port 8001 > /tmp/backend.log 2>&1 &
 BACKEND_PID=$!
-echo -e "${GREEN}✓ Backend running on http://localhost:8000${NC}"
+echo -e "${GREEN}✓ Backend running on http://localhost:8001${NC}"
 echo "  (PID: $BACKEND_PID, logs: tail -f /tmp/backend.log)"
 echo ""
 
-# Start frontend
-echo -e "${BLUE}3/3 Starting Vite frontend dev server...${NC}"
+# Stop any containerized frontend preview server so it does not shadow the dev server
+echo -e "${BLUE}3/3 Stopping containerized frontend preview (if running)...${NC}"
+cd "$ROOT_DIR"
+docker compose stop frontend > /dev/null 2>&1 || true
+echo -e "${GREEN}✓ Containerized frontend stopped (if it was running)${NC}"
+echo ""
+
+# Terminate any existing frontend dev server
+pkill -f "npm run dev" >/dev/null 2>&1 || true
+
+# Start frontend dev server
+echo -e "${BLUE}4/4 Starting Vite frontend dev server locally...${NC}"
 cd "$ROOT_DIR/frontend"
-nohup npm run dev > /tmp/frontend.log 2>&1 &
+	VITE_API_URL="http://localhost:8001" nohup npm run dev -- --host 0.0.0.0 --port 3000 > /tmp/frontend.log 2>&1 &
 FRONTEND_PID=$!
-echo -e "${GREEN}✓ Frontend running on http://localhost:3000${NC}"
+echo -e "${GREEN}✓ Frontend dev server running on http://localhost:3000${NC}"
 echo "  (PID: $FRONTEND_PID, logs: tail -f /tmp/frontend.log)"
 echo ""
 
@@ -50,7 +92,7 @@ echo -e "${GREEN}Development environment ready!${NC}"
 echo ""
 echo "Services:"
 echo "  📊 Database:  localhost:5433 (PostgreSQL)"
-echo "  🔌 API:       http://localhost:8000 (FastAPI)"
+echo "  🔌 API:       http://localhost:8001 (FastAPI)"
 echo "  🎨 Frontend:  http://localhost:3000 (Vite)"
 echo ""
 echo "View logs:"

@@ -32,89 +32,90 @@
   }
 }
 
-/* Header */
-.portfolio-header {
+.accounts-section {
   background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 15px 40px rgba(15, 23, 42, 0.08);
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
-}
-
-.header-content h1 {
-  margin: 0 0 1.5rem 0;
-  font-size: 2rem;
-  color: #2d3748;
-}
-
-.header-stats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  flex-direction: column;
   gap: 1.5rem;
 }
 
-.stat {
+.accounts-section h2 {
+  margin: 0;
+}
+
+.table-head {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
 }
 
-.stat-label {
-  font-size: 0.875rem;
-  color: #718096;
-  font-weight: 500;
+.table-head h2 {
+  margin: 0.25rem 0;
+  color: #1f2933;
 }
 
-.stat-value {
-  font-size: 1.5rem;
-  color: #2d3748;
+.eyebrow {
+  margin: 0;
+  font-size: 0.85rem;
+  letter-spacing: 0.2rem;
+  text-transform: uppercase;
+  color: #667eea;
+}
+
+.subtitle {
+  margin: 0;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.account-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+.account-table th,
+.account-table td {
+  text-align: left;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.account-table thead th {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
   font-weight: 600;
 }
 
-.header-actions {
+.account-table tbody tr:hover td {
+  background: #f8fafc;
+}
+
+.actions-col {
+  width: 120px;
   display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
-/* Buttons */
-.btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
+.btn-events {
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  line-height: 1;
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.btn-secondary {
-  background: #e2e8f0;
-  color: #2d3748;
-}
-
-.btn-secondary:hover {
+.btn-events:hover {
   background: #cbd5e0;
-}
-
-.btn-danger {
-  background: #f56565;
-  color: white;
 }
 
 .btn-danger:hover {
@@ -243,100 +244,6 @@
   gap: 2rem;
 }
 
-/* Accounts Section */
-.accounts-section h2 {
-  margin: 0 0 1.5rem 0;
-  color: white;
-  font-size: 1.5rem;
-}
-
-.accounts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-}
-
-.account-card {
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-}
-
-.account-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
-}
-
-.account-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-}
-
-.account-header h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  flex: 1;
-}
-
-.account-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.account-actions .btn-icon {
-  color: white;
-}
-
-.account-actions .btn-icon:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.account-body {
-  padding: 1.5rem;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.account-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid #edf2f7;
-}
-
-.account-info:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.account-info .label {
-  font-size: 0.875rem;
-  color: #718096;
-  font-weight: 500;
-}
-
-.account-info .value {
-  font-size: 1rem;
-  color: #2d3748;
-  font-weight: 600;
-}
-
-.account-info .value.balance {
-  color: #48bb78;
-  font-size: 1.25rem;
-}
 
 /* Institutions Section */
 .institutions-section h2 {
@@ -491,15 +398,18 @@
     flex: 1;
   }
 
-  .accounts-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .account-card {
-    margin-bottom: 0;
-  }
-
   .modal-content {
     width: 95%;
+  }
+}
+
+@media (max-width: 1024px) {
+  .table-head {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .account-table {
+    min-width: 640px;
   }
 }

@@ -32,6 +32,8 @@ describe('AccountHubTable', () => {
         createdAt: '2025-01-15',
         updatedAt: '2025-01-15',
       } as AccountEvent,
+      accountType: 'Checking Account',
+      eventCount: 2,
     },
   ];
 
@@ -42,8 +44,8 @@ describe('AccountHubTable', () => {
       },
     });
 
-    expect(wrapper.text()).toContain('Accounts');
-    expect(wrapper.text()).toContain('Checking');
+    expect(wrapper.text()).toContain('Institution');
+    expect(wrapper.text()).toContain('Latest Balance');
   });
 
   it('displays account details correctly', () => {
@@ -55,6 +57,7 @@ describe('AccountHubTable', () => {
 
     expect(wrapper.text()).toContain('Chase Bank');
     expect(wrapper.text()).toContain('$5,000.00');
+    expect(wrapper.text()).toContain('Checking Account');
   });
 
   it('emits editAccount event when edit button clicked', async () => {
@@ -95,7 +98,7 @@ describe('AccountHubTable', () => {
     });
 
     expect(wrapper.text()).toContain('Accounts');
-    expect(wrapper.findAll('.account-card').length).toBe(0);
+    expect(wrapper.findAll('tbody tr').length).toBe(0);
   });
 
   it('renders multiple accounts', () => {
@@ -111,8 +114,33 @@ describe('AccountHubTable', () => {
       props: { items },
     });
 
-    expect(wrapper.findAll('.account-card').length).toBe(2);
+    expect(wrapper.findAll('tbody tr').length).toBe(2);
     expect(wrapper.text()).toContain('Checking');
     expect(wrapper.text()).toContain('Savings');
+  });
+
+  it('emits showEvents when events button clicked', async () => {
+    const wrapper = mount(AccountHubTable, {
+      props: {
+        items: mockItems,
+      },
+    });
+
+    await wrapper.find('.btn-events').trigger('click');
+
+    expect(wrapper.emitted('showEvents')).toBeTruthy();
+    expect(wrapper.emitted('showEvents')?.[0]).toEqual([1, 'Checking', 2]);
+  });
+
+  it('emits addAccount when header add button clicked', async () => {
+    const wrapper = mount(AccountHubTable, {
+      props: {
+        items: mockItems,
+      },
+    });
+
+    await wrapper.find('.table-head .btn-primary').trigger('click');
+
+    expect(wrapper.emitted('addAccount')).toBeTruthy();
   });
 });

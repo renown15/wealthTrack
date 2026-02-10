@@ -3,7 +3,7 @@ ReferenceData model for extensible lookup tables.
 """
 from datetime import datetime
 
-from sqlalchemy import DateTime, Index, Integer, String
+from sqlalchemy import DateTime, Index, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -36,6 +36,7 @@ class ReferenceData(Base):
 
     __table_args__ = (
         Index("ix_reference_data_classkey", "classkey"),
+        UniqueConstraint("classkey", "referencevalue", name="uq_reference_data_classvalue"),
     )
 
     def __repr__(self) -> str:

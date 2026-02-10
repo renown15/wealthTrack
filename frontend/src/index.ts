@@ -14,8 +14,7 @@ export function initializeApp(): void {
   // Get router instance (initializes navigation)
   const router = getRouter();
 
-  // Navigate to home page
-  router.navigate('home');
+  router.navigate(authModule.isAuthenticated() ? 'dashboard' : 'home');
 }
 
 // Auto-initialize app on module load

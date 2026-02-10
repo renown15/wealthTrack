@@ -1,91 +1,102 @@
-/**
- * Router for handling navigation between pages.
- * Simplified, synchronous navigation without event dispatching.
- */
-import { HomeController } from '@controllers/HomeController';
 import { PortfolioController } from '@controllers/PortfolioController';
 import { RegistrationController } from '@controllers/RegistrationController';
 import { LoginController } from '@controllers/LoginController';
 import { authModule } from '@/modules/auth';
 
+type RoutePage = 'dashboard' | 'register' | 'login';
+type NavigationTarget = RoutePage | 'home';
+
+const NAV_LINK_FOR_PAGE: Record<NavigationTarget, string> = {
+  home: 'nav-home',
+  dashboard: 'nav-home',
+  login: 'nav-login',
+  register: 'nav-register',
+};
+
+/**
+ * Simplified router that swaps controllers inside the shared view container.
+ */
 export class Router {
-  private currentController:
-    | HomeController
-    | PortfolioController
-    | RegistrationController
-    | LoginController
-    | null = null;
+  private currentController: PortfolioController | RegistrationController | LoginController | null = null;
+  private readonly viewContainerId = 'view-container';
 
   /**
-   * Navigate to a specific page synchronously
+   * Navigate to a named route.
    */
-  navigate(page: string): void {
-    // Update active nav link
-    document.querySelectorAll('.nav-link').forEach((link) => {
-      link.classList.remove('active');
-    });
+  navigate(page: NavigationTarget): void {
+    this.updateActiveLink(page);
+    this.clearViewContainer();
 
-    const navLink = document.getElementById(`nav-${page}`);
-    if (navLink) {
-      navLink.classList.add('active');
-    }
+    const normalized = page === 'home' ? 'login' : page;
 
-    // Load appropriate controller
-    switch (page) {
-      case 'home':
+    switch (normalized) {
       case 'dashboard': {
-        // Check if user is authenticated
-        if (authModule.isAuthenticated()) {
-          // Show portfolio view for authenticated users
-          this.currentController = new PortfolioController('view-container');
-          this.currentController.init();
-        } else {
-          // Show home view for non-authenticated users
-          this.currentController = new HomeController('view-container');
-          this.currentController.init();
+        if (!authModule.isAuthenticated()) {
+          this.navigate('home');
+          return;
         }
+
+        this.currentController = new PortfolioController(this.viewContainerId);
+        this.currentController.init();
         break;
       }
-      case 'register':
-        this.currentController = new RegistrationController('view-container');
+      case 'register': {
+        this.currentController = new RegistrationController(this.viewContainerId);
         this.currentController.init();
         break;
+      }
       case 'login':
-        this.currentController = new LoginController('view-container');
+      default: {
+        this.currentController = new LoginController(this.viewContainerId);
         this.currentController.init();
         break;
-      default:
-        this.currentController = new HomeController('view-container');
-        this.currentController.init();
+      }
     }
   }
 
   /**
-   * Setup navigation event listeners for links
+   * Attach navigation click handlers for the header links.
    */
   setupNavigation(): void {
-    document.addEventListener('click', (e) => {
-      const target = e.target as HTMLElement;
+    document.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      if (!target) {
+        return;
+      }
 
-      // Handle navigation link clicks
       if (target.id === 'nav-home') {
-        e.preventDefault();
+        event.preventDefault();
         this.navigate('home');
       } else if (target.id === 'nav-register' || target.id === 'go-to-register' || target.id === 'cta-register') {
-        e.preventDefault();
+        event.preventDefault();
         this.navigate('register');
       } else if (target.id === 'nav-login' || target.id === 'go-to-login') {
-        e.preventDefault();
+        event.preventDefault();
         this.navigate('login');
       } else if (target.id === 'nav-portfolio' || target.id === 'nav-dashboard') {
-        e.preventDefault();
+        event.preventDefault();
         this.navigate('dashboard');
       }
     });
   }
+
+  private clearViewContainer(): void {
+    const container = document.getElementById(this.viewContainerId);
+    if (container) {
+      container.innerHTML = '';
+    }
+  }
+
+  private updateActiveLink(page: NavigationTarget): void {
+    document.querySelectorAll('.nav-link').forEach((link) => link.classList.remove('active'));
+    const linkId = NAV_LINK_FOR_PAGE[page];
+    const navLink = document.getElementById(linkId);
+    if (navLink) {
+      navLink.classList.add('active');
+    }
+  }
 }
 
-// Global router instance
 let globalRouter: Router | null = null;
 
 export function getRouter(): Router {

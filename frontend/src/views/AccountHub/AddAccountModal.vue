@@ -35,6 +35,26 @@
             </option>
           </select>
         </div>
+
+        <div v-if="resourceType === 'account'" class="form-group">
+          <label for="accountType">Account Type</label>
+          <select id="accountType" v-model.number="formData.typeId">
+            <option value="">Select Account Type</option>
+            <option v-for="type in accountTypes" :key="type.id" :value="type.id">
+              {{ type.referenceValue }}
+            </option>
+          </select>
+        </div>
+
+        <div v-if="resourceType === 'account'" class="form-group">
+          <label for="accountStatus">Account Status</label>
+          <select id="accountStatus" v-model.number="formData.statusId">
+            <option value="">Select Account Status</option>
+            <option v-for="status in accountStatuses" :key="status.id" :value="status.id">
+              {{ status.referenceValue }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <footer class="modal-footer">
@@ -50,6 +70,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import type { Institution } from '@/models/Portfolio';
+import type { ReferenceDataItem } from '@/models/ReferenceData';
 
 interface Props {
   open: boolean;
@@ -58,33 +79,120 @@ interface Props {
   institutions: Institution[];
   initialName?: string;
   initialInstitutionId?: number;
+  accountTypes: ReferenceDataItem[];
+  accountStatuses: ReferenceDataItem[];
+  initialTypeId?: number;
+  initialStatusId?: number;
 }
 
 interface FormData {
   name: string;
   institutionId: number;
+  typeId: number;
+  statusId: number;
+}
+
+interface SavePayload {
+  name: string;
+  institutionId: number;
+  typeId?: number;
+  statusId?: number;
 }
 
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
   close: [];
-  save: [name: string, institutionId: number];
+  save: [SavePayload];
 }>();
 
 const formData = ref<FormData>({
   name: props.initialName || '',
   institutionId: props.initialInstitutionId || 0,
+  typeId: props.initialTypeId || 0,
+  statusId: props.initialStatusId || 0,
 });
+
+const syncAccountType = (): void => {
+  if (props.resourceType !== 'account' || !props.accountTypes.length) {
+    return;
+  }
+
+  if (
+    props.initialTypeId &&
+    props.accountTypes.some((type) => type.id === props.initialTypeId)
+  ) {
+    formData.value.typeId = props.initialTypeId;
+    return;
+  }
+
+  if (
+    formData.value.typeId &&
+    props.accountTypes.some((type) => type.id === formData.value.typeId)
+  ) {
+    return;
+  }
+
+  formData.value.typeId = props.accountTypes[0].id;
+};
+
+const syncAccountStatus = (): void => {
+  if (props.resourceType !== 'account' || !props.accountStatuses.length) {
+    return;
+  }
+
+  if (
+    props.initialStatusId &&
+    props.accountStatuses.some((status) => status.id === props.initialStatusId)
+  ) {
+    formData.value.statusId = props.initialStatusId;
+    return;
+  }
+
+  if (
+    formData.value.statusId &&
+    props.accountStatuses.some((status) => status.id === formData.value.statusId)
+  ) {
+    return;
+  }
+
+  formData.value.statusId = props.accountStatuses[0].id;
+};
 
 watch(
   () => props.open,
   (newOpen) => {
-    if (newOpen) {
-      formData.value.name = props.initialName || '';
-      formData.value.institutionId = props.initialInstitutionId || 0;
+    if (!newOpen) {
+      return;
     }
+
+    formData.value.name = props.initialName || '';
+    formData.value.institutionId = props.initialInstitutionId || 0;
+    formData.value.typeId = props.initialTypeId || 0;
+    formData.value.statusId = props.initialStatusId || 0;
+    syncAccountType();
+    syncAccountStatus();
   }
+);
+
+watch(
+  () => props.accountTypes,
+  () => {
+    if (props.open) {
+      syncAccountType();
+    }
+  },
+  { deep: true },
+);
+
+watch(
+  () => props.accountStatuses,
+  () => {
+    if (props.open) {
+      syncAccountStatus();
+    }
+  },
+  { deep: true },
 );
 
 const emitClose = (): void => {
@@ -95,10 +203,27 @@ const handleSave = (): void => {
   if (!formData.value.name) {
     return;
   }
-  if (props.resourceType === 'account' && !formData.value.institutionId) {
-    return;
+
+  if (props.resourceType === 'account') {
+    if (props.type === 'create' && !formData.value.institutionId) {
+      return;
+    }
+    if (!formData.value.typeId || !formData.value.statusId) {
+      return;
+    }
   }
-  emit('save', formData.value.name, formData.value.institutionId);
+
+  const payload: SavePayload = {
+    name: formData.value.name,
+    institutionId: formData.value.institutionId,
+  };
+
+  if (props.resourceType === 'account') {
+    payload.typeId = formData.value.typeId;
+    payload.statusId = formData.value.statusId;
+  }
+
+  emit('save', payload);
 };
 </script>
 

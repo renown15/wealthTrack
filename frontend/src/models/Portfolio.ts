@@ -35,6 +35,8 @@ export interface PortfolioItem {
   account: Account;
   institution: Institution | null;
   latestBalance: AccountEvent | null;
+  accountType?: string;
+  eventCount?: number;
 }
 
 export interface Portfolio {

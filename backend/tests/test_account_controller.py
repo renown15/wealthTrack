@@ -1,11 +1,16 @@
 """Tests for account controller."""
 
+from datetime import datetime
+
 import pytest
 from fastapi import status
 from httpx import AsyncClient
+from sqlalchemy import select
 
 from app.models.account import Account
+from app.models.account_event import AccountEvent
 from app.models.institution import Institution
+from app.models.reference_data import ReferenceData
 from app.models.user_profile import UserProfile
 
 
@@ -130,6 +135,25 @@ async def test_update_account_partial(
 
 
 @pytest.mark.asyncio
+async def test_update_account_type_and_status(
+    client: AsyncClient,
+    authenticated_headers: dict[str, str],
+    account: Account,
+):
+    """Test updating the account type and status."""
+    payload = {"typeId": 2, "statusId": 2}
+    response = await client.put(
+        f"/api/v1/accounts/{account.id}",
+        json=payload,
+        headers=authenticated_headers,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert data["typeId"] == 2
+    assert data["statusId"] == 2
+
+
+@pytest.mark.asyncio
 async def test_update_account_not_found(
     client: AsyncClient, authenticated_headers: dict[str, str]
 ):
@@ -188,3 +212,4 @@ async def test_account_list_empty(
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert isinstance(data, list)
+
