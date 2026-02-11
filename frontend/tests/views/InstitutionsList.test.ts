@@ -26,6 +26,7 @@ describe('InstitutionsList', () => {
       },
     });
 
+    expect(wrapper.find('.institutions-section').exists()).toBe(true);
     expect(wrapper.text()).toContain('Institutions');
     expect(wrapper.text()).toContain('Chase Bank');
     expect(wrapper.text()).toContain('Wells Fargo');

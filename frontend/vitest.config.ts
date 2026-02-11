@@ -9,6 +9,10 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
     exclude: ['node_modules/**', 'tests/e2e/**'],
+    isolate: true,
+    testTimeout: 10000,
+    hookTimeout: 10000,
+    teardownTimeout: 10000,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
@@ -41,6 +45,7 @@ export default defineConfig({
       '@styles': resolve(__dirname, './src/styles'),
       '@utils': resolve(__dirname, './src/utils'),
       '@modules': resolve(__dirname, './src/modules'),
+      'virtual:uno.css': resolve(__dirname, './vitest.empty.css'),
     },
   },
 });

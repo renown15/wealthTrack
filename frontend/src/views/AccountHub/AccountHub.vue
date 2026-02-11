@@ -13,7 +13,7 @@
         <button class="btn-close" @click="clearError">×</button>
       </div>
     </div>
-    <div v-if="state.loading" class="hub-content-card p-8">
+    <div v-if="state.loading" class="hub-content-card p-8 loading-state">
       <div class="flex flex-col items-center">
         <div class="spinner"></div>
         <p class="mt-4 text-muted">Loading portfolio...</p>

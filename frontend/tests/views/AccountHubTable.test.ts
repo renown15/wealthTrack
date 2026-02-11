@@ -97,7 +97,7 @@ describe('AccountHubTable', () => {
       },
     });
 
-    expect(wrapper.text()).toContain('Accounts');
+    expect(wrapper.text()).toContain('Institution');
     expect(wrapper.findAll('tbody tr').length).toBe(0);
   });
 

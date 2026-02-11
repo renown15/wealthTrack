@@ -15,8 +15,8 @@ describe('AccountHubStats', () => {
 
     expect(wrapper.text()).toContain('Account Hub');
     expect(wrapper.text()).toContain('Snapshot of your portfolio');
-    expect(wrapper.text()).toContain('ADD ACCOUNT');
-    expect(wrapper.text()).toContain('ADD INSTITUTION');
+    expect(wrapper.text()).toContain('Add Account');
+    expect(wrapper.text()).toContain('Add Institution');
     expect(wrapper.text()).toContain('Total Value');
     expect(wrapper.text()).toContain('£25,000.00');
     expect(wrapper.text()).toContain('Accounts');

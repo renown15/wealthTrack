@@ -181,8 +181,8 @@ describe('AccountHub - Modal interactions', () => {
     const wrapper = mount(AccountHub);
     await wrapper.vm.$nextTick();
 
-    const createButton = wrapper.find('button.btn-primary');
-    await createButton.trigger('click');
+    const statsComponent = wrapper.findComponent({ name: 'AccountHubStats' });
+    await statsComponent.vm.$emit('create-account');
     await wrapper.vm.$nextTick();
     expect(wrapper.find('[data-testid="add-account-modal"]').exists()).toBe(true);
   });
@@ -246,8 +246,8 @@ describe('AccountHub - Modal interactions', () => {
     const wrapper = mount(AccountHub);
     await wrapper.vm.$nextTick();
 
-    const createButton = wrapper.find('button.btn-primary');
-    await createButton.trigger('click');
+    const statsComponent = wrapper.findComponent({ name: 'AccountHubStats' });
+    await statsComponent.vm.$emit('create-account');
     await wrapper.vm.$nextTick();
 
     let modal = wrapper.find('[data-testid="add-account-modal"]');
@@ -282,7 +282,8 @@ describe('AccountHub - Modal interactions', () => {
     const wrapper = mount(AccountHub);
     await wrapper.vm.$nextTick();
 
-    await wrapper.find('button.btn-primary').trigger('click');
+    const statsComponent = wrapper.findComponent({ name: 'AccountHubStats' });
+    await statsComponent.vm.$emit('create-account');
     await wrapper.vm.$nextTick();
 
     const modal = wrapper.findComponent({ name: 'AddAccountModal' });
