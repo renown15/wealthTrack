@@ -2,6 +2,8 @@
 from sqlalchemy import delete, func, select
 
 import pytest
+from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.reference_data import ReferenceData
 from app.services.reference_data import (
@@ -12,7 +14,9 @@ from app.services.reference_data import (
 
 
 @pytest.mark.asyncio
-async def test_list_reference_data_by_class_returns_matching_rows(db_session):
+async def test_list_reference_data_by_class_returns_matching_rows(
+    db_session: AsyncSession,
+) -> None:
     """Ensure we return exact and prefixed class rows ordered by sort index."""
     additional = ReferenceData(
         class_key="account_type",
@@ -32,7 +36,7 @@ async def test_list_reference_data_by_class_returns_matching_rows(db_session):
 
 
 @pytest.mark.asyncio
-async def test_seed_reference_data_inserts_missing_rows(db_session):
+async def test_seed_reference_data_inserts_missing_rows(db_session: AsyncSession) -> None:
     """Seeding creates rows that are missing and stays idempotent."""
     await db_session.execute(delete(ReferenceData))
     await db_session.commit()
@@ -47,7 +51,7 @@ async def test_seed_reference_data_inserts_missing_rows(db_session):
 
 
 @pytest.mark.asyncio
-async def test_reference_data_endpoint_returns_payload(client):
+async def test_reference_data_endpoint_returns_payload(client: AsyncClient) -> None:
     """The endpoint returns reference rows for a known class."""
     response = await client.get("/api/v1/reference-data/account_type")
     assert response.status_code == 200
@@ -67,7 +71,7 @@ async def test_reference_data_endpoint_returns_payload(client):
 
 
 @pytest.mark.asyncio
-async def test_reference_data_endpoint_handles_missing_class(client):
+async def test_reference_data_endpoint_handles_missing_class(client: AsyncClient) -> None:
     """Missing reference classes return an empty list rather than an error."""
     response = await client.get("/api/v1/reference-data/nonexistent_class")
     assert response.status_code == 200

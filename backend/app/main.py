@@ -11,7 +11,9 @@ from app.config import settings
 from app.controllers.account import router as account_router
 from app.controllers.auth import router as auth_router
 from app.controllers.institution import router as institution_router
-from app.controllers.institution_security_credentials import router as institution_credentials_router
+from app.controllers.institution_security_credentials import (
+    router as institution_credentials_router,
+)
 from app.controllers.portfolio import router as portfolio_router
 from app.controllers.reference_data import router as reference_data_router
 from app.database import Base, async_session_maker, engine

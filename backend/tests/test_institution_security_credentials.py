@@ -4,17 +4,22 @@ from sqlalchemy import select
 import pytest
 from fastapi import status
 from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.institution import Institution
 from app.models.institution_security_credentials import InstitutionSecurityCredentials
 from app.models.reference_data import ReferenceData
+from app.models.user_profile import UserProfile
+
+
 @pytest.mark.asyncio
 async def test_list_institution_credentials(
     client: AsyncClient,
     authenticated_headers: dict[str, str],
-    db_session,
-    institution,
-    user,
-):
+    db_session: AsyncSession,
+    institution: Institution,
+    user: UserProfile,
+) -> None:
     """Ensure credentials are listed for an institution."""
     type_stmt = select(ReferenceData).where(ReferenceData.class_key.like("credential_type:%"))
     type_result = await db_session.execute(type_stmt)
@@ -36,10 +41,10 @@ async def test_list_institution_credentials(
         headers=authenticated_headers,
     )
     assert response.status_code == status.HTTP_200_OK
-    payload = response.json()
+    payload: list[dict[str, object]] = response.json()
     assert isinstance(payload, list)
     assert payload
-    first = payload[0]
+    first: dict[str, object] = payload[0]
     assert first["typeLabel"] == credential_type.reference_value
     assert first["key"] == "login"
 
@@ -48,10 +53,10 @@ async def test_list_institution_credentials(
 async def test_create_institution_credential(
     client: AsyncClient,
     authenticated_headers: dict[str, str],
-    db_session,
-    institution,
-    user,
-):
+    db_session: AsyncSession,
+    institution: Institution,
+    user: UserProfile,
+) -> None:
     """Create a credential through the API."""
     type_stmt = select(ReferenceData).where(ReferenceData.class_key.like("credential_type:%"))
     type_result = await db_session.execute(type_stmt)
@@ -85,10 +90,10 @@ async def test_create_institution_credential(
 async def test_update_institution_credential(
     client: AsyncClient,
     authenticated_headers: dict[str, str],
-    db_session,
-    institution,
-    user,
-):
+    db_session: AsyncSession,
+    institution: Institution,
+    user: UserProfile,
+) -> None:
     """Update a credential value and type."""
     select_stmt = select(ReferenceData).where(ReferenceData.class_key.like("credential_type:%"))
     type_result = await db_session.execute(select_stmt)

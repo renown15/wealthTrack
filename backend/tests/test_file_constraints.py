@@ -69,6 +69,26 @@ def test_typescript_files_under_200_lines():
     )
 
 
+def test_vue_files_under_200_lines():
+    """Ensure all Vue component files are under 200 lines."""
+    src_dir = pathlib.Path(__file__).parent.parent.parent / "frontend" / "src"
+    max_lines = 200
+    violations = []
+
+    if not src_dir.exists():
+        return  # Frontend may not be present in all environments
+
+    for vue_file in src_dir.rglob("*.vue"):
+        lines = count_lines(vue_file)
+        if lines > max_lines:
+            rel_path = vue_file.relative_to(src_dir.parent)
+            violations.append(f"{rel_path}: {lines} lines")
+
+    assert not violations, (
+        f"Vue component files exceed {max_lines} line limit:\n" + "\n".join(violations)
+    )
+
+
 def test_typescript_test_files_under_200_lines():
     """Ensure all TypeScript test files are under 200 lines."""
     tests_dir = pathlib.Path(__file__).parent.parent.parent / "frontend" / "tests"

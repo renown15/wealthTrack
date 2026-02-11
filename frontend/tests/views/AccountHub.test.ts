@@ -3,11 +3,12 @@ import { computed } from 'vue';
 import { mount } from '@vue/test-utils';
 import AccountHub from '@views/AccountHub/AccountHub.vue';
 import * as usePortfolioModule from '@/composables/usePortfolio';
-import type { Account, AccountEvent, Institution } from '@/models/Portfolio';
+import type { PortfolioState } from '@/composables/usePortfolio';
+import type { Account, AccountEvent, Institution, PortfolioItem } from '@/models/Portfolio';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 
-const mockGetReferenceData = vi.fn<(classKey: string) => Promise<ReferenceDataItem[]>>();
-const mockGetAccountEvents = vi.fn<(accountId: number) => Promise<AccountEvent[]>>();
+const mockGetReferenceData = vi.fn<[string], Promise<ReferenceDataItem[]>>();
+const mockGetAccountEvents = vi.fn<[number], Promise<AccountEvent[]>>();
 
 vi.mock('@/composables/usePortfolio');
 vi.mock('@/services/ApiService', () => ({
@@ -34,27 +35,7 @@ vi.mock('@views/AccountHub/InstitutionsList.vue', () => ({
 
 const flushPromises = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
 
-type PortfolioState = {
-  loading: boolean;
-  error: string | null;
-  items: Account[];
-  institutions: Institution[];
-};
-
-type PortfolioMock = {
-  state: PortfolioState;
-  totalValue: ReturnType<typeof computed>;
-  accountCount: ReturnType<typeof computed>;
-  loadPortfolio: ReturnType<typeof vi.fn>;
-  createAccount: ReturnType<typeof vi.fn>;
-  updateAccount: ReturnType<typeof vi.fn>;
-  deleteAccount: ReturnType<typeof vi.fn>;
-  createInstitution: ReturnType<typeof vi.fn>;
-  updateInstitution: ReturnType<typeof vi.fn>;
-  deleteInstitution: ReturnType<typeof vi.fn>;
-  clearError: ReturnType<typeof vi.fn>;
-};
-
+type PortfolioMock = ReturnType<typeof usePortfolioModule.usePortfolio>;
 type PortfolioMockOverrides = Partial<Omit<PortfolioMock, 'state'>> & {
   state?: Partial<PortfolioState>;
 };
@@ -72,14 +53,14 @@ const createUsePortfolioMock = (overrides: PortfolioMockOverrides = {}): Portfol
     state,
     totalValue: computed(() => 0),
     accountCount: computed(() => state.items.length),
-    loadPortfolio: vi.fn(),
-    createAccount: vi.fn(),
-    updateAccount: vi.fn(),
-    deleteAccount: vi.fn(),
-    createInstitution: vi.fn(),
-    updateInstitution: vi.fn(),
-    deleteInstitution: vi.fn(),
-    clearError: vi.fn(),
+    loadPortfolio: vi.fn<[], Promise<void>>(),
+    createAccount: vi.fn<[number, string, number?, number?], Promise<void>>(),
+    updateAccount: vi.fn<[number, string], Promise<void>>(),
+    deleteAccount: vi.fn<[number], Promise<void>>(),
+    createInstitution: vi.fn<[string], Promise<void>>(),
+    updateInstitution: vi.fn<[number, string], Promise<void>>(),
+    deleteInstitution: vi.fn<[number], Promise<void>>(),
+    clearError: vi.fn<[], void>(),
   };
 
   const { state: _state, ...rest } = overrides;
@@ -98,6 +79,8 @@ const mountAccountHub = async (portfolioMock?: PortfolioMock) => {
   await flushPromises();
   return { wrapper, portfolioMock: mockInstance };
 };
+
+const getAccountHubVm = (wrapper: ReturnType<typeof mount>) => wrapper.vm as unknown as AccountHubVm;
 
 type AccountHubVm = {
   modalOpen: boolean;
@@ -159,7 +142,7 @@ describe('AccountHub', () => {
     await statsComponent.vm.$emit('create-account');
     await wrapper.vm.$nextTick();
 
-    const vm = wrapper.vm as AccountHubVm;
+    const vm = getAccountHubVm(wrapper);
     expect(vm.modalOpen).toBe(true);
     expect(vm.modalType).toBe('create');
     expect(vm.modalResourceType).toBe('account');
@@ -172,19 +155,19 @@ describe('AccountHub', () => {
     await statsComponent.vm.$emit('create-institution');
     await wrapper.vm.$nextTick();
 
-    const vm = wrapper.vm as AccountHubVm;
+    const vm = getAccountHubVm(wrapper);
     expect(vm.modalOpen).toBe(true);
     expect(vm.modalResourceType).toBe('institution');
     expect(vm.modalType).toBe('create');
   });
 
   it('handles institution delete confirmation flow', async () => {
-    const deleteInstitutionMock = vi.fn(() => Promise.resolve());
+    const deleteInstitutionMock = vi.fn().mockResolvedValue(undefined);
     const { wrapper, portfolioMock } = await mountAccountHub(
       createUsePortfolioMock({ deleteInstitution: deleteInstitutionMock }),
     );
 
-    const vm = wrapper.vm as AccountHubVm;
+    const vm = getAccountHubVm(wrapper);
     vm.openDeleteConfirm('institution', 12, 'Institution Foo');
     expect(vm.deleteConfirmOpen).toBe(true);
     expect(vm.deleteConfirmName).toBe('Institution Foo');
@@ -211,7 +194,7 @@ describe('AccountHub', () => {
     mockGetAccountEvents.mockResolvedValue(sampleEvents);
 
     const { wrapper } = await mountAccountHub();
-    const vm = wrapper.vm as AccountHubVm;
+    const vm = getAccountHubVm(wrapper);
 
     await vm.openEventsModal(10, 'Savings', 2);
     await flushPromises();

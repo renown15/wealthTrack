@@ -1,6 +1,5 @@
 import { PortfolioController } from '@controllers/PortfolioController';
-import { RegistrationController } from '@controllers/RegistrationController';
-import { LoginController } from '@controllers/LoginController';
+import { AuthController } from '@controllers/AuthController';
 import { authModule } from '@/modules/auth';
 
 type RoutePage = 'dashboard' | 'register' | 'login';
@@ -17,7 +16,7 @@ const NAV_LINK_FOR_PAGE: Record<NavigationTarget, string> = {
  * Simplified router that swaps controllers inside the shared view container.
  */
 export class Router {
-  private currentController: PortfolioController | RegistrationController | LoginController | null = null;
+  private currentController: PortfolioController | AuthController | null = null;
   private readonly viewContainerId = 'view-container';
 
   /**
@@ -41,13 +40,13 @@ export class Router {
         break;
       }
       case 'register': {
-        this.currentController = new RegistrationController(this.viewContainerId);
+        this.currentController = new AuthController(this.viewContainerId, 'register');
         this.currentController.init();
         break;
       }
       case 'login':
       default: {
-        this.currentController = new LoginController(this.viewContainerId);
+        this.currentController = new AuthController(this.viewContainerId, 'login');
         this.currentController.init();
         break;
       }

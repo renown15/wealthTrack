@@ -6,17 +6,36 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.controllers.account_dates import update_account_dates
+from app.controllers.account_events import create_account_event, list_account_events
 from app.controllers.dependencies import get_current_user
 from app.database import get_db
 from app.models.account import Account
 from app.models.user_profile import UserProfile
-from app.repositories.account_event_repository import AccountEventRepository
 from app.repositories.account_repository import AccountRepository
 from app.schemas.account import AccountCreate, AccountResponse, AccountUpdate
 from app.schemas.account_event import AccountEventResponse
 from app.services.account_service import AccountService
 
 router = APIRouter(prefix="/accounts", tags=["accounts"])
+
+# Register event handlers
+router.add_api_route(
+    "/{account_id}/events",
+    list_account_events,
+    methods=["GET"],
+    response_model=list[AccountEventResponse],
+)
+router.add_api_route(
+    "/{account_id}/events",
+    create_account_event,
+    methods=["POST"],
+    response_model=AccountEventResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+
+# Register date handler
+router.add_api_route("/{account_id}/dates", update_account_dates, methods=["PUT"])
 
 
 @router.get("", response_model=list[AccountResponse])
@@ -54,7 +73,6 @@ async def create_account(
     current_user: UserProfile = Depends(get_current_user),
 ) -> AccountResponse:
     """Create a new account for the current user."""
-    # Create account (object instantiation, not model construction)
     account = Account()
     account.user_id = current_user.id
     account.institution_id = account_data.institution_id
@@ -92,7 +110,6 @@ async def update_account(
             detail=str(e),
         ) from e
 
-    # Fetch updated account
     repo = AccountRepository(session)
     account = await repo.get_by_id(account_id, current_user.id)
     if not account:
@@ -118,23 +135,3 @@ async def delete_account(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e),
         ) from e
-
-
-@router.get("/{account_id}/events", response_model=list[AccountEventResponse])
-async def list_account_events(
-    account_id: int,
-    session: AsyncSession = Depends(get_db),
-    current_user: UserProfile = Depends(get_current_user),
-) -> list[AccountEventResponse]:
-    """Return the event timeline for the requested account."""
-    account_repo = AccountRepository(session)
-    account = await account_repo.get_by_id(account_id, current_user.id)
-    if not account:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Account not found",
-        )
-
-    event_repo = AccountEventRepository(session)
-    events = await event_repo.list_events(account_id, current_user.id)
-    return [AccountEventResponse(**event) for event in events]

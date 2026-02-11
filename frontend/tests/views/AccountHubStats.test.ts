@@ -18,7 +18,7 @@ describe('AccountHubStats', () => {
     expect(wrapper.text()).toContain('ADD ACCOUNT');
     expect(wrapper.text()).toContain('ADD INSTITUTION');
     expect(wrapper.text()).toContain('Total Value');
-    expect(wrapper.text()).toContain('$25,000.00');
+    expect(wrapper.text()).toContain('£25,000.00');
     expect(wrapper.text()).toContain('Accounts');
     expect(wrapper.text()).toContain('3');
     expect(wrapper.text()).toContain('Institutions');
@@ -69,6 +69,6 @@ describe('AccountHubStats', () => {
       },
     });
 
-    expect(wrapper.text()).toContain('$1,234.56');
+    expect(wrapper.text()).toContain('£1,234.56');
   });
 });

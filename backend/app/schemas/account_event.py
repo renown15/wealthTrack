@@ -7,6 +7,13 @@ from typing import Optional
 from app.schemas.base import BaseSchema
 
 
+class AccountEventCreate(BaseSchema):
+    """Schema for creating a new account event."""
+
+    event_type: str
+    value: str
+
+
 class AccountEventResponse(BaseSchema):
     """Schema representing a single account event for API responses."""
 

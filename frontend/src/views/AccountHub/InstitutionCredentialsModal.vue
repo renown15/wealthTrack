@@ -6,33 +6,32 @@
     @close="handleClose"
   >
     <template #default>
-      <div v-if="error" class="credential-error">{{ error }}</div>
-      <div v-if="loading" class="credential-loading">
+      <div v-if="error" class="error-banner mb-4">{{ error }}</div>
+      <div v-if="loading" class="p-4 text-center text-muted">
         <p>Loading credentials...</p>
       </div>
 
       <div v-else>
-        <section class="credential-list">
-          <h3>Existing credentials</h3>
-          <ul>
+        <section class="border border-border rounded-xl p-6 mb-6 bg-gray-50">
+          <h3 class="m-0 mb-4 font-semibold text-text-dark">Existing credentials</h3>
+          <ul class="list-none p-0 m-0">
             <li
               v-for="credential in credentials"
               :key="credential.id"
-              class="credential-item"
+              class="flex justify-between items-start py-3 border-b border-border last:border-b-0"
             >
               <div>
-                <p class="credential-type">{{ credential.typeLabel }}</p>
-                <p class="credential-key">{{ credential.key || 'No key stored' }}</p>
-                <p class="credential-updated">
+                <p class="m-0 font-semibold text-text-dark">{{ credential.typeLabel }}</p>
+                <p class="m-0 text-sm text-gray-400">
                   Updated {{ formatDate(credential.updatedAt) }}
                 </p>
               </div>
-              <div class="credential-actions">
-                <button class="btn btn-secondary" type="button" @click="startEdit(credential)">
+              <div class="flex gap-2">
+                <button class="btn-secondary text-xs py-1.5 px-3" type="button" @click="startEdit(credential)">
                   Edit
                 </button>
                 <button
-                  class="btn btn-danger"
+                  class="btn-danger text-xs py-1.5 px-3"
                   type="button"
                   @click="deleteCredential(credential.id)"
                   :disabled="deletingId === credential.id"
@@ -41,17 +40,17 @@
                 </button>
               </div>
             </li>
-            <li v-if="!credentials.length" class="credential-empty">
+            <li v-if="!credentials.length" class="py-4 text-muted">
               No credentials stored yet for this institution.
             </li>
           </ul>
         </section>
 
-        <section class="credential-form">
-          <h3>{{ isEditing ? 'Update credential' : 'Add credential' }}</h3>
+        <section class="border border-border rounded-xl p-6 bg-white">
+          <h3 class="mt-0 mb-4 font-semibold text-text-dark">{{ isEditing ? 'Update credential' : 'Add credential' }}</h3>
           <div class="form-group">
-            <label for="credential-type">Credential type</label>
-            <select id="credential-type" v-model.number="formData.typeId">
+            <label for="credential-type" class="form-label">Credential type</label>
+            <select id="credential-type" v-model.number="formData.typeId" class="form-select">
               <option value="">Select credential type</option>
               <option
                 v-for="type in credentialTypes"
@@ -64,19 +63,11 @@
           </div>
 
           <div class="form-group">
-            <label for="credential-key">Key</label>
-            <input
-              id="credential-key"
-              type="text"
-              v-model="formData.key"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="credential-value">Value</label>
+            <label for="credential-value" class="form-label">Value</label>
             <input
               id="credential-value"
               type="text"
+              class="form-input"
               v-model="formData.value"
             />
           </div>
@@ -85,9 +76,9 @@
     </template>
 
     <template #footer>
-      <button class="btn btn-secondary" type="button" @click="handleClose">Close</button>
+      <button class="btn-secondary" type="button" @click="handleClose">Close</button>
       <button
-        class="btn btn-primary"
+        class="btn-primary"
         type="button"
         :disabled="!canSubmit || saving"
         @click="handleSave"
@@ -96,7 +87,7 @@
       </button>
       <button
         v-if="isEditing"
-        class="btn"
+        class="btn-secondary"
         type="button"
         @click="cancelEdit"
       >
@@ -115,7 +106,6 @@ import BaseModal from '@/components/BaseModal.vue';
 
 interface FormState {
   typeId: number;
-  key: string;
   value: string;
 }
 
@@ -139,7 +129,7 @@ const emit = defineEmits<{
   remove: [number];
 }>();
 
-const formData = ref<FormState>({ typeId: 0, key: '', value: '' });
+const formData = ref<FormState>({ typeId: 0, value: '' });
 
 const isEditing = computed(() => Boolean(props.editingCredential));
 
@@ -148,7 +138,7 @@ const modalTitle = computed(() =>
 );
 
 const canSubmit = computed(
-  () => !!formData.value.typeId && !!formData.value.key && !!formData.value.value,
+  () => !!formData.value.typeId && !!formData.value.value,
 );
 
 const handleClose = (): void => {
@@ -177,7 +167,6 @@ const deleteCredential = (credentialId: number): void => {
 const resetForm = (): void => {
   formData.value = {
     typeId: props.credentialTypes[0]?.id ?? 0,
-    key: '',
     value: '',
   };
 };
@@ -194,7 +183,7 @@ watch(
 watch(
   () => props.credentialTypes,
   (types) => {
-    if (types.length && formData.value.typeId === 0) {
+    if (types?.length && formData.value.typeId === 0) {
       formData.value.typeId = types[0].id;
     }
   },
@@ -207,7 +196,6 @@ watch(
     if (credential) {
       formData.value = {
         typeId: credential.typeId,
-        key: credential.key || '',
         value: credential.value || '',
       };
     } else {
@@ -220,74 +208,4 @@ const formatDate = (value: string): string =>
   new Date(value).toLocaleString();
 </script>
 
-<style scoped>
-.credential-list {
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  background: #fafafa;
-}
-
-.credential-list h3 {
-  margin: 0 0 1rem 0;
-}
-
-.credential-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.credential-item:last-child {
-  border-bottom: none;
-}
-
-.credential-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.credential-type {
-  margin: 0;
-  font-weight: 600;
-}
-
-.credential-key {
-  margin: 0.25rem 0;
-  color: #4a5568;
-}
-
-.credential-updated {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #a0aec0;
-}
-
-.credential-empty {
-  padding: 1rem 0;
-  color: #718096;
-}
-
-.credential-form h3 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
-}
-
-.credential-error {
-  background: #fed7d7;
-  border-left: 4px solid #f56565;
-  color: #c53030;
-  padding: 0.75rem 1rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-}
-
-.credential-loading {
-  padding: 1rem;
-  text-align: center;
-}
-</style>
+<!-- Uses UnoCSS utilities via shortcuts -->

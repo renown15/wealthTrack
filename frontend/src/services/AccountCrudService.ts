@@ -5,6 +5,7 @@ import type {
   Account,
   AccountCreateRequest,
   AccountEvent,
+  AccountEventCreateRequest,
   AccountUpdateRequest,
 } from '@models/Portfolio';
 import { BaseApiClient } from '@services/BaseApiClient';
@@ -85,6 +86,37 @@ class AccountCrudService extends BaseApiClient {
       return response.data;
     } catch (error) {
       throw this.handleError(error, 'Failed to fetch account events');
+    }
+  }
+
+  async createAccountEvent(
+    accountId: number,
+    data: AccountEventCreateRequest,
+  ): Promise<AccountEvent> {
+    try {
+      const response = await this.retryRequest(() =>
+        this.client.post<AccountEvent>(`/api/v1/accounts/${accountId}/events`, data),
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error, 'Failed to create account event');
+    }
+  }
+
+  async updateAccountDates(
+    accountId: number,
+    data: { opened_at?: string | null; closed_at?: string | null },
+  ): Promise<{ accountId: number; openedAt: string | null; closedAt: string | null }> {
+    try {
+      const response = await this.retryRequest(() =>
+        this.client.put<{ accountId: number; openedAt: string | null; closedAt: string | null }>(
+          `/api/v1/accounts/${accountId}/dates`,
+          data,
+        ),
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error, 'Failed to update account dates');
     }
   }
 }

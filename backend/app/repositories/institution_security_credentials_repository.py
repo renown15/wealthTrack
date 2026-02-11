@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.institution import Institution
 from app.models.institution_security_credentials import InstitutionSecurityCredentials
 from app.models.reference_data import ReferenceData
+from app.schemas.institution_security_credentials import InstitutionSecurityCredentialCreate
 
 
 class InstitutionSecurityCredentialsRepository:
@@ -38,7 +39,8 @@ class InstitutionSecurityCredentialsRepository:
             .order_by(InstitutionSecurityCredentials.created_at.desc())
         )
         result = await self.session.execute(stmt)
-        return result.all()
+        rows = result.all()
+        return list(map(tuple, rows))
 
     async def get_by_id(
         self, credential_id: int, user_id: int
@@ -60,22 +62,23 @@ class InstitutionSecurityCredentialsRepository:
             .where(Institution.user_id == user_id)
         )
         result = await self.session.execute(stmt)
-        return result.first()
+        first = result.first()
+        if not first:
+            return None
+        return tuple(first)
 
     async def create(
         self,
         user_id: int,
         institution_id: int,
-        type_id: int,
-        key: str,
-        value: str,
+        payload: InstitutionSecurityCredentialCreate,
     ) -> InstitutionSecurityCredentials:
         credential = InstitutionSecurityCredentials()
         credential.user_id = user_id
         credential.institution_id = institution_id
-        credential.type_id = type_id
-        credential.key = key
-        credential.value = value
+        credential.type_id = payload.type_id
+        credential.key = payload.key
+        credential.value = payload.value
 
         self.session.add(credential)
         await self.session.flush()

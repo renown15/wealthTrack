@@ -1,7 +1,7 @@
 """
 Service layer for institution credentials management.
 """
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -44,9 +44,7 @@ class InstitutionSecurityCredentialsService:
         credential = await self.repository.create(
             user_id,
             institution_id,
-            payload.type_id,
-            payload.key,
-            payload.value,
+            payload,
         )
         return self._to_payload(credential, type_label)
 

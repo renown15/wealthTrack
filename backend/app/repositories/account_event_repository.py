@@ -11,11 +11,48 @@ from app.models.reference_data import ReferenceData
 
 
 class AccountEventRepository:
-    """Handles read operations for account events including history and counts."""
+    """Handles operations for account events including history and counts."""
 
     def __init__(self, session: AsyncSession):
         """Initialize repository with an async session."""
         self.session = session
+
+    async def get_event_type_id(self, event_type: str) -> int | None:
+        """Look up the reference data ID for an event type.
+
+        Accepts either the full reference_value (e.g., "Balance Update")
+        or a shorthand (e.g., "balance") which maps to "Balance Update".
+        """
+        # Map shorthand event types to their full reference values
+        event_type_map = {
+            "balance": "Balance Update",
+            "interest": "Interest",
+            "dividend": "Dividend",
+            "deposit": "Deposit",
+            "withdrawal": "Withdrawal",
+        }
+        lookup_value = event_type_map.get(event_type.lower(), event_type)
+
+        stmt = select(ReferenceData.id).where(
+            ReferenceData.class_key.startswith("event_type:"),
+            ReferenceData.reference_value == lookup_value,
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def create_event(
+        self, account_id: int, user_id: int, type_id: int, value: str
+    ) -> AccountEvent:
+        """Create a new account event."""
+        event = AccountEvent()
+        event.account_id = account_id
+        event.user_id = user_id
+        event.type_id = type_id
+        event.value = value
+        self.session.add(event)
+        await self.session.flush()
+        await self.session.refresh(event)
+        return event
 
     async def list_events(self, account_id: int, user_id: int) -> list[dict[str, Any]]:
         """Return chronological account events for the given user-owned account."""

@@ -77,6 +77,9 @@ async def seed_database() -> None:
             {"classkey": "attribute_type", "referencevalue": "Interest Rate", "sortindex": 1},
             {"classkey": "attribute_type", "referencevalue": "Overdraft Limit", "sortindex": 2},
             {"classkey": "attribute_type", "referencevalue": "Credit Limit", "sortindex": 3},
+            # Account attribute types (for AccountAttribute table)
+            {"classkey": "account_attribute_type", "referencevalue": "Account Opened Date", "sortindex": 1},
+            {"classkey": "account_attribute_type", "referencevalue": "Account Closed Date", "sortindex": 2},
         ]
 
         inserted = 0

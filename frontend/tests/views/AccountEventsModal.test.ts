@@ -38,7 +38,7 @@ describe('AccountEventsModal', () => {
     const rows = wrapper.findAll('.event-row');
     expect(rows.length).toBe(2);
     expect(rows[0].text()).toContain('balance_update');
-    expect(rows[0].text()).toContain('$1,000.00');
+    expect(rows[0].text()).toContain('£1,000.00');
     expect(rows[1].text()).toContain('interest_payment');
     expect(rows[1].text()).toContain('—');
     const expectedDate = new Date(sampleEvents[0].createdAt).toLocaleString(undefined, {

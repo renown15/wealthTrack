@@ -1,15 +1,14 @@
 <template>
-  <header class="portfolio-header stats-header">
-    <div class="header-flex">
-      <div class="header-content">
-        <p class="eyebrow">WealthTrack</p>
-        <h1>Account Hub</h1>
-        <p class="subtitle">Snapshot of your portfolio with fast actions to add or manage accounts.</p>
+  <header class="header-panel">
+    <div class="header-top">
+      <div>
+        <h2 class="header-title">Account Hub</h2>
+        <p class="header-subtitle">Snapshot of your portfolio with fast actions to add or manage accounts.</p>
       </div>
 
       <div class="header-actions">
-        <button class="btn btn-primary" @click="emitCreateAccount">+ ADD ACCOUNT</button>
-        <button class="btn btn-secondary" @click="emitCreateInstitution">+ ADD INSTITUTION</button>
+        <button class="btn-primary" @click="emitCreateAccount">+ Add Account</button>
+        <button class="btn-secondary" @click="emitCreateInstitution">+ Add Institution</button>
       </div>
     </div>
 
@@ -51,9 +50,9 @@ const emit = defineEmits<{
 }>();
 
 const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-GB', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'GBP',
   }).format(value);
 };
 
@@ -66,4 +65,4 @@ const emitCreateInstitution = (): void => {
 };
 </script>
 
-<style scoped src="@/styles/PortfolioView.css"></style>
+<!-- Uses UnoCSS utilities via shortcuts -->

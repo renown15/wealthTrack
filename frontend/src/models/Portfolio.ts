@@ -9,6 +9,8 @@ export interface Account {
   name: string;
   typeId: number;
   statusId: number;
+  openedAt: string | null;
+  closedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -87,4 +89,9 @@ export interface InstitutionCreateRequest {
 
 export interface InstitutionUpdateRequest {
   name: string;
+}
+
+export interface AccountEventCreateRequest {
+  event_type: string;
+  value: string;
 }

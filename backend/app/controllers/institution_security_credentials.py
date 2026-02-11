@@ -16,7 +16,10 @@ from app.services.institution_security_credentials_service import (
     InstitutionSecurityCredentialsService,
 )
 
-router = APIRouter(prefix="/institutions/{institution_id}/credentials", tags=["institution-credentials"])
+router = APIRouter(
+    prefix="/institutions/{institution_id}/credentials",
+    tags=["institution-credentials"],
+)
 
 
 def _handle_service_error(exc: ValueError) -> HTTPException:
@@ -34,10 +37,17 @@ async def list_institution_credentials(
 ) -> list[InstitutionSecurityCredentialResponse]:
     service = InstitutionSecurityCredentialsService(session)
     items = await service.list_for_institution(institution_id, current_user.id)
-    return [InstitutionSecurityCredentialResponse(**item) for item in items]
+    return [
+        InstitutionSecurityCredentialResponse(**item)
+        for item in items
+    ]
 
 
-@router.post("", response_model=InstitutionSecurityCredentialResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=InstitutionSecurityCredentialResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_institution_credential(
     institution_id: int,
     payload: InstitutionSecurityCredentialCreate,
@@ -48,11 +58,14 @@ async def create_institution_credential(
     try:
         item = await service.create(institution_id, current_user.id, payload)
     except ValueError as exc:
-        raise _handle_service_error(exc)
+        raise _handle_service_error(exc) from exc
     return InstitutionSecurityCredentialResponse(**item)
 
 
-@router.put("/{credential_id}", response_model=InstitutionSecurityCredentialResponse)
+@router.put(
+    "/{credential_id}",
+    response_model=InstitutionSecurityCredentialResponse,
+)
 async def update_institution_credential(
     institution_id: int,
     credential_id: int,
@@ -64,7 +77,7 @@ async def update_institution_credential(
     try:
         item = await service.update(institution_id, credential_id, current_user.id, payload)
     except ValueError as exc:
-        raise _handle_service_error(exc)
+        raise _handle_service_error(exc) from exc
     return InstitutionSecurityCredentialResponse(**item)
 
 
@@ -79,4 +92,5 @@ async def delete_institution_credential(
     try:
         await service.delete(credential_id, current_user.id)
     except ValueError as exc:
-        raise _handle_service_error(exc)
+        raise _handle_service_error(exc) from exc
+    _ = institution_id

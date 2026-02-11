@@ -13,6 +13,7 @@ import type {
   Portfolio,
   Account,
   AccountEvent,
+  AccountEventCreateRequest,
   AccountCreateRequest,
   AccountUpdateRequest,
   Institution,
@@ -102,6 +103,13 @@ class ApiService {
 
   async getAccountEvents(accountId: number): Promise<AccountEvent[]> {
     return accountCrudService.getAccountEvents(accountId);
+  }
+
+  async createAccountEvent(
+    accountId: number,
+    data: AccountEventCreateRequest,
+  ): Promise<AccountEvent> {
+    return accountCrudService.createAccountEvent(accountId, data);
   }
 
   // Institution operations

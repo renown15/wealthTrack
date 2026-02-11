@@ -61,9 +61,9 @@ const formatCurrency = (value?: string | number | null): string => {
   if (!value) return '—';
   const numeric = typeof value === 'string' ? parseFloat(value) : value;
   if (Number.isNaN(numeric)) return value?.toString() ?? '—';
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-GB', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'GBP',
   }).format(numeric);
 };
 </script>

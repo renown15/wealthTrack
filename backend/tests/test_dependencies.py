@@ -1,9 +1,13 @@
 """Tests for authentication dependency helpers."""
 
+from typing import cast
+
 import pytest
-from fastapi import HTTPException
+from fastapi import HTTPException, Request
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.controllers.dependencies import get_current_user, get_current_user_from_token
+from app.models.user_profile import UserProfile
 from app.services.auth import create_access_token
 
 
@@ -16,7 +20,7 @@ class DummyRequest:
 
 @pytest.mark.asyncio
 async def test_get_current_user_from_token_missing_header() -> None:
-    request = DummyRequest(headers={})
+    request = cast(Request, DummyRequest(headers={}))
 
     with pytest.raises(HTTPException) as exc_info:
         await get_current_user_from_token(request)
@@ -27,7 +31,7 @@ async def test_get_current_user_from_token_missing_header() -> None:
 
 @pytest.mark.asyncio
 async def test_get_current_user_from_token_invalid_header_format() -> None:
-    request = DummyRequest(headers={"authorization": "InvalidHeader"})
+    request = cast(Request, DummyRequest(headers={"authorization": "InvalidHeader"}))
 
     with pytest.raises(HTTPException) as exc_info:
         await get_current_user_from_token(request)
@@ -38,7 +42,7 @@ async def test_get_current_user_from_token_invalid_header_format() -> None:
 
 @pytest.mark.asyncio
 async def test_get_current_user_from_token_invalid_token() -> None:
-    request = DummyRequest(headers={"authorization": "Bearer invalid.token"})
+    request = cast(Request, DummyRequest(headers={"authorization": "Bearer invalid.token"}))
 
     with pytest.raises(HTTPException) as exc_info:
         await get_current_user_from_token(request)
@@ -50,7 +54,7 @@ async def test_get_current_user_from_token_invalid_token() -> None:
 @pytest.mark.asyncio
 async def test_get_current_user_from_token_success() -> None:
     token = create_access_token({"sub": "1"})
-    request = DummyRequest(headers={"authorization": f"Bearer {token}"})
+    request = cast(Request, DummyRequest(headers={"authorization": f"Bearer {token}"}))
 
     payload = await get_current_user_from_token(request)
 
@@ -59,7 +63,9 @@ async def test_get_current_user_from_token_success() -> None:
 
 
 @pytest.mark.asyncio
-async def test_get_current_user_returns_user(db_session, user) -> None:
+async def test_get_current_user_returns_user(
+    db_session: AsyncSession, user: UserProfile
+) -> None:
     payload = {"sub": str(user.id)}
 
     current_user = await get_current_user(payload, db_session)
@@ -68,7 +74,7 @@ async def test_get_current_user_returns_user(db_session, user) -> None:
 
 
 @pytest.mark.asyncio
-async def test_get_current_user_user_not_found(db_session) -> None:
+async def test_get_current_user_user_not_found(db_session: AsyncSession) -> None:
     payload = {"sub": "999999"}
 
     with pytest.raises(HTTPException) as exc_info:
@@ -79,7 +85,7 @@ async def test_get_current_user_user_not_found(db_session) -> None:
 
 
 @pytest.mark.asyncio
-async def test_get_current_user_invalid_payload(db_session) -> None:
+async def test_get_current_user_invalid_payload(db_session: AsyncSession) -> None:
     with pytest.raises(HTTPException) as exc_info:
         await get_current_user({}, db_session)
 
@@ -88,7 +94,7 @@ async def test_get_current_user_invalid_payload(db_session) -> None:
 
 
 @pytest.mark.asyncio
-async def test_get_current_user_invalid_user_id(db_session) -> None:
+async def test_get_current_user_invalid_user_id(db_session: AsyncSession) -> None:
     payload = {"sub": "abc"}
 
     with pytest.raises(HTTPException) as exc_info:

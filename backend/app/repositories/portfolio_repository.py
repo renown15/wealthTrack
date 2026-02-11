@@ -10,8 +10,8 @@ from sqlalchemy.orm import selectinload
 from app.models.account import Account
 from app.models.account_event import AccountEvent
 from app.models.reference_data import ReferenceData
+from app.repositories.account_attribute_repository import AccountAttributeRepository
 from app.schemas.account import AccountResponse
-from app.schemas.account_event import AccountEventResponse
 from app.schemas.institution import InstitutionResponse
 
 
@@ -68,17 +68,49 @@ class PortfolioRepository:
             event_count_result = await self.session.execute(event_count_stmt)
             event_count = event_count_result.scalar_one() or 0
 
+            # Get opened/closed dates from AccountAttribute
+            attr_repo = AccountAttributeRepository(self.session)
+            dates = await attr_repo.get_dates_for_account(account.id, user_id)
+
             account_payload = AccountResponse.model_validate(account).model_dump(by_alias=True)
+            # Add dates from AccountAttribute
+            account_payload["openedAt"] = dates.get("openedAt")
+            account_payload["closedAt"] = dates.get("closedAt")
+
             institution_payload = (
                 InstitutionResponse.model_validate(account.institution).model_dump(by_alias=True)
                 if account.institution
                 else None
             )
-            latest_balance_payload = (
-                AccountEventResponse.model_validate(latest_balance).model_dump(by_alias=True)
-                if latest_balance
-                else None
-            )
+
+            # Build latest balance payload manually since we need to resolve type_id to event_type
+            latest_balance_payload = None
+            if latest_balance:
+                # Look up event type name from ReferenceData
+                event_type_stmt = (
+                    select(ReferenceData.reference_value)
+                    .where(ReferenceData.id == latest_balance.type_id)
+                )
+                event_type_result = await self.session.execute(event_type_stmt)
+                event_type_name = event_type_result.scalar_one_or_none() or "Event"
+
+                latest_balance_payload = {
+                    "id": latest_balance.id,
+                    "accountId": latest_balance.account_id,
+                    "userId": latest_balance.user_id,
+                    "eventType": event_type_name,
+                    "value": latest_balance.value,
+                    "createdAt": (
+                        latest_balance.created_at.isoformat()
+                        if latest_balance.created_at
+                        else None
+                    ),
+                    "updatedAt": (
+                        latest_balance.updated_at.isoformat()
+                        if latest_balance.updated_at
+                        else None
+                    ),
+                }
 
             portfolio_item: dict[str, Any] = {
                 "account": account_payload,

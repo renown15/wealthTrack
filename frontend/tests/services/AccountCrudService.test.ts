@@ -5,10 +5,10 @@ import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { accountCrudService } from '@/services/AccountCrudService';
 
 type AxiosStub = {
-  get: Mock<Promise<{ data: unknown }>>;
-  post: Mock<Promise<{ data: unknown }>>;
-  put: Mock<Promise<{ data: unknown }>>;
-  delete: Mock<Promise<unknown>>;
+  get: Mock<unknown[], Promise<{ data: unknown }>>;
+  post: Mock<unknown[], Promise<{ data: unknown }>>;
+  put: Mock<unknown[], Promise<{ data: unknown }>>;
+  delete: Mock<unknown[], Promise<unknown>>;
 };
 
 describe('AccountCrudService', () => {

@@ -72,14 +72,17 @@ async def db_session(test_engine: AsyncEngine) -> AsyncGenerator[AsyncSession, N
             ReferenceData(class_key="account_status:closed", reference_value="Closed", sort_index=2),
             ReferenceData(class_key="account_status:dormant", reference_value="Dormant", sort_index=3),
             # Event types
-            ReferenceData(class_key="account_event:balance_update", reference_value="Balance Update", sort_index=1),
-            ReferenceData(class_key="account_event:transaction", reference_value="Transaction", sort_index=2),
+            ReferenceData(class_key="event_type:balance_update", reference_value="Balance Update", sort_index=1),
+            ReferenceData(class_key="event_type:transaction", reference_value="Transaction", sort_index=2),
             # Credential types
             ReferenceData(class_key="credential_type:username", reference_value="Username", sort_index=1),
             ReferenceData(class_key="credential_type:password", reference_value="Password", sort_index=2),
             ReferenceData(class_key="credential_type:security_question", reference_value="Security Question", sort_index=3),
             ReferenceData(class_key="credential_type:mother_maiden", reference_value="Mother's Maiden Name", sort_index=4),
             ReferenceData(class_key="credential_type:phone_pin", reference_value="Phone PIN", sort_index=5),
+            # Account attribute types
+            ReferenceData(class_key="account_attribute_type", reference_value="Account Opened Date", sort_index=1),
+            ReferenceData(class_key="account_attribute_type", reference_value="Account Closed Date", sort_index=2),
         ]
         for ref in ref_data_entries:
             session.add(ref)

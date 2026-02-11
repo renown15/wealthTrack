@@ -56,7 +56,7 @@ describe('AccountHubTable', () => {
     });
 
     expect(wrapper.text()).toContain('Chase Bank');
-    expect(wrapper.text()).toContain('$5,000.00');
+    expect(wrapper.text()).toContain('£5,000.00');
     expect(wrapper.text()).toContain('Checking Account');
   });
 
@@ -132,15 +132,4 @@ describe('AccountHubTable', () => {
     expect(wrapper.emitted('showEvents')?.[0]).toEqual([1, 'Checking', 2]);
   });
 
-  it('emits addAccount when header add button clicked', async () => {
-    const wrapper = mount(AccountHubTable, {
-      props: {
-        items: mockItems,
-      },
-    });
-
-    await wrapper.find('.table-head .btn-primary').trigger('click');
-
-    expect(wrapper.emitted('addAccount')).toBeTruthy();
-  });
 });

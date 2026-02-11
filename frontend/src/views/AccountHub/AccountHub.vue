@@ -1,103 +1,76 @@
 <template>
-  <div class="portfolio-view">
-    <!-- Header with stats -->
-    <AccountHubStats
-      :total-value="totalValue"
-      :account-count="accountCount"
-      :institution-count="institutionCount"
-      :event-count="eventCount"
-      @create-account="openCreateAccountModal"
-      @create-institution="openCreateInstitutionModal"
-    />
-
-    <!-- Error Message -->
-    <div v-if="state.error" class="error-banner">
-      <span>{{ state.error }}</span>
-      <button @click="clearError">×</button>
-    </div>
-
-    <!-- Loading State -->
-    <div v-if="state.loading" class="loading-state">
-      <div class="spinner"></div>
-      <p>Loading portfolio...</p>
-    </div>
-
-    <!-- Empty State -->
-    <div v-else-if="accountCount === 0" class="empty-state">
-      <div class="empty-state-icon">📊</div>
-      <h2>No accounts yet</h2>
-      <p>Create your first account to get started</p>
-      <button class="btn btn-primary" @click="openCreateAccountModal">Create Account</button>
-    </div>
-
-    <!-- Portfolio Content -->
-    <div v-else class="portfolio-content">
-      <!-- Accounts Table/Grid -->
-      <AccountHubTable
-        :items="state.items"
-        @edit-account="openEditAccountModal"
-        @delete-item="openDeleteConfirm"
-        @add-account="openCreateAccountModal"
-        @show-events="openEventsModal"
+  <div class="page-view">
+    <div class="hub-header-card">
+      <AccountHubStats
+        :total-value="totalValue" :account-count="accountCount"
+        :institution-count="institutionCount" :event-count="eventCount"
+        @create-account="openCreateAccountModal" @create-institution="openCreateInstitutionModal"
       />
-
-      <!-- Institutions List -->
-      <InstitutionsList
-          :institutions="state.institutions"
-          @edit-institution="openEditInstitutionModal"
-          @delete-institution="handleDeleteInstitution"
+    </div>
+    <div v-if="state.error" class="hub-content-card p-6">
+      <div class="error-banner">
+        <span>{{ state.error }}</span>
+        <button class="btn-close" @click="clearError">×</button>
+      </div>
+    </div>
+    <div v-if="state.loading" class="hub-content-card p-8">
+      <div class="flex flex-col items-center">
+        <div class="spinner"></div>
+        <p class="mt-4 text-muted">Loading portfolio...</p>
+      </div>
+    </div>
+    <div v-else-if="accountCount === 0" class="hub-content-card p-8">
+      <div class="text-center">
+        <div class="empty-icon">📊</div>
+        <h2 class="empty-title">No accounts yet</h2>
+        <p class="empty-text">Create your first account to get started</p>
+        <button class="btn-add mt-4" @click="openCreateAccountModal">Create Account</button>
+      </div>
+    </div>
+    <template v-else>
+      <div class="hub-content-card p-6">
+        <h3 class="section-title">Accounts</h3>
+        <div class="table-wrap">
+          <AccountHubTable
+            :items="state.items" @edit-account="openEditAccountModal"
+            @delete-item="openDeleteConfirm" @show-events="handleShowEvents"
+            @update-balance="handleUpdateBalance"
+          />
+        </div>
+      </div>
+      <div v-if="state.institutions.length > 0" class="hub-content-card p-6">
+        <h3 class="section-title">Institutions</h3>
+        <InstitutionsList
+          :institutions="state.institutions" @edit-institution="openEditInstitutionModal"
+          @delete-institution="(id, name) => openDeleteConfirm('institution', id, name)"
           @manage-credentials="openCredentialsModal"
         />
-
+      </div>
       <AccountEventsModal
-        :open="eventsModalOpen"
-        :title="eventsTitle"
-        :events="events"
-        :loading="eventsLoading"
-        :error="eventsError"
-        @close="closeEventsModal"
+        :open="eventsModalOpen" :title="eventsTitle" :events="events"
+        :loading="eventsLoading" :error="eventsError" @close="closeEventsModal"
       />
-    </div>
-
-    <!-- Create/Edit Modal -->
+    </template>
     <AddAccountModal
-      :open="modalOpen"
-      :type="modalType"
-      :resource-type="modalResourceType"
-      :institutions="state.institutions"
-      :account-types="accountTypes"
-      :account-statuses="accountStatuses"
-      :initial-name="initialModalName"
-      :initial-institution-id="initialModalInstitutionId"
-      :initial-type-id="initialModalTypeId"
-      :initial-status-id="initialModalStatusId"
-      @close="closeModal"
-      @save="handleSave"
+      :open="modalOpen" :type="modalType" :resource-type="modalResourceType"
+      :institutions="state.institutions" :account-types="accountTypes"
+      :account-statuses="accountStatuses" :initial-name="initialModalName"
+      :initial-institution-id="initialModalInstitutionId" :initial-type-id="initialModalTypeId"
+      :initial-status-id="initialModalStatusId" :initial-opened-at="initialModalOpenedAt"
+      :initial-closed-at="initialModalClosedAt" @close="closeModal" @save="handleSave"
     />
-
-    <!-- Delete Confirmation Modal -->
     <DeleteConfirmModal
-      :open="deleteConfirmOpen"
-      :item-name="deleteConfirmName"
-      @close="closeDeleteConfirm"
-      @confirm="handleConfirmDelete"
+      :open="deleteConfirmOpen" :item-name="deleteConfirmName"
+      @close="closeDeleteConfirm" @confirm="handleConfirmDelete"
     />
-
     <InstitutionCredentialsModal
-      :open="credentialModalOpen"
-      :institution="credentialInstitution"
-      :credential-types="credentialTypes"
-      :credentials="credentials"
-      :loading="credentialLoading"
-      :saving="credentialSaving"
-      :deleting-id="credentialDeletingId"
-      :error="credentialError"
-      :editing-credential="editingCredential"
-      @close="closeCredentialsModal"
-      @save="handleCredentialSave"
-      @edit="handleCredentialEdit"
-      @cancel-edit="cancelCredentialEdit"
-      @remove="handleCredentialDelete"
+      :open="credentialModalOpen" :institution="credentialInstitution"
+      :credential-types="credentialTypes" :credentials="credentials"
+      :loading="credentialLoading" :saving="credentialSaving"
+      :deleting-id="credentialDeletingId" :error="credentialError"
+      :editing-credential="editingCredential" @close="closeCredentialsModal"
+      @save="handleCredentialSave" @edit="handleCredentialEdit"
+      @cancel-edit="cancelCredentialEdit" @remove="handleCredentialDelete"
     />
   </div>
 </template>
@@ -105,7 +78,9 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { usePortfolio } from '@/composables/usePortfolio';
-import type { Account, AccountEvent, Institution } from '@/models/Portfolio';
+import { useCredentialsModal } from '@/composables/useCredentialsModal';
+import { useEventsModal } from '@/composables/useEventsModal';
+import { useAccountHubModals } from '@/composables/useAccountHubModals';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 import AccountHubStats from '@views/AccountHub/AccountHubStats.vue';
 import AccountHubTable from '@views/AccountHub/AccountHubTable.vue';
@@ -115,147 +90,76 @@ import InstitutionsList from '@views/AccountHub/InstitutionsList.vue';
 import AccountEventsModal from '@views/AccountHub/AccountEventsModal.vue';
 import InstitutionCredentialsModal from '@views/AccountHub/InstitutionCredentialsModal.vue';
 import { apiService } from '@/services/ApiService';
-import { institutionCredentialsService } from '@/services/InstitutionCredentialsService';
-import type { InstitutionCredential } from '@/models/InstitutionCredential';
+import { accountCrudService } from '@/services/AccountCrudService';
 
 const {
-  state,
-  totalValue,
-  accountCount,
-  loadPortfolio,
-  createAccount,
-  updateAccount,
-  deleteAccount,
-  createInstitution,
-  updateInstitution,
-  deleteInstitution,
-  clearError,
+  state, totalValue, accountCount, loadPortfolio, createAccount, updateAccount,
+  deleteAccount, createInstitution, updateInstitution, deleteInstitution, clearError,
 } = usePortfolio();
 
+const {
+  credentialModalOpen, credentialInstitution, credentials, credentialLoading,
+  credentialSaving, credentialDeletingId, credentialError, editingCredential,
+  openCredentialsModal, closeCredentialsModal, handleCredentialSave,
+  handleCredentialEdit, cancelCredentialEdit, handleCredentialDelete,
+} = useCredentialsModal();
+
+const {
+  eventsModalOpen, eventsTitle, eventsLoading, eventsError, events,
+  openEventsModal, closeEventsModal,
+} = useEventsModal();
+
+const {
+  modalOpen, modalType, modalResourceType, editingItem, deleteConfirmOpen,
+  deleteConfirmType, deleteConfirmId, deleteConfirmName, initialModalName,
+  initialModalInstitutionId, initialModalTypeId, initialModalStatusId,
+  initialModalOpenedAt, initialModalClosedAt, openCreateAccountModal,
+  openCreateInstitutionModal, openEditAccountModal, openEditInstitutionModal,
+  closeModal, openDeleteConfirm, closeDeleteConfirm,
+} = useAccountHubModals();
+
 const institutionCount = computed(() => state.institutions.length);
-const eventCount = computed(() => state.items.reduce((total, account) => total + (account.eventCount || 0), 0));
+const eventCount = computed(() => state.items.reduce((t, a) => t + (a.eventCount || 0), 0));
 const accountTypes = ref<ReferenceDataItem[]>([]);
 const accountStatuses = ref<ReferenceDataItem[]>([]);
 const credentialTypes = ref<ReferenceDataItem[]>([]);
+
 const loadReferenceData = async (): Promise<void> => {
   try {
-    const [types, statuses, credentialOptions] = await Promise.all([
+    const [types, statuses, credOpts] = await Promise.all([
       apiService.getReferenceData('account_type'),
       apiService.getReferenceData('account_status'),
       apiService.getReferenceData('credential_type'),
     ]);
     accountTypes.value = types;
     accountStatuses.value = statuses;
-    credentialTypes.value = credentialOptions;
+    credentialTypes.value = credOpts;
   } catch (error) {
     state.error = error instanceof Error ? error.message : 'Failed to load reference data';
   }
 };
 
-// Modal state
-const modalOpen = ref(false);
-const modalType = ref<'create' | 'edit'>('create');
-const modalResourceType = ref<'account' | 'institution'>('account');
-const editingItem = ref<Account | Institution | null>(null);
+onMounted(() => Promise.all([loadPortfolio(), loadReferenceData()]));
 
-const initialModalName = computed(() => {
-  if (!editingItem.value) return '';
-  return 'name' in editingItem.value ? editingItem.value.name : '';
-});
-const initialModalInstitutionId = computed(() => {
-  if (!editingItem.value || !('institutionId' in editingItem.value)) return 0;
-  return (editingItem.value as Account).institutionId;
-});
-const initialModalTypeId = computed(() => {
-  if (!editingItem.value || !('typeId' in editingItem.value)) return 0;
-  return editingItem.value.typeId;
-});
-const initialModalStatusId = computed(() => {
-  if (!editingItem.value || !('statusId' in editingItem.value)) return 0;
-  return editingItem.value.statusId;
-});
-
-// Delete confirmation state
-const deleteConfirmOpen = ref(false);
-const deleteConfirmType = ref<'account' | 'institution'>('account');
-const deleteConfirmId = ref(0);
-const deleteConfirmName = ref('');
-
-const credentialModalOpen = ref(false);
-const credentialInstitution = ref<Institution | null>(null);
-const credentials = ref<InstitutionCredential[]>([]);
-const credentialLoading = ref(false);
-const credentialSaving = ref(false);
-const credentialDeletingId = ref<number | null>(null);
-const credentialError = ref<string | null>(null);
-const editingCredential = ref<InstitutionCredential | null>(null);
-
-// Load portfolio on mount
-onMounted(async () => {
-  await Promise.all([loadPortfolio(), loadReferenceData()]);
-});
-const openCreateAccountModal = (): void => {
-  modalType.value = 'create';
-  modalResourceType.value = 'account';
-  editingItem.value = null;
-  modalOpen.value = true;
-};
-
-const openCreateInstitutionModal = (): void => {
-  modalType.value = 'create';
-  modalResourceType.value = 'institution';
-  editingItem.value = null;
-  modalOpen.value = true;
-};
-
-const openEditAccountModal = (account: Account): void => {
-  modalType.value = 'edit';
-  modalResourceType.value = 'account';
-  editingItem.value = account;
-  modalOpen.value = true;
-};
-
-const openEditInstitutionModal = (institution: Institution): void => {
-  modalType.value = 'edit';
-  modalResourceType.value = 'institution';
-  editingItem.value = institution;
-  modalOpen.value = true;
-};
-
-const handleDeleteInstitution = (id: number, name: string): void => {
-  openDeleteConfirm('institution', id, name);
-};
-
-const closeModal = (): void => {
-  modalOpen.value = false;
-  editingItem.value = null;
-};
-
-interface AddAccountSavePayload {
-  name: string;
-  institutionId: number;
-  typeId?: number;
-  statusId?: number;
+interface SavePayload {
+  name: string; institutionId: number;
+  typeId?: number; statusId?: number; openedAt?: string; closedAt?: string;
 }
 
-const handleSave = async (payload: AddAccountSavePayload): Promise<void> => {
+const handleSave = async (payload: SavePayload): Promise<void> => {
   try {
     if (modalResourceType.value === 'account') {
       if (modalType.value === 'create') {
-        const resolvedTypeId = payload.typeId ?? accountTypes.value[0]?.id;
-        const resolvedStatusId = payload.statusId ?? accountStatuses.value[0]?.id;
-        if (!resolvedTypeId || !resolvedStatusId) {
-          state.error = 'Please select a valid account type and status';
-          return;
-        }
-        await createAccount(
-          payload.institutionId,
-          payload.name,
-          resolvedTypeId,
-          resolvedStatusId,
-        );
+        const tId = payload.typeId ?? accountTypes.value[0]?.id;
+        const sId = payload.statusId ?? accountStatuses.value[0]?.id;
+        if (!tId || !sId) { state.error = 'Select valid type and status'; return; }
+        await createAccount(payload.institutionId, payload.name, tId, sId);
       } else if (editingItem.value && 'id' in editingItem.value) {
         await updateAccount(editingItem.value.id, payload.name);
+        await accountCrudService.updateAccountDates(editingItem.value.id, {
+          opened_at: payload.openedAt || null, closed_at: payload.closedAt || null,
+        });
+        await loadPortfolio();
       }
     } else if (modalType.value === 'create') {
       await createInstitution(payload.name);
@@ -263,151 +167,29 @@ const handleSave = async (payload: AddAccountSavePayload): Promise<void> => {
       await updateInstitution(editingItem.value.id, payload.name);
     }
     closeModal();
-  } catch (error) {
-    // Error already set in state
-  }
-};
-
-const openDeleteConfirm = (type: 'account' | 'institution', id: number, name: string): void => {
-  deleteConfirmType.value = type;
-  deleteConfirmId.value = id;
-  deleteConfirmName.value = name;
-  deleteConfirmOpen.value = true;
-};
-
-const closeDeleteConfirm = (): void => {
-  deleteConfirmOpen.value = false;
+  } catch { /* error set in state */ }
 };
 
 const handleConfirmDelete = async (): Promise<void> => {
   try {
-    if (deleteConfirmType.value === 'account') {
-      await deleteAccount(deleteConfirmId.value);
-    } else {
-      await deleteInstitution(deleteConfirmId.value);
-    }
+    if (deleteConfirmType.value === 'account') await deleteAccount(deleteConfirmId.value);
+    else await deleteInstitution(deleteConfirmId.value);
     closeDeleteConfirm();
-  } catch (error) {
-    // Error already set in state
-  }
+  } catch { /* error set in state */ }
 };
 
-const fetchCredentials = async (institutionId: number): Promise<void> => {
-  credentialLoading.value = true;
-  credentialError.value = null;
+const handleUpdateBalance = async (accountId: number, value: string): Promise<void> => {
   try {
-    credentials.value = await institutionCredentialsService.listCredentials(institutionId);
+    await apiService.createAccountEvent(accountId, { event_type: 'balance', value });
+    await loadPortfolio();
   } catch (error) {
-    credentialError.value = error instanceof Error ? error.message : 'Unable to load credentials';
-  } finally {
-    credentialLoading.value = false;
+    state.error = error instanceof Error ? error.message : 'Failed to update balance';
   }
 };
 
-const openCredentialsModal = async (institution: Institution): Promise<void> => {
-  credentialInstitution.value = institution;
-  credentialModalOpen.value = true;
-  editingCredential.value = null;
-  await fetchCredentials(institution.id);
-};
-
-const closeCredentialsModal = (): void => {
-  credentialModalOpen.value = false;
-  credentialInstitution.value = null;
-  credentials.value = [];
-  credentialError.value = null;
-  editingCredential.value = null;
-  credentialDeletingId.value = null;
-};
-
-interface CredentialFormPayload {
-  typeId: number;
-  key: string;
-  value: string;
-}
-
-const handleCredentialSave = async (payload: CredentialFormPayload): Promise<void> => {
-  if (!credentialInstitution.value) return;
-  credentialSaving.value = true;
-  credentialError.value = null;
-  try {
-    if (editingCredential.value) {
-      await institutionCredentialsService.updateCredential(
-        credentialInstitution.value.id,
-        editingCredential.value.id,
-        payload,
-      );
-    } else {
-      await institutionCredentialsService.createCredential(
-        credentialInstitution.value.id,
-        payload,
-      );
-    }
-    await fetchCredentials(credentialInstitution.value.id);
-    editingCredential.value = null;
-  } catch (error) {
-    credentialError.value = error instanceof Error ? error.message : 'Unable to save credential';
-  } finally {
-    credentialSaving.value = false;
-  }
-};
-
-const handleCredentialEdit = (credential: InstitutionCredential): void => {
-  editingCredential.value = credential;
-};
-
-const cancelCredentialEdit = (): void => {
-  editingCredential.value = null;
-};
-
-const handleCredentialDelete = async (credentialId: number): Promise<void> => {
-  if (!credentialInstitution.value) return;
-  credentialDeletingId.value = credentialId;
-  credentialError.value = null;
-  try {
-    await institutionCredentialsService.deleteCredential(
-      credentialInstitution.value.id,
-      credentialId,
-    );
-    await fetchCredentials(credentialInstitution.value.id);
-  } catch (error) {
-    credentialError.value = error instanceof Error ? error.message : 'Unable to delete credential';
-  } finally {
-    credentialDeletingId.value = null;
-  }
-};
-
-const eventsModalOpen = ref(false);
-const eventsTitle = ref('');
-const eventsLoading = ref(false);
-const eventsError = ref<string | undefined>(undefined);
-const events = ref<AccountEvent[]>([]);
-
-const openEventsModal = async (
-  accountId: number,
-  accountName: string,
-  _eventCount: number,
-): Promise<void> => {
-  eventsModalOpen.value = true;
-  eventsTitle.value = `${accountName} · Events`;
-  eventsLoading.value = true;
-  eventsError.value = undefined;
-  events.value = [];
-
-  try {
-    events.value = await apiService.getAccountEvents(accountId);
-  } catch (error) {
-    eventsError.value = error instanceof Error ? error.message : 'Unable to load events';
-  } finally {
-    eventsLoading.value = false;
-  }
-};
-
-const closeEventsModal = (): void => {
-  eventsModalOpen.value = false;
-  events.value = [];
-  eventsError.value = undefined;
+const handleShowEvents = (accountId: number, accountName: string): void => {
+  openEventsModal(accountId, accountName);
 };
 </script>
 
-<style scoped src="@/styles/PortfolioView.css"></style>
+<!-- Uses UnoCSS utilities via shortcuts -->
