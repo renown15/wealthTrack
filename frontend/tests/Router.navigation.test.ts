@@ -3,60 +3,42 @@
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Router } from '../src/router';
+import { authModule } from '../src/modules/auth';
 
 describe('Router - Navigation', () => {
   let viewContainer: HTMLElement;
-  let navHome: HTMLElement;
-  let navRegister: HTMLElement;
-  let navLogin: HTMLElement;
+  let userDisplay: HTMLElement;
+  let userName: HTMLElement;
+  let navLogout: HTMLElement;
 
   beforeEach(() => {
     viewContainer = document.createElement('div');
     viewContainer.id = 'view-container';
     document.body.appendChild(viewContainer);
 
-    navHome = document.createElement('a');
-    navHome.id = 'nav-home';
-    navHome.classList.add('nav-link');
-    document.body.appendChild(navHome);
+    userDisplay = document.createElement('span');
+    userDisplay.id = 'user-display';
+    userDisplay.classList.add('hidden');
+    document.body.appendChild(userDisplay);
 
-    navRegister = document.createElement('a');
-    navRegister.id = 'nav-register';
-    navRegister.classList.add('nav-link');
-    document.body.appendChild(navRegister);
+    userName = document.createElement('span');
+    userName.id = 'user-name';
+    userDisplay.appendChild(userName);
 
-    navLogin = document.createElement('a');
-    navLogin.id = 'nav-login';
-    navLogin.classList.add('nav-link');
-    document.body.appendChild(navLogin);
-
-    const ctaRegister = document.createElement('button');
-    ctaRegister.id = 'cta-register';
-    document.body.appendChild(ctaRegister);
+    navLogout = document.createElement('a');
+    navLogout.id = 'nav-logout';
+    userDisplay.appendChild(navLogout);
   });
 
   afterEach(() => {
     document.body.innerHTML = '';
     vi.clearAllMocks();
+    authModule.clearToken();
   });
 
   it('should initialize router', () => {
     const router = new Router();
     expect(router).toBeDefined();
-  });
-
-  it('should navigate to home page', () => {
-    const router = new Router();
-    router.navigate('home');
-
-    expect(viewContainer.children.length).toBeGreaterThan(0);
-  });
-
-  it('should navigate to register page', () => {
-    const router = new Router();
-    router.navigate('register');
-
-    expect(viewContainer.children.length).toBeGreaterThan(0);
   });
 
   it('should navigate to login page', () => {
@@ -66,19 +48,11 @@ describe('Router - Navigation', () => {
     expect(viewContainer.children.length).toBeGreaterThan(0);
   });
 
-  it('should set active nav link when navigating to home', () => {
+  it('should show user-display as hidden when not authenticated', () => {
     const router = new Router();
-    router.navigate('home');
+    router.navigate('login');
 
-    const activeLink = document.querySelector('.nav-link.active');
-    expect(activeLink).toBeDefined();
-  });
-
-  it('should handle unknown page by loading home', () => {
-    const router = new Router();
-    router.navigate('unknown-page');
-
-    expect(viewContainer.children.length).toBeGreaterThan(0);
+    expect(userDisplay.classList.contains('hidden')).toBeTruthy();
   });
 
   it('should handle navigation via CustomEvent', () => {
@@ -99,60 +73,63 @@ describe('Router - Navigation', () => {
     expect(viewContainer.children.length).toBeGreaterThan(0);
   });
 
-  it('should update nav links on navigation', () => {
+  it('should show user-display when navigating to dashboard', () => {
     const router = new Router();
+    
+    // Set up authenticated state
+    authModule.setToken('test-token');
+    const mockUser = { firstName: 'John', lastName: 'Doe', email: 'john@example.com' };
+    authModule.setUser(mockUser);
 
-    router.navigate('home');
-    let activeLinks = document.querySelectorAll('.nav-link.active');
-    const homeActiveCount = activeLinks.length;
-
-    router.navigate('login');
-    activeLinks = document.querySelectorAll('.nav-link.active');
-    const loginActiveCount = activeLinks.length;
-
-    expect(homeActiveCount).toBe(loginActiveCount);
+    router.navigate('dashboard');
+    
+    expect(userDisplay.classList.contains('hidden')).toBeFalsy();
+    expect(userDisplay.textContent).toContain('John Doe');
   });
 
-  it('should remove active class from previous nav link', () => {
+  it('should hide user-display when navigating to login without auth', () => {
     const router = new Router();
-
-    router.navigate('home');
-    const homeLink = document.querySelector('#nav-home');
-    expect(homeLink?.classList.contains('active')).toBe(true);
+    
+    // Clear auth state
+    authModule.clearToken();
 
     router.navigate('login');
-    expect(homeLink?.classList.contains('active')).toBe(false);
+
+    expect(userDisplay.classList.contains('hidden')).toBeTruthy();
   });
 
-  it('should add active class to current nav link', () => {
+  it('should update user name when user data changes', () => {
     const router = new Router();
+    
+    // Set up authenticated state
+    authModule.setToken('test-token');
+    const mockUser = { firstName: 'Jane', lastName: 'Smith', email: 'jane@example.com' };
+    authModule.setUser(mockUser);
 
-    router.navigate('login');
-    const loginLink = document.querySelector('#nav-login');
-    expect(loginLink?.classList.contains('active')).toBe(true);
+    router.navigate('dashboard');
+
+    expect(userName.textContent).toBe('Jane Smith');
   });
 
-  it('should handle multiple navigations in sequence', () => {
+  it('should handle navigation to login view', () => {
     const router = new Router();
 
-    router.navigate('home');
-    expect(viewContainer.children.length).toBeGreaterThan(0);
-
-    router.navigate('register');
-    expect(viewContainer.children.length).toBeGreaterThan(0);
-
     router.navigate('login');
+
     expect(viewContainer.children.length).toBeGreaterThan(0);
   });
 
-  it('should handle rapid navigation changes', () => {
+  it('should handle navigation to dashboard view when authenticated', () => {
     const router = new Router();
+    
+    // Set up authenticated state
+    authModule.setToken('test-token');
+    authModule.setUser({ firstName: 'Test', lastName: 'User', email: 'test@example.com' });
 
-    router.navigate('home');
-    router.navigate('login');
-    router.navigate('register');
-    router.navigate('home');
+    // Navigate to dashboard - should not redirect back to login
+    router.navigate('dashboard');
 
-    expect(viewContainer.children.length).toBeGreaterThan(0);
+    // Header should show user display
+    expect(userDisplay.classList.contains('hidden')).toBeFalsy();
   });
 });

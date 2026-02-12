@@ -22,7 +22,7 @@ import type {
   InstitutionCredential,
   InstitutionCredentialCreate,
   InstitutionCredentialUpdate,
-} from '@models/Portfolio';
+} from '@models/WealthTrackDataModels';
 import axios, { type AxiosInstance } from 'axios';
 import { authService } from '@services/AuthService';
 import { portfolioFetchService } from '@services/PortfolioFetchService';

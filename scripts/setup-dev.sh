@@ -126,6 +126,19 @@ else
 fi
 
 echo ""
+
+# Seed reference data
+echo "🌱 Seeding reference data..."
+echo "----------------------------"
+
+cd "$ROOT_DIR"
+DB_HOST=localhost DB_PORT=${DB_PORT:-5433} DB_USER=${DB_USER:-wealthtrack} \
+    DB_PASSWORD=${DB_PASSWORD:-wealthtrack_dev_password} DB_NAME=${DB_NAME:-wealthtrack} \
+    python scripts/seed-db.py
+
+echo "✅ Reference data seeded"
+
+echo ""
 echo "✅ Development environment setup complete!"
 echo ""
 echo "📝 Next Steps:"
@@ -160,7 +173,10 @@ echo "     cd frontend"
 echo "     npm run lint"
 echo "     npm run type-check"
 echo ""
-echo "5. Create a Feature Branch:"
+echo "5. Re-seed Reference Data (if needed):"
+echo "   python scripts/seed-db.py"
+echo ""
+echo "6. Create a Feature Branch:"
 echo "   git checkout -b feature/your-feature-name"
 echo ""
 echo "For more details, see CONTRIBUTING.md"

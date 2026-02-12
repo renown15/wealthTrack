@@ -15,7 +15,7 @@ class AccountEventCreate(BaseSchema):
 
 
 class AccountEventResponse(BaseSchema):
-    """Schema representing a single account event for API responses."""
+    """Schema representing a single account event or attribute for API responses."""
 
     id: int
     account_id: int
@@ -24,3 +24,4 @@ class AccountEventResponse(BaseSchema):
     value: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
+    source: str = "event"  # "event" or "attribute"

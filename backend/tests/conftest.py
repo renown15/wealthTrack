@@ -59,27 +59,27 @@ async def db_session(test_engine: AsyncEngine) -> AsyncGenerator[AsyncSession, N
         # Add default ReferenceData entries for tests
         ref_data_entries = [
             # User types
-            ReferenceData(class_key="user_type:user", reference_value="User", sort_index=1),
-            ReferenceData(class_key="user_type:superuser", reference_value="SuperUser", sort_index=2),
+            ReferenceData(class_key="user_type", reference_value="User", sort_index=1),
+            ReferenceData(class_key="user_type", reference_value="SuperUser", sort_index=2),
             # Account types
-            ReferenceData(class_key="account_type:checking", reference_value="Checking Account", sort_index=1),
-            ReferenceData(class_key="account_type:savings", reference_value="Savings Account", sort_index=2),
-            ReferenceData(class_key="account_type:stocks_isa", reference_value="Stocks ISA", sort_index=3),
-            ReferenceData(class_key="account_type:sipp", reference_value="SIPP", sort_index=4),
-            ReferenceData(class_key="account_type:credit_card", reference_value="Credit Card", sort_index=5),
+            ReferenceData(class_key="account_type", reference_value="Checking Account", sort_index=1),
+            ReferenceData(class_key="account_type", reference_value="Savings Account", sort_index=2),
+            ReferenceData(class_key="account_type", reference_value="Stocks ISA", sort_index=3),
+            ReferenceData(class_key="account_type", reference_value="SIPP", sort_index=4),
+            ReferenceData(class_key="account_type", reference_value="Credit Card", sort_index=5),
             # Account statuses
-            ReferenceData(class_key="account_status:active", reference_value="Active", sort_index=1),
-            ReferenceData(class_key="account_status:closed", reference_value="Closed", sort_index=2),
-            ReferenceData(class_key="account_status:dormant", reference_value="Dormant", sort_index=3),
+            ReferenceData(class_key="account_status", reference_value="Active", sort_index=1),
+            ReferenceData(class_key="account_status", reference_value="Closed", sort_index=2),
+            ReferenceData(class_key="account_status", reference_value="Dormant", sort_index=3),
             # Event types
-            ReferenceData(class_key="event_type:balance_update", reference_value="Balance Update", sort_index=1),
-            ReferenceData(class_key="event_type:transaction", reference_value="Transaction", sort_index=2),
+            ReferenceData(class_key="event_type", reference_value="Balance Update", sort_index=1),
+            ReferenceData(class_key="event_type", reference_value="Transaction", sort_index=2),
             # Credential types
-            ReferenceData(class_key="credential_type:username", reference_value="Username", sort_index=1),
-            ReferenceData(class_key="credential_type:password", reference_value="Password", sort_index=2),
-            ReferenceData(class_key="credential_type:security_question", reference_value="Security Question", sort_index=3),
-            ReferenceData(class_key="credential_type:mother_maiden", reference_value="Mother's Maiden Name", sort_index=4),
-            ReferenceData(class_key="credential_type:phone_pin", reference_value="Phone PIN", sort_index=5),
+            ReferenceData(class_key="credential_type", reference_value="Username", sort_index=1),
+            ReferenceData(class_key="credential_type", reference_value="Password", sort_index=2),
+            ReferenceData(class_key="credential_type", reference_value="Security Question", sort_index=3),
+            ReferenceData(class_key="credential_type", reference_value="Mother's Maiden Name", sort_index=4),
+            ReferenceData(class_key="credential_type", reference_value="Phone PIN", sort_index=5),
             # Account attribute types
             ReferenceData(class_key="account_attribute_type", reference_value="Account Opened Date", sort_index=1),
             ReferenceData(class_key="account_attribute_type", reference_value="Account Closed Date", sort_index=2),
@@ -112,20 +112,21 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
 @pytest.fixture(scope="function")
 async def user(db_session: AsyncSession) -> UserProfile:
     """Create a test user profile."""
-    # Get the first user_type:user reference data entry
+    # Get the first user_type reference data entry (User)
     from sqlalchemy import select
 
     result = await db_session.execute(
         select(ReferenceData).where(
-            ReferenceData.class_key == "user_type:user"
+            ReferenceData.class_key == "user_type",
+            ReferenceData.reference_value == "User"
         )
     )
     user_type_ref = result.scalar_one_or_none()
-    
+
     if not user_type_ref:
         # If not found (shouldn't happen), create one
         user_type_ref = ReferenceData(
-            class_key="user_type:user",
+            class_key="user_type",
             reference_value="User",
             sort_index=1
         )

@@ -1,4 +1,4 @@
-import type { InstitutionCredential, InstitutionCredentialCreate, InstitutionCredentialUpdate } from '@/models/Portfolio';
+import type { InstitutionCredential, InstitutionCredentialCreate, InstitutionCredentialUpdate } from '@/models/WealthTrackDataModels';
 import { BaseApiClient } from '@services/BaseApiClient';
 
 class InstitutionCredentialService extends BaseApiClient {

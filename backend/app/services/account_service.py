@@ -37,6 +37,6 @@ class AccountService:
         if not account:
             raise ValueError(f"Account {account_id} not found")
 
-        await self.session.delete(account)
+        self.session.delete(account)  # type: ignore
         await self.session.flush()
         return True

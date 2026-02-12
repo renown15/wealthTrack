@@ -1,7 +1,7 @@
 /**
  * Institution service for CRUD operations on financial institutions.
  */
-import type { Institution, InstitutionCreateRequest, InstitutionUpdateRequest } from '@models/Portfolio';
+import type { Institution, InstitutionCreateRequest, InstitutionUpdateRequest } from '@models/WealthTrackDataModels';
 import { BaseApiClient } from '@services/BaseApiClient';
 
 class InstitutionCrudService extends BaseApiClient {

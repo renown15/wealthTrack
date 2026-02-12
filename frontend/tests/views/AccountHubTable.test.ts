@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
 import AccountHubTable from '@/views/AccountHub/AccountHubTable.vue';
-import type { PortfolioItem, Account, Institution, AccountEvent } from '@/models/Portfolio';
+import type { PortfolioItem, Account, Institution, AccountEvent } from '@/models/WealthTrackDataModels';
 
 describe('AccountHubTable', () => {
   const mockItems: PortfolioItem[] = [

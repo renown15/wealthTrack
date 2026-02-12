@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.controllers.dependencies import get_current_user
 from app.database import get_db
 from app.models.user_profile import UserProfile
+from app.repositories.account_attribute_repository import AccountAttributeRepository
 from app.repositories.account_event_repository import AccountEventRepository
 from app.repositories.account_repository import AccountRepository
 from app.schemas.account_event import AccountEventCreate, AccountEventResponse
@@ -17,7 +18,7 @@ async def list_account_events(
     session: AsyncSession = Depends(get_db),
     current_user: UserProfile = Depends(get_current_user),
 ) -> list[AccountEventResponse]:
-    """Return the event timeline for the requested account."""
+    """Return the event timeline for the requested account, including attributes."""
     account_repo = AccountRepository(session)
     account = await account_repo.get_by_id(account_id, current_user.id)
     if not account:
@@ -26,9 +27,34 @@ async def list_account_events(
             detail="Account not found",
         )
 
+    # Fetch events
     event_repo = AccountEventRepository(session)
     events = await event_repo.list_events(account_id, current_user.id)
-    return [AccountEventResponse(**event) for event in events]
+    event_responses = [
+        AccountEventResponse(**event, source="event") for event in events
+    ]
+
+    # Fetch attributes and convert to event-like format
+    attr_repo = AccountAttributeRepository(session)
+    attributes = await attr_repo.get_all_attributes(account_id, current_user.id)
+    attr_responses = [
+        AccountEventResponse(
+            id=attr["id"],
+            account_id=attr["account_id"],
+            user_id=current_user.id,
+            event_type=attr["type_label"],
+            value=attr["value"],
+            created_at=attr["created_at"],
+            updated_at=attr["updated_at"],
+            source="attribute",
+        )
+        for attr in attributes
+    ]
+
+    # Merge and sort by created_at descending (newest first)
+    combined = event_responses + attr_responses
+    combined.sort(key=lambda x: x.created_at, reverse=True)
+    return combined
 
 
 async def create_account_event(

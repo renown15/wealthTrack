@@ -1,5 +1,5 @@
 <template>
-  <div v-if="open" class="modal-overlay" @click.self="emitClose">
+  <div v-if="open" class="modal-overlay" @mousedown.self="emitClose">
     <div class="modal-content" @click.stop>
       <header class="modal-header">
         <h2 class="modal-title">Confirm Delete</h2>
@@ -14,7 +14,7 @@
       </div>
 
       <footer class="modal-footer">
-        <button class="btn-secondary" @click="emitClose">Cancel</button>
+        <button class="btn-modal-secondary" @click="emitClose">Cancel</button>
         <button class="btn-danger" @click="emitConfirm">Delete</button>
       </footer>
     </div>

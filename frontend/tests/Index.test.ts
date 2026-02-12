@@ -27,15 +27,18 @@ Object.defineProperty(window, 'localStorage', {
 // Mock Router before importing index
 const mockNavigate = vi.fn().mockResolvedValue(undefined);
 const mockSetupNavigation = vi.fn();
+const mockUpdateHeaderDisplay = vi.fn();
 const mockRouter = {
   navigate: mockNavigate,
   setupNavigation: mockSetupNavigation,
+  updateHeaderDisplay: mockUpdateHeaderDisplay,
 };
 
 vi.mock('../src/router', () => ({
   Router: class MockRouter {
     navigate = mockNavigate;
     setupNavigation = mockSetupNavigation;
+    updateHeaderDisplay = mockUpdateHeaderDisplay;
   },
   getRouter: () => mockRouter,
 }));
@@ -68,13 +71,13 @@ describe('Application Index', () => {
     expect(typeof module.initializeApp).toBe('function');
   });
 
-  it('should initialize router and navigate to home', async () => {
+  it('should initialize router and navigate to login when not authenticated', async () => {
     const { initializeApp } = await import('../src/index');
     mockNavigate.mockClear();
 
     await initializeApp();
 
-    expect(mockNavigate).toHaveBeenCalledWith('home');
+    expect(mockNavigate).toHaveBeenCalledWith('login');
   });
 
   it('should create Router instance', async () => {
@@ -116,14 +119,14 @@ describe('Application Index', () => {
     expect(Router).toBeDefined();
   });
 
-  it('should handle Router navigate with home parameter', async () => {
+  it('should handle Router navigate with login parameter', async () => {
     const { initializeApp } = await import('../src/index');
     mockNavigate.mockClear();
 
     await initializeApp();
 
-    expect(mockNavigate).toHaveBeenCalledWith('home');
-    expect(mockNavigate).not.toHaveBeenCalledWith('login');
+    expect(mockNavigate).toHaveBeenCalledWith('login');
+    expect(mockNavigate).not.toHaveBeenCalledWith('home');
     expect(mockNavigate).not.toHaveBeenCalledWith('register');
   });
 });

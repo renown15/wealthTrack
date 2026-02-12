@@ -3,7 +3,7 @@ import { mount, flushPromises } from '@vue/test-utils';
 import { reactive, computed } from 'vue';
 import AccountHub from '@views/AccountHub/AccountHub.vue';
 import { apiService } from '@/services/ApiService';
-import type { PortfolioItem, Institution, AccountEvent } from '@/models/Portfolio';
+import type { PortfolioItem, Institution, AccountEvent } from '@/models/WealthTrackDataModels';
 
 type AccountHubVm = {
   modalOpen: boolean;

@@ -8,6 +8,12 @@ export interface AccountFormData {
   statusId: number;
   openedAt: string;
   closedAt: string;
+  accountNumber: string;
+  sortCode: string;
+  rollRefNumber: string;
+  interestRate: string;
+  fixedBonusRate: string;
+  fixedBonusRateEndDate: string;
 }
 
 export interface AccountFormProps {
@@ -19,6 +25,12 @@ export interface AccountFormProps {
   initialStatusId?: number;
   initialOpenedAt?: string | null;
   initialClosedAt?: string | null;
+  initialAccountNumber?: string | null;
+  initialSortCode?: string | null;
+  initialRollRefNumber?: string | null;
+  initialInterestRate?: string | null;
+  initialFixedBonusRate?: string | null;
+  initialFixedBonusRateEndDate?: string | null;
   accountTypes: ReferenceDataItem[];
   accountStatuses: ReferenceDataItem[];
 }
@@ -31,6 +43,12 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     statusId: props.value.initialStatusId || 0,
     openedAt: props.value.initialOpenedAt || '',
     closedAt: props.value.initialClosedAt || '',
+    accountNumber: props.value.initialAccountNumber || '',
+    sortCode: props.value.initialSortCode || '',
+    rollRefNumber: props.value.initialRollRefNumber || '',
+    interestRate: props.value.initialInterestRate || '',
+    fixedBonusRate: props.value.initialFixedBonusRate || '',
+    fixedBonusRateEndDate: props.value.initialFixedBonusRateEndDate || '',
   });
 
   const syncAccountType = (): void => {
@@ -80,6 +98,12 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     formData.value.statusId = props.value.initialStatusId || 0;
     formData.value.openedAt = props.value.initialOpenedAt || '';
     formData.value.closedAt = props.value.initialClosedAt || '';
+    formData.value.accountNumber = props.value.initialAccountNumber || '';
+    formData.value.sortCode = props.value.initialSortCode || '';
+    formData.value.rollRefNumber = props.value.initialRollRefNumber || '';
+    formData.value.interestRate = props.value.initialInterestRate || '';
+    formData.value.fixedBonusRate = props.value.initialFixedBonusRate || '';
+    formData.value.fixedBonusRateEndDate = props.value.initialFixedBonusRateEndDate || '';
     syncAccountType();
     syncAccountStatus();
   };

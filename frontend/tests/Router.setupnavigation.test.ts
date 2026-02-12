@@ -11,24 +11,14 @@ vi.mock('@controllers/PortfolioController', () => ({
   })),
 }));
 
-vi.mock('@controllers/LoginController', () => ({
-  LoginController: vi.fn().mockImplementation(() => ({
-    init: vi.fn(),
-  })),
-}));
-
-vi.mock('@controllers/RegistrationController', () => ({
-  RegistrationController: vi.fn().mockImplementation(() => ({
-    init: vi.fn(),
-  })),
-}));
-
 vi.mock('@modules/auth', () => ({
   authModule: {
     isAuthenticated: vi.fn(() => false),
     setToken: vi.fn(),
     clearToken: vi.fn(),
     getToken: vi.fn(() => null),
+    getUser: vi.fn(() => null),
+    setUser: vi.fn(),
     init: vi.fn(),
   },
 }));
@@ -42,24 +32,6 @@ describe('Router - setupNavigation click preventDefault', () => {
     viewContainer.id = 'view-container';
     document.body.appendChild(viewContainer);
 
-    const navHome = document.createElement('a');
-    navHome.id = 'nav-home';
-    navHome.classList.add('nav-link');
-    navHome.href = '#';
-    document.body.appendChild(navHome);
-
-    const navRegister = document.createElement('a');
-    navRegister.id = 'nav-register';
-    navRegister.classList.add('nav-link');
-    navRegister.href = '#';
-    document.body.appendChild(navRegister);
-
-    const navLogin = document.createElement('a');
-    navLogin.id = 'nav-login';
-    navLogin.classList.add('nav-link');
-    navLogin.href = '#';
-    document.body.appendChild(navLogin);
-
     const navDashboard = document.createElement('a');
     navDashboard.id = 'nav-dashboard';
     navDashboard.classList.add('nav-link');
@@ -72,17 +44,14 @@ describe('Router - setupNavigation click preventDefault', () => {
     navPortfolio.href = '#';
     document.body.appendChild(navPortfolio);
 
-    const goToRegister = document.createElement('button');
-    goToRegister.id = 'go-to-register';
-    document.body.appendChild(goToRegister);
+    const userDisplay = document.createElement('span');
+    userDisplay.id = 'user-display';
+    document.body.appendChild(userDisplay);
 
-    const goToLogin = document.createElement('button');
-    goToLogin.id = 'go-to-login';
-    document.body.appendChild(goToLogin);
-
-    const ctaRegister = document.createElement('button');
-    ctaRegister.id = 'cta-register';
-    document.body.appendChild(ctaRegister);
+    const navLogout = document.createElement('a');
+    navLogout.id = 'nav-logout';
+    navLogout.href = '#';
+    userDisplay.appendChild(navLogout);
 
     router = new Router();
     router.setupNavigation();
@@ -93,34 +62,22 @@ describe('Router - setupNavigation click preventDefault', () => {
     vi.clearAllMocks();
   });
 
-  it('should handle nav-home click with preventDefault', () => {
-    const navHome = document.getElementById('nav-home') as HTMLElement;
+  it('should handle nav-logout click with preventDefault', () => {
+    const navLogout = document.getElementById('nav-logout') as HTMLElement;
     const clickEvent = new MouseEvent('click', { bubbles: true });
     const preventDefaultSpy = vi.spyOn(clickEvent, 'preventDefault');
 
-    navHome.dispatchEvent(clickEvent);
+    navLogout.dispatchEvent(clickEvent);
 
     expect(preventDefaultSpy).toHaveBeenCalled();
   });
 
-  it('should handle nav-register click with preventDefault', () => {
-    const navRegister = document.getElementById('nav-register') as HTMLElement;
-    const clickEvent = new MouseEvent('click', { bubbles: true });
-    const preventDefaultSpy = vi.spyOn(clickEvent, 'preventDefault');
+  it('should clear token when nav-logout is clicked', () => {
+    const navLogout = document.getElementById('nav-logout') as HTMLElement;
+    
+    navLogout.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
-    navRegister.dispatchEvent(clickEvent);
-
-    expect(preventDefaultSpy).toHaveBeenCalled();
-  });
-
-  it('should handle nav-login click with preventDefault', () => {
-    const navLogin = document.getElementById('nav-login') as HTMLElement;
-    const clickEvent = new MouseEvent('click', { bubbles: true });
-    const preventDefaultSpy = vi.spyOn(clickEvent, 'preventDefault');
-
-    navLogin.dispatchEvent(clickEvent);
-
-    expect(preventDefaultSpy).toHaveBeenCalled();
+    expect(authModule.clearToken).toHaveBeenCalled();
   });
 
   it('should handle nav-portfolio click with preventDefault', () => {
@@ -139,36 +96,6 @@ describe('Router - setupNavigation click preventDefault', () => {
     const preventDefaultSpy = vi.spyOn(clickEvent, 'preventDefault');
 
     navDashboard.dispatchEvent(clickEvent);
-
-    expect(preventDefaultSpy).toHaveBeenCalled();
-  });
-
-  it('should handle go-to-register button click', () => {
-    const goToRegister = document.getElementById('go-to-register') as HTMLElement;
-    const clickEvent = new MouseEvent('click', { bubbles: true });
-    const preventDefaultSpy = vi.spyOn(clickEvent, 'preventDefault');
-
-    goToRegister.dispatchEvent(clickEvent);
-
-    expect(preventDefaultSpy).toHaveBeenCalled();
-  });
-
-  it('should handle go-to-login button click', () => {
-    const goToLogin = document.getElementById('go-to-login') as HTMLElement;
-    const clickEvent = new MouseEvent('click', { bubbles: true });
-    const preventDefaultSpy = vi.spyOn(clickEvent, 'preventDefault');
-
-    goToLogin.dispatchEvent(clickEvent);
-
-    expect(preventDefaultSpy).toHaveBeenCalled();
-  });
-
-  it('should handle cta-register button click', () => {
-    const ctaRegister = document.getElementById('cta-register') as HTMLElement;
-    const clickEvent = new MouseEvent('click', { bubbles: true });
-    const preventDefaultSpy = vi.spyOn(clickEvent, 'preventDefault');
-
-    ctaRegister.dispatchEvent(clickEvent);
 
     expect(preventDefaultSpy).toHaveBeenCalled();
   });

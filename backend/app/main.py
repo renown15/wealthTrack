@@ -16,8 +16,7 @@ from app.controllers.institution_security_credentials import (
 )
 from app.controllers.portfolio import router as portfolio_router
 from app.controllers.reference_data import router as reference_data_router
-from app.database import Base, async_session_maker, engine
-from app.services.reference_data import seed_reference_data
+from app.database import engine
 
 
 @asynccontextmanager
@@ -26,14 +25,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     Application lifespan context manager.
     Handles startup and shutdown events.
     """
-    # Startup: Create database tables
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-    # Seed reference data so foreign keys have valid defaults
-    async with async_session_maker() as session:
-        await seed_reference_data(session)
-
+    # Database tables and reference data are created and managed by Alembic migrations
     yield
 
     # Shutdown: Close database connections

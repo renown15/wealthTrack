@@ -4,7 +4,7 @@ import { mount } from '@vue/test-utils';
 import AccountHub from '@views/AccountHub/AccountHub.vue';
 import * as usePortfolioModule from '@/composables/usePortfolio';
 import type { PortfolioState } from '@/composables/usePortfolio';
-import type { Account, AccountEvent, Institution, PortfolioItem } from '@/models/Portfolio';
+import type { Account, AccountEvent, Institution, PortfolioItem } from '@/models/WealthTrackDataModels';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 
 const mockGetReferenceData = vi.fn<[string], Promise<ReferenceDataItem[]>>();

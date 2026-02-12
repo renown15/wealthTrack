@@ -1,10 +1,11 @@
 import { ref, type Ref } from 'vue';
-import type { Institution } from '@/models/Portfolio';
+import type { Institution } from '@/models/WealthTrackDataModels';
 import type { InstitutionCredential } from '@/models/InstitutionCredential';
 import { institutionCredentialsService } from '@/services/InstitutionCredentialsService';
 
 export interface CredentialFormPayload {
   typeId: number;
+  key?: string;
   value: string;
 }
 

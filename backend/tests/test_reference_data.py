@@ -60,8 +60,9 @@ async def test_reference_data_endpoint_returns_payload(client: AsyncClient) -> N
     assert payload
 
     class_keys = [item["classKey"] for item in payload]
-    assert all(key.startswith("account_type") for key in class_keys)
-    assert "account_type:checking" in class_keys
+    assert all(key == "account_type" for key in class_keys)
+    reference_values = [item["referenceValue"] for item in payload]
+    assert "Checking Account" in reference_values
 
     ordered = sorted(
         payload,
@@ -76,3 +77,104 @@ async def test_reference_data_endpoint_handles_missing_class(client: AsyncClient
     response = await client.get("/api/v1/reference-data/nonexistent_class")
     assert response.status_code == 200
     assert response.json() == []
+
+
+@pytest.mark.asyncio
+async def test_list_all_reference_data_endpoint(client: AsyncClient) -> None:
+    """GET /api/v1/reference-data returns all reference data entries."""
+    response = await client.get("/api/v1/reference-data")
+    assert response.status_code == 200
+    payload = response.json()
+    assert isinstance(payload, list)
+    assert len(payload) > 0
+    assert all("classKey" in item for item in payload)
+
+
+@pytest.mark.asyncio
+async def test_create_reference_data_endpoint(client: AsyncClient) -> None:
+    """POST /api/v1/reference-data creates a new reference data entry."""
+    payload = {
+        "classKey": "test_class",
+        "referenceValue": "test_value",
+        "sortIndex": 1,
+    }
+    response = await client.post("/api/v1/reference-data", json=payload)
+    assert response.status_code == 201
+    data = response.json()
+    assert data["classKey"] == "test_class"
+    assert data["referenceValue"] == "test_value"
+    assert data["sortIndex"] == 1
+    assert "id" in data
+
+
+@pytest.mark.asyncio
+async def test_update_reference_data_endpoint(client: AsyncClient) -> None:
+    """PUT /api/v1/reference-data/{id} updates an existing entry."""
+    # Create an entry first
+    create_payload = {
+        "classKey": "test_class_update",
+        "referenceValue": "original_value",
+        "sortIndex": 0,
+    }
+    create_response = await client.post("/api/v1/reference-data", json=create_payload)
+    assert create_response.status_code == 201
+    entry_id = create_response.json()["id"]
+
+    # Update it
+    update_payload = {
+        "classKey": "test_class_update",
+        "referenceValue": "updated_value",
+        "sortIndex": 2,
+    }
+    update_response = await client.put(
+        f"/api/v1/reference-data/{entry_id}",
+        json=update_payload,
+    )
+    assert update_response.status_code == 200
+    data = update_response.json()
+    assert data["referenceValue"] == "updated_value"
+    assert data["sortIndex"] == 2
+
+
+@pytest.mark.asyncio
+async def test_update_reference_data_not_found(client: AsyncClient) -> None:
+    """PUT /api/v1/reference-data/{id} returns 404 when entry doesn't exist."""
+    update_payload = {
+        "classKey": "test_class",
+        "referenceValue": "value",
+    }
+    response = await client.put(
+        "/api/v1/reference-data/99999",
+        json=update_payload,
+    )
+    assert response.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_delete_reference_data_endpoint(client: AsyncClient) -> None:
+    """DELETE /api/v1/reference-data/{id} deletes an entry."""
+    # Create an entry
+    create_payload = {
+        "classKey": "test_class_delete",
+        "referenceValue": "value_to_delete",
+    }
+    create_response = await client.post("/api/v1/reference-data", json=create_payload)
+    assert create_response.status_code == 201
+    entry_id = create_response.json()["id"]
+
+    # Delete it
+    delete_response = await client.delete(f"/api/v1/reference-data/{entry_id}")
+    assert delete_response.status_code == 204
+
+    # Verify it's gone (list all and check)
+    list_response = await client.get("/api/v1/reference-data")
+    all_entries = list_response.json()
+    assert not any(item["id"] == entry_id for item in all_entries)
+
+
+@pytest.mark.asyncio
+async def test_delete_reference_data_not_found(client: AsyncClient) -> None:
+    """DELETE /api/v1/reference-data/{id} returns 404 when entry doesn't exist."""
+    response = await client.delete("/api/v1/reference-data/99999")
+    assert response.status_code == 404
+

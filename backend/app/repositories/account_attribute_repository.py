@@ -29,6 +29,8 @@ class AccountAttributeRepository:
             "closed_date": "Account Closed Date",
             "account_number": "Account Number",
             "sort_code": "Sort Code",
+            "roll_ref_number": "Roll / Ref Number",
+            "interest_rate": "Interest Rate",
             "iban": "IBAN",
             "notes": "Notes",
         }
@@ -100,7 +102,7 @@ class AccountAttributeRepository:
         """Delete an attribute."""
         existing = await self.get_attribute(account_id, user_id, type_id)
         if existing:
-            await self.session.delete(existing)
+            self.session.delete(existing)  # type: ignore
             await self.session.flush()
             return True
         return False
@@ -138,4 +140,17 @@ class AccountAttributeRepository:
         return {
             "openedAt": opened,
             "closedAt": closed,
+        }
+
+    async def get_banking_details_for_account(
+        self, account_id: int, user_id: int
+    ) -> dict[str, Optional[str]]:
+        """Get banking details (account number, sort code, and roll/ref number) for an account."""
+        account_number = await self.get_attribute_by_name(account_id, user_id, "account_number")
+        sort_code = await self.get_attribute_by_name(account_id, user_id, "sort_code")
+        roll_ref = await self.get_attribute_by_name(account_id, user_id, "roll_ref_number")
+        return {
+            "accountNumber": account_number,
+            "sortCode": sort_code,
+            "rollRefNumber": roll_ref,
         }

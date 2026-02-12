@@ -1,8 +1,11 @@
 """
 Service for institution business logic and mutations.
 """
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.account import Account
+from app.models.institution_security_credentials import InstitutionSecurityCredentials
 from app.repositories.institution_repository import InstitutionRepository
 
 
@@ -26,11 +29,22 @@ class InstitutionService:
         return True
 
     async def delete(self, institution_id: int, user_id: int) -> bool:
-        """Delete institution. Returns True if successful."""
+        """Delete institution and all related records. Returns True if successful."""
         institution = await self.repository.get_by_id(institution_id, user_id)
         if not institution:
             raise ValueError(f"Institution {institution_id} not found")
 
-        await self.session.delete(institution)
+        # Delete all security credentials for this institution first
+        cred_stmt = delete(InstitutionSecurityCredentials).where(
+            InstitutionSecurityCredentials.institution_id == institution_id
+        )
+        await self.session.execute(cred_stmt)
+
+        # Then delete all accounts for this institution
+        account_stmt = delete(Account).where(Account.institution_id == institution_id)
+        await self.session.execute(account_stmt)
+
+        # Finally delete the institution itself
+        self.session.delete(institution)  # type: ignore
         await self.session.flush()
         return True

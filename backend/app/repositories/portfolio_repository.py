@@ -71,17 +71,33 @@ class PortfolioRepository:
             # Get opened/closed dates from AccountAttribute
             attr_repo = AccountAttributeRepository(self.session)
             dates = await attr_repo.get_dates_for_account(account.id, user_id)
+            banking_details = await attr_repo.get_banking_details_for_account(account.id, user_id)
+            interest_rate = await attr_repo.get_attribute_by_name(account.id, user_id, "interest_rate")
 
             account_payload = AccountResponse.model_validate(account).model_dump(by_alias=True)
             # Add dates from AccountAttribute
             account_payload["openedAt"] = dates.get("openedAt")
             account_payload["closedAt"] = dates.get("closedAt")
+            # Add banking details from AccountAttribute
+            account_payload["accountNumber"] = banking_details.get("accountNumber")
+            account_payload["sortCode"] = banking_details.get("sortCode")
+            account_payload["rollRefNumber"] = banking_details.get("rollRefNumber")
+            # Add interest rate from AccountAttribute
+            account_payload["interestRate"] = interest_rate
 
             institution_payload = (
                 InstitutionResponse.model_validate(account.institution).model_dump(by_alias=True)
                 if account.institution
                 else None
             )
+            
+            # Load parent institution if exists
+            if institution_payload and account.institution:
+                from app.repositories.institution_group_repository import InstitutionGroupRepository
+                group_repo = InstitutionGroupRepository(self.session)
+                parent_group = await group_repo.get_parent_for_child(account.institution.id, user_id)
+                if parent_group:
+                    institution_payload["parentId"] = parent_group.parent_institution_id
 
             # Build latest balance payload manually since we need to resolve type_id to event_type
             latest_balance_payload = None

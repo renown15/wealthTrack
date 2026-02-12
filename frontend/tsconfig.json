@@ -23,6 +23,7 @@
     "types": ["vitest/globals", "vite/client"],
     "paths": {
       "@/*": ["src/*"],
+      "@components/*": ["src/components/*"],
       "@controllers/*": ["src/controllers/*"],
       "@services/*": ["src/services/*"],
       "@views/*": ["src/views/*"],

@@ -6,6 +6,11 @@ export default defineConfig({
     'btn-icon-edit',
     'btn-icon-delete',
     'btn-pill-primary',
+    'max-w-md',
+    'min-h-screen',
+    'flex',
+    'items-center',
+    'justify-center',
   ],
   theme: {
     colors: {
@@ -35,7 +40,7 @@ export default defineConfig({
     'brand-stack': 'flex flex-col',
     'logo': 'm-0 text-white text-xl font-bold tracking-wide',
     'tagline': 'm-0 text-white/70 text-xs tracking-[0.25em] uppercase',
-    'nav': 'flex gap-3',
+    'nav': 'flex items-center gap-3',
     'nav-link': 'px-4 py-2 rounded-md text-white/90 no-underline text-xs font-semibold tracking-wider uppercase hover:bg-white/10 transition-all',
     'main': 'flex-1',
     'main-inner': 'max-w-[1200px] mx-auto py-6 px-4',
@@ -43,8 +48,9 @@ export default defineConfig({
 
     // Buttons
     'btn': 'inline-flex items-center justify-center gap-2 rounded-md border-1.5 border-white/50 px-5 py-2.5 text-xs font-semibold tracking-widest uppercase cursor-pointer transition-opacity hover:opacity-90',
-    'btn-primary': 'btn bg-white text-primary-dark',
+    'btn-primary': 'btn bg-primary text-white',
     'btn-secondary': 'btn bg-transparent text-white',
+    'btn-modal-secondary': 'inline-flex items-center justify-center gap-2 rounded-md border-1.5 border-gray-300 px-5 py-2.5 text-xs font-semibold tracking-widest uppercase cursor-pointer transition-opacity hover:opacity-90 bg-gray-100 text-text-dark hover:bg-gray-200',
     'btn-danger': 'btn bg-red-500/90 text-white border-red-400 hover:bg-red-500',
     'btn-add': 'btn bg-primary text-white border-primary shadow-[0_12px_30px_rgba(15,76,252,0.4)] hover:translate-y-[-1px]',
     'btn-link': 'border-none bg-transparent text-primary font-semibold cursor-pointer',
@@ -55,8 +61,8 @@ export default defineConfig({
 
     // Layout
     'page-view': 'min-h-screen bg-surface px-6 py-4 pb-16 flex flex-col items-center gap-6',
-    'hub-header-card': 'w-full max-w-[1200px] rounded-[24px] overflow-hidden shadow-card',
-    'hub-content-card': 'w-full max-w-[1200px] bg-card rounded-[24px] overflow-hidden shadow-card',
+    'hub-header-card': 'w-[1600px] rounded-[24px] overflow-hidden shadow-card',
+    'hub-content-card': 'w-[1600px] bg-card rounded-[24px] overflow-visible shadow-card',
 
     // Header panel (blue gradient header)
     'header-panel': 'bg-gradient-to-br from-primary to-primary-dark p-10 flex flex-col gap-8',
@@ -72,10 +78,10 @@ export default defineConfig({
     'stat-value': 'mt-2 text-2xl font-bold',
 
     // Table
-    'table-wrap': 'rounded-xl overflow-hidden border border-border',
-    'data-table': 'w-full border-collapse min-w-[640px] bg-card',
-    'table-header': 'text-sm tracking-[0.3em] uppercase text-muted',
-    'table-cell': 'p-4 border-b border-border text-text-dark',
+    'table-wrap': 'rounded-xl border border-border',
+    'data-table': 'border-collapse bg-card table-auto w-full',
+    'table-header': 'text-sm tracking-[0.3em] uppercase text-muted whitespace-nowrap',
+    'table-cell': 'p-4 border-b border-border text-text-dark whitespace-nowrap',
     'table-row-hover': 'hover:bg-blue-50',
     'actions-col': 'flex justify-end gap-2',
 

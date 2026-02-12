@@ -14,19 +14,19 @@ from app.models import (  # type: ignore[import-not-found]
     AccountAttribute,
     AccountEvent,
     Institution,
+    InstitutionGroup,
     InstitutionSecurityCredentials,
     ReferenceData,
-    User,
     UserProfile,
 )
 
 # Ensure models are available for migration context (used by SQLAlchemy metadata)
 __all__ = [
     "ReferenceData",
-    "User",
     "UserProfile",
     "Account",
     "Institution",
+    "InstitutionGroup",
     "AccountAttribute",
     "AccountEvent",
     "InstitutionSecurityCredentials",

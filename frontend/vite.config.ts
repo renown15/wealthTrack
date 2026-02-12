@@ -17,6 +17,7 @@ export default defineConfig(async () => {
     resolve: {
       alias: {
         '@': resolve(__dirname, './src'),
+        '@components': resolve(__dirname, './src/components'),
         '@controllers': resolve(__dirname, './src/controllers'),
         '@services': resolve(__dirname, './src/services'),
         '@views': resolve(__dirname, './src/views'),

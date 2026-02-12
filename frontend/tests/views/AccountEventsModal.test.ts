@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
 import AccountEventsModal from '@/views/AccountHub/AccountEventsModal.vue';
-import type { AccountEvent } from '@/models/Portfolio';
+import type { AccountEvent } from '@/models/WealthTrackDataModels';
 
 const sampleEvents: AccountEvent[] = [
   {

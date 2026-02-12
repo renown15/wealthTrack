@@ -1,5 +1,5 @@
 import { ref, type Ref } from 'vue';
-import type { AccountEvent } from '@/models/Portfolio';
+import type { AccountEvent } from '@/models/WealthTrackDataModels';
 import { apiService } from '@/services/ApiService';
 
 export interface UseEventsModalReturn {

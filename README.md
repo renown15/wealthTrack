@@ -341,9 +341,12 @@ docker-compose down
 - ✅ CORS protection
 - ✅ SQL injection prevention (SQLAlchemy ORM)
 - ✅ XSS protection
+- ✅ Encrypted credential storage (Fernet encryption)
 - ✅ Environment-based secrets management
 
-**Important**: Change default secrets in production!
+**Important**: 
+- Change default secrets in production!
+- Set `ENCRYPTION_KEY` environment variable for credential encryption. Generate with: `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`
 
 ## 📊 CI/CD Pipeline
 

@@ -1,5 +1,5 @@
 import { ref, computed, type Ref, type ComputedRef } from 'vue';
-import type { Account, Institution } from '@/models/Portfolio';
+import type { Account, Institution } from '@/models/WealthTrackDataModels';
 
 export interface UseAccountHubModalsReturn {
   modalOpen: Ref<boolean>;
@@ -16,6 +16,13 @@ export interface UseAccountHubModalsReturn {
   initialModalStatusId: ComputedRef<number>;
   initialModalOpenedAt: ComputedRef<string | null | undefined>;
   initialModalClosedAt: ComputedRef<string | null | undefined>;
+  initialModalAccountNumber: ComputedRef<string | null | undefined>;
+  initialModalSortCode: ComputedRef<string | null | undefined>;
+  initialModalRollRefNumber: ComputedRef<string | null | undefined>;
+  initialModalInterestRate: ComputedRef<string | null | undefined>;
+  initialModalFixedBonusRate: ComputedRef<string | null | undefined>;
+  initialModalFixedBonusRateEndDate: ComputedRef<string | null | undefined>;
+  initialModalParentId: ComputedRef<number | null | undefined>;
   openCreateAccountModal: () => void;
   openCreateInstitutionModal: () => void;
   openEditAccountModal: (account: Account) => void;
@@ -52,6 +59,27 @@ export function useAccountHubModals(): UseAccountHubModalsReturn {
   const initialModalClosedAt = computed(() =>
     editingItem.value && 'closedAt' in editingItem.value
       ? (editingItem.value as Account).closedAt : null);
+  const initialModalAccountNumber = computed(() =>
+    editingItem.value && 'accountNumber' in editingItem.value
+      ? (editingItem.value as Account).accountNumber : null);
+  const initialModalSortCode = computed(() =>
+    editingItem.value && 'sortCode' in editingItem.value
+      ? (editingItem.value as Account).sortCode : null);
+  const initialModalRollRefNumber = computed(() =>
+    editingItem.value && 'rollRefNumber' in editingItem.value
+      ? (editingItem.value as Account).rollRefNumber : null);
+  const initialModalInterestRate = computed(() =>
+    editingItem.value && 'interestRate' in editingItem.value
+      ? (editingItem.value as Account).interestRate : null);
+  const initialModalFixedBonusRate = computed(() =>
+    editingItem.value && 'fixedBonusRate' in editingItem.value
+      ? (editingItem.value as Account).fixedBonusRate : null);
+  const initialModalFixedBonusRateEndDate = computed(() =>
+    editingItem.value && 'fixedBonusRateEndDate' in editingItem.value
+      ? (editingItem.value as Account).fixedBonusRateEndDate : null);
+  const initialModalParentId = computed(() =>
+    editingItem.value && 'parentId' in editingItem.value
+      ? (editingItem.value as Institution).parentId : null);
 
   const openCreateAccountModal = (): void => {
     modalType.value = 'create';
@@ -116,6 +144,13 @@ export function useAccountHubModals(): UseAccountHubModalsReturn {
     initialModalStatusId,
     initialModalOpenedAt,
     initialModalClosedAt,
+    initialModalAccountNumber,
+    initialModalSortCode,
+    initialModalRollRefNumber,
+    initialModalInterestRate,
+    initialModalFixedBonusRate,
+    initialModalFixedBonusRateEndDate,
+    initialModalParentId,
     openCreateAccountModal,
     openCreateInstitutionModal,
     openEditAccountModal,

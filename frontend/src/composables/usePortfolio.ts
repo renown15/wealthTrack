@@ -4,7 +4,7 @@
 
 import { computed, reactive } from 'vue';
 import { apiService } from '@/services/ApiService';
-import type { PortfolioItem, Institution } from '@/models/Portfolio';
+import type { PortfolioItem, Institution } from '@/models/WealthTrackDataModels';
 
 export interface PortfolioState {
   items: PortfolioItem[];
@@ -18,11 +18,11 @@ export function usePortfolio(): {
   totalValue: import('vue').ComputedRef<number>;
   accountCount: import('vue').ComputedRef<number>;
   loadPortfolio: () => Promise<void>;
-  createAccount: (institutionid: number, name: string, typeId?: number, statusId?: number) => Promise<void>;
-  updateAccount: (accountId: number, name: string) => Promise<void>;
+  createAccount: (institutionid: number, name: string, typeId?: number, statusId?: number, accountNumber?: string, sortCode?: string, rollRefNumber?: string, interestRate?: string, fixedBonusRate?: string, fixedBonusRateEndDate?: string) => Promise<void>;
+  updateAccount: (accountId: number, name: string, typeId?: number, statusId?: number, accountNumber?: string, sortCode?: string, rollRefNumber?: string, interestRate?: string, fixedBonusRate?: string, fixedBonusRateEndDate?: string) => Promise<void>;
   deleteAccount: (accountId: number) => Promise<void>;
-  createInstitution: (name: string) => Promise<void>;
-  updateInstitution: (institutionId: number, name: string) => Promise<void>;
+  createInstitution: (name: string, parentId?: number | null) => Promise<void>;
+  updateInstitution: (institutionId: number, name: string, parentId?: number | null) => Promise<void>;
   deleteInstitution: (institutionId: number) => Promise<void>;
   clearError: () => void;
 } {
@@ -68,6 +68,12 @@ export function usePortfolio(): {
     name: string,
     typeId?: number,
     statusId?: number,
+    accountNumber?: string,
+    sortCode?: string,
+    rollRefNumber?: string,
+    interestRate?: string,
+    fixedBonusRate?: string,
+    fixedBonusRateEndDate?: string,
   ): Promise<void> => {
     try {
       state.error = null;
@@ -76,6 +82,12 @@ export function usePortfolio(): {
         name,
         typeId,
         statusId,
+        accountNumber,
+        sortCode,
+        rollRefNumber,
+        interestRate,
+        fixedBonusRate,
+        fixedBonusRateEndDate,
       });
       await loadPortfolio();
     } catch (error) {
@@ -84,10 +96,20 @@ export function usePortfolio(): {
     }
   };
 
-  const updateAccount = async (accountId: number, name: string): Promise<void> => {
+  const updateAccount = async (accountId: number, name: string, typeId?: number, statusId?: number, accountNumber?: string, sortCode?: string, rollRefNumber?: string, interestRate?: string, fixedBonusRate?: string, fixedBonusRateEndDate?: string): Promise<void> => {
     try {
       state.error = null;
-      await apiService.updateAccount(accountId, { name });
+      await apiService.updateAccount(accountId, {
+        name,
+        typeId,
+        statusId,
+        accountNumber,
+        sortCode,
+        rollRefNumber,
+        interestRate,
+        fixedBonusRate,
+        fixedBonusRateEndDate,
+      });
       await loadPortfolio();
     } catch (error) {
       state.error = error instanceof Error ? error.message : 'Failed to update account';
@@ -106,10 +128,10 @@ export function usePortfolio(): {
     }
   };
 
-  const createInstitution = async (name: string): Promise<void> => {
+  const createInstitution = async (name: string, parentId: number | null = null): Promise<void> => {
     try {
       state.error = null;
-      await apiService.createInstitution({ name });
+      await apiService.createInstitution({ name, parentId });
       await loadPortfolio();
     } catch (error) {
       state.error = error instanceof Error ? error.message : 'Failed to create institution';
@@ -117,10 +139,10 @@ export function usePortfolio(): {
     }
   };
 
-  const updateInstitution = async (institutionId: number, name: string): Promise<void> => {
+  const updateInstitution = async (institutionId: number, name: string, parentId: number | null = null): Promise<void> => {
     try {
       state.error = null;
-      await apiService.updateInstitution(institutionId, { name });
+      await apiService.updateInstitution(institutionId, { name, parentId });
       await loadPortfolio();
     } catch (error) {
       state.error = error instanceof Error ? error.message : 'Failed to update institution';

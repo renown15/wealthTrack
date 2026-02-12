@@ -1,5 +1,6 @@
 /**
- * Portfolio/Dashboard data models
+ * WealthTrack core data models
+ * Defines all types for accounts, institutions, credentials, and portfolio data
  */
 
 export interface Account {
@@ -9,6 +10,12 @@ export interface Account {
   name: string;
   typeId: number;
   statusId: number;
+  accountNumber?: string | null;
+  sortCode?: string | null;
+  rollRefNumber?: string | null;
+  interestRate?: string | null;
+  fixedBonusRate?: string | null;
+  fixedBonusRateEndDate?: string | null;
   openedAt: string | null;
   closedAt: string | null;
   createdAt: string;
@@ -19,6 +26,7 @@ export interface Institution {
   id: number;
   userId: number;
   name: string;
+  parentId?: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -54,6 +62,7 @@ export interface AccountEvent {
   value: string;
   createdAt: string;
   updatedAt: string;
+  source?: 'event' | 'attribute';
 }
 
 export interface PortfolioItem {
@@ -75,20 +84,34 @@ export interface AccountCreateRequest {
   name: string;
   typeId?: number;
   statusId?: number;
+  accountNumber?: string;
+  sortCode?: string;
+  rollRefNumber?: string;
+  interestRate?: string;
+  fixedBonusRate?: string;
+  fixedBonusRateEndDate?: string;
 }
 
 export interface AccountUpdateRequest {
   name?: string;
   typeId?: number;
   statusId?: number;
+  accountNumber?: string;
+  sortCode?: string;
+  rollRefNumber?: string;
+  interestRate?: string;
+  fixedBonusRate?: string;
+  fixedBonusRateEndDate?: string;
 }
 
 export interface InstitutionCreateRequest {
   name: string;
+  parentId?: number | null;
 }
 
 export interface InstitutionUpdateRequest {
-  name: string;
+  name?: string;
+  parentId?: number | null;
 }
 
 export interface AccountEventCreateRequest {

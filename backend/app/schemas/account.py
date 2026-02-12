@@ -16,6 +16,12 @@ class AccountCreate(BaseSchema):
     name: str = Field(..., min_length=1, max_length=255, description="Account name")
     type_id: int = Field(default=1, description="Account type ID")
     status_id: int = Field(default=1, description="Account status ID")
+    account_number: Optional[str] = Field(None, max_length=255, description="Account number")
+    sort_code: Optional[str] = Field(None, max_length=255, description="Sort code/Account number")
+    roll_ref_number: Optional[str] = Field(None, max_length=255, description="Roll / Ref number")
+    interest_rate: Optional[str] = Field(None, max_length=255, description="Interest rate")
+    fixed_bonus_rate: Optional[str] = Field(None, max_length=255, description="Fixed/Bonus interest rate")
+    fixed_bonus_rate_end_date: Optional[str] = Field(None, max_length=255, description="Fixed/Bonus rate end date")
 
 
 class AccountUpdate(BaseSchema):
@@ -24,6 +30,12 @@ class AccountUpdate(BaseSchema):
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     type_id: Optional[int] = None
     status_id: Optional[int] = None
+    account_number: Optional[str] = Field(None, max_length=255, description="Account number")
+    sort_code: Optional[str] = Field(None, max_length=255, description="Sort code/Account number")
+    roll_ref_number: Optional[str] = Field(None, max_length=255, description="Roll / Ref number")
+    interest_rate: Optional[str] = Field(None, max_length=255, description="Interest rate")
+    fixed_bonus_rate: Optional[str] = Field(None, max_length=255, description="Fixed/Bonus interest rate")
+    fixed_bonus_rate_end_date: Optional[str] = Field(None, max_length=255, description="Fixed/Bonus rate end date")
 
 
 class AccountResponse(BaseSchema):
@@ -35,6 +47,12 @@ class AccountResponse(BaseSchema):
     name: str
     type_id: int
     status_id: int
+    account_number: Optional[str] = None
+    sort_code: Optional[str] = None
+    roll_ref_number: Optional[str] = None
+    interest_rate: Optional[str] = None
+    fixed_bonus_rate: Optional[str] = None
+    fixed_bonus_rate_end_date: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

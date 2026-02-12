@@ -34,7 +34,7 @@ class AccountEventRepository:
         lookup_value = event_type_map.get(event_type.lower(), event_type)
 
         stmt = select(ReferenceData.id).where(
-            ReferenceData.class_key.startswith("event_type:"),
+            ReferenceData.class_key == "account_event_type",
             ReferenceData.reference_value == lookup_value,
         )
         result = await self.session.execute(stmt)

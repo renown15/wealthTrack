@@ -1,7 +1,7 @@
 /**
  * Portfolio service for fetching user portfolio data.
  */
-import type { Portfolio } from '@models/Portfolio';
+import type { Portfolio } from '@models/WealthTrackDataModels';
 import { BaseApiClient } from '@services/BaseApiClient';
 
 class PortfolioFetchService extends BaseApiClient {

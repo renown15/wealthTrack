@@ -1,5 +1,5 @@
 <template>
-  <div v-if="open" class="modal-overlay" @click.self="close" data-testid="base-modal">
+  <div v-if="open" class="modal-overlay" @mousedown.self="close" data-testid="base-modal">
     <div class="modal-content" :class="sizeClass" @click.stop>
       <header class="modal-header">
         <slot name="header">

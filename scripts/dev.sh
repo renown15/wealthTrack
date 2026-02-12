@@ -42,22 +42,15 @@ sleep 2
 echo -e "${GREEN}✓ Database running on port 5433${NC}"
 echo ""
 
-# Prime database with required reference data before backend starts
-echo -e "${BLUE}1.5/3 Ensuring reference data seeding...${NC}"
-DB_HOST=localhost DB_PORT=${DB_PORT:-5433} DB_USER=${DB_USER:-wealthtrack} \
-	DB_PASSWORD=${DB_PASSWORD:-wealthtrack_dev_password} DB_NAME=${DB_NAME:-wealthtrack} \
-	python "$ROOT_DIR/scripts/seed-db.py" > /tmp/seed-db.log 2>&1 || true
-echo -e "${GREEN}✓ Reference data seeded (idempotent)${NC}"
-echo ""
-
 # Terminate any existing backend before starting new one so ports are free
 pkill -f "uvicorn app.main:app" >/dev/null 2>&1 || true
 
 # Start backend
 echo -e "${BLUE}2/3 Starting FastAPI backend...${NC}"
 cd "$ROOT_DIR/backend"
-	export DATABASE_URL="postgresql+asyncpg://wealthtrack:wealthtrack_dev_password@localhost:5433/wealthtrack"
+export DATABASE_URL="postgresql+asyncpg://wealthtrack:wealthtrack_dev_password@localhost:5433/wealthtrack"
 export ENVIRONMENT="development"
+export SECRET_KEY="dev-secret-key-change-in-production"
 nohup python -m uvicorn app.main:app --reload --port 8001 > /tmp/backend.log 2>&1 &
 BACKEND_PID=$!
 echo -e "${GREEN}✓ Backend running on http://localhost:8001${NC}"
@@ -77,7 +70,7 @@ pkill -f "npm run dev" >/dev/null 2>&1 || true
 # Start frontend dev server
 echo -e "${BLUE}4/4 Starting Vite frontend dev server locally...${NC}"
 cd "$ROOT_DIR/frontend"
-	VITE_API_URL="http://localhost:8001" nohup npm run dev -- --host 0.0.0.0 --port 3000 > /tmp/frontend.log 2>&1 &
+VITE_API_URL="http://localhost:8001" nohup npm run dev -- --host 0.0.0.0 --port 3000 > /tmp/frontend.log 2>&1 &
 FRONTEND_PID=$!
 echo -e "${GREEN}✓ Frontend dev server running on http://localhost:3000${NC}"
 echo "  (PID: $FRONTEND_PID, logs: tail -f /tmp/frontend.log)"

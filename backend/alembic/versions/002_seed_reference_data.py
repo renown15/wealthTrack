@@ -78,10 +78,13 @@ def upgrade() -> None:
 
     # Account attribute types
     account_attribute_types = [
-        ("account_attribute_type", "ACCOUNT_NUMBER", "Account Number", 1),
-        ("account_attribute_type", "SORT_CODE", "Sort Code", 2),
-        ("account_attribute_type", "IBAN", "IBAN", 3),
-        ("account_attribute_type", "NOTES", "Notes", 4),
+        ("account_attribute_type", "ACCOUNT_OPENED_DATE", "Account Opened Date", 1),
+        ("account_attribute_type", "ACCOUNT_CLOSED_DATE", "Account Closed Date", 2),
+        ("account_attribute_type", "ACCOUNT_NUMBER", "Account Number", 3),
+        ("account_attribute_type", "SORT_CODE", "Sort Code", 4),
+        ("account_attribute_type", "ROLL_REF_NUMBER", "Roll / Ref Number", 5),
+        ("account_attribute_type", "IBAN", "IBAN", 6),
+        ("account_attribute_type", "NOTES", "Notes", 7),
     ]
 
     # Combine all reference data

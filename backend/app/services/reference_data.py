@@ -1,7 +1,7 @@
 """Reference data helpers for seeding baseline lookup rows."""
 from typing import NamedTuple
 
-from sqlalchemy import or_, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.reference_data import ReferenceData
@@ -16,120 +16,38 @@ class ReferenceDataItem(NamedTuple):
 
 REFERENCE_DATA_ITEMS: list[ReferenceDataItem] = [
     # User types
-    ReferenceDataItem(
-        class_key="user_type:user",
-        reference_value="User",
-        sort_index=1,
-    ),
-    ReferenceDataItem(
-        class_key="user_type:superuser",
-        reference_value="SuperUser",
-        sort_index=2,
-    ),
+    ReferenceDataItem(class_key="user_type", reference_value="User", sort_index=1),
+    ReferenceDataItem(class_key="user_type", reference_value="SuperUser", sort_index=2),
     # Account types
-    ReferenceDataItem(
-        class_key="account_type:checking",
-        reference_value="Checking Account",
-        sort_index=1,
-    ),
-    ReferenceDataItem(
-        class_key="account_type:savings",
-        reference_value="Savings Account",
-        sort_index=2,
-    ),
-    ReferenceDataItem(
-        class_key="account_type:stocks_isa",
-        reference_value="Stocks ISA",
-        sort_index=3,
-    ),
-    ReferenceDataItem(
-        class_key="account_type:sipp",
-        reference_value="SIPP",
-        sort_index=4,
-    ),
-    ReferenceDataItem(
-        class_key="account_type:credit_card",
-        reference_value="Credit Card",
-        sort_index=5,
-    ),
-
+    ReferenceDataItem(class_key="account_type", reference_value="Checking Account", sort_index=1),
+    ReferenceDataItem(class_key="account_type", reference_value="Savings Account", sort_index=2),
+    ReferenceDataItem(class_key="account_type", reference_value="Stocks ISA", sort_index=3),
+    ReferenceDataItem(class_key="account_type", reference_value="SIPP", sort_index=4),
+    ReferenceDataItem(class_key="account_type", reference_value="Credit Card", sort_index=5),
     # Account statuses
-    ReferenceDataItem(
-        class_key="account_status:active",
-        reference_value="Active",
-        sort_index=1,
-    ),
-    ReferenceDataItem(
-        class_key="account_status:closed",
-        reference_value="Closed",
-        sort_index=2,
-    ),
-    ReferenceDataItem(
-        class_key="account_status:dormant",
-        reference_value="Dormant",
-        sort_index=3,
-    ),
-
+    ReferenceDataItem(class_key="account_status", reference_value="Active", sort_index=1),
+    ReferenceDataItem(class_key="account_status", reference_value="Closed", sort_index=2),
+    ReferenceDataItem(class_key="account_status", reference_value="Dormant", sort_index=3),
     # Event types
-    ReferenceDataItem(
-        class_key="event_type:balance_update",
-        reference_value="Balance Update",
-        sort_index=1,
-    ),
-    ReferenceDataItem(
-        class_key="event_type:transaction",
-        reference_value="Transaction",
-        sort_index=2,
-    ),
-    ReferenceDataItem(
-        class_key="event_type:fee",
-        reference_value="Fee",
-        sort_index=3,
-    ),
-
+    ReferenceDataItem(class_key="account_event_type", reference_value="Balance Update", sort_index=1),
+    ReferenceDataItem(class_key="account_event_type", reference_value="Interest", sort_index=2),
+    ReferenceDataItem(class_key="account_event_type", reference_value="Dividend", sort_index=3),
+    ReferenceDataItem(class_key="account_event_type", reference_value="Deposit", sort_index=4),
+    ReferenceDataItem(class_key="account_event_type", reference_value="Withdrawal", sort_index=5),
     # Attribute types
-    ReferenceDataItem(
-        class_key="attribute_type:interest_rate",
-        reference_value="Interest Rate",
-        sort_index=1,
-    ),
-    ReferenceDataItem(
-        class_key="attribute_type:overdraft_limit",
-        reference_value="Overdraft Limit",
-        sort_index=2,
-    ),
-    ReferenceDataItem(
-        class_key="attribute_type:credit_limit",
-        reference_value="Credit Limit",
-        sort_index=3,
-    ),
-
+    ReferenceDataItem(class_key="account_attribute_type", reference_value="Account Opened Date", sort_index=1),
+    ReferenceDataItem(class_key="account_attribute_type", reference_value="Account Closed Date", sort_index=2),
+    ReferenceDataItem(class_key="account_attribute_type", reference_value="Account Number", sort_index=3),
+    ReferenceDataItem(class_key="account_attribute_type", reference_value="Sort Code", sort_index=4),
+    ReferenceDataItem(class_key="account_attribute_type", reference_value="Roll / Ref Number", sort_index=5),
+    ReferenceDataItem(class_key="account_attribute_type", reference_value="IBAN", sort_index=6),
+    ReferenceDataItem(class_key="account_attribute_type", reference_value="Notes", sort_index=7),
     # Credential types
-    ReferenceDataItem(
-        class_key="credential_type:username",
-        reference_value="Username",
-        sort_index=1,
-    ),
-    ReferenceDataItem(
-        class_key="credential_type:password",
-        reference_value="Password",
-        sort_index=2,
-    ),
-    ReferenceDataItem(
-        class_key="credential_type:security_question",
-        reference_value="Security Question",
-        sort_index=3,
-    ),
-    ReferenceDataItem(
-        class_key="credential_type:mother_maiden",
-        reference_value="Mother's Maiden Name",
-        sort_index=4,
-    ),
-    ReferenceDataItem(
-        class_key="credential_type:phone_pin",
-        reference_value="Phone PIN",
-        sort_index=5,
-    ),
+    ReferenceDataItem(class_key="credential_type", reference_value="Username", sort_index=1),
+    ReferenceDataItem(class_key="credential_type", reference_value="Password", sort_index=2),
+    ReferenceDataItem(class_key="credential_type", reference_value="Security Question", sort_index=3),
+    ReferenceDataItem(class_key="credential_type", reference_value="Mother's Maiden Name", sort_index=4),
+    ReferenceDataItem(class_key="credential_type", reference_value="Phone PIN", sort_index=5),
 ]
 
 
@@ -163,15 +81,9 @@ async def list_reference_data_by_class(
     session: AsyncSession, class_key: str
 ) -> list[ReferenceData]:
     """Return all reference data rows that belong to the supplied class."""
-    prefix = f"{class_key}:"
     statement = (
         select(ReferenceData)
-        .where(
-            or_(
-                ReferenceData.class_key == class_key,
-                ReferenceData.class_key.startswith(prefix),
-            )
-        )
+        .where(ReferenceData.class_key == class_key)
         .order_by(
             ReferenceData.sort_index,
             ReferenceData.reference_value,

@@ -13,12 +13,14 @@ class InstitutionCreate(BaseSchema):
     """Schema for creating an institution."""
 
     name: str = Field(..., min_length=1, max_length=255, description="Institution name")
+    parent_id: Optional[int] = Field(None, description="Parent institution ID if part of a group")
 
 
 class InstitutionUpdate(BaseSchema):
     """Schema for updating an institution."""
 
-    name: str = Field(..., min_length=1, max_length=255, description="Institution name")
+    name: Optional[str] = Field(None, min_length=1, max_length=255, description="Institution name")
+    parent_id: Optional[int] = Field(None, description="Parent institution ID if part of a group")
 
 
 class InstitutionResponse(BaseSchema):
@@ -27,6 +29,7 @@ class InstitutionResponse(BaseSchema):
     id: int
     user_id: int
     name: str
+    parent_id: Optional[int] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { reactive, computed } from 'vue';
 import AccountHub from '@views/AccountHub/AccountHub.vue';
-import type { PortfolioItem, Institution } from '@/models/Portfolio';
+import type { PortfolioItem, Institution } from '@/models/WealthTrackDataModels';
 
 const createMockPortfolio = () => {
   const state = reactive({

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
 import InstitutionsList from '@/views/AccountHub/InstitutionsList.vue';
-import type { Institution } from '@/models/Portfolio';
+import type { Institution } from '@/models/WealthTrackDataModels';
 
 describe('InstitutionsList', () => {
   const mockInstitutions: Institution[] = [

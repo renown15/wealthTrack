@@ -50,18 +50,24 @@ class UserService:
         result = await self.db.execute(select(UserProfile).where(UserProfile.id == user_id))
         return result.scalars().first()
 
-    async def get_reference_data_by_classkey(self, classkey: str) -> Optional[ReferenceData]:
+    async def get_reference_data_by_class_and_value(
+        self, class_key: str, reference_value: str
+    ) -> Optional[ReferenceData]:
         """
-        Retrieve reference data by classkey.
+        Retrieve reference data by class_key and reference_value.
 
         Args:
-            classkey: Reference data classkey (e.g., 'user_type:user')
+            class_key: Reference data class key (e.g., 'user_type')
+            reference_value: Reference data value (e.g., 'User')
 
         Returns:
             ReferenceData object or None if not found
         """
         result = await self.db.execute(
-            select(ReferenceData).where(ReferenceData.class_key == classkey)
+            select(ReferenceData).where(
+                ReferenceData.class_key == class_key,
+                ReferenceData.reference_value == reference_value,
+            )
         )
         return result.scalars().first()
 
@@ -84,7 +90,7 @@ class UserService:
             raise ValueError("User with this email already exists")
 
         # Get User type from ReferenceData
-        user_type = await self.get_reference_data_by_classkey("user_type:user")
+        user_type = await self.get_reference_data_by_class_and_value("user_type", "User")
         if not user_type:
             raise ValueError("User type not found in reference data. Run seed-db.py to initialize.")
 

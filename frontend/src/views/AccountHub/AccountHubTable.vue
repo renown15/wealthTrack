@@ -10,6 +10,8 @@
             <th class="table-cell table-header text-left">Opened</th>
             <th class="table-cell table-header text-left">Closed</th>
             <th class="table-cell table-header text-left">Latest Balance</th>
+            <th class="table-cell table-header text-left">Balance Updated</th>
+            <th class="table-cell table-header text-left">Interest Rate</th>
             <th class="table-cell table-header text-left">Events</th>
             <th class="table-cell table-header text-right">Actions</th>
           </tr>
@@ -40,8 +42,14 @@
                 title="Click to edit balance"
               >
                 <span class="font-semibold text-green-600">{{ formatCurrency(item.latestBalance?.value) }}</span>
-                <span class="text-muted opacity-0 group-hover:opacity-100 transition-opacity">✎</span>
+                <span class="text-muted opacity-0 group-hover:opacity-100 transition-opacity">{{ Icons.edit }}</span>
               </button>
+            </td>
+            <td class="table-cell text-gray-600">
+              {{ formatDate(item.latestBalance?.createdAt) }}
+            </td>
+            <td class="table-cell">
+              {{ item.account.interestRate || '—' }}
             </td>
             <td class="table-cell">
               <button
@@ -59,13 +67,13 @@
                   type="button"
                   @click="emitEdit(item.account)"
                   title="Edit account"
-                >✎</button>
+                >{{ Icons.edit }}</button>
                 <button
                   class="btn-icon delete inline-flex items-center justify-center w-9 h-9 text-lg rounded-lg border-none cursor-pointer bg-red-100 text-red-600 hover:bg-red-200"
                   type="button"
                   @click="emitDelete('account', item.account.id, item.account.name)"
                   title="Delete account"
-                >✕</button>
+                >{{ Icons.delete }}</button>
               </div>
             </td>
           </tr>
@@ -77,7 +85,8 @@
 
 <script setup lang="ts">
 import { ref, nextTick, onMounted, onUnmounted } from 'vue';
-import type { Account, PortfolioItem } from '@/models/Portfolio';
+import type { Account, PortfolioItem } from '@/models/WealthTrackDataModels';
+import { Icons } from '@/constants/icons';
 
 defineProps<{
   items: PortfolioItem[];

@@ -49,16 +49,8 @@ async def seed_database() -> None:
 
         reference_data = [
             # User types
-            {
-                "classkey": "user_type:user",
-                "referencevalue": "User",
-                "sortindex": 1,
-            },
-            {
-                "classkey": "user_type:superuser",
-                "referencevalue": "SuperUser",
-                "sortindex": 2,
-            },
+            {"classkey": "user_type", "referencevalue": "User", "sortindex": 1},
+            {"classkey": "user_type", "referencevalue": "SuperUser", "sortindex": 2},
             # Account types
             {"classkey": "account_type", "referencevalue": "Checking Account", "sortindex": 1},
             {"classkey": "account_type", "referencevalue": "Savings Account", "sortindex": 2},
@@ -86,10 +78,11 @@ async def seed_database() -> None:
         skipped = 0
 
         for data in reference_data:
-            # Check if already exists
+            # Check if already exists (by class_key AND reference_value)
             result = await session.execute(
-                    select(ReferenceData).where(
-                        ReferenceData.class_key == data["classkey"]
+                select(ReferenceData).where(
+                    ReferenceData.class_key == data["classkey"],
+                    ReferenceData.reference_value == data["referencevalue"]
                 )
             )
             existing = result.scalars().first()

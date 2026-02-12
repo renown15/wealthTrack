@@ -4,13 +4,13 @@
  */
 
 import { apiService } from '@services/ApiService';
-import type { Account, Institution, Portfolio } from '@models/Portfolio';
+import type { Account, Institution, Portfolio } from '@models/WealthTrackDataModels';
 import type {
   AccountCreateRequest,
   AccountUpdateRequest,
   InstitutionCreateRequest,
   InstitutionUpdateRequest,
-} from '@models/Portfolio';
+} from '@models/WealthTrackDataModels';
 
 export class PortfolioService {
   /**

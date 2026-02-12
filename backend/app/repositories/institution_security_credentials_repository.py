@@ -104,7 +104,7 @@ class InstitutionSecurityCredentialsRepository:
         return credential
 
     async def delete(self, credential: InstitutionSecurityCredentials) -> None:
-        await self.session.delete(credential)
+        self.session.delete(credential)  # type: ignore
         await self.session.flush()
 
     async def get_type(self, type_id: int) -> Optional[ReferenceData]:

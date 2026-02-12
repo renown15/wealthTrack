@@ -7,7 +7,7 @@ import type {
   AccountEvent,
   AccountEventCreateRequest,
   AccountUpdateRequest,
-} from '@models/Portfolio';
+} from '@models/WealthTrackDataModels';
 import { BaseApiClient } from '@services/BaseApiClient';
 
 class AccountCrudService extends BaseApiClient {

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
 import AddAccountModal from '@/views/AccountHub/AddAccountModal.vue';
-import type { Institution } from '@/models/Portfolio';
+import type { Institution } from '@/models/WealthTrackDataModels';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 
 describe('AddAccountModal', () => {
