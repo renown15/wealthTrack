@@ -2,6 +2,7 @@
 Institution model for financial institutions.
 """
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -19,6 +20,9 @@ class Institution(Base):
         "userid", Integer, ForeignKey("UserProfile.id"), nullable=False, index=True
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+    institution_type: Mapped[Optional[str]] = mapped_column(
+        "institutiontype", String(100), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False
     )

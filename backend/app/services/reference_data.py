@@ -24,30 +24,76 @@ REFERENCE_DATA_ITEMS: list[ReferenceDataItem] = [
     ReferenceDataItem(class_key="account_type", reference_value="Stocks ISA", sort_index=3),
     ReferenceDataItem(class_key="account_type", reference_value="SIPP", sort_index=4),
     ReferenceDataItem(class_key="account_type", reference_value="Credit Card", sort_index=5),
+    ReferenceDataItem(class_key="account_type", reference_value="Trust Bank Account", sort_index=6),
+    ReferenceDataItem(class_key="account_type", reference_value="Trust Stocks Investment Account", sort_index=7),
     # Account statuses
     ReferenceDataItem(class_key="account_status", reference_value="Active", sort_index=1),
     ReferenceDataItem(class_key="account_status", reference_value="Closed", sort_index=2),
     ReferenceDataItem(class_key="account_status", reference_value="Dormant", sort_index=3),
     # Event types
-    ReferenceDataItem(class_key="account_event_type", reference_value="Balance Update", sort_index=1),
-    ReferenceDataItem(class_key="account_event_type", reference_value="Interest", sort_index=2),
-    ReferenceDataItem(class_key="account_event_type", reference_value="Dividend", sort_index=3),
-    ReferenceDataItem(class_key="account_event_type", reference_value="Deposit", sort_index=4),
-    ReferenceDataItem(class_key="account_event_type", reference_value="Withdrawal", sort_index=5),
+    ReferenceDataItem(
+        class_key="account_event_type",
+        reference_value="Balance Update",
+        sort_index=1,
+    ),
+    ReferenceDataItem(
+        class_key="account_event_type", reference_value="Interest", sort_index=2
+    ),
+    ReferenceDataItem(
+        class_key="account_event_type", reference_value="Dividend", sort_index=3
+    ),
+    ReferenceDataItem(
+        class_key="account_event_type", reference_value="Deposit", sort_index=4
+    ),
+    ReferenceDataItem(
+        class_key="account_event_type", reference_value="Withdrawal", sort_index=5
+    ),
     # Attribute types
-    ReferenceDataItem(class_key="account_attribute_type", reference_value="Account Opened Date", sort_index=1),
-    ReferenceDataItem(class_key="account_attribute_type", reference_value="Account Closed Date", sort_index=2),
-    ReferenceDataItem(class_key="account_attribute_type", reference_value="Account Number", sort_index=3),
-    ReferenceDataItem(class_key="account_attribute_type", reference_value="Sort Code", sort_index=4),
-    ReferenceDataItem(class_key="account_attribute_type", reference_value="Roll / Ref Number", sort_index=5),
-    ReferenceDataItem(class_key="account_attribute_type", reference_value="IBAN", sort_index=6),
-    ReferenceDataItem(class_key="account_attribute_type", reference_value="Notes", sort_index=7),
+    ReferenceDataItem(
+        class_key="account_attribute_type",
+        reference_value="Account Opened Date",
+        sort_index=1,
+    ),
+    ReferenceDataItem(
+        class_key="account_attribute_type",
+        reference_value="Account Closed Date",
+        sort_index=2,
+    ),
+    ReferenceDataItem(
+        class_key="account_attribute_type", reference_value="Account Number", sort_index=3
+    ),
+    ReferenceDataItem(
+        class_key="account_attribute_type", reference_value="Sort Code", sort_index=4
+    ),
+    ReferenceDataItem(
+        class_key="account_attribute_type",
+        reference_value="Roll / Ref Number",
+        sort_index=5,
+    ),
+    ReferenceDataItem(
+        class_key="account_attribute_type", reference_value="IBAN", sort_index=6
+    ),
+    ReferenceDataItem(
+        class_key="account_attribute_type", reference_value="Notes", sort_index=7
+    ),
     # Credential types
-    ReferenceDataItem(class_key="credential_type", reference_value="Username", sort_index=1),
-    ReferenceDataItem(class_key="credential_type", reference_value="Password", sort_index=2),
-    ReferenceDataItem(class_key="credential_type", reference_value="Security Question", sort_index=3),
-    ReferenceDataItem(class_key="credential_type", reference_value="Mother's Maiden Name", sort_index=4),
-    ReferenceDataItem(class_key="credential_type", reference_value="Phone PIN", sort_index=5),
+    ReferenceDataItem(
+        class_key="credential_type", reference_value="Username", sort_index=1
+    ),
+    ReferenceDataItem(
+        class_key="credential_type", reference_value="Password", sort_index=2
+    ),
+    ReferenceDataItem(
+        class_key="credential_type", reference_value="Security Question", sort_index=3
+    ),
+    ReferenceDataItem(
+        class_key="credential_type",
+        reference_value="Mother's Maiden Name",
+        sort_index=4,
+    ),
+    ReferenceDataItem(
+        class_key="credential_type", reference_value="Phone PIN", sort_index=5
+    ),
 ]
 
 

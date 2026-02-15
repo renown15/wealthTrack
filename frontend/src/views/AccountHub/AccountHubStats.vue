@@ -13,9 +13,32 @@
     </div>
 
     <div class="stats-grid">
-      <article class="stat-card">
-        <p class="stat-label">Total Value</p>
+      <article class="stat-card" :title="getTotalValueTooltip()">
+        <p class="stat-label">
+          Total Value
+          <span class="info-icon" style="cursor: help;">ⓘ</span>
+        </p>
         <p class="stat-value">{{ formatCurrency(totalValue) }}</p>
+      </article>
+
+      <article class="stat-card">
+        <p class="stat-label">Cash at Hand</p>
+        <p class="stat-value">{{ formatCurrency(cashAtHand) }}</p>
+      </article>
+
+      <article class="stat-card">
+        <p class="stat-label">ISA Savings</p>
+        <p class="stat-value">{{ formatCurrency(isaSavings) }}</p>
+      </article>
+
+      <article class="stat-card">
+        <p class="stat-label">Illiquid</p>
+        <p class="stat-value">{{ formatCurrency(illiquid) }}</p>
+      </article>
+
+      <article class="stat-card">
+        <p class="stat-label">Trust Assets</p>
+        <p class="stat-value">{{ formatCurrency(trustAssets) }}</p>
       </article>
 
       <article class="stat-card">
@@ -27,11 +50,6 @@
         <p class="stat-label">Institutions</p>
         <p class="stat-value">{{ institutionCount }}</p>
       </article>
-
-      <article class="stat-card">
-        <p class="stat-label">Events</p>
-        <p class="stat-value">{{ eventCount }}</p>
-      </article>
     </div>
   </header>
 </template>
@@ -41,7 +59,10 @@ const props = defineProps<{
   totalValue: number;
   accountCount: number;
   institutionCount: number;
-  eventCount: number;
+  cashAtHand: number;
+  isaSavings: number;
+  illiquid: number;
+  trustAssets: number;
 }>();
 
 const emit = defineEmits<{
@@ -56,6 +77,27 @@ const formatCurrency = (value: number): string => {
   }).format(value);
 };
 
+const getTotalValueTooltip = (): string => {
+  const breakdown = [
+    `Cash at Hand: ${formatCurrency(props.cashAtHand)}`,
+    `ISA Savings: ${formatCurrency(props.isaSavings)}`,
+    `Illiquid: ${formatCurrency(props.illiquid)}`,
+    ``,
+    `Total: ${formatCurrency(props.totalValue)}`,
+  ];
+  return breakdown.join('\n');
+};
+
+const getTrustAssetsTooltip = (): string => {
+  const breakdown = [
+    `Trust Bank Account: ${formatCurrency(props.cashAtHand)}`,
+    `Trust Stocks Investment: ${formatCurrency(props.isaSavings)}`,
+    ``,
+    `Total Trust Assets: ${formatCurrency(props.trustAssets)}`,
+  ];
+  return breakdown.join('\n');
+};
+
 const emitCreateAccount = (): void => {
   emit('createAccount');
 };
@@ -64,5 +106,18 @@ const emitCreateInstitution = (): void => {
   emit('createInstitution');
 };
 </script>
+
+<style scoped>
+.info-icon {
+  margin-left: 0.5rem;
+  font-size: 0.9rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.stat-label:hover .info-icon {
+  opacity: 1;
+}
+</style>
 
 <!-- Uses UnoCSS utilities via shortcuts -->

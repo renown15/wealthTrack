@@ -146,4 +146,15 @@ watch(
     }
   },
 );
+
+watch(
+  () => formData.value.typeId,
+  () => {
+    // Clear key and value when credential type changes
+    if (!isEditing.value) {
+      formData.value.key = '';
+      formData.value.value = '';
+    }
+  },
+);
 </script>

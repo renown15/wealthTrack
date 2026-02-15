@@ -40,8 +40,8 @@ describe('DeleteReferenceDataModal.vue', () => {
       },
     });
 
-    // Modal should still exist but be in DOM
-    expect(wrapper.find('[class*="modal"]').exists()).toBe(true);
+    // Modal should not be in DOM when closed (BaseModal uses v-if="open")
+    expect(wrapper.find('[data-testid="base-modal"]').exists()).toBe(false);
   });
 
   it('emits cancel event when cancel button clicked', async () => {

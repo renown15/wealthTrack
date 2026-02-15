@@ -47,7 +47,7 @@ class InstitutionGroupRepository:
         """Set or update parent institution for a child."""
         # Remove existing parent relationship if any
         await self.remove_parent(child_institution_id, user_id)
-        
+
         # Create new relationship
         group = InstitutionGroup()
         group.user_id = user_id

@@ -64,37 +64,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import AddReferenceDataModal from '@views/AddReferenceDataModal.vue';
 import DeleteReferenceDataModal from '@views/DeleteReferenceDataModal.vue';
 import ReferenceDataTable from '@views/ReferenceDataTable.vue';
-import { referenceDataService } from '@/services/ReferenceDataService';
+import { useReferenceDataCrud } from '@/composables/useReferenceDataCrud';
 import type { ReferenceDataItem, ReferenceDataPayload } from '@/models/ReferenceData';
 
 interface ExtendedReferenceDataItem extends ReferenceDataItem {updatedAt: string}
 
-const loading = ref(true), error = ref(''), formError = ref(''), isDeleting = ref(false), isSubmittingNew = ref(false);
-const referenceData = ref<ExtendedReferenceDataItem[]>([]), addFormOpen = ref(false), deleteConfirmOpen = ref(false);
+// CRUD composable
+const { loading, error, data: referenceData, loadData, createItem, updateItem, deleteItem: deleteItemCrud } =
+  useReferenceDataCrud();
+
+// Local UI state
+const addFormOpen = ref(false);
+const deleteConfirmOpen = ref(false);
 const deleteConfirmItem = ref<ExtendedReferenceDataItem | null>(null);
+const formError = ref('');
+const isSubmittingNew = ref(false);
+const isDeleting = ref(false);
 const sortKey = ref<keyof ExtendedReferenceDataItem>('classKey');
 const sortDirection = ref<'asc' | 'desc'>('asc');
 
 function clearError(): void { error.value = ''; }
-
-async function loadData(): Promise<void> {
-  try {
-    loading.value = true;
-    error.value = '';
-    const data = await referenceDataService.listAll();
-    referenceData.value = data as ExtendedReferenceDataItem[];
-  } catch (err) {
-    const axiosErr = err as { response?: { data?: { detail?: string } } };
-    error.value = axiosErr.response?.data?.detail
-      || (err instanceof Error ? err.message : 'Failed to load');
-  } finally {
-    loading.value = false;
-  }
-}
 
 function openAddForm(): void {
   formError.value = '';
@@ -119,13 +112,12 @@ async function submitNewForm(form: { classKey: string; referenceValue: string; s
       referenceValue: form.referenceValue,
       sortIndex: form.sortIndex,
     };
-    await referenceDataService.create(payload);
-    await loadData();
-    closeAddForm();
-  } catch (err) {
-    const axiosErr = err as { response?: { data?: { detail?: string } } };
-    formError.value = axiosErr.response?.data?.detail
-      || (err instanceof Error ? err.message : 'Failed to create');
+    const result = await createItem(payload);
+    if (result.success) {
+      closeAddForm();
+    } else {
+      formError.value = result.error || 'Failed to create';
+    }
   } finally {
     isSubmittingNew.value = false;
   }
@@ -135,28 +127,24 @@ async function handleEdit(
   id: number,
   data: { referenceValue: string; sortIndex?: number },
 ): Promise<void> {
-  const item = referenceData.value.find(x => x.id === id);
+  const item = referenceData.value.find((x: any) => x.id === id);
   if (!item) return;
   try {
-    error.value = '';
     const payload: ReferenceDataPayload = {
       classKey: item.classKey,
       referenceValue: data.referenceValue,
       sortIndex: data.sortIndex,
     };
-    await referenceDataService.update(id, payload);
-    await loadData();
+    await updateItem(id, payload);
   } catch (err) {
-    const axiosErr = err as { response?: { data?: { detail?: string } } };
-    error.value = axiosErr.response?.data?.detail
-      || (err instanceof Error ? err.message : 'Failed to update');
+    error.value = err instanceof Error ? err.message : 'Failed to update';
   }
 }
 
 function deleteItem(id: number): void {
-  const item = referenceData.value.find(x => x.id === id);
+  const item = referenceData.value.find((x: any) => x.id === id);
   if (item) {
-    deleteConfirmItem.value = item;
+    deleteConfirmItem.value = item as ExtendedReferenceDataItem;
     deleteConfirmOpen.value = true;
   }
 }
@@ -170,16 +158,13 @@ async function confirmDelete(): Promise<void> {
   if (!deleteConfirmItem.value) return;
   try {
     isDeleting.value = true;
-    error.value = '';
-    await referenceDataService.delete(deleteConfirmItem.value.id);
-    await loadData();
-    cancelDelete();
-  } catch (err) {
-    // Extract detail from axios error response, fall back to error message
-    const axiosErr = err as { response?: { data?: { detail?: string } } };
-    error.value = axiosErr.response?.data?.detail
-      || (err instanceof Error ? err.message : 'Failed to delete');
-    cancelDelete(); // Close modal so error banner is visible
+    const result = await deleteItemCrud(deleteConfirmItem.value.id);
+    if (result.success) {
+      cancelDelete();
+    } else {
+      error.value = result.error || 'Failed to delete';
+      cancelDelete();
+    }
   } finally {
     isDeleting.value = false;
   }

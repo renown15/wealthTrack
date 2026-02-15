@@ -1,6 +1,7 @@
 """
 Repository for portfolio data - accounts with balances and institutions.
 """
+import logging
 from typing import Any, Optional
 
 from sqlalchemy import desc, func, select
@@ -13,6 +14,13 @@ from app.models.reference_data import ReferenceData
 from app.repositories.account_attribute_repository import AccountAttributeRepository
 from app.schemas.account import AccountResponse
 from app.schemas.institution import InstitutionResponse
+from app.services.price_service import PriceService
+from app.services.deferred_shares_balance_service import DeferredSharesBalanceService
+from app.services.deferred_cash_balance_service import DeferredCashBalanceService
+from app.services.rsu_balance_service import RSUBalanceService
+from app.utils.deferred_shares_calculator import calculate_deferred_shares_balance_safe, calculate_deferred_cash_balance_safe, calculate_rsu_balance_safe
+
+logger = logging.getLogger(__name__)
 
 
 class PortfolioRepository:
@@ -71,8 +79,97 @@ class PortfolioRepository:
             # Get opened/closed dates from AccountAttribute
             attr_repo = AccountAttributeRepository(self.session)
             dates = await attr_repo.get_dates_for_account(account.id, user_id)
-            banking_details = await attr_repo.get_banking_details_for_account(account.id, user_id)
-            interest_rate = await attr_repo.get_attribute_by_name(account.id, user_id, "interest_rate")
+            banking_details = await attr_repo.get_banking_details_for_account(
+                account.id, user_id
+            )
+            interest_rate = await attr_repo.get_attribute_by_name(
+                account.id, user_id, "interest_rate"
+            )
+            fixed_bonus_rate = await attr_repo.get_attribute_by_name(
+                account.id, user_id, "fixed_bonus_rate"
+            )
+            fixed_bonus_rate_end_date = await attr_repo.get_attribute_by_name(
+                account.id, user_id, "fixed_bonus_rate_end_date"
+            )
+            release_date = await attr_repo.get_attribute_by_name(
+                account.id, user_id, "release_date"
+            )
+            number_of_shares = await attr_repo.get_attribute_by_name(
+                account.id, user_id, "number_of_shares"
+            )
+            underlying = await attr_repo.get_attribute_by_name(
+                account.id, user_id, "underlying"
+            )
+            
+            # Fetch price for deferred shares from Yahoo Finance
+            price = await attr_repo.get_attribute_by_name(
+                account.id, user_id, "price"
+            )
+            purchase_price = await attr_repo.get_attribute_by_name(
+                account.id, user_id, "purchase_price"
+            )
+            
+            logger.debug(
+                f"[PortfolioRepository] Account {account.name} ({account_type}): "
+                f"shares={number_of_shares}, underlying={underlying}, price={price}, purchase_price={purchase_price}"
+            )
+            
+            if account_type == "Deferred Shares" and underlying:
+                # Try to fetch fresh price from Yahoo Finance
+                fresh_price = await PriceService.fetch_price(underlying)
+                if fresh_price:
+                    # Update database with fresh price
+                    await attr_repo.set_attribute_by_name(
+                        account.id, user_id, "price", fresh_price
+                    )
+                    price = fresh_price
+                
+                # Calculate and save deferred shares balance daily
+                if number_of_shares and price and purchase_price:
+                    calculated_balance = calculate_deferred_shares_balance_safe(
+                        number_of_shares, price, purchase_price
+                    )
+                    if calculated_balance is not None:
+                        await DeferredSharesBalanceService.save_daily_balance(
+                            account.id, user_id, calculated_balance, self.session, price
+                        )
+            
+            # Handle RSU accounts
+            if account_type == "RSU" and underlying:
+                # Try to fetch fresh price from Yahoo Finance
+                fresh_price = await PriceService.fetch_price(underlying)
+                if fresh_price:
+                    # Update database with fresh price
+                    await attr_repo.set_attribute_by_name(
+                        account.id, user_id, "price", fresh_price
+                    )
+                    price = fresh_price
+                
+                # Calculate and save RSU balance daily (net amount after 47% tax)
+                if number_of_shares and price:
+                    calculated_balance = calculate_rsu_balance_safe(
+                        number_of_shares, price
+                    )
+                    if calculated_balance is not None:
+                        await RSUBalanceService.save_daily_balance(
+                            account.id, user_id, calculated_balance, self.session, price
+                        )
+            
+            # Handle Deferred Cash accounts
+            if account_type == "Deferred Cash" and latest_balance and latest_balance.value:
+                # Calculate deferred cash balance with 47% discount
+                try:
+                    balance_in_pence = int(float(latest_balance.value) * 100)
+                    calculated_balance = calculate_deferred_cash_balance_safe(str(balance_in_pence))
+                    if calculated_balance is not None:
+                        await DeferredCashBalanceService.save_daily_balance(
+                            account.id, user_id, calculated_balance, self.session
+                        )
+                except (ValueError, TypeError) as e:
+                    logger.warning(
+                        f"[PortfolioRepository] Failed to calculate deferred cash balance for "
+                        f"account {account.id}: {e}"
+                    )
 
             account_payload = AccountResponse.model_validate(account).model_dump(by_alias=True)
             # Add dates from AccountAttribute
@@ -84,18 +181,34 @@ class PortfolioRepository:
             account_payload["rollRefNumber"] = banking_details.get("rollRefNumber")
             # Add interest rate from AccountAttribute
             account_payload["interestRate"] = interest_rate
+            # Add fixed/bonus rate from AccountAttribute
+            account_payload["fixedBonusRate"] = fixed_bonus_rate
+            account_payload["fixedBonusRateEndDate"] = fixed_bonus_rate_end_date
+            # Add deferred account fields from AccountAttribute
+            account_payload["releaseDate"] = release_date
+            account_payload["numberOfShares"] = number_of_shares
+            account_payload["underlying"] = underlying
+            account_payload["price"] = price
+            account_payload["purchasePrice"] = purchase_price
 
             institution_payload = (
-                InstitutionResponse.model_validate(account.institution).model_dump(by_alias=True)
+                InstitutionResponse.model_validate(account.institution).model_dump(
+                    by_alias=True
+                )
                 if account.institution
                 else None
             )
-            
+
             # Load parent institution if exists
             if institution_payload and account.institution:
-                from app.repositories.institution_group_repository import InstitutionGroupRepository
+                from app.repositories.institution_group_repository import (
+                    InstitutionGroupRepository,
+                )
+
                 group_repo = InstitutionGroupRepository(self.session)
-                parent_group = await group_repo.get_parent_for_child(account.institution.id, user_id)
+                parent_group = await group_repo.get_parent_for_child(
+                    account.institution.id, user_id
+                )
                 if parent_group:
                     institution_payload["parentId"] = parent_group.parent_institution_id
 

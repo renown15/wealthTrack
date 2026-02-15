@@ -13,6 +13,12 @@ from app.models.user_profile import UserProfile
 from app.repositories.account_attribute_repository import AccountAttributeRepository
 from app.repositories.account_repository import AccountRepository
 
+# Configuration: date field name -> attribute name mappings
+DATE_FIELDS = [
+    ("opened_at", "opened_date"),
+    ("closed_at", "closed_date"),
+]
+
 
 class AccountDatesUpdate(BaseModel):
     """Schema for updating account dates."""
@@ -38,25 +44,18 @@ async def update_account_dates(
 
     attr_repo = AccountAttributeRepository(session)
 
-    if dates_data.opened_at is not None:
-        if dates_data.opened_at == "":
-            type_id = await attr_repo.get_attribute_type_id("opened_date")
-            if type_id:
-                await attr_repo.delete_attribute(account_id, current_user.id, type_id)
-        else:
-            await attr_repo.set_attribute_by_name(
-                account_id, current_user.id, "opened_date", dates_data.opened_at
-            )
-
-    if dates_data.closed_at is not None:
-        if dates_data.closed_at == "":
-            type_id = await attr_repo.get_attribute_type_id("closed_date")
-            if type_id:
-                await attr_repo.delete_attribute(account_id, current_user.id, type_id)
-        else:
-            await attr_repo.set_attribute_by_name(
-                account_id, current_user.id, "closed_date", dates_data.closed_at
-            )
+    # Update dates using configuration-driven loop
+    for field_name, attr_name in DATE_FIELDS:
+        value = getattr(dates_data, field_name, None)
+        if value is not None:
+            if value == "":
+                type_id = await attr_repo.get_attribute_type_id(attr_name)
+                if type_id:
+                    await attr_repo.delete_attribute(account_id, current_user.id, type_id)
+            else:
+                await attr_repo.set_attribute_by_name(
+                    account_id, current_user.id, attr_name, value
+                )
 
     dates = await attr_repo.get_dates_for_account(account_id, current_user.id)
     return {"accountId": account_id, **dates}

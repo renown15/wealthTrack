@@ -74,6 +74,12 @@ async def db_session(test_engine: AsyncEngine) -> AsyncGenerator[AsyncSession, N
             # Event types
             ReferenceData(class_key="event_type", reference_value="Balance Update", sort_index=1),
             ReferenceData(class_key="event_type", reference_value="Transaction", sort_index=2),
+            # Account event types
+            ReferenceData(class_key="account_event_type", reference_value="Balance Update", sort_index=1),
+            ReferenceData(class_key="account_event_type", reference_value="Interest", sort_index=2),
+            ReferenceData(class_key="account_event_type", reference_value="Dividend", sort_index=3),
+            ReferenceData(class_key="account_event_type", reference_value="Deposit", sort_index=4),
+            ReferenceData(class_key="account_event_type", reference_value="Withdrawal", sort_index=5),
             # Credential types
             ReferenceData(class_key="credential_type", reference_value="Username", sort_index=1),
             ReferenceData(class_key="credential_type", reference_value="Password", sort_index=2),

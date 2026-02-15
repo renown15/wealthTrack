@@ -23,6 +23,7 @@ export interface UseAccountHubModalsReturn {
   initialModalFixedBonusRate: ComputedRef<string | null | undefined>;
   initialModalFixedBonusRateEndDate: ComputedRef<string | null | undefined>;
   initialModalParentId: ComputedRef<number | null | undefined>;
+  initialModalInstitutionType: ComputedRef<string | null | undefined>;
   openCreateAccountModal: () => void;
   openCreateInstitutionModal: () => void;
   openEditAccountModal: (account: Account) => void;
@@ -71,15 +72,26 @@ export function useAccountHubModals(): UseAccountHubModalsReturn {
   const initialModalInterestRate = computed(() =>
     editingItem.value && 'interestRate' in editingItem.value
       ? (editingItem.value as Account).interestRate : null);
-  const initialModalFixedBonusRate = computed(() =>
-    editingItem.value && 'fixedBonusRate' in editingItem.value
-      ? (editingItem.value as Account).fixedBonusRate : null);
-  const initialModalFixedBonusRateEndDate = computed(() =>
-    editingItem.value && 'fixedBonusRateEndDate' in editingItem.value
-      ? (editingItem.value as Account).fixedBonusRateEndDate : null);
+  const initialModalFixedBonusRate = computed(() => {
+    const value = editingItem.value && 'fixedBonusRate' in editingItem.value
+      ? (editingItem.value as Account).fixedBonusRate : null;
+    // eslint-disable-next-line no-console
+    console.log('[useAccountHubModals] initialModalFixedBonusRate computed', { value, editingItem: editingItem.value });
+    return value;
+  });
+  const initialModalFixedBonusRateEndDate = computed(() => {
+    const value = editingItem.value && 'fixedBonusRateEndDate' in editingItem.value
+      ? (editingItem.value as Account).fixedBonusRateEndDate : null;
+    // eslint-disable-next-line no-console
+    console.log('[useAccountHubModals] initialModalFixedBonusRateEndDate computed', { value, editingItem: editingItem.value });
+    return value;
+  });
   const initialModalParentId = computed(() =>
     editingItem.value && 'parentId' in editingItem.value
       ? (editingItem.value as Institution).parentId : null);
+  const initialModalInstitutionType = computed(() =>
+    editingItem.value && 'institutionType' in editingItem.value
+      ? (editingItem.value as Institution).institutionType : null);
 
   const openCreateAccountModal = (): void => {
     modalType.value = 'create';
@@ -96,10 +108,14 @@ export function useAccountHubModals(): UseAccountHubModalsReturn {
   };
 
   const openEditAccountModal = (account: Account): void => {
+    // eslint-disable-next-line no-console
+    console.log('[useAccountHubModals] openEditAccountModal called', { accountId: account.id, accountName: account.name });
     modalType.value = 'edit';
     modalResourceType.value = 'account';
     editingItem.value = account;
     modalOpen.value = true;
+    // eslint-disable-next-line no-console
+    console.log('[useAccountHubModals] Modal state updated', { modalType: modalType.value, hasEditingItem: !!editingItem.value });
   };
 
   const openEditInstitutionModal = (institution: Institution): void => {
@@ -110,7 +126,10 @@ export function useAccountHubModals(): UseAccountHubModalsReturn {
   };
 
   const closeModal = (): void => {
+    // eslint-disable-next-line no-console
+    console.log('[useAccountHubModals] closeModal called, resetting modalType and editingItem');
     modalOpen.value = false;
+    modalType.value = 'create';
     editingItem.value = null;
   };
 
@@ -151,6 +170,7 @@ export function useAccountHubModals(): UseAccountHubModalsReturn {
     initialModalFixedBonusRate,
     initialModalFixedBonusRateEndDate,
     initialModalParentId,
+    initialModalInstitutionType,
     openCreateAccountModal,
     openCreateInstitutionModal,
     openEditAccountModal,

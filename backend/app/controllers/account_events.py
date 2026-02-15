@@ -6,11 +6,28 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.controllers.dependencies import get_current_user
 from app.database import get_db
+from app.models.account import Account
 from app.models.user_profile import UserProfile
 from app.repositories.account_attribute_repository import AccountAttributeRepository
 from app.repositories.account_event_repository import AccountEventRepository
 from app.repositories.account_repository import AccountRepository
 from app.schemas.account_event import AccountEventCreate, AccountEventResponse
+
+
+async def _verify_account_access(
+    account_id: int,
+    current_user: UserProfile,
+    session: AsyncSession,
+) -> Account:
+    """Verify user has access to the specified account."""
+    repo = AccountRepository(session)
+    account = await repo.get_by_id(account_id, current_user.id)
+    if not account:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Account not found",
+        )
+    return account
 
 
 async def list_account_events(
@@ -19,13 +36,7 @@ async def list_account_events(
     current_user: UserProfile = Depends(get_current_user),
 ) -> list[AccountEventResponse]:
     """Return the event timeline for the requested account, including attributes."""
-    account_repo = AccountRepository(session)
-    account = await account_repo.get_by_id(account_id, current_user.id)
-    if not account:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Account not found",
-        )
+    await _verify_account_access(account_id, current_user, session)
 
     # Fetch events
     event_repo = AccountEventRepository(session)
@@ -64,13 +75,7 @@ async def create_account_event(
     current_user: UserProfile = Depends(get_current_user),
 ) -> AccountEventResponse:
     """Create a new event for the specified account."""
-    account_repo = AccountRepository(session)
-    account = await account_repo.get_by_id(account_id, current_user.id)
-    if not account:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Account not found",
-        )
+    await _verify_account_access(account_id, current_user, session)
 
     event_repo = AccountEventRepository(session)
     type_id = await event_repo.get_event_type_id(event_data.event_type)

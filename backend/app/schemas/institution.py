@@ -14,6 +14,7 @@ class InstitutionCreate(BaseSchema):
 
     name: str = Field(..., min_length=1, max_length=255, description="Institution name")
     parent_id: Optional[int] = Field(None, description="Parent institution ID if part of a group")
+    institution_type: Optional[str] = Field(None, max_length=100, description="Type of institution (Bank, Building Society, HM Government, Fund Manager)")
 
 
 class InstitutionUpdate(BaseSchema):
@@ -21,6 +22,7 @@ class InstitutionUpdate(BaseSchema):
 
     name: Optional[str] = Field(None, min_length=1, max_length=255, description="Institution name")
     parent_id: Optional[int] = Field(None, description="Parent institution ID if part of a group")
+    institution_type: Optional[str] = Field(None, max_length=100, description="Type of institution (Bank, Building Society, HM Government, Fund Manager)")
 
 
 class InstitutionResponse(BaseSchema):
@@ -30,6 +32,7 @@ class InstitutionResponse(BaseSchema):
     user_id: int
     name: str
     parent_id: Optional[int] = None
+    institution_type: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

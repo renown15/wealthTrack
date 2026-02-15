@@ -44,6 +44,10 @@
 ### Specific Guides
 | Document | Purpose | Time |
 |----------|---------|------|
+| [FIXED_BONUS_RATE_SOLUTION.md](./FIXED_BONUS_RATE_SOLUTION.md) | Complete solution walkthrough | 10 min read |
+| [ARCHITECTURE_NAMING_CONVENTIONS.md](./ARCHITECTURE_NAMING_CONVENTIONS.md) | Backend-frontend naming bridge | 8 min read |
+| [MIDDLEWARE_IMPLEMENTATION.md](./MIDDLEWARE_IMPLEMENTATION.md) | Technical middleware details | 12 min read |
+| [FIELD_IMPLEMENTATION_GUIDE.md](./FIELD_IMPLEMENTATION_GUIDE.md) | How to add new fields | 10 min read |
 | [backend/alembic/README](./backend/alembic/README) | Database migrations | 5 min read |
 | [frontend/README.md](./frontend/README.md) | Frontend setup | 5 min read |
 

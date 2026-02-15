@@ -111,6 +111,16 @@ async function seed() {
       ['ATTRIBUTE_TYPE', 'INTEREST_RATE', 'Interest Rate', 1],
       ['ATTRIBUTE_TYPE', 'OVERDRAFT_LIMIT', 'Overdraft Limit', 2],
       ['ATTRIBUTE_TYPE', 'CREDIT_LIMIT', 'Credit Limit', 3],
+      ['ACCOUNT_ATTRIBUTE_TYPE', 'OPENED_DATE', 'Account Opened Date', 1],
+      ['ACCOUNT_ATTRIBUTE_TYPE', 'CLOSED_DATE', 'Account Closed Date', 2],
+      ['ACCOUNT_ATTRIBUTE_TYPE', 'ACCOUNT_NUMBER', 'Account Number', 3],
+      ['ACCOUNT_ATTRIBUTE_TYPE', 'SORT_CODE', 'Sort Code', 4],
+      ['ACCOUNT_ATTRIBUTE_TYPE', 'ROLL_REF_NUMBER', 'Roll / Ref Number', 5],
+      ['ACCOUNT_ATTRIBUTE_TYPE', 'INTEREST_RATE', 'Interest Rate', 6],
+      ['ACCOUNT_ATTRIBUTE_TYPE', 'FIXED_BONUS_RATE', 'Fixed Bonus Rate', 7],
+      ['ACCOUNT_ATTRIBUTE_TYPE', 'FIXED_BONUS_RATE_END_DATE', 'Fixed Bonus Rate End Date', 8],
+      ['ACCOUNT_ATTRIBUTE_TYPE', 'IBAN', 'IBAN', 9],
+      ['ACCOUNT_ATTRIBUTE_TYPE', 'NOTES', 'Notes', 10],
     ];
 
     for (const [cls, key, val, idx] of referenceData) {

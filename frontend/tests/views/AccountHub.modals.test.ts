@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
-import { reactive, computed } from 'vue';
+import { reactive, computed, ref } from 'vue';
 import AccountHub from '@views/AccountHub/AccountHub.vue';
 import { apiService } from '@/services/ApiService';
 import type { PortfolioItem, Institution, AccountEvent } from '@/models/WealthTrackDataModels';
@@ -41,6 +41,56 @@ let mockPortfolioInstance = createMockPortfolio();
 
 vi.mock('@/composables/usePortfolio', () => ({
   usePortfolio: () => mockPortfolioInstance,
+}));
+
+vi.mock('@/composables/useAccountCrudHandlers', () => ({
+  useAccountCrudHandlers: () => ({
+    accountTypes: ref([]),
+    accountStatuses: ref([]),
+    handleSave: vi.fn(async (payload: any) => {
+      if (payload.typeId && payload.statusId) {
+        await mockPortfolioInstance.createAccount(
+          payload.institutionId,
+          payload.name,
+          payload.typeId,
+          payload.statusId,
+          payload.accountNumber,
+          payload.sortCode,
+          payload.rollRefNumber,
+          payload.interestRate,
+          payload.fixedBonusRate,
+          payload.fixedBonusRateEndDate
+        );
+      } else {
+        await mockPortfolioInstance.updateAccount(
+          1,
+          payload.name,
+          payload.typeId,
+          payload.statusId,
+          payload.accountNumber,
+          payload.sortCode,
+          payload.rollRefNumber,
+          payload.interestRate,
+          payload.fixedBonusRate,
+          payload.fixedBonusRateEndDate
+        );
+      }
+    }),
+    handleDelete: vi.fn(async (id: number) => {
+      await mockPortfolioInstance.deleteAccount(id);
+    }),
+  }),
+}));
+
+vi.mock('@/composables/useInstitutionCrudHandlers', () => ({
+  useInstitutionCrudHandlers: () => ({
+    handleSave: vi.fn(async (payload: any) => {
+      await mockPortfolioInstance.createInstitution(payload.name, payload.parentId || null);
+    }),
+    handleDelete: vi.fn(async (id: number) => {
+      await mockPortfolioInstance.deleteInstitution(id);
+    }),
+  }),
 }));
 
 vi.mock('@views/AccountHub/AccountHubStats.vue', () => ({
@@ -292,10 +342,16 @@ describe('AccountHub - Modal interactions', () => {
       institutionId: 5,
       typeId: 2,
       statusId: 3,
+      accountNumber: undefined,
+      sortCode: undefined,
+      rollRefNumber: undefined,
+      interestRate: undefined,
+      fixedBonusRate: undefined,
+      fixedBonusRateEndDate: undefined,
     });
     await flushPromises();
 
-    expect(mockPortfolioInstance.createAccount).toHaveBeenCalledWith(5, 'New Account', 2, 3);
+    expect(mockPortfolioInstance.createAccount).toHaveBeenCalledWith(5, 'New Account', 2, 3, undefined, undefined, undefined, undefined, undefined, undefined);
     expect((wrapper.vm as unknown as AccountHubVm).modalOpen).toBe(false);
   });
 
@@ -312,10 +368,21 @@ describe('AccountHub - Modal interactions', () => {
     await wrapper.vm.$nextTick();
 
     const modal = wrapper.findComponent({ name: 'AddAccountModal' });
-    await modal.vm.$emit('save', { name: 'Updated Name', institutionId: 0 });
+    await modal.vm.$emit('save', { 
+      name: 'Updated Name', 
+      institutionId: 0,
+      typeId: undefined,
+      statusId: undefined,
+      accountNumber: undefined,
+      sortCode: undefined,
+      rollRefNumber: undefined,
+      interestRate: undefined,
+      fixedBonusRate: undefined,
+      fixedBonusRateEndDate: undefined,
+    });
     await flushPromises();
 
-    expect(mockPortfolioInstance.updateAccount).toHaveBeenCalledWith(1, 'Updated Name');
+    expect(mockPortfolioInstance.updateAccount).toHaveBeenCalledWith(1, 'Updated Name', undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
   });
 
   it('creates an institution when stats trigger creation', async () => {
@@ -327,10 +394,11 @@ describe('AccountHub - Modal interactions', () => {
     await wrapper.vm.$nextTick();
 
     const modal = wrapper.findComponent({ name: 'AddAccountModal' });
-    await modal.vm.$emit('save', { name: 'New Bank', institutionId: 0 });
+    await modal.vm.$emit('save', { name: 'New Bank', institutionId: 0, parentId: undefined });
     await flushPromises();
 
-    expect(mockPortfolioInstance.createInstitution).toHaveBeenCalledWith('New Bank');
+    // The handler converts undefined parentId to null
+    expect(mockPortfolioInstance.createInstitution).toHaveBeenCalledWith('New Bank', null);
   });
 
   it('confirms account deletion when confirm emitted', async () => {

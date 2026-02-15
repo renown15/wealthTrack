@@ -6,8 +6,14 @@
     @close="emitClose"
   >
     <template #default>
+      <div v-if="validationError" class="error-banner mb-4">
+        {{ validationError }}
+      </div>
       <div class="form-group">
-        <label :for="`${resourceType}-name`" class="form-label">
+        <label
+          :for="`${resourceType}-name`"
+          class="form-label"
+        >
           {{ resourceType === 'account' ? 'Account' : 'Institution' }} Name
         </label>
         <input
@@ -24,87 +30,60 @@
         />
       </div>
 
-      <div v-if="resourceType === 'institution'" class="form-group">
-        <label for="parentInstitution" class="form-label">Parent Institution (Optional)</label>
-        <select v-model.number="institutionFormData.parentId" id="parentInstitution" class="form-select">
+      <div
+        v-if="resourceType === 'institution'"
+        class="form-group"
+      >
+        <label for="parentInstitution" class="form-label">
+          Parent Institution (Optional)
+        </label>
+        <select
+          v-model.number="institutionFormData.parentId"
+          id="parentInstitution"
+          class="form-select"
+        >
           <option :value="0">None</option>
-          <option v-for="inst in institutions" :key="inst.id" :value="inst.id">
+          <option
+            v-for="inst in institutions"
+            :key="inst.id"
+            :value="inst.id"
+          >
             {{ inst.name }}
           </option>
         </select>
       </div>
 
-      <div v-if="resourceType === 'account' && type === 'create'" class="form-group">
-        <label for="institution-select" class="form-label">Institution</label>
-        <select v-model.number="formData.institutionId" id="institution-select" class="form-select">
-          <option value="">Select Institution</option>
-          <option v-for="inst in institutions" :key="inst.id" :value="inst.id">
-            {{ inst.name }}
+      <div
+        v-if="resourceType === 'institution'"
+        class="form-group"
+      >
+        <label for="institutionType" class="form-label">
+          Institution Type (Optional)
+        </label>
+        <select
+          v-model="institutionFormData.institutionType"
+          id="institutionType"
+          class="form-select"
+        >
+          <option :value="null">Select Type...</option>
+          <option
+            v-for="type in institutionTypes"
+            :key="type.referencevalue"
+            :value="type.referencevalue"
+          >
+            {{ type.referencevalue }}
           </option>
         </select>
       </div>
 
-      <div v-if="resourceType === 'account'" class="form-group">
-        <label for="accountType" class="form-label">Account Type</label>
-        <select id="accountType" v-model.number="formData.typeId" class="form-select">
-          <option value="">Select Account Type</option>
-          <option v-for="t in accountTypes" :key="t.id" :value="t.id">
-            {{ t.referenceValue }}
-          </option>
-        </select>
-      </div>
-
-      <div v-if="resourceType === 'account'" class="form-group">
-        <label for="accountStatus" class="form-label">Account Status</label>
-        <select id="accountStatus" v-model.number="formData.statusId" class="form-select">
-          <option value="">Select Account Status</option>
-          <option v-for="status in accountStatuses" :key="status.id" :value="status.id">
-            {{ status.referenceValue }}
-          </option>
-        </select>
-      </div>
-
-      <div v-if="resourceType === 'account'" class="grid grid-cols-2 gap-4">
-        <div class="form-group">
-          <label for="openedAt" class="form-label">Opened Date</label>
-          <input id="openedAt" v-model="formData.openedAt" type="date" class="form-input" />
-        </div>
-        <div class="form-group">
-          <label for="closedAt" class="form-label">Closed Date</label>
-          <input id="closedAt" v-model="formData.closedAt" type="date" class="form-input" />
-        </div>
-      </div>
-
-      <div v-if="resourceType === 'account'" class="form-group">
-        <label for="accountNumber" class="form-label">Account Number</label>
-        <input id="accountNumber" v-model="formData.accountNumber" type="text" class="form-input" placeholder="e.g., 12345678" />
-      </div>
-
-      <div v-if="resourceType === 'account'" class="grid grid-cols-2 gap-4">
-        <div class="form-group">
-          <label for="sortCode" class="form-label">Sort Code</label>
-          <input id="sortCode" v-model="formData.sortCode" type="text" class="form-input" placeholder="e.g., 12-34-56" />
-        </div>
-        <div class="form-group">
-          <label for="rollRefNumber" class="form-label">Roll / Ref Number</label>
-          <input id="rollRefNumber" v-model="formData.rollRefNumber" type="text" class="form-input" placeholder="e.g., 123456789" />
-        </div>
-      </div>
-
-      <div v-if="resourceType === 'account'" class="form-group">
-        <label for="interestRate" class="form-label">Interest Rate</label>
-        <input id="interestRate" v-model="formData.interestRate" type="text" class="form-input" placeholder="e.g., 2.5%" />
-      </div>
-
-      <!-- Fixed/Bonus Rate Fields - Only show for Fixed Rate Saver accounts -->
-      <div v-if="isFixedRateSaver" class="form-group">
-        <label for="fixedBonusRate" class="form-label">Fixed / Bonus Interest Rate</label>
-        <input id="fixedBonusRate" v-model="formData.fixedBonusRate" type="text" class="form-input" placeholder="e.g., 4.5%" />
-      </div>
-      <div v-if="isFixedRateSaver" class="form-group">
-        <label for="fixedBonusRateEndDate" class="form-label">Fixed / Bonus Rate End Date</label>
-        <input id="fixedBonusRateEndDate" v-model="formData.fixedBonusRateEndDate" type="date" class="form-input" />
-      </div>
+      <AccountFormFields
+        v-if="resourceType === 'account'"
+        :form-data="formData"
+        :type="type"
+        :institutions="institutions"
+        :account-types="accountTypes"
+        :account-statuses="accountStatuses"
+      />
     </template>
 
     <template #footer>
@@ -117,12 +96,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, toRef } from 'vue';
+import { computed, toRef, ref } from 'vue';
 import type { Institution } from '@/models/WealthTrackDataModels';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 import BaseModal from '@/components/BaseModal.vue';
+import AccountFormFields from '@views/AccountHub/AccountFormFields.vue';
 import { useAccountForm, type AccountFormProps } from '@/composables/useAccountForm';
-import { useInstitutionForm, type InstitutionFormProps } from '@/composables/useInstitutionForm';
+import {
+  useInstitutionForm,
+  type InstitutionFormProps,
+} from '@/composables/useInstitutionForm';
 
 interface Props {
   open: boolean;
@@ -133,6 +116,7 @@ interface Props {
   initialInstitutionId?: number;
   accountTypes: ReferenceDataItem[];
   accountStatuses: ReferenceDataItem[];
+  institutionTypes: ReferenceDataItem[];
   initialTypeId?: number;
   initialStatusId?: number;
   initialOpenedAt?: string | null;
@@ -144,6 +128,7 @@ interface Props {
   initialFixedBonusRate?: string | null;
   initialFixedBonusRateEndDate?: string | null;
   initialParentId?: number | null;
+  initialInstitutionType?: string | null;
 }
 
 interface SavePayload {
@@ -160,18 +145,13 @@ interface SavePayload {
   fixedBonusRate?: string;
   fixedBonusRateEndDate?: string;
   parentId?: number | null;
+  institutionType?: string | null;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<{ close: []; save: [SavePayload] }>();
 
-// Check if selected account type is Fixed/Bonus Rate Saver
-const isFixedRateSaver = computed(() => {
-  if (!props.open || !formData.value.typeId) return false;
-  const selectedType = props.accountTypes.find((t) => t.id === formData.value.typeId);
-  return selectedType?.referenceValue?.toLowerCase().includes('fixed') || 
-         selectedType?.referenceValue?.toLowerCase().includes('bonus');
-});
+const validationError = ref('');
 
 const formProps = computed<AccountFormProps>(() => ({
   open: props.open,
@@ -185,6 +165,9 @@ const formProps = computed<AccountFormProps>(() => ({
   initialAccountNumber: props.initialAccountNumber,
   initialSortCode: props.initialSortCode,
   initialRollRefNumber: props.initialRollRefNumber,
+  initialInterestRate: props.initialInterestRate,
+  initialFixedBonusRate: props.initialFixedBonusRate,
+  initialFixedBonusRateEndDate: props.initialFixedBonusRateEndDate,
   accountTypes: props.accountTypes,
   accountStatuses: props.accountStatuses,
 }));
@@ -195,9 +178,12 @@ const institutionFormProps = computed<InstitutionFormProps>(() => ({
   open: props.open,
   initialName: props.initialName,
   initialParentId: props.initialParentId,
+  initialInstitutionType: props.initialInstitutionType,
 }));
 
-const { formData: institutionFormData } = useInstitutionForm(toRef(institutionFormProps));
+const { formData: institutionFormData } = useInstitutionForm(
+  toRef(institutionFormProps)
+);
 
 const modalTitle = computed(() => {
   const verb = props.type === 'create' ? 'New' : 'Edit';
@@ -216,45 +202,57 @@ const handleNameInput = (value: string): void => {
 };
 
 const handleSave = (): void => {
+  console.log('[AddAccountModal] handleSave called', { resourceType: props.resourceType, formData, type: props.type });
+  validationError.value = '';
+  
   if (props.resourceType === 'institution') {
-    console.log('Institution save - name:', institutionFormData.value.name, 'parentId:', institutionFormData.value.parentId);
     if (!institutionFormData.value.name) {
-      console.log('Institution name is empty, returning');
+      validationError.value = 'Please enter a name';
       return;
     }
-    const payload: SavePayload = {
+    emit('save', {
       name: institutionFormData.value.name,
       institutionId: 0,
       parentId: institutionFormData.value.parentId || null,
-    };
-    console.log('Emitting save with payload:', payload);
-    emit('save', payload);
+      institutionType: institutionFormData.value.institutionType || null,
+    });
   } else {
-    if (!formData.value.name) return;
-    if (props.type === 'create' && !formData.value.institutionId) return;
-    if (!formData.value.typeId || !formData.value.statusId) return;
-
-    const payload: SavePayload = {
+    console.log('[AddAccountModal] Account save - checking validations', {
       name: formData.value.name,
       institutionId: formData.value.institutionId,
-    };
-
-    payload.typeId = formData.value.typeId;
-    payload.statusId = formData.value.statusId;
-    payload.openedAt = formData.value.openedAt || undefined;
-    payload.closedAt = formData.value.closedAt || undefined;
-    payload.accountNumber = formData.value.accountNumber || undefined;
-    payload.sortCode = formData.value.sortCode || undefined;
-    payload.rollRefNumber = formData.value.rollRefNumber || undefined;
-    payload.interestRate = formData.value.interestRate || undefined;
-    if (isFixedRateSaver.value) {
-      payload.fixedBonusRate = formData.value.fixedBonusRate || undefined;
-      payload.fixedBonusRateEndDate = formData.value.fixedBonusRateEndDate || undefined;
+      typeId: formData.value.typeId,
+      statusId: formData.value.statusId,
+    });
+    if (!formData.value.name) { 
+      validationError.value = 'Please enter an account name';
+      console.log('[AddAccountModal] Validation failed: no name'); 
+      return; 
+    }
+    if (props.type === 'create' && !formData.value.institutionId) { 
+      validationError.value = 'Please select an institution';
+      console.log('[AddAccountModal] Validation failed: no institution'); 
+      return; 
+    }
+    if (!formData.value.typeId || !formData.value.statusId) { 
+      validationError.value = 'Please select an account type and status';
+      console.log('[AddAccountModal] Validation failed: no type or status', { typeId: formData.value.typeId, statusId: formData.value.statusId }); 
+      return; 
     }
 
-    emit('save', payload);
+    emit('save', {
+      name: formData.value.name,
+      institutionId: formData.value.institutionId,
+      typeId: formData.value.typeId,
+      statusId: formData.value.statusId,
+      openedAt: formData.value.openedAt || undefined,
+      closedAt: formData.value.closedAt || undefined,
+      accountNumber: formData.value.accountNumber || undefined,
+      sortCode: formData.value.sortCode || undefined,
+      rollRefNumber: formData.value.rollRefNumber || undefined,
+      interestRate: formData.value.interestRate || undefined,
+      fixedBonusRate: formData.value.fixedBonusRate || undefined,
+      fixedBonusRateEndDate: formData.value.fixedBonusRateEndDate || undefined,
+    });
   }
 };
 </script>
-
-<!-- Uses UnoCSS utilities via shortcuts -->

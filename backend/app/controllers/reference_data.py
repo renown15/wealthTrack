@@ -1,66 +1,41 @@
 """Controller that exposes reference-data lookup rows."""
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select, func, delete
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.models.reference_data import ReferenceData
 from app.models.account import Account
-from app.models.account_event import AccountEvent
 from app.models.account_attribute import AccountAttribute
+from app.models.account_event import AccountEvent
 from app.models.institution_security_credentials import InstitutionSecurityCredentials
+from app.models.reference_data import ReferenceData
 from app.models.user_profile import UserProfile
 from app.schemas.reference_data import ReferenceDataCreate, ReferenceDataResponse
 from app.services.reference_data import list_reference_data_by_class
 
 router = APIRouter(prefix="/reference-data", tags=["reference-data"])
 
+# Usage check configuration: (model, foreign_key_field, label)
+USAGE_CHECKS = [
+    (Account, Account.type_id, "account(s) use this as type"),
+    (Account, Account.status_id, "account(s) use this as status"),
+    (AccountEvent, AccountEvent.type_id, "account event(s)"),
+    (AccountAttribute, AccountAttribute.type_id, "account attribute(s)"),
+    (InstitutionSecurityCredentials, InstitutionSecurityCredentials.type_id, "credential(s)"),
+    (UserProfile, UserProfile.type_id, "user profile(s)"),
+]
+
 
 async def get_reference_usage(session: AsyncSession, ref_id: int) -> list[str]:
     """Check what's using a reference data item."""
     usage = []
 
-    # Check accounts (type_id and status_id)
-    acc_type = await session.scalar(
-        select(func.count()).select_from(Account).where(Account.type_id == ref_id)
-    )
-    if acc_type:
-        usage.append(f"{acc_type} account(s) use this as type")
-
-    acc_status = await session.scalar(
-        select(func.count()).select_from(Account).where(Account.status_id == ref_id)
-    )
-    if acc_status:
-        usage.append(f"{acc_status} account(s) use this as status")
-
-    # Check account events
-    evt_count = await session.scalar(
-        select(func.count()).select_from(AccountEvent).where(AccountEvent.type_id == ref_id)
-    )
-    if evt_count:
-        usage.append(f"{evt_count} account event(s)")
-
-    # Check account attributes
-    attr_count = await session.scalar(
-        select(func.count()).select_from(AccountAttribute).where(AccountAttribute.type_id == ref_id)
-    )
-    if attr_count:
-        usage.append(f"{attr_count} account attribute(s)")
-
-    # Check credentials
-    cred_count = await session.scalar(
-        select(func.count()).select_from(InstitutionSecurityCredentials)
-        .where(InstitutionSecurityCredentials.type_id == ref_id)
-    )
-    if cred_count:
-        usage.append(f"{cred_count} credential(s)")
-
-    # Check user profiles
-    user_count = await session.scalar(
-        select(func.count()).select_from(UserProfile).where(UserProfile.type_id == ref_id)
-    )
-    if user_count:
-        usage.append(f"{user_count} user profile(s)")
+    for model, field, label in USAGE_CHECKS:
+        count = await session.scalar(
+            select(func.count()).select_from(model).where(field == ref_id)  # pylint: disable=not-callable
+        )
+        if count:
+            usage.append(f"{count} {label}")
 
     return usage
 
@@ -80,9 +55,10 @@ async def list_all_reference_data(
     session: AsyncSession = Depends(get_db),
 ) -> list[ReferenceDataResponse]:
     """Return all reference data entries for admin management."""
-    from sqlalchemy import select
     result = await session.execute(
-        select(ReferenceData).order_by(ReferenceData.sort_index, ReferenceData.class_key, ReferenceData.reference_value)
+        select(ReferenceData).order_by(
+            ReferenceData.sort_index, ReferenceData.class_key, ReferenceData.reference_value
+        )
     )
     entries = result.scalars().all()
     return [ReferenceDataResponse.from_orm(entry) for entry in entries]
@@ -106,8 +82,14 @@ async def create_reference_data(
     except Exception as e:
         error_msg = str(e).lower()
         if "unique" in error_msg or "duplicate" in error_msg:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Entry already exists") from e
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Failed to create: {str(e)}") from e
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Entry already exists",
+            ) from e
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to create: {str(e)}",
+        ) from e
     return ReferenceDataResponse.from_orm(entry)
 
 
@@ -137,8 +119,14 @@ async def update_reference_data(
     except Exception as e:
         error_msg = str(e).lower()
         if "unique" in error_msg or "duplicate" in error_msg:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Entry already exists") from e
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Failed to update: {str(e)}") from e
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Entry already exists",
+            ) from e
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to update: {str(e)}",
+        ) from e
     return ReferenceDataResponse.from_orm(entry)
 
 

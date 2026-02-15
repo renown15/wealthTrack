@@ -9,8 +9,8 @@ import 'vue-toastification/dist/index.css';
 
 import { createApp } from 'vue';
 import Toast from 'vue-toastification';
-import App from './App.vue';
-import router from './router/index';
+import App from '@/App.vue';
+import router from '@/router/index';
 import { authModule } from '@/modules/auth';
 import { apiService } from '@/services/ApiService';
 import { toastOptions } from '@/composables/useToast';

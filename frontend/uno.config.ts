@@ -42,6 +42,7 @@ export default defineConfig({
     'tagline': 'm-0 text-white/70 text-xs tracking-[0.25em] uppercase',
     'nav': 'flex items-center gap-3',
     'nav-link': 'px-4 py-2 rounded-md text-white/90 no-underline text-xs font-semibold tracking-wider uppercase hover:bg-white/10 transition-all',
+    'nav-btn': 'px-4 py-2 text-sm font-medium text-white bg-transparent border-1 border-white/30 rounded-sm cursor-pointer transition-all duration-150 no-underline hover:bg-white/10 hover:border-white/50 active:bg-white/20 active:border-white',
     'main': 'flex-1',
     'main-inner': 'max-w-[1200px] mx-auto py-6 px-4',
     'footer-inner': 'max-w-[1200px] mx-auto py-4 px-6 text-center text-muted text-sm',
@@ -61,8 +62,8 @@ export default defineConfig({
 
     // Layout
     'page-view': 'min-h-screen bg-surface px-6 py-4 pb-16 flex flex-col items-center gap-6',
-    'hub-header-card': 'w-[1600px] rounded-[24px] overflow-hidden shadow-card',
-    'hub-content-card': 'w-[1600px] bg-card rounded-[24px] overflow-visible shadow-card',
+    'hub-header-card': 'w-[1920px] rounded-[24px] overflow-hidden shadow-card',
+    'hub-content-card': 'w-[1920px] bg-card rounded-[24px] overflow-visible shadow-card',
 
     // Header panel (blue gradient header)
     'header-panel': 'bg-gradient-to-br from-primary to-primary-dark p-10 flex flex-col gap-8',

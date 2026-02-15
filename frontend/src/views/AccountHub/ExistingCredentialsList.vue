@@ -12,8 +12,41 @@
           <p v-if="credential.key" class="m-0 text-sm text-gray-600">{{ credential.key }}</p>
           <p class="m-0 text-sm text-gray-500">{{ credential.value }}</p>
           <p class="m-0 text-sm text-gray-400">Updated {{ formatDate(credential.updatedAt) }}</p>
+          <!-- Character Visualization -->
+          <div
+            v-if="visualizingId === credential.id"
+            class="mt-3"
+          >
+            <!-- Index row -->
+            <div class="flex gap-1 mb-1">
+              <div
+                v-for="(char, index) in credential.value"
+                :key="`${credential.id}-idx-${index}`"
+                class="w-8 text-center text-xs text-gray-500 font-bold"
+              >
+                {{ index + 1 }}
+              </div>
+            </div>
+            <!-- Character boxes row -->
+            <div class="flex gap-1">
+              <div
+                v-for="(char, index) in credential.value"
+                :key="`${credential.id}-char-${index}`"
+                class="w-8 h-8 border-2 border-blue-400 rounded bg-blue-50 flex items-center justify-center text-sm font-mono text-blue-700"
+              >
+                {{ char }}
+              </div>
+            </div>
+          </div>
         </div>
         <div class="flex-shrink-0 flex gap-2">
+          <button
+            class="btn-icon-edit"
+            type="button"
+            @click="toggleVisualize(credential.id)"
+            :class="{ 'opacity-60': visualizingId === credential.id }"
+            title="Visualize credential value"
+          >{{ Icons.eye }}</button>
           <button
             class="btn-icon-edit"
             type="button"
@@ -37,6 +70,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import type { InstitutionCredential } from '@/models/InstitutionCredential';
 import { Icons } from '@/constants/icons';
 
@@ -49,6 +83,12 @@ defineEmits<{
   edit: [InstitutionCredential];
   remove: [number];
 }>();
+
+const visualizingId = ref<number | null>(null);
+
+const toggleVisualize = (credentialId: number): void => {
+  visualizingId.value = visualizingId.value === credentialId ? null : credentialId;
+};
 
 const formatDate = (value: string): string => new Date(value).toLocaleString();
 </script>

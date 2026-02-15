@@ -120,7 +120,7 @@ describe('usePortfolio', () => {
       const { createInstitution } = usePortfolio();
       await createInstitution('New Bank');
 
-      expect(mockApiService.createInstitution).toHaveBeenCalledWith({ name: 'New Bank' });
+      expect(mockApiService.createInstitution).toHaveBeenCalledWith({ name: 'New Bank', parentId: null });
     });
 
     it('should set error on create institution failure', async () => {
@@ -147,7 +147,7 @@ describe('usePortfolio', () => {
       const { updateInstitution } = usePortfolio();
       await updateInstitution(1, 'Updated Bank');
 
-      expect(mockApiService.updateInstitution).toHaveBeenCalledWith(1, { name: 'Updated Bank' });
+      expect(mockApiService.updateInstitution).toHaveBeenCalledWith(1, { name: 'Updated Bank', parentId: null });
     });
 
     it('should set error on update institution failure', async () => {

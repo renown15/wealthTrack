@@ -9,6 +9,8 @@ export const Icons = {
   cancel: '✕',
   sortAsc: '▲',
   sortDesc: '▼',
+  eye: '👁',
+  info: 'ⓘ',
 } as const;
 
 export type IconName = keyof typeof Icons;

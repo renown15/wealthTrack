@@ -31,8 +31,18 @@ class AccountAttributeRepository:
             "sort_code": "Sort Code",
             "roll_ref_number": "Roll / Ref Number",
             "interest_rate": "Interest Rate",
+            "fixed_bonus_rate": "Fixed Bonus Rate",
+            "fixed_bonus_rate_end_date": "Fixed Bonus Rate End Date",
+            "release_date": "Release Date",
+            "number_of_shares": "Number of Shares",
+            "underlying": "Underlying",
+            "price": "Price",
+            "purchase_price": "Purchase Price",
             "iban": "IBAN",
             "notes": "Notes",
+            "deferred_shares_balance": "Deferred Shares Balance",
+            "deferred_cash_balance": "Deferred Cash Balance",
+            "rsu_balance": "RSU Balance",
         }
         lookup_value = attribute_type_map.get(attribute_type.lower(), attribute_type)
 
@@ -102,10 +112,19 @@ class AccountAttributeRepository:
         """Delete an attribute."""
         existing = await self.get_attribute(account_id, user_id, type_id)
         if existing:
-            self.session.delete(existing)  # type: ignore
+            await self.session.delete(existing)
             await self.session.flush()
             return True
         return False
+
+    async def delete_attribute_by_name(
+        self, account_id: int, user_id: int, attribute_type: str
+    ) -> bool:
+        """Delete attribute by type name."""
+        type_id = await self.get_attribute_type_id(attribute_type)
+        if not type_id:
+            return False
+        return await self.delete_attribute(account_id, user_id, type_id)
 
     async def get_all_attributes(
         self, account_id: int, user_id: int

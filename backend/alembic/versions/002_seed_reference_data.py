@@ -42,6 +42,8 @@ def upgrade() -> None:
         ("account_type", "LIFETIME_ISA", "Lifetime ISA", 5),
         ("account_type", "SIPP", "Self-Invested Personal Pension", 6),
         ("account_type", "PREMIUM_BONDS", "Premium Bonds", 7),
+        ("account_type", "TRUST_BANK_ACCOUNT", "Trust Bank Account", 8),
+        ("account_type", "TRUST_STOCKS_INVESTMENT", "Trust Stocks Investment Account", 9),
     ]
 
     # Account statuses

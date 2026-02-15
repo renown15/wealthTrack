@@ -53,19 +53,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { apiService } from '@/services/ApiService';
-import { ValidationService } from '@/services/ValidationService';
-import { authModule } from '@/modules/auth';
-import { debug } from '@/utils/debug';
 import AuthTabs from '@views/AuthTabs.vue';
 import AuthMessage from '@views/AuthMessage.vue';
 import AuthForm from '@views/AuthForm.vue';
-import type { UserLogin, UserRegistration } from '@/models/User';
+import { useAuthFormState } from '@/composables/useAuthFormState';
+import { useAuthMessages } from '@/composables/useAuthMessages';
+import { useAuthService } from '@/composables/useAuthService';
 
 const router = useRouter();
-
 type AuthMode = 'login' | 'register';
 
 interface Props {
@@ -77,132 +74,49 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const mode = ref<AuthMode>(props.initialMode);
-const isSubmitting = ref(false);
 
-const form = reactive({
-  firstName: '',
-  lastName: '',
-  email: '',
-  password: '',
-});
-
-const errors = reactive<Record<string, string>>({
-  firstName: '',
-  lastName: '',
-  email: '',
-  password: '',
-});
-
-const message = reactive<{ text: string; type: 'error' | 'success' }>({
-  text: '',
-  type: 'error',
-});
-
-const clearMessage = () => {
-  message.text = '';
-};
-
-const showError = (text: string) => {
-  message.text = text;
-  message.type = 'error';
-  setTimeout(clearMessage, 5000);
-};
-
-const showSuccess = (text: string) => {
-  message.text = text;
-  message.type = 'success';
-  setTimeout(clearMessage, 5000);
-};
-
-const clearErrors = () => {
-  errors.firstName = '';
-  errors.lastName = '';
-  errors.email = '';
-  errors.password = '';
-};
-
-const setErrors = (fieldErrors: Record<string, string>) => {
-  clearErrors();
-  Object.entries(fieldErrors).forEach(([key, value]) => {
-    errors[key] = value;
-  });
-};
+// Use split composables
+const { form, errors, resetForm } = useAuthFormState();
+const { message, clearMessage, showError, showSuccess } = useAuthMessages();
+const { isSubmitting, handleLogin, handleRegister } = useAuthService();
 
 const handleSubmit = async (formData: typeof form) => {
   if (isSubmitting.value) return;
 
-  isSubmitting.value = true;
   clearMessage();
-  clearErrors();
 
   try {
     if (mode.value === 'login') {
-      const validation = ValidationService.validateLoginForm(formData);
-
-      if (!validation.isValid) {
-        setErrors(validation.errors);
-        isSubmitting.value = false;
-        return;
-      }
-
-      const loginData: UserLogin = {
+      const result = await handleLogin({
         email: formData.email,
         password: formData.password,
-      };
-
-      const authToken = await apiService.loginUser(loginData);
-      debug.log('[Auth] Login response received:', authToken);
-
-      if (authToken.accessToken) {
-        debug.log('[Auth] Storing token:', authToken.accessToken.substring(0, 20) + '...');
-        authModule.setToken(authToken.accessToken);
-        debug.log('[Auth] Token stored successfully');
+      });
+      if (result.success) {
+        await router.push({ name: 'dashboard' });
       } else {
-        debug.error('[Auth] No accessToken in response:', authToken);
-        throw new Error('No access token in login response');
+        showError(result.error || 'Login failed');
       }
-
-      // Fetch and store current user info (auth state is reactive, header auto-updates)
-      const user = await apiService.getCurrentUser();
-      authModule.setUser(user);
-      router.push({ name: 'dashboard' });
     } else {
-      const validation = ValidationService.validateRegistrationForm(formData);
-
-      if (!validation.isValid) {
-        setErrors(validation.errors);
-        isSubmitting.value = false;
-        return;
-      }
-
-      const registrationData: UserRegistration = {
-        email: formData.email,
+      const result = await handleRegister({
         firstName: formData.firstName,
         lastName: formData.lastName,
+        email: formData.email,
         password: formData.password,
-      };
-
-      const user = await apiService.registerUser(registrationData);
-      debug.log('[Auth] Registration response:', user);
-
-      showSuccess('Registration successful! Redirecting to login...');
-
-      setTimeout(() => {
-        mode.value = 'login';
-        form.firstName = '';
-        form.lastName = '';
-        form.email = '';
-        form.password = '';
-      }, 1500);
+      });
+      if (result.success) {
+        showSuccess('Registration successful! Redirecting...');
+        setTimeout(() => {
+          mode.value = 'login';
+          resetForm();
+        }, 2000);
+      } else {
+        showError(result.error || 'Registration failed');
+      }
     }
   } catch (error) {
-    let errorMessage = error instanceof Error ? error.message : String(error);
-    if (!errorMessage || errorMessage.trim().length === 0) {
-      errorMessage = mode.value === 'login' ? 'Login failed. Please try again.' : 'Registration failed. Please try again.';
-    }
+    const errorMessage =
+      error instanceof Error ? error.message : 'An unexpected error occurred';
     showError(errorMessage);
-  } finally {
-    isSubmitting.value = false;
   }
 };
 </script>

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
 import InstitutionsList from '@/views/AccountHub/InstitutionsList.vue';
-import type { Institution } from '@/models/WealthTrackDataModels';
+import type { Institution, PortfolioItem } from '@/models/WealthTrackDataModels';
 
 describe('InstitutionsList', () => {
   const mockInstitutions: Institution[] = [
@@ -9,10 +9,13 @@ describe('InstitutionsList', () => {
     { id: 2, userId: 1, name: 'Wells Fargo', createdAt: '2025-01-02', updatedAt: '2025-01-02' },
   ];
 
+  const mockPortfolioItems: PortfolioItem[] = [];
+
   it('does not render when institutions list is empty', () => {
     const wrapper = mount(InstitutionsList, {
       props: {
         institutions: [],
+        portfolioItems: mockPortfolioItems,
       },
     });
 
@@ -23,11 +26,12 @@ describe('InstitutionsList', () => {
     const wrapper = mount(InstitutionsList, {
       props: {
         institutions: mockInstitutions,
+        portfolioItems: mockPortfolioItems,
       },
     });
 
     expect(wrapper.find('.institutions-section').exists()).toBe(true);
-    expect(wrapper.text()).toContain('Institutions');
+    expect(wrapper.text()).toContain('Group by Parent');
     expect(wrapper.text()).toContain('Chase Bank');
     expect(wrapper.text()).toContain('Wells Fargo');
   });
@@ -36,6 +40,7 @@ describe('InstitutionsList', () => {
     const wrapper = mount(InstitutionsList, {
       props: {
         institutions: mockInstitutions,
+        portfolioItems: mockPortfolioItems,
       },
     });
 
@@ -51,6 +56,7 @@ describe('InstitutionsList', () => {
     const wrapper = mount(InstitutionsList, {
       props: {
         institutions: mockInstitutions,
+        portfolioItems: mockPortfolioItems,
       },
     });
 

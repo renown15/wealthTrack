@@ -14,6 +14,11 @@ export interface AccountFormData {
   interestRate: string;
   fixedBonusRate: string;
   fixedBonusRateEndDate: string;
+  releaseDate: string;
+  numberOfShares: string;
+  underlying: string;
+  price: string;
+  purchasePrice: string;
 }
 
 export interface AccountFormProps {
@@ -31,6 +36,11 @@ export interface AccountFormProps {
   initialInterestRate?: string | null;
   initialFixedBonusRate?: string | null;
   initialFixedBonusRateEndDate?: string | null;
+  initialReleaseDate?: string | null;
+  initialNumberOfShares?: string | null;
+  initialUnderlying?: string | null;
+  initialPrice?: string | null;
+  initialPurchasePrice?: string | null;
   accountTypes: ReferenceDataItem[];
   accountStatuses: ReferenceDataItem[];
 }
@@ -49,6 +59,11 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     interestRate: props.value.initialInterestRate || '',
     fixedBonusRate: props.value.initialFixedBonusRate || '',
     fixedBonusRateEndDate: props.value.initialFixedBonusRateEndDate || '',
+    releaseDate: props.value.initialReleaseDate || '',
+    numberOfShares: props.value.initialNumberOfShares || '',
+    underlying: props.value.initialUnderlying || '',
+    price: props.value.initialPrice || '',
+    purchasePrice: props.value.initialPurchasePrice || '',
   });
 
   const syncAccountType = (): void => {
@@ -104,6 +119,11 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     formData.value.interestRate = props.value.initialInterestRate || '';
     formData.value.fixedBonusRate = props.value.initialFixedBonusRate || '';
     formData.value.fixedBonusRateEndDate = props.value.initialFixedBonusRateEndDate || '';
+    formData.value.releaseDate = props.value.initialReleaseDate || '';
+    formData.value.numberOfShares = props.value.initialNumberOfShares || '';
+    formData.value.underlying = props.value.initialUnderlying || '';
+    formData.value.price = props.value.initialPrice || '';
+    formData.value.purchasePrice = props.value.initialPurchasePrice || '';
     syncAccountType();
     syncAccountStatus();
   };

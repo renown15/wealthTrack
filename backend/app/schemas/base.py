@@ -21,3 +21,8 @@ class BaseSchema(BaseModel):
         alias_generator=to_camel_case,
         populate_by_name=True,  # Accept both snake_case and camelCase in requests
     )
+
+    def model_dump_json(self, **kwargs) -> str:  # type: ignore
+        """Override to always use aliases in JSON output."""
+        kwargs.setdefault('by_alias', True)
+        return super().model_dump_json(**kwargs)

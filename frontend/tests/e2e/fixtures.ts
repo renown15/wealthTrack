@@ -58,6 +58,8 @@ export async function seedReferenceData() {
     { class: 'ACCOUNT_TYPE', key: 'STOCKS_ISA', referenceValue: 'Stocks ISA', sortIndex: 3 },
     { class: 'ACCOUNT_TYPE', key: 'SIPP', referenceValue: 'SIPP', sortIndex: 4 },
     { class: 'ACCOUNT_TYPE', key: 'CREDIT_CARD', referenceValue: 'Credit Card', sortIndex: 5 },
+    { class: 'ACCOUNT_TYPE', key: 'TRUST_BANK_ACCOUNT', referenceValue: 'Trust Bank Account', sortIndex: 6 },
+    { class: 'ACCOUNT_TYPE', key: 'TRUST_STOCKS_INVESTMENT', referenceValue: 'Trust Stocks Investment Account', sortIndex: 7 },
     
     // Account statuses
     { class: 'ACCOUNT_STATUS', key: 'ACTIVE', referenceValue: 'Active', sortIndex: 1 },
@@ -73,6 +75,18 @@ export async function seedReferenceData() {
     { class: 'ATTRIBUTE_TYPE', key: 'INTEREST_RATE', referenceValue: 'Interest Rate', sortIndex: 1 },
     { class: 'ATTRIBUTE_TYPE', key: 'OVERDRAFT_LIMIT', referenceValue: 'Overdraft Limit', sortIndex: 2 },
     { class: 'ATTRIBUTE_TYPE', key: 'CREDIT_LIMIT', referenceValue: 'Credit Limit', sortIndex: 3 },
+    
+    // Account attribute types (for storing account details like account number, rates, dates)
+    { class: 'ACCOUNT_ATTRIBUTE_TYPE', key: 'OPENED_DATE', referenceValue: 'Account Opened Date', sortIndex: 1 },
+    { class: 'ACCOUNT_ATTRIBUTE_TYPE', key: 'CLOSED_DATE', referenceValue: 'Account Closed Date', sortIndex: 2 },
+    { class: 'ACCOUNT_ATTRIBUTE_TYPE', key: 'ACCOUNT_NUMBER', referenceValue: 'Account Number', sortIndex: 3 },
+    { class: 'ACCOUNT_ATTRIBUTE_TYPE', key: 'SORT_CODE', referenceValue: 'Sort Code', sortIndex: 4 },
+    { class: 'ACCOUNT_ATTRIBUTE_TYPE', key: 'ROLL_REF_NUMBER', referenceValue: 'Roll / Ref Number', sortIndex: 5 },
+    { class: 'ACCOUNT_ATTRIBUTE_TYPE', key: 'INTEREST_RATE', referenceValue: 'Interest Rate', sortIndex: 6 },
+    { class: 'ACCOUNT_ATTRIBUTE_TYPE', key: 'FIXED_BONUS_RATE', referenceValue: 'Fixed Bonus Rate', sortIndex: 7 },
+    { class: 'ACCOUNT_ATTRIBUTE_TYPE', key: 'FIXED_BONUS_RATE_END_DATE', referenceValue: 'Fixed Bonus Rate End Date', sortIndex: 8 },
+    { class: 'ACCOUNT_ATTRIBUTE_TYPE', key: 'IBAN', referenceValue: 'IBAN', sortIndex: 9 },
+    { class: 'ACCOUNT_ATTRIBUTE_TYPE', key: 'NOTES', referenceValue: 'Notes', sortIndex: 10 },
   ];
 
   let inserted = 0;

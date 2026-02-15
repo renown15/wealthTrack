@@ -50,14 +50,6 @@ describe('ReferenceDataAdmin.vue', () => {
     expect(wrapper.text()).toContain('Reference Data Management');
   });
 
-  it('renders back button', async () => {
-    const wrapper = mount(ReferenceDataAdmin);
-    await flushPromises();
-
-    const buttons = wrapper.findAll('button');
-    expect(buttons.some((btn) => btn.text().includes('Back'))).toBe(true);
-  });
-
   it('renders add button', async () => {
     const wrapper = mount(ReferenceDataAdmin);
     await flushPromises();

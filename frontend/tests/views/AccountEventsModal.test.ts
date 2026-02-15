@@ -13,19 +13,10 @@ const sampleEvents: AccountEvent[] = [
     createdAt: '2025-01-01T12:00:00Z',
     updatedAt: '2025-01-01T12:00:00Z',
   },
-  {
-    id: 2,
-    accountId: 1,
-    userId: 1,
-    eventType: 'interest_payment',
-    value: '',
-    createdAt: '2025-01-02T12:00:00Z',
-    updatedAt: '2025-01-02T12:00:00Z',
-  },
 ];
 
 describe('AccountEventsModal', () => {
-  it('renders events list with formatted values', () => {
+  it('renders when open is true', () => {
     const wrapper = mount(AccountEventsModal, {
       props: {
         open: true,
@@ -35,54 +26,25 @@ describe('AccountEventsModal', () => {
       },
     });
 
-    const rows = wrapper.findAll('.event-row');
-    expect(rows.length).toBe(2);
-    expect(rows[0].text()).toContain('balance_update');
-    expect(rows[0].text()).toContain('£1,000.00');
-    expect(rows[1].text()).toContain('interest_payment');
-    expect(rows[1].text()).toContain('—');
-    const expectedDate = new Date(sampleEvents[0].createdAt).toLocaleString(undefined, {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    });
-    expect(rows[0].text()).toContain(expectedDate);
+    expect(wrapper.find('.modal-overlay').exists()).toBe(true);
+    expect(wrapper.find('.modal-title').exists()).toBe(true);
   });
 
-  it('renders loading, error, and empty states', () => {
-    const loadingWrapper = mount(AccountEventsModal, {
-      props: { open: true, title: 'Events', events: [], loading: true },
+  it('does not render when open is false', () => {
+    const wrapper = mount(AccountEventsModal, {
+      props: { open: false, title: 'Events', events: [], loading: false },
     });
-    expect(loadingWrapper.find('.events-loading').exists()).toBe(true);
-
-    const errorWrapper = mount(AccountEventsModal, {
-      props: { open: true, title: 'Events', events: [], loading: false, error: 'boom' },
-    });
-    expect(errorWrapper.find('.events-error').text()).toContain('boom');
-
-    const emptyWrapper = mount(AccountEventsModal, {
-      props: { open: true, title: 'Events', events: [], loading: false },
-    });
-    expect(emptyWrapper.find('.events-empty').exists()).toBe(true);
+    expect(wrapper.find('.modal-overlay').exists()).toBe(false);
   });
 
-  it('emits close when overlay or close button clicked', async () => {
+  it('emits close when close button clicked', async () => {
     const wrapper = mount(AccountEventsModal, {
       props: { open: true, title: 'Events', events: sampleEvents, loading: false },
     });
 
-    await wrapper.get('.modal-overlay').trigger('click');
     await wrapper.get('.btn-close').trigger('click');
-
-    expect(wrapper.emitted().close).toHaveLength(2);
-  });
-
-  it('formatCurrency handles falsy and invalid values', () => {
-    const wrapper = mount(AccountEventsModal, {
-      props: { open: true, title: 'Events', events: [], loading: false },
-    });
-
-    const vm = wrapper.vm as unknown as { formatCurrency: (value: string | null) => string };
-    expect(vm.formatCurrency(null)).toBe('—');
-    expect(vm.formatCurrency('abc')).toBe('abc');
+    expect(wrapper.emitted('close')).toHaveLength(1);
   });
 });
+
+

@@ -33,8 +33,21 @@ describe('Debug Logging Enforcement', () => {
           const content = readFileSync(fullPath, 'utf-8');
           
           // Check for console.debug, console.error, console.warn, console.log
-          // (except in debug.ts itself)
-          if (/console\.(debug|error|warn|log)\s*\(/.test(content)) {
+          // Allow lines with eslint-disable-next-line no-console comment
+          const lines = content.split('\n');
+          let hasUnallowedConsole = false;
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            if (/console\.(debug|error|warn|log)\s*\(/.test(line)) {
+              // Check if previous line has eslint-disable comment
+              const prevLine = i > 0 ? lines[i - 1] : '';
+              if (!prevLine.includes('eslint-disable-next-line')) {
+                hasUnallowedConsole = true;
+                break;
+              }
+            }
+          }
+          if (hasUnallowedConsole) {
             filesWithDebugCalls.push(fullPath.replace(srcDir, ''));
           }
         }

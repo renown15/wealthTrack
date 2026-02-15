@@ -16,6 +16,11 @@ export interface Account {
   interestRate?: string | null;
   fixedBonusRate?: string | null;
   fixedBonusRateEndDate?: string | null;
+  releaseDate?: string | null;
+  numberOfShares?: string | null;
+  underlying?: string | null;
+  price?: string | null;
+  purchasePrice?: string | null;
   openedAt: string | null;
   closedAt: string | null;
   createdAt: string;
@@ -27,6 +32,7 @@ export interface Institution {
   userId: number;
   name: string;
   parentId?: number | null;
+  institutionType?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -90,6 +96,11 @@ export interface AccountCreateRequest {
   interestRate?: string;
   fixedBonusRate?: string;
   fixedBonusRateEndDate?: string;
+  releaseDate?: string;
+  numberOfShares?: string;
+  underlying?: string;
+  price?: string;
+  purchasePrice?: string;
 }
 
 export interface AccountUpdateRequest {
@@ -102,16 +113,23 @@ export interface AccountUpdateRequest {
   interestRate?: string;
   fixedBonusRate?: string;
   fixedBonusRateEndDate?: string;
+  releaseDate?: string;
+  numberOfShares?: string;
+  underlying?: string;
+  price?: string;
+  purchasePrice?: string;
 }
 
 export interface InstitutionCreateRequest {
   name: string;
   parentId?: number | null;
+  institutionType?: string | null;
 }
 
 export interface InstitutionUpdateRequest {
   name?: string;
   parentId?: number | null;
+  institutionType?: string | null;
 }
 
 export interface AccountEventCreateRequest {

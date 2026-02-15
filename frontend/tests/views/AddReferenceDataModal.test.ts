@@ -16,7 +16,7 @@ describe('AddReferenceDataModal.vue', () => {
       },
     });
 
-    expect(wrapper.find('h3').exists()).toBe(true);
+    expect(wrapper.find('h2').exists()).toBe(true);
   });
 
   it('does not render when closed', () => {
@@ -27,9 +27,9 @@ describe('AddReferenceDataModal.vue', () => {
       },
     });
 
-    // The modal should be hidden when open=false
-    const modal = wrapper.find('[class*="modal"]');
-    expect(modal.exists()).toBe(true);
+    // The modal should be hidden when open=false, so no modal overlay should exist
+    const modal = wrapper.find('[data-testid="base-modal"]');
+    expect(modal.exists()).toBe(false);
   });
 
   it('emits close event when close button clicked', async () => {

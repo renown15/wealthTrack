@@ -50,28 +50,3 @@ function logout(): void {
   void router.push({ name: 'login' });
 }
 </script>
-
-<style scoped>
-.nav-btn {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: white;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  text-decoration: none;
-}
-.nav-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.5);
-}
-.nav-btn:active,
-.nav-btn.active {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: white;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-</style>

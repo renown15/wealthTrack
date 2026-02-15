@@ -45,6 +45,6 @@ class InstitutionService:
         await self.session.execute(account_stmt)
 
         # Finally delete the institution itself
-        self.session.delete(institution)  # type: ignore
+        await self.session.delete(institution)
         await self.session.flush()
         return True

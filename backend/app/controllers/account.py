@@ -6,14 +6,19 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.controllers.account_attributes_handler import (
+    load_account_attributes,
+    save_account_attributes,
+    update_account_attributes,
+)
 from app.controllers.account_dates import update_account_dates
 from app.controllers.account_events import create_account_event, list_account_events
 from app.controllers.dependencies import get_current_user
 from app.database import get_db
 from app.models.account import Account
 from app.models.user_profile import UserProfile
-from app.repositories.account_repository import AccountRepository
 from app.repositories.account_attribute_repository import AccountAttributeRepository
+from app.repositories.account_repository import AccountRepository
 from app.schemas.account import AccountCreate, AccountResponse, AccountUpdate
 from app.schemas.account_event import AccountEventResponse
 from app.services.account_service import AccountService
@@ -47,28 +52,16 @@ async def list_accounts(
     """List all accounts for the current user."""
     repo = AccountRepository(session)
     accounts = await repo.get_by_user(current_user.id)
-    
+
     attr_repo = AccountAttributeRepository(session)
     responses = []
     for account in accounts:
         response = AccountResponse.from_orm(account)
-        
-        # Load banking details and interest rate from attributes
-        account_number = await attr_repo.get_attribute_by_name(account.id, current_user.id, "account_number")
-        sort_code = await attr_repo.get_attribute_by_name(account.id, current_user.id, "sort_code")
-        roll_ref = await attr_repo.get_attribute_by_name(account.id, current_user.id, "roll_ref_number")
-        interest_rate = await attr_repo.get_attribute_by_name(account.id, current_user.id, "interest_rate")
-        fixed_bonus_rate = await attr_repo.get_attribute_by_name(account.id, current_user.id, "fixed_bonus_rate")
-        fixed_bonus_rate_end_date = await attr_repo.get_attribute_by_name(account.id, current_user.id, "fixed_bonus_rate_end_date")
-        response.account_number = account_number
-        response.sort_code = sort_code
-        response.roll_ref_number = roll_ref
-        response.interest_rate = interest_rate
-        response.fixed_bonus_rate = fixed_bonus_rate
-        response.fixed_bonus_rate_end_date = fixed_bonus_rate_end_date
-        
+        await load_account_attributes(
+            attr_repo, account.id, current_user.id, response
+        )
         responses.append(response)
-    
+
     return responses
 
 
@@ -86,25 +79,11 @@ async def get_account(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Account not found",
         )
-    
+
     response = AccountResponse.from_orm(account)
-    
-    # Load banking details and interest rate from attributes
     attr_repo = AccountAttributeRepository(session)
-    account_number = await attr_repo.get_attribute_by_name(account_id, current_user.id, "account_number")
-    sort_code = await attr_repo.get_attribute_by_name(account_id, current_user.id, "sort_code")
-    roll_ref = await attr_repo.get_attribute_by_name(account_id, current_user.id, "roll_ref_number")
-    interest_rate = await attr_repo.get_attribute_by_name(account_id, current_user.id, "interest_rate")
-    fixed_bonus_rate = await attr_repo.get_attribute_by_name(account_id, current_user.id, "fixed_bonus_rate")
-    fixed_bonus_rate_end_date = await attr_repo.get_attribute_by_name(account_id, current_user.id, "fixed_bonus_rate_end_date")
-    response.account_number = account_number
-    response.sort_code = sort_code
-    response.roll_ref_number = roll_ref
-    response.interest_rate = interest_rate
-    response.fixed_bonus_rate = fixed_bonus_rate
-    response.fixed_bonus_rate_end_date = fixed_bonus_rate_end_date
-    response.interest_rate = interest_rate
-    
+    await load_account_attributes(attr_repo, account_id, current_user.id, response)
+
     return response
 
 
@@ -128,26 +107,23 @@ async def create_account(
     except Exception as e:
         error_msg = str(e).lower()
         if "foreign key" in error_msg or "constraint" in error_msg:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid reference data") from e
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Failed to create: {str(e)}") from e
-    
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid reference data",
+            ) from e
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to create: {str(e)}",
+        ) from e
+
     # Save banking details and interest rate if provided
     attr_repo = AccountAttributeRepository(session)
-    if account_data.account_number:
-        await attr_repo.set_attribute_by_name(account.id, current_user.id, "account_number", account_data.account_number)
-    if account_data.sort_code:
-        await attr_repo.set_attribute_by_name(account.id, current_user.id, "sort_code", account_data.sort_code)
-    if account_data.roll_ref_number:
-        await attr_repo.set_attribute_by_name(account.id, current_user.id, "roll_ref_number", account_data.roll_ref_number)
-    if account_data.interest_rate:
-        await attr_repo.set_attribute_by_name(account.id, current_user.id, "interest_rate", account_data.interest_rate)
-    if account_data.fixed_bonus_rate:
-        await attr_repo.set_attribute_by_name(account.id, current_user.id, "fixed_bonus_rate", account_data.fixed_bonus_rate)
-    if account_data.fixed_bonus_rate_end_date:
-        await attr_repo.set_attribute_by_name(account.id, current_user.id, "fixed_bonus_rate_end_date", account_data.fixed_bonus_rate_end_date)
-    
+    await save_account_attributes(
+        attr_repo, account.id, current_user.id, account_data
+    )
+
     await session.commit()
-    
+
     response = AccountResponse.from_orm(account)
     response.account_number = account_data.account_number
     response.sort_code = account_data.sort_code
@@ -155,6 +131,11 @@ async def create_account(
     response.interest_rate = account_data.interest_rate
     response.fixed_bonus_rate = account_data.fixed_bonus_rate
     response.fixed_bonus_rate_end_date = account_data.fixed_bonus_rate_end_date
+    response.release_date = account_data.release_date
+    response.number_of_shares = account_data.number_of_shares
+    response.underlying = account_data.underlying
+    response.price = account_data.price
+    response.purchase_price = account_data.purchase_price
     return response
 
 
@@ -166,6 +147,14 @@ async def update_account(
     current_user: UserProfile = Depends(get_current_user),
 ) -> AccountResponse:
     """Update an account."""
+    print(f"[DEBUG] update_account called with account_id={account_id}")
+    print(f"[DEBUG] account_data: {account_data}")
+    print(f"[DEBUG] account_data.dict(): {account_data.dict()}")
+    fbr = getattr(account_data, 'fixed_bonus_rate', 'NOT_FOUND')
+    print(f"[DEBUG] fixedBonusRate={fbr}")
+    fbre = getattr(account_data, 'fixed_bonus_rate_end_date', 'NOT_FOUND')
+    print(f"[DEBUG] fixedBonusRateEndDate={fbre}")
+
     service = AccountService(session)
     update_dict: dict[str, Any] = {}
     if account_data.name is not None:
@@ -185,19 +174,8 @@ async def update_account(
 
     # Update banking details and interest rate if provided
     attr_repo = AccountAttributeRepository(session)
-    if account_data.account_number is not None:
-        await attr_repo.set_attribute_by_name(account_id, current_user.id, "account_number", account_data.account_number)
-    if account_data.sort_code is not None:
-        await attr_repo.set_attribute_by_name(account_id, current_user.id, "sort_code", account_data.sort_code)
-    if account_data.roll_ref_number is not None:
-        await attr_repo.set_attribute_by_name(account_id, current_user.id, "roll_ref_number", account_data.roll_ref_number)
-    if account_data.interest_rate is not None:
-        await attr_repo.set_attribute_by_name(account_id, current_user.id, "interest_rate", account_data.interest_rate)
-    if account_data.fixed_bonus_rate is not None:
-        await attr_repo.set_attribute_by_name(account_id, current_user.id, "fixed_bonus_rate", account_data.fixed_bonus_rate)
-    if account_data.fixed_bonus_rate_end_date is not None:
-        await attr_repo.set_attribute_by_name(account_id, current_user.id, "fixed_bonus_rate_end_date", account_data.fixed_bonus_rate_end_date)
-    
+    await update_account_attributes(attr_repo, account_id, current_user.id, account_data)
+
     await session.commit()
 
     repo = AccountRepository(session)
@@ -207,23 +185,10 @@ async def update_account(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Account not found",
         )
-    
+
     response = AccountResponse.from_orm(account)
-    
-    # Load banking details and interest rate from attributes
-    account_number = await attr_repo.get_attribute_by_name(account_id, current_user.id, "account_number")
-    sort_code = await attr_repo.get_attribute_by_name(account_id, current_user.id, "sort_code")
-    roll_ref = await attr_repo.get_attribute_by_name(account_id, current_user.id, "roll_ref_number")
-    interest_rate = await attr_repo.get_attribute_by_name(account_id, current_user.id, "interest_rate")
-    fixed_bonus_rate = await attr_repo.get_attribute_by_name(account_id, current_user.id, "fixed_bonus_rate")
-    fixed_bonus_rate_end_date = await attr_repo.get_attribute_by_name(account_id, current_user.id, "fixed_bonus_rate_end_date")
-    response.account_number = account_number
-    response.sort_code = sort_code
-    response.roll_ref_number = roll_ref
-    response.interest_rate = interest_rate
-    response.fixed_bonus_rate = fixed_bonus_rate
-    response.fixed_bonus_rate_end_date = fixed_bonus_rate_end_date
-    
+    await load_account_attributes(attr_repo, account_id, current_user.id, response)
+
     return response
 
 

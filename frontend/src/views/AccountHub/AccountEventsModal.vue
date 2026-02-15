@@ -35,7 +35,7 @@
               <tr
                 v-for="event in events"
                 :key="`${event.source ?? 'event'}-${event.id}`"
-                class="border-b border-border hover:bg-gray-50 transition"
+                class="event-row border-b border-border hover:bg-gray-50 transition"
               >
                 <td class="py-3 px-4 text-gray-600">{{ formatDate(event.createdAt) }}</td>
                 <td class="py-3 px-4 text-text-dark">

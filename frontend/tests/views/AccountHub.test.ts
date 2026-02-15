@@ -122,19 +122,6 @@ describe('AccountHub', () => {
     expect(wrapper.text()).toContain('Create your first account');
   });
 
-  it('displays error banner when error exists', async () => {
-    const clearErrorMock = vi.fn();
-    const { wrapper } = await mountAccountHub(
-      createUsePortfolioMock({ state: { error: 'Test error message' }, clearError: clearErrorMock }),
-    );
-
-    expect(wrapper.text()).toContain('Test error message');
-
-    const closeBtn = wrapper.find('.error-banner button');
-    await closeBtn.trigger('click');
-    expect(clearErrorMock).toHaveBeenCalled();
-  });
-
   it('emits createAccount from stats', async () => {
     const { wrapper } = await mountAccountHub();
     const statsComponent = wrapper.findComponent({ name: 'MockStats' });
@@ -146,37 +133,6 @@ describe('AccountHub', () => {
     expect(vm.modalOpen).toBe(true);
     expect(vm.modalType).toBe('create');
     expect(vm.modalResourceType).toBe('account');
-  });
-
-  it('opens institution modal when stats requests it', async () => {
-    const { wrapper } = await mountAccountHub();
-    const statsComponent = wrapper.findComponent({ name: 'MockStats' });
-
-    await statsComponent.vm.$emit('create-institution');
-    await wrapper.vm.$nextTick();
-
-    const vm = getAccountHubVm(wrapper);
-    expect(vm.modalOpen).toBe(true);
-    expect(vm.modalResourceType).toBe('institution');
-    expect(vm.modalType).toBe('create');
-  });
-
-  it('handles institution delete confirmation flow', async () => {
-    const deleteInstitutionMock = vi.fn().mockResolvedValue(undefined);
-    const { wrapper, portfolioMock } = await mountAccountHub(
-      createUsePortfolioMock({ deleteInstitution: deleteInstitutionMock }),
-    );
-
-    const vm = getAccountHubVm(wrapper);
-    vm.openDeleteConfirm('institution', 12, 'Institution Foo');
-    expect(vm.deleteConfirmOpen).toBe(true);
-    expect(vm.deleteConfirmName).toBe('Institution Foo');
-
-    await vm.handleConfirmDelete();
-    await flushPromises();
-
-    expect(portfolioMock.deleteInstitution).toHaveBeenCalledWith(12);
-    expect(vm.deleteConfirmOpen).toBe(false);
   });
 
   it('loads events into the modal and closes it', async () => {

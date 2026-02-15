@@ -49,7 +49,8 @@ describe('DeleteConfirmModal', () => {
       },
     });
 
-    await wrapper.find('.modal-overlay').trigger('click');
+    // Trigger the close button click instead as it's more reliable than triggering overlay mousdown.self
+    await wrapper.find('.btn-modal-secondary').trigger('click');
     expect(wrapper.emitted('close')).toBeTruthy();
   });
 

@@ -3,7 +3,8 @@
     <div class="hub-header-card">
       <AccountHubStats
         :total-value="totalValue" :account-count="accountCount"
-        :institution-count="institutionCount" :event-count="eventCount"
+        :cash-at-hand="cashAtHand" :isa-savings="isaSavings" :illiquid="illiquid" :trust-assets="trustAssets"
+        :institution-count="institutionCount"
         @create-account="openCreateAccountModal" @create-institution="openCreateInstitutionModal"
       />
     </div>
@@ -29,7 +30,13 @@
     </div>
     <template v-else>
       <div class="hub-content-card p-6">
-        <h3 class="section-title">Accounts</h3>
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="section-title">Accounts</h3>
+          <button class="export-btn" @click="exportToExcel" title="Export accounts to Excel">
+            <span class="export-icon">⬇</span>
+            <span class="export-text">Excel</span>
+          </button>
+        </div>
         <div class="table-wrap">
           <AccountHubTable
             :items="state.items" @edit-account="openEditAccountModal"
@@ -41,7 +48,8 @@
       <div v-if="state.institutions.length > 0" class="hub-content-card p-6">
         <h3 class="section-title">Institutions</h3>
         <InstitutionsList
-          :institutions="state.institutions" @edit-institution="openEditInstitutionModal"
+          :institutions="state.institutions" :portfolio-items="state.items"
+          @edit-institution="openEditInstitutionModal"
           @delete-institution="(id, name) => openDeleteConfirm('institution', id, name)"
           @manage-credentials="openCredentialsModal"
         />
@@ -51,17 +59,32 @@
         :loading="eventsLoading" :error="eventsError" @close="closeEventsModal"
       />
     </template>
-    <AddAccountModal
-      :open="modalOpen" :type="modalType" :resource-type="modalResourceType"
+    <AccountModal
+      :open="accountModalOpen" :type="modalType"
       :institutions="state.institutions" :account-types="accountTypes"
-      :account-statuses="accountStatuses" :initial-name="initialModalName"
-      :initial-institution-id="initialModalInstitutionId" :initial-type-id="initialModalTypeId"
-      :initial-status-id="initialModalStatusId" :initial-opened-at="initialModalOpenedAt"
-      :initial-closed-at="initialModalClosedAt" :initial-account-number="initialModalAccountNumber"
-      :initial-sort-code="initialModalSortCode" :initial-roll-ref-number="initialModalRollRefNumber"
-      :initial-interest-rate="initialModalInterestRate" :initial-fixed-bonus-rate="initialModalFixedBonusRate"
-      :initial-fixed-bonus-rate-end-date="initialModalFixedBonusRateEndDate" :initial-parent-id="initialModalParentId"
-      @close="closeModal" @save="handleSave"
+      :account-statuses="accountStatuses"
+      :initial-name="initialModalName" :initial-institution-id="initialModalInstitutionId"
+      :initial-type-id="initialModalTypeId" :initial-status-id="initialModalStatusId"
+      :initial-opened-at="initialModalOpenedAt" :initial-closed-at="initialModalClosedAt"
+      :initial-account-number="initialModalAccountNumber" :initial-sort-code="initialModalSortCode"
+      :initial-roll-ref-number="initialModalRollRefNumber" :initial-interest-rate="initialModalInterestRate"
+      :initial-fixed-bonus-rate="initialModalFixedBonusRate"
+      :initial-fixed-bonus-rate-end-date="initialModalFixedBonusRateEndDate"
+      :initial-release-date="initialModalReleaseDate"
+      :initial-number-of-shares="initialModalNumberOfShares"
+      :initial-underlying="initialModalUnderlying"
+      :initial-price="initialModalPrice"
+      :initial-purchase-price="initialModalPurchasePrice"
+      :error="state.error"
+      @close="closeAccountModal" @save="handleAccountSave"
+    />
+    <InstitutionModal
+      :open="institutionModalOpen" :type="modalType"
+      :institutions="state.institutions" :institution-types="institutionTypes"
+      :initial-name="initialModalName" :initial-parent-id="initialModalParentId"
+      :initial-institution-type="initialModalInstitutionType"
+      :error="state.error"
+      @close="closeInstitutionModal" @save="handleInstitutionSave"
     />
     <DeleteConfirmModal
       :open="deleteConfirmOpen" :item-name="deleteConfirmName"
@@ -81,157 +104,306 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
+import type { Account, Institution } from '@/models/WealthTrackDataModels';
 import { usePortfolio } from '@/composables/usePortfolio';
 import { useCredentialsModal } from '@/composables/useCredentialsModal';
 import { useEventsModal } from '@/composables/useEventsModal';
-import { useAccountHubModals } from '@/composables/useAccountHubModals';
+import { useAccountCrudHandlers } from '@/composables/useAccountCrudHandlers';
+import { useInstitutionCrudHandlers } from '@/composables/useInstitutionCrudHandlers';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
+
 import AccountHubStats from '@views/AccountHub/AccountHubStats.vue';
 import AccountHubTable from '@views/AccountHub/AccountHubTable.vue';
-import AddAccountModal from '@views/AccountHub/AddAccountModal.vue';
+import AccountModal from '@views/AccountHub/AccountModal.vue';
+import InstitutionModal from '@views/AccountHub/InstitutionModal.vue';
 import DeleteConfirmModal from '@views/AccountHub/DeleteConfirmModal.vue';
 import InstitutionsList from '@views/AccountHub/InstitutionsList.vue';
 import AccountEventsModal from '@views/AccountHub/AccountEventsModal.vue';
 import InstitutionCredentialsModal from '@views/AccountHub/InstitutionCredentialsModal.vue';
+
 import { apiService } from '@/services/ApiService';
-import { accountCrudService } from '@/services/AccountCrudService';
+import { exportAccountsToExcel } from '@/utils/exportToExcel';
+
+const { state, totalValue, accountCount, cashAtHand, isaSavings, illiquid, trustAssets, loadPortfolio, clearError } = usePortfolio();
+
+onMounted(async () => {
+  await loadPortfolio();
+  const [types, statuses, institutionTypesData, credentialTypesData] = await Promise.all([
+    apiService.getReferenceData('account_type'),
+    apiService.getReferenceData('account_status'),
+    apiService.getReferenceData('institution_type'),
+    apiService.getReferenceData('credential_type'),
+  ]);
+  console.log('[AccountHub] Reference data loaded', { 
+    accountTypes: types?.length, 
+    accountStatuses: statuses?.length,  
+    institutionTypes: institutionTypesData?.length,
+    credentialTypes: credentialTypesData?.length 
+  });
+  accountTypes.value = types;
+  accountStatuses.value = statuses;
+  institutionTypes.value = institutionTypesData;
+  credentialTypes.value = credentialTypesData;
+});
 
 const {
-  state, totalValue, accountCount, loadPortfolio, createAccount, updateAccount,
-  deleteAccount, createInstitution, updateInstitution, deleteInstitution, clearError,
-} = usePortfolio();
-
-const {
-  credentialModalOpen, credentialInstitution, credentials, credentialLoading,
-  credentialSaving, credentialDeletingId, credentialError, editingCredential,
-  openCredentialsModal, closeCredentialsModal, handleCredentialSave,
-  handleCredentialEdit, cancelCredentialEdit, handleCredentialDelete,
+  credentialModalOpen,
+  credentialInstitution,
+  credentials,
+  credentialLoading,
+  credentialSaving,
+  credentialDeletingId,
+  credentialError,
+  editingCredential,
+  openCredentialsModal,
+  closeCredentialsModal,
+  handleCredentialSave,
+  handleCredentialEdit,
+  cancelCredentialEdit,
+  handleCredentialDelete,
 } = useCredentialsModal();
 
 const {
-  eventsModalOpen, eventsTitle, eventsLoading, eventsError, events,
-  openEventsModal, closeEventsModal,
+  eventsModalOpen,
+  eventsTitle,
+  eventsLoading,
+  eventsError,
+  events,
+  openEventsModal,
+  closeEventsModal,
 } = useEventsModal();
 
-const {
-  modalOpen, modalType, modalResourceType, editingItem, deleteConfirmOpen,
-  deleteConfirmType, deleteConfirmId, deleteConfirmName, initialModalName,
-  initialModalInstitutionId, initialModalTypeId, initialModalStatusId,
-  initialModalOpenedAt, initialModalClosedAt, initialModalAccountNumber,
-  initialModalSortCode, initialModalRollRefNumber, initialModalInterestRate,
-  initialModalFixedBonusRate, initialModalFixedBonusRateEndDate,
-  initialModalParentId,
-  openCreateAccountModal, openCreateInstitutionModal, openEditAccountModal,
-  openEditInstitutionModal, closeModal, openDeleteConfirm, closeDeleteConfirm,
-} = useAccountHubModals();
+// Modal state
+const accountModalOpen = ref(false);
+const institutionModalOpen = ref(false);
+const modalType = ref<'create' | 'edit'>('create');
+const editingItem = ref<Account | Institution | null>(null);
 
-const institutionCount = computed(() => state.institutions.length);
-const eventCount = computed(() => state.items.reduce((t, a) => t + (a.eventCount || 0), 0));
+// Delete confirm modal state
+const deleteConfirmOpen = ref(false);
+const deleteConfirmType = ref<'account' | 'institution'>('account');
+const deleteConfirmId = ref(0);
+const deleteConfirmName = ref('');
+
+// Initial values for modals
+const initialModalName = computed(() => editingItem.value?.name ?? '');
+const initialModalInstitutionId = computed(() =>
+  editingItem.value && 'institutionId' in editingItem.value
+    ? editingItem.value.institutionId : 0);
+const initialModalTypeId = computed(() =>
+  editingItem.value && 'typeId' in editingItem.value
+    ? editingItem.value.typeId : 0);
+const initialModalStatusId = computed(() =>
+  editingItem.value && 'statusId' in editingItem.value
+    ? editingItem.value.statusId : 0);
+const initialModalOpenedAt = computed(() =>
+  editingItem.value && 'openedAt' in editingItem.value
+    ? (editingItem.value as Account).openedAt : null);
+const initialModalClosedAt = computed(() =>
+  editingItem.value && 'closedAt' in editingItem.value
+    ? (editingItem.value as Account).closedAt : null);
+const initialModalAccountNumber = computed(() =>
+  editingItem.value && 'accountNumber' in editingItem.value
+    ? (editingItem.value as Account).accountNumber : null);
+const initialModalSortCode = computed(() =>
+  editingItem.value && 'sortCode' in editingItem.value
+    ? (editingItem.value as Account).sortCode : null);
+const initialModalRollRefNumber = computed(() =>
+  editingItem.value && 'rollRefNumber' in editingItem.value
+    ? (editingItem.value as Account).rollRefNumber : null);
+const initialModalInterestRate = computed(() =>
+  editingItem.value && 'interestRate' in editingItem.value
+    ? (editingItem.value as Account).interestRate : null);
+const initialModalFixedBonusRate = computed(() =>
+  editingItem.value && 'fixedBonusRate' in editingItem.value
+    ? (editingItem.value as Account).fixedBonusRate : null);
+const initialModalFixedBonusRateEndDate = computed(() =>
+  editingItem.value && 'fixedBonusRateEndDate' in editingItem.value
+    ? (editingItem.value as Account).fixedBonusRateEndDate : null);
+const initialModalReleaseDate = computed(() =>
+  editingItem.value && 'releaseDate' in editingItem.value
+    ? (editingItem.value as Account).releaseDate : null);
+const initialModalNumberOfShares = computed(() =>
+  editingItem.value && 'numberOfShares' in editingItem.value
+    ? (editingItem.value as Account).numberOfShares : null);
+const initialModalUnderlying = computed(() =>
+  editingItem.value && 'underlying' in editingItem.value
+    ? (editingItem.value as Account).underlying : null);
+const initialModalPrice = computed(() =>
+  editingItem.value && 'price' in editingItem.value
+    ? (editingItem.value as Account).price : null);
+const initialModalPurchasePrice = computed(() =>
+  editingItem.value && 'purchasePrice' in editingItem.value
+    ? (editingItem.value as Account).purchasePrice : null);
+const initialModalParentId = computed(() =>
+  editingItem.value && 'parentId' in editingItem.value
+    ? (editingItem.value as Institution).parentId : null);
+const initialModalInstitutionType = computed(() =>
+  editingItem.value && 'institutionType' in editingItem.value
+    ? (editingItem.value as Institution).institutionType : null);
+
+// Account modal handlers
+const openCreateAccountModal = (): void => {
+  modalType.value = 'create';
+  editingItem.value = null;
+  accountModalOpen.value = true;
+};
+
+const openEditAccountModal = (account: Account): void => {
+  modalType.value = 'edit';
+  editingItem.value = account;
+  accountModalOpen.value = true;
+};
+
+const closeAccountModal = (): void => {
+  accountModalOpen.value = false;
+  editingItem.value = null;
+};
+
+// Institution modal handlers
+const openCreateInstitutionModal = (): void => {
+  modalType.value = 'create';
+  editingItem.value = null;
+  institutionModalOpen.value = true;
+};
+
+const openEditInstitutionModal = (institution: Institution): void => {
+  modalType.value = 'edit';
+  editingItem.value = institution;
+  institutionModalOpen.value = true;
+};
+
+const closeInstitutionModal = (): void => {
+  institutionModalOpen.value = false;
+  editingItem.value = null;
+};
+
+// Delete confirm modal handlers
+const openDeleteConfirm = (
+  type: 'account' | 'institution',
+  id: number,
+  name: string,
+): void => {
+  deleteConfirmType.value = type;
+  deleteConfirmId.value = id;
+  deleteConfirmName.value = name;
+  deleteConfirmOpen.value = true;
+};
+
+const closeDeleteConfirm = (): void => {
+  deleteConfirmOpen.value = false;
+};
+
+// Account and institution CRUD handlers
 const accountTypes = ref<ReferenceDataItem[]>([]);
 const accountStatuses = ref<ReferenceDataItem[]>([]);
-const credentialTypes = ref<ReferenceDataItem[]>([]);
+const institutionTypes = ref<ReferenceDataItem[]>([]);
 
-const loadReferenceData = async (): Promise<void> => {
+const {
+  handleSave: handleAccountCrudSave,
+  handleDelete: handleAccountDelete,
+} = useAccountCrudHandlers(accountTypes, accountStatuses, modalType, editingItem, closeAccountModal);
+
+const {
+  handleSave: handleInstitutionCrudSave,
+  handleDelete: handleInstitutionDelete,
+} = useInstitutionCrudHandlers(modalType, editingItem, closeInstitutionModal);
+
+// Account modal save handler
+const handleAccountSave = async (payload: any): Promise<void> => {
   try {
-    const [types, statuses, credOpts] = await Promise.all([
-      apiService.getReferenceData('account_type'),
-      apiService.getReferenceData('account_status'),
-      apiService.getReferenceData('credential_type'),
-    ]);
-    accountTypes.value = types;
-    accountStatuses.value = statuses;
-    credentialTypes.value = credOpts;
+    await handleAccountCrudSave(payload);
+    await loadPortfolio();
+    closeAccountModal();
   } catch (error) {
-    const axiosErr = error as { response?: { data?: { detail?: string } } };
-    state.error = axiosErr.response?.data?.detail
-      || (error instanceof Error ? error.message : 'Failed to load reference data');
+    // Error is already in state.error from handleAccountCrudSave
+    console.error('[AccountHub] Account save failed:', error);
   }
 };
 
-onMounted(() => Promise.all([loadPortfolio(), loadReferenceData()]));
-
-interface SavePayload {
-  name: string; institutionId: number;
-  typeId?: number; statusId?: number; openedAt?: string; closedAt?: string;
-  accountNumber?: string; sortCode?: string; rollRefNumber?: string;
-  interestRate?: string; fixedBonusRate?: string; fixedBonusRateEndDate?: string; parentId?: number | null;
-}
-
-const handleSave = async (payload: SavePayload): Promise<void> => {
+// Institution modal save handler
+const handleInstitutionSave = async (payload: any): Promise<void> => {
   try {
-    console.log('handleSave called with:', payload, 'modalResourceType:', modalResourceType.value, 'modalType:', modalType.value);
-    if (modalResourceType.value === 'account') {
-      if (modalType.value === 'create') {
-        const tId = payload.typeId ?? accountTypes.value[0]?.id;
-        const sId = payload.statusId ?? accountStatuses.value[0]?.id;
-        if (!tId || !sId) { state.error = 'Select valid type and status'; return; }
-        await createAccount(
-          payload.institutionId,
-          payload.name,
-          tId,
-          sId,
-          payload.accountNumber,
-          payload.sortCode,
-          payload.rollRefNumber,
-          payload.interestRate,
-          payload.fixedBonusRate,
-          payload.fixedBonusRateEndDate,
-        );
-      } else if (editingItem.value && 'id' in editingItem.value) {
-        await updateAccount(
-          editingItem.value.id,
-          payload.name,
-          payload.typeId,
-          payload.statusId,
-          payload.accountNumber,
-          payload.sortCode,
-          payload.rollRefNumber,
-          payload.interestRate,
-          payload.fixedBonusRate,
-          payload.fixedBonusRateEndDate,
-        );
-        await accountCrudService.updateAccountDates(editingItem.value.id, {
-          opened_at: payload.openedAt || null, closed_at: payload.closedAt || null,
-        });
-        await loadPortfolio();
-      }
-    } else if (modalType.value === 'create') {
-      console.log('Creating institution:', payload.name);
-      await createInstitution(payload.name, payload.parentId || null);
-    } else if (editingItem.value && 'id' in editingItem.value) {
-      await updateInstitution(editingItem.value.id, payload.name, payload.parentId || null);
-    }
-  } catch (error) { 
-    console.error('Error in handleSave:', error);
-    state.error = error instanceof Error ? error.message : 'An error occurred';
-    return;
+    await handleInstitutionCrudSave(payload);
+    await loadPortfolio();
+    closeInstitutionModal();
+  } catch (error) {
+    // Error is already in state.error from handleInstitutionCrudSave
+    console.error('[AccountHub] Institution save failed:', error);
   }
-  console.log('About to close modal');
-  closeModal();
 };
 
 const handleConfirmDelete = async (): Promise<void> => {
-  try {
-    if (deleteConfirmType.value === 'account') await deleteAccount(deleteConfirmId.value);
-    else await deleteInstitution(deleteConfirmId.value);
-    closeDeleteConfirm();
-  } catch { /* error set in state */ }
+  if (deleteConfirmType.value === 'account') {
+    await handleAccountDelete(deleteConfirmId.value);
+  } else {
+    await handleInstitutionDelete(deleteConfirmId.value);
+  }
+  // Ensure table reloads with updated data after delete
+  await loadPortfolio();
+  closeDeleteConfirm();
+};
+
+const handleShowEvents = async (accountId: number, accountName: string): Promise<void> => {
+  await openEventsModal(accountId, accountName);
 };
 
 const handleUpdateBalance = async (accountId: number, value: string): Promise<void> => {
   try {
-    await apiService.createAccountEvent(accountId, { event_type: 'balance', value });
+    // eslint-disable-next-line no-console
+    console.log('[AccountHub] Updating balance', { accountId, value });
+    const balanceValue = parseFloat(value);
+    if (Number.isNaN(balanceValue)) {
+      state.error = 'Invalid balance value';
+      return;
+    }
+    // Create a balance event
+    await apiService.createAccountEvent(accountId, {
+      event_type: 'Balance',
+      value: balanceValue.toString(),
+    });
+    // Reload portfolio to refresh display
     await loadPortfolio();
   } catch (error) {
-    const axiosErr = error as { response?: { data?: { detail?: string } } };
-    state.error = axiosErr.response?.data?.detail
-      || (error instanceof Error ? error.message : 'Failed to update balance');
+    state.error = error instanceof Error ? error.message : 'Failed to update balance';
   }
 };
 
-const handleShowEvents = (accountId: number, accountName: string): void => {
-  openEventsModal(accountId, accountName);
+const exportToExcel = (): void => {
+  const fileName = `wealthtrack-accounts-${new Date().toISOString().split('T')[0]}.xlsx`;
+  exportAccountsToExcel(state.items, fileName);
 };
+
+const institutionCount = computed(() => state.institutions.length);
+
+const credentialTypes = ref<any[]>([]);
 </script>
 
-<!-- Uses UnoCSS utilities via shortcuts -->
+<style scoped>
+.export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.export-btn:hover {
+  background-color: #2563eb;
+}
+
+.export-btn:active {
+  background-color: #1d4ed8;
+}
+
+.export-icon {
+  font-size: 1rem;
+}
+</style>

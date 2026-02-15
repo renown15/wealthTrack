@@ -32,4 +32,9 @@ class InstitutionGroup(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<InstitutionGroup(id={self.id}, parent={self.parent_institution_id}, child={self.child_institution_id})>"
+        return (
+            f"<InstitutionGroup("
+            f"id={self.id}, "
+            f"parent={self.parent_institution_id}, "
+            f"child={self.child_institution_id})>"
+        )

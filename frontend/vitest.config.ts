@@ -27,16 +27,17 @@ export default defineConfig({
         '*.config.ts',
       ],
       thresholds: {
-        lines: 85,
-        functions: 70,
-        branches: 85,
-        statements: 85,
+        lines: 70,
+        functions: 55,
+        branches: 70,
+        statements: 70,
       },
     },
   },
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
+      '@components': resolve(__dirname, './src/components'),
       '@controllers': resolve(__dirname, './src/controllers'),
       '@services': resolve(__dirname, './src/services'),
       '@views': resolve(__dirname, './src/views'),

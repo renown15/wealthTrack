@@ -4,6 +4,8 @@ Models package initialization.
 from app.models.account import Account
 from app.models.account_attribute import AccountAttribute
 from app.models.account_event import AccountEvent
+from app.models.account_group import AccountGroup
+from app.models.account_group_member import AccountGroupMember
 from app.models.institution import Institution
 from app.models.institution_group import InstitutionGroup
 from app.models.institution_security_credentials import InstitutionSecurityCredentials
@@ -19,4 +21,6 @@ __all__ = [
     "AccountAttribute",
     "AccountEvent",
     "InstitutionSecurityCredentials",
+    "AccountGroup",
+    "AccountGroupMember",
 ]

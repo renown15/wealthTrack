@@ -23,21 +23,21 @@
       <table class="w-full border-collapse">
         <thead>
           <tr class="border-b border-border bg-gray-50">
-            <th class="sortable-header" @click="toggleSort('classKey')">
+            <th :class="styles['sortable-header']" @click="toggleSort('classKey')">
               Class Key
-              <span class="sort-indicator">{{ getSortIndicator('classKey') }}</span>
+              <span :class="styles['sort-indicator']">{{ getSortIndicator('classKey') }}</span>
             </th>
-            <th class="sortable-header" @click="toggleSort('referenceValue')">
+            <th :class="styles['sortable-header']" @click="toggleSort('referenceValue')">
               Reference Value
-              <span class="sort-indicator">{{ getSortIndicator('referenceValue') }}</span>
+              <span :class="styles['sort-indicator']">{{ getSortIndicator('referenceValue') }}</span>
             </th>
-            <th class="sortable-header" @click="toggleSort('sortIndex')">
+            <th :class="styles['sortable-header']" @click="toggleSort('sortIndex')">
               Sort Index
-              <span class="sort-indicator">{{ getSortIndicator('sortIndex') }}</span>
+              <span :class="styles['sort-indicator']">{{ getSortIndicator('sortIndex') }}</span>
             </th>
-            <th class="sortable-header" @click="toggleSort('updatedAt')">
+            <th :class="styles['sortable-header']" @click="toggleSort('updatedAt')">
               Updated
-              <span class="sort-indicator">{{ getSortIndicator('updatedAt') }}</span>
+              <span :class="styles['sort-indicator']">{{ getSortIndicator('updatedAt') }}</span>
             </th>
             <th class="py-3 px-4 text-center font-semibold text-text-dark">Actions</th>
           </tr>
@@ -75,38 +75,16 @@
               {{ formatDate(item.updatedAt) }}
             </td>
             <td class="py-3 px-4 text-center">
-              <div class="flex justify-center gap-2">
-                <button
-                  v-if="editingId !== item.id"
-                  class="btn-icon-edit"
-                  type="button"
-                  @click="startEdit(item)"
-                  title="Edit"
-                >{{ Icons.edit }}</button>
-                <button
-                  v-if="editingId === item.id"
-                  class="px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  type="button"
-                  @click="saveEdit(item.id)"
-                  title="Save"
-                  :disabled="savingId === item.id"
-                >{{ Icons.save }}</button>
-                <button
-                  v-if="editingId === item.id"
-                  class="px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition"
-                  type="button"
-                  @click="cancelEdit"
-                  title="Cancel"
-                >{{ Icons.cancel }}</button>
-                <button
-                  v-if="editingId !== item.id"
-                  class="btn-icon-delete"
-                  type="button"
-                  @click="deleteItem(item.id)"
-                  :disabled="deletingId === item.id"
-                  title="Delete"
-                >{{ Icons.delete }}</button>
-              </div>
+              <ReferenceDataTableActions
+                :item="item"
+                :editing-id="editingId"
+                :saving-id="savingId"
+                :deleting-id="deletingId"
+                @start-edit="handleStartEdit"
+                @cancel-edit="cancelEdit"
+                @save-edit="handleSaveEdit"
+                @delete="deleteItem"
+              />
             </td>
           </tr>
         </tbody>
@@ -116,9 +94,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, type Ref } from 'vue';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 import { Icons } from '@/constants/icons';
+import ReferenceDataTableActions from '@views/ReferenceDataTableActions.vue';
+import styles from '@views/ReferenceDataTable.module.css';
 
 interface ExtendedReferenceDataItem extends ReferenceDataItem {
   updatedAt: string;
@@ -133,31 +113,37 @@ const props = defineProps<{
 const emit = defineEmits<{
   edit: [id: number, data: { referenceValue: string; sortIndex?: number }];
   delete: [id: number];
-  'sort-change': [key: keyof ExtendedReferenceDataItem, direction: 'asc' | 'desc'];
+  'sort-change': [
+    key: keyof ExtendedReferenceDataItem,
+    direction: 'asc' | 'desc'
+  ];
 }>();
 
-const filterText = ref('');
-const filterClassKey = ref('');
-const editingId = ref<number | null>(null);
-const savingId = ref<number | null>(null);
-const deletingId = ref<number | null>(null);
+const filterText: Ref<string> = ref('');
+const filterClassKey: Ref<string> = ref('');
+const editingId: Ref<number | null> = ref(null);
+const savingId: Ref<number | null> = ref(null);
+const deletingId: Ref<number | null> = ref(null);
 const editForm = ref({
   referenceValue: '',
   sortIndex: undefined as number | undefined,
 });
 
-const uniqueClassKeys = computed(() => {
-  const keys = new Set(props.data.map(item => item.classKey));
+const uniqueClassKeys = computed((): string[] => {
+  const keys = new Set(props.data.map((item) => item.classKey));
   return Array.from(keys).sort();
 });
 
-const filteredData = computed(() => {
-  const filtered = props.data.filter(item => {
-    const matchesText = filterText.value === ''
-      || item.classKey.toLowerCase().includes(filterText.value.toLowerCase())
-      || item.referenceValue.toLowerCase().includes(filterText.value.toLowerCase());
-    const matchesClassKey = filterClassKey.value === ''
-      || item.classKey === filterClassKey.value;
+const filteredData = computed((): ExtendedReferenceDataItem[] => {
+  const filtered = props.data.filter((item) => {
+    const matchesText =
+      filterText.value === '' ||
+      item.classKey.toLowerCase().includes(filterText.value.toLowerCase()) ||
+      item.referenceValue
+        .toLowerCase()
+        .includes(filterText.value.toLowerCase());
+    const matchesClassKey =
+      filterClassKey.value === '' || item.classKey === filterClassKey.value;
     return matchesText && matchesClassKey;
   });
 
@@ -166,79 +152,68 @@ const filteredData = computed(() => {
     const dir = props.sortDirection === 'asc' ? 1 : -1;
     const aVal = a[key] ?? '';
     const bVal = b[key] ?? '';
-    if (typeof aVal === 'number' && typeof bVal === 'number') return (aVal - bVal) * dir;
+    if (typeof aVal === 'number' && typeof bVal === 'number')
+      return (aVal - bVal) * dir;
     return String(aVal).localeCompare(String(bVal)) * dir;
   });
 });
 
-function toggleSort(key: keyof ExtendedReferenceDataItem): void {
+const toggleSort = (key: keyof ExtendedReferenceDataItem): void => {
   if (props.sortKey === key) {
     const newDir = props.sortDirection === 'asc' ? 'desc' : 'asc';
     emit('sort-change', key, newDir);
   } else {
     emit('sort-change', key, 'asc');
   }
-}
+};
 
-function getSortIndicator(key: keyof ExtendedReferenceDataItem): string {
-  if (props.sortKey !== key) return '';
-  return props.sortDirection === 'asc' ? Icons.sortAsc : Icons.sortDesc;
-}
+const getSortIndicator = (key: keyof ExtendedReferenceDataItem): string => {
+  return props.sortKey === key
+    ? props.sortDirection === 'asc'
+      ? Icons.sortAsc
+      : Icons.sortDesc
+    : '';
+};
 
-function startEdit(item: ExtendedReferenceDataItem): void {
+const startEdit = (item: ExtendedReferenceDataItem): void => {
   editingId.value = item.id;
   editForm.value = {
     referenceValue: item.referenceValue,
     sortIndex: item.sortIndex,
   };
-}
+};
 
-function cancelEdit(): void {
+const cancelEdit = (): void => {
   editingId.value = null;
-}
+};
 
-async function saveEdit(id: number): Promise<void> {
+const saveEdit = (id: number): void => {
   if (!editForm.value.referenceValue.trim()) return;
   savingId.value = id;
   emit('edit', id, editForm.value);
   editingId.value = null;
   savingId.value = null;
-}
+};
 
-function deleteItem(id: number): void {
-  deletingId.value = id;
+const deleteItem = (id: number): void => {
   emit('delete', id);
-  deletingId.value = null;
-}
+};
 
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', {
+const formatDate = (dateStr: string): string =>
+  new Date(dateStr).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
   });
-}
+
+const handleStartEdit = (item: ExtendedReferenceDataItem): void => {
+  startEdit(item);
+};
+
+const handleSaveEdit = (id: number): void => {
+  saveEdit(id);
+};
 </script>
 
-<style scoped>
-.sortable-header {
-  padding: 0.75rem 1rem;
-  text-align: left;
-  font-weight: 600;
-  color: var(--text-dark, #1f2937);
-  cursor: pointer;
-  user-select: none;
-  transition: background-color 0.15s;
-}
-.sortable-header:hover {
-  background-color: #e5e7eb;
-}
-.sort-indicator {
-  margin-left: 0.5rem;
-  font-size: 0.75rem;
-  color: #6b7280;
-}
-</style>

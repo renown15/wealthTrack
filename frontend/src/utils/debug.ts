@@ -18,8 +18,15 @@ function isDebugEnabled(): boolean {
     return storageValue === 'true';
   }
 
-  // Default: enable in dev mode, disable in production
-  return import.meta.env.DEV;
+  // Check URL hash for debug parameter (e.g., #debug or #debug=true)
+  if (typeof window !== 'undefined' && window.location.hash.includes('debug')) {
+    return true;
+  }
+
+  // Default: enable in dev mode OR on localhost
+  const isDev = import.meta.env.DEV;
+  const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '0.0.0.0');
+  return isDev || isLocalhost;
 }
 
 interface DebugInterface {

@@ -30,6 +30,7 @@ async def get_user_portfolio(
     items = await repo.get_user_portfolio(current_user.id)
     total_value = 0.0
     for item in items:
+        # Get the latest balance value from the portfolio item
         balance = item.get("latestBalance")
         if not balance:
             continue

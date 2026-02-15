@@ -20,7 +20,8 @@ async def test_list_account_events(
     """Test retrieving the event timeline for an account."""
     result = await db_session.execute(
         select(ReferenceData).where(
-            ReferenceData.class_key == "event_type:balance_update"
+            ReferenceData.class_key == "account_event_type",
+            ReferenceData.reference_value == "Balance Update"
         )
     )
     event_type = result.scalar_one()

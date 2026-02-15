@@ -14,7 +14,8 @@ async def test_list_events_returns_reference_labels(db_session, account):
 
     result = await db_session.execute(
         select(ReferenceData).where(
-            ReferenceData.class_key == "event_type:balance_update"
+            ReferenceData.class_key == "account_event_type",
+            ReferenceData.reference_value == "Balance Update"
         )
     )
     event_type_ref = result.scalar_one()
