@@ -184,131 +184,10 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { Institution } from '@/models/WealthTrackDataModels';
-import type { ReferenceDataItem } from '@/models/ReferenceData';
+import { ACCOUNT_TYPE_FIELD_CONFIG } from '@views/AccountHub/accountTypeFieldConfig';
+import { type AccountFormFieldsProps } from '@views/AccountHub/accountFormFieldsTypes';
 
-// Account type field configuration
-// Defines which fields should be shown for each account type
-const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, {
-  showInterestRate: boolean;
-  showFixedBonusRate: boolean;
-  showFixedBonusRateEndDate: boolean;
-  isDeferredType: boolean;
-  showNumberOfShares: boolean;
-  showUnderlying: boolean;
-  showPrice: boolean;
-  showPurchasePrice: boolean;
-}> = {
-  'Fixed / Bons Rate Saver': {
-    showInterestRate: true,
-    showFixedBonusRate: true,
-    showFixedBonusRateEndDate: true,
-    isDeferredType: false,
-    showNumberOfShares: false,
-    showUnderlying: false,
-    showPrice: false,
-    showPurchasePrice: false,
-  },
-  'Fixed / Bonus Rate Saver': {
-    showInterestRate: true,
-    showFixedBonusRate: true,
-    showFixedBonusRateEndDate: true,
-    isDeferredType: false,
-    showNumberOfShares: false,
-    showUnderlying: false,
-    showPrice: false,
-    showPurchasePrice: false,
-  },
-  'Fixed Rate ISA': {
-    showInterestRate: true,
-    showFixedBonusRate: false,
-    showFixedBonusRateEndDate: true,
-    isDeferredType: false,
-    showNumberOfShares: false,
-    showUnderlying: false,
-    showPrice: false,
-    showPurchasePrice: false,
-  },
-  'ISA': {
-    showInterestRate: true,
-    showFixedBonusRate: false,
-    showFixedBonusRateEndDate: false,
-    isDeferredType: false,
-    showNumberOfShares: false,
-    showUnderlying: false,
-    showPrice: false,
-    showPurchasePrice: false,
-  },
-  'Deferred Cash': {
-    showInterestRate: false,
-    showFixedBonusRate: false,
-    showFixedBonusRateEndDate: false,
-    isDeferredType: true,
-    showNumberOfShares: false,
-    showUnderlying: false,
-    showPrice: false,
-    showPurchasePrice: false,
-  },
-  'Deferred Shares': {
-    showInterestRate: false,
-    showFixedBonusRate: false,
-    showFixedBonusRateEndDate: false,
-    isDeferredType: true,
-    showNumberOfShares: true,
-    showUnderlying: true,
-    showPrice: true,
-    showPurchasePrice: true,
-  },
-  'RSU': {
-    showInterestRate: false,
-    showFixedBonusRate: false,
-    showFixedBonusRateEndDate: false,
-    isDeferredType: true,
-    showNumberOfShares: true,
-    showUnderlying: true,
-    showPrice: true,
-    showPurchasePrice: false,
-  },
-  // Default for all other types
-  'DEFAULT': {
-    showInterestRate: true,
-    showFixedBonusRate: false,
-    showFixedBonusRateEndDate: false,
-    isDeferredType: false,
-    showNumberOfShares: false,
-    showUnderlying: false,
-    showPrice: false,
-    showPurchasePrice: false,
-  },
-};
-
-interface Props {
-  formData: {
-    name: string;
-    institutionId: number;
-    typeId: number;
-    statusId: number;
-    openedAt: string;
-    closedAt: string;
-    accountNumber: string;
-    sortCode: string;
-    rollRefNumber: string;
-    interestRate: string;
-    fixedBonusRate: string;
-    fixedBonusRateEndDate: string;
-    releaseDate: string;
-    numberOfShares: string;
-    underlying: string;
-    price: string;
-    purchasePrice: string;
-  };
-  type: 'create' | 'edit';
-  institutions: Institution[];
-  accountTypes: ReferenceDataItem[];
-  accountStatuses: ReferenceDataItem[];
-}
-
-const props = defineProps<Props>();
+const props = defineProps<AccountFormFieldsProps>();
 
 const getFieldConfig = computed(() => {
   if (!props.formData.typeId) return ACCOUNT_TYPE_FIELD_CONFIG['DEFAULT'];
@@ -318,6 +197,4 @@ const getFieldConfig = computed(() => {
   const typeName = selectedType?.referenceValue;
   return ACCOUNT_TYPE_FIELD_CONFIG[typeName || 'DEFAULT'] || ACCOUNT_TYPE_FIELD_CONFIG['DEFAULT'];
 });
-
-
 </script>

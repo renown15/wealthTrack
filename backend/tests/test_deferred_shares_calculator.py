@@ -13,29 +13,29 @@ class TestCalculateDeferredSharesBalance:
     def test_basic_calculation(self):
         """Test basic deferred shares balance calculation"""
         # 1000 shares @ 5000p current, 4000p purchase
-        # = 1000 × (0.8 × 5000 + 0.2 × 4000) / 100
-        # = 1000 × 4800 / 100
-        # = £48.00
+        # = (1000 × 5000) - (((1000 × 5000) - (1000 × 4000)) × 0.2) / 100
+        # = 4800000 / 100
+        # = £48000.00
         result = calculate_deferred_shares_balance(1000, 5000, 4000)
-        assert result == 48.0
+        assert result == 48000.0
 
     def test_calculation_when_price_equals_purchase_price(self):
         """Test calculation when current price equals purchase price"""
         # 1000 shares @ 5000p current, 5000p purchase
-        # = 1000 × (0.8 × 5000 + 0.2 × 5000) / 100
-        # = 1000 × 5000 / 100
-        # = £50.00
+        # = (1000 × 5000) - (0 × 0.2) / 100
+        # = 5000000 / 100
+        # = £50000.00
         result = calculate_deferred_shares_balance(1000, 5000, 5000)
-        assert result == 50.0
+        assert result == 50000.0
 
     def test_calculation_when_price_below_purchase(self):
         """Test calculation when current price is below purchase price"""
         # 1000 shares @ 3000p current, 5000p purchase
-        # = 1000 × (0.8 × 3000 + 0.2 × 5000) / 100
-        # = 1000 × 3400 / 100
-        # = £34.00
+        # = (1000 × 3000) - (((1000 × 3000) - (1000 × 5000)) × 0.2) / 100
+        # = ((3000000 - (-2000000)) × 0.2) = 3000000 - (-400000) = 3400000 / 100
+        # = £34000.00
         result = calculate_deferred_shares_balance(1000, 3000, 5000)
-        assert result == 34.0
+        assert result == 34000.0
 
     def test_zero_shares(self):
         """Test calculation with zero shares"""
@@ -50,10 +50,11 @@ class TestCalculateDeferredSharesBalance:
     def test_large_numbers(self):
         """Test calculation with large numbers"""
         # 1000000 shares @ 10000p current, 8000p purchase
-        # = 1000000 × 9600 / 100
-        # = £96000.00
+        # = (1000000 × 10000) - (((1000000 × 10000) - (1000000 × 8000)) × 0.2) / 100
+        # = 9600000000 / 100
+        # = £96000000.00
         result = calculate_deferred_shares_balance(1000000, 10000, 8000)
-        assert result == 96000.0
+        assert result == 96000000.0
 
     def test_negative_shares_raises_error(self):
         """Test that negative shares raises ValueError"""
@@ -74,10 +75,10 @@ class TestCalculateDeferredSharesBalance:
         """Test calculation maintains decimal precision"""
         # Test with values that produce decimal results
         result = calculate_deferred_shares_balance(100, 5555, 4444)
-        # = 100 × (0.8 × 5555 + 0.2 × 4444) / 100
-        # = 100 × 5032.8 / 100
-        # = £50.328
-        assert abs(result - 50.328) < 0.0001
+        # = (100 × 5555) - (((100 × 5555) - (100 × 4444)) × 0.2) / 100
+        # = 533280 / 100
+        # = £5332.80
+        assert abs(result - 5332.8) < 0.0001
 
 
 class TestCalculateDeferredSharesBalanceSafe:
@@ -86,7 +87,7 @@ class TestCalculateDeferredSharesBalanceSafe:
     def test_safe_calculation_with_string_input(self):
         """Test safe calculation with valid string inputs"""
         result = calculate_deferred_shares_balance_safe("1000", "5000", "4000")
-        assert result == 48.0
+        assert result == 48000.0
 
     def test_safe_calculation_returns_none_for_missing_shares(self):
         """Test function returns None when shares is missing"""
@@ -126,10 +127,10 @@ class TestCalculateDeferredSharesBalanceSafe:
     def test_safe_calculation_valid_inputs(self):
         """Test safe calculation with valid inputs"""
         result = calculate_deferred_shares_balance_safe("2000", "7000", "5000")
-        # 2000 × (0.8 × 7000 + 0.2 × 5000) / 100
-        # = 2000 × 6400 / 100
-        # = £128.00
-        assert result == 128.0
+        # = (2000 × 7000) - (((2000 × 7000) - (2000 × 5000)) × 0.2) / 100
+        # = 13200000 / 100
+        # = £132000.00
+        assert result == 132000.0
 
 
 class TestFormulaVerification:

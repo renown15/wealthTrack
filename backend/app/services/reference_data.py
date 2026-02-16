@@ -25,7 +25,11 @@ REFERENCE_DATA_ITEMS: list[ReferenceDataItem] = [
     ReferenceDataItem(class_key="account_type", reference_value="SIPP", sort_index=4),
     ReferenceDataItem(class_key="account_type", reference_value="Credit Card", sort_index=5),
     ReferenceDataItem(class_key="account_type", reference_value="Trust Bank Account", sort_index=6),
-    ReferenceDataItem(class_key="account_type", reference_value="Trust Stocks Investment Account", sort_index=7),
+    ReferenceDataItem(
+        class_key="account_type",
+        reference_value="Trust Stocks Investment Account",
+        sort_index=7,
+    ),
     # Account statuses
     ReferenceDataItem(class_key="account_status", reference_value="Active", sort_index=1),
     ReferenceDataItem(class_key="account_status", reference_value="Closed", sort_index=2),

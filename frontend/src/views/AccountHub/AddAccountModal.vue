@@ -9,72 +9,20 @@
       <div v-if="validationError" class="error-banner mb-4">
         {{ validationError }}
       </div>
-      <div class="form-group">
-        <label
-          :for="`${resourceType}-name`"
-          class="form-label"
-        >
-          {{ resourceType === 'account' ? 'Account' : 'Institution' }} Name
-        </label>
-        <input
-          :id="`${resourceType}-name`"
-          :value="resourceType === 'institution' ? institutionFormData.name : formData.name"
-          @input="(e) => handleNameInput((e.target as HTMLInputElement).value)"
-          type="text"
-          class="form-input"
-          :placeholder="
-            resourceType === 'account'
-              ? 'e.g., Checking, Savings'
-              : 'e.g., Chase Bank, Wells Fargo'
-          "
-        />
-      </div>
 
-      <div
+      <InstitutionFormFields
         v-if="resourceType === 'institution'"
-        class="form-group"
-      >
-        <label for="parentInstitution" class="form-label">
-          Parent Institution (Optional)
-        </label>
-        <select
-          v-model.number="institutionFormData.parentId"
-          id="parentInstitution"
-          class="form-select"
-        >
-          <option :value="0">None</option>
-          <option
-            v-for="inst in institutions"
-            :key="inst.id"
-            :value="inst.id"
-          >
-            {{ inst.name }}
-          </option>
-        </select>
-      </div>
-
-      <div
-        v-if="resourceType === 'institution'"
-        class="form-group"
-      >
-        <label for="institutionType" class="form-label">
-          Institution Type (Optional)
-        </label>
-        <select
-          v-model="institutionFormData.institutionType"
-          id="institutionType"
-          class="form-select"
-        >
-          <option :value="null">Select Type...</option>
-          <option
-            v-for="type in institutionTypes"
-            :key="type.referencevalue"
-            :value="type.referencevalue"
-          >
-            {{ type.referencevalue }}
-          </option>
-        </select>
-      </div>
+        :model-value="{
+          name: institutionFormData.name,
+          parentId: institutionFormData.parentId,
+          institutionType: institutionFormData.institutionType,
+        }"
+        :institutions="institutions"
+        :institution-types="institutionTypes"
+        @update:name="(v) => institutionFormData.name = v"
+        @update:parentId="(v) => institutionFormData.parentId = v"
+        @update:institutionType="(v) => institutionFormData.institutionType = v"
+      />
 
       <AccountFormFields
         v-if="resourceType === 'account'"
@@ -96,118 +44,87 @@
 </template>
 
 <script setup lang="ts">
-import { computed, toRef, ref } from 'vue';
+import { ref, computed } from 'vue';
 import type { Institution } from '@/models/WealthTrackDataModels';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 import BaseModal from '@/components/BaseModal.vue';
 import AccountFormFields from '@views/AccountHub/AccountFormFields.vue';
-import { useAccountForm, type AccountFormProps } from '@/composables/useAccountForm';
-import {
-  useInstitutionForm,
-  type InstitutionFormProps,
-} from '@/composables/useInstitutionForm';
+import InstitutionFormFields from '@views/AccountHub/InstitutionFormFields.vue';
+import { validateAccountForm, validateInstitutionForm, type AccountFormData } from '@views/AccountHub/addAccountModalValidation';
+
+interface InstitutionFormData {
+  name: string;
+  parentId?: number;
+  institutionType?: string | null;
+}
 
 interface Props {
   open: boolean;
   type: 'create' | 'edit';
   resourceType: 'account' | 'institution';
   institutions: Institution[];
-  initialName?: string;
-  initialInstitutionId?: number;
   accountTypes: ReferenceDataItem[];
   accountStatuses: ReferenceDataItem[];
   institutionTypes: ReferenceDataItem[];
-  initialTypeId?: number;
-  initialStatusId?: number;
-  initialOpenedAt?: string | null;
-  initialClosedAt?: string | null;
-  initialAccountNumber?: string | null;
-  initialSortCode?: string | null;
-  initialRollRefNumber?: string | null;
-  initialInterestRate?: string | null;
-  initialFixedBonusRate?: string | null;
-  initialFixedBonusRateEndDate?: string | null;
-  initialParentId?: number | null;
-  initialInstitutionType?: string | null;
+  initialAccountData?: Partial<AccountFormData>;
+  initialInstitutionData?: Partial<InstitutionFormData>;
 }
 
-interface SavePayload {
-  name: string;
-  institutionId: number;
-  typeId?: number;
-  statusId?: number;
-  openedAt?: string;
-  closedAt?: string;
-  accountNumber?: string;
-  sortCode?: string;
-  rollRefNumber?: string;
-  interestRate?: string;
-  fixedBonusRate?: string;
-  fixedBonusRateEndDate?: string;
-  parentId?: number | null;
-  institutionType?: string | null;
-}
+const props = withDefaults(defineProps<Props>(), {
+  resourceType: 'account',
+});
 
-const props = defineProps<Props>();
-const emit = defineEmits<{ close: []; save: [SavePayload] }>();
+const emit = defineEmits<{
+  close: [];
+  save: [data: any];
+}>();
+
+const formData = ref<AccountFormData>({
+  name: '',
+  institutionId: 0,
+  typeId: undefined,
+  statusId: undefined,
+  openedAt: undefined,
+  closedAt: undefined,
+  accountNumber: undefined,
+  sortCode: undefined,
+  rollRefNumber: undefined,
+  interestRate: undefined,
+  fixedBonusRate: undefined,
+  fixedBonusRateEndDate: undefined,
+  releaseDate: undefined,
+  numberOfShares: undefined,
+  underlying: undefined,
+  price: undefined,
+  purchasePrice: undefined,
+  ...props.initialAccountData,
+});
+
+const institutionFormData = ref<InstitutionFormData>({
+  name: '',
+  parentId: 0,
+  institutionType: null,
+  ...props.initialInstitutionData,
+});
 
 const validationError = ref('');
 
-const formProps = computed<AccountFormProps>(() => ({
-  open: props.open,
-  resourceType: props.resourceType,
-  initialName: props.initialName,
-  initialInstitutionId: props.initialInstitutionId,
-  initialTypeId: props.initialTypeId,
-  initialStatusId: props.initialStatusId,
-  initialOpenedAt: props.initialOpenedAt,
-  initialClosedAt: props.initialClosedAt,
-  initialAccountNumber: props.initialAccountNumber,
-  initialSortCode: props.initialSortCode,
-  initialRollRefNumber: props.initialRollRefNumber,
-  initialInterestRate: props.initialInterestRate,
-  initialFixedBonusRate: props.initialFixedBonusRate,
-  initialFixedBonusRateEndDate: props.initialFixedBonusRateEndDate,
-  accountTypes: props.accountTypes,
-  accountStatuses: props.accountStatuses,
-}));
-
-const { formData } = useAccountForm(toRef(formProps));
-
-const institutionFormProps = computed<InstitutionFormProps>(() => ({
-  open: props.open,
-  initialName: props.initialName,
-  initialParentId: props.initialParentId,
-  initialInstitutionType: props.initialInstitutionType,
-}));
-
-const { formData: institutionFormData } = useInstitutionForm(
-  toRef(institutionFormProps)
-);
-
 const modalTitle = computed(() => {
-  const verb = props.type === 'create' ? 'New' : 'Edit';
-  const label = props.resourceType === 'account' ? 'Account' : 'Institution';
-  return `${verb} ${label}`;
+  if (props.resourceType === 'institution') {
+    return props.type === 'create' ? 'Create Institution' : 'Edit Institution';
+  }
+  return props.type === 'create' ? 'Create Account' : 'Edit Account';
 });
 
 const emitClose = (): void => emit('close');
 
-const handleNameInput = (value: string): void => {
-  if (props.resourceType === 'institution') {
-    institutionFormData.value.name = value;
-  } else {
-    formData.value.name = value;
-  }
-};
-
 const handleSave = (): void => {
-  console.log('[AddAccountModal] handleSave called', { resourceType: props.resourceType, formData, type: props.type });
   validationError.value = '';
-  
+
   if (props.resourceType === 'institution') {
-    if (!institutionFormData.value.name) {
-      validationError.value = 'Please enter a name';
+    const error = validateInstitutionForm(institutionFormData.value as any);
+    if (error) {
+      validationError.value = error;
       return;
     }
     emit('save', {
@@ -217,28 +134,11 @@ const handleSave = (): void => {
       institutionType: institutionFormData.value.institutionType || null,
     });
   } else {
-    console.log('[AddAccountModal] Account save - checking validations', {
-      name: formData.value.name,
-      institutionId: formData.value.institutionId,
-      typeId: formData.value.typeId,
-      statusId: formData.value.statusId,
-    });
-    if (!formData.value.name) { 
-      validationError.value = 'Please enter an account name';
-      console.log('[AddAccountModal] Validation failed: no name'); 
-      return; 
+    const error = validateAccountForm(formData.value, props.type === 'create');
+    if (error) {
+      validationError.value = error;
+      return;
     }
-    if (props.type === 'create' && !formData.value.institutionId) { 
-      validationError.value = 'Please select an institution';
-      console.log('[AddAccountModal] Validation failed: no institution'); 
-      return; 
-    }
-    if (!formData.value.typeId || !formData.value.statusId) { 
-      validationError.value = 'Please select an account type and status';
-      console.log('[AddAccountModal] Validation failed: no type or status', { typeId: formData.value.typeId, statusId: formData.value.statusId }); 
-      return; 
-    }
-
     emit('save', {
       name: formData.value.name,
       institutionId: formData.value.institutionId,

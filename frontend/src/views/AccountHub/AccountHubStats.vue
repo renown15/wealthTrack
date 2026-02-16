@@ -16,7 +16,7 @@
       <article class="stat-card" :title="getTotalValueTooltip()">
         <p class="stat-label">
           Total Value
-          <span class="info-icon" style="cursor: help;">ⓘ</span>
+          <span class="info-icon" style="cursor: help;">{{ Icons.info }}</span>
         </p>
         <p class="stat-value">{{ formatCurrency(totalValue) }}</p>
       </article>
@@ -50,15 +50,23 @@
         <p class="stat-label">Institutions</p>
         <p class="stat-value">{{ institutionCount }}</p>
       </article>
+
+      <article class="stat-card">
+        <p class="stat-label">Events</p>
+        <p class="stat-value">{{ eventCount }}</p>
+      </article>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
+import { Icons } from '@/constants/icons';
+
 const props = defineProps<{
   totalValue: number;
   accountCount: number;
   institutionCount: number;
+  eventCount: number;
   cashAtHand: number;
   isaSavings: number;
   illiquid: number;
@@ -106,18 +114,5 @@ const emitCreateInstitution = (): void => {
   emit('createInstitution');
 };
 </script>
-
-<style scoped>
-.info-icon {
-  margin-left: 0.5rem;
-  font-size: 0.9rem;
-  opacity: 0.6;
-  transition: opacity 0.2s;
-}
-
-.stat-label:hover .info-icon {
-  opacity: 1;
-}
-</style>
 
 <!-- Uses UnoCSS utilities via shortcuts -->

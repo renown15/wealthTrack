@@ -53,6 +53,12 @@ const createUsePortfolioMock = (overrides: PortfolioMockOverrides = {}): Portfol
     state,
     totalValue: computed(() => 0),
     accountCount: computed(() => state.items.length),
+    institutionCount: computed(() => state.institutions.length),
+    eventCount: computed(() => 0),
+    cashAtHand: computed(() => 0),
+    isaSavings: computed(() => 0),
+    illiquid: computed(() => 0),
+    trustAssets: computed(() => 0),
     loadPortfolio: vi.fn<[], Promise<void>>(),
     createAccount: vi.fn<[number, string, number?, number?], Promise<void>>(),
     updateAccount: vi.fn<[number, string], Promise<void>>(),
@@ -83,9 +89,9 @@ const mountAccountHub = async (portfolioMock?: PortfolioMock) => {
 const getAccountHubVm = (wrapper: ReturnType<typeof mount>) => wrapper.vm as unknown as AccountHubVm;
 
 type AccountHubVm = {
-  modalOpen: boolean;
+  accountModalOpen: boolean;
+  institutionModalOpen: boolean;
   modalType: 'create' | 'edit';
-  modalResourceType: 'account' | 'institution';
   eventsModalOpen: boolean;
   eventsLoading: boolean;
   events: AccountEvent[];
@@ -130,9 +136,8 @@ describe('AccountHub', () => {
     await wrapper.vm.$nextTick();
 
     const vm = getAccountHubVm(wrapper);
-    expect(vm.modalOpen).toBe(true);
+    expect(vm.accountModalOpen).toBe(true);
     expect(vm.modalType).toBe('create');
-    expect(vm.modalResourceType).toBe('account');
   });
 
   it('loads events into the modal and closes it', async () => {

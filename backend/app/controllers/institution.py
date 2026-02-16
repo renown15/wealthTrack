@@ -125,11 +125,11 @@ async def update_institution(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Institution not found",
         )
-    
+
     # Update basic fields
     if inst_data.name is not None:
         institution.name = inst_data.name
-    
+
     if inst_data.institution_type is not None:
         institution.institution_type = inst_data.institution_type
 

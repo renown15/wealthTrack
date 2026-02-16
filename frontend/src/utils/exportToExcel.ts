@@ -26,8 +26,9 @@ export function exportAccountsToExcel(accounts: PortfolioItem[], fileName: strin
   const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
   for (let row = range.s.r + 1; row <= range.e.r; row++) {
     const cellAddress = XLSX.utils.encode_cell({ r: row, c: 3 }); // Column D (index 3) is Balance
-    if (worksheet[cellAddress]) {
-      worksheet[cellAddress].z = '#,##0.00'; // Format as number with 2 decimal places
+    const cellData = worksheet[cellAddress] as Record<string, unknown> | undefined;
+    if (cellData && typeof cellData === 'object') {
+      cellData.z = '#,##0.00'; // Format as number with 2 decimal places
     }
   }
   

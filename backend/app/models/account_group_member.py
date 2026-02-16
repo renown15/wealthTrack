@@ -21,7 +21,11 @@ class AccountGroupMember(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     account_group_id: Mapped[int] = mapped_column(
-        "accountgroupid", Integer, ForeignKey("AccountGroup.accountgroupid"), nullable=False, index=True
+        "accountgroupid",
+        Integer,
+        ForeignKey("AccountGroup.accountgroupid"),
+        nullable=False,
+        index=True,
     )
     account_id: Mapped[int] = mapped_column(
         "accountid", Integer, ForeignKey("Account.id"), nullable=False, index=True
@@ -40,4 +44,7 @@ class AccountGroupMember(Base):
     account: Mapped["Account"] = relationship("Account")
 
     def __repr__(self) -> str:
-        return f"<AccountGroupMember(id={self.id}, account_group_id={self.account_group_id}, account_id={self.account_id})>"
+        return (
+            f"<AccountGroupMember(id={self.id}, account_group_id={self.account_group_id}, "
+            f"account_id={self.account_id})>"
+        )

@@ -52,7 +52,7 @@ describe('AddAccountModal', () => {
       },
     });
 
-    expect(wrapper.text()).toContain('New Account');
+    expect(wrapper.text()).toContain('Create Account');
     expect(wrapper.find('input').exists()).toBe(true);
     expect(wrapper.find('select').exists()).toBe(true);
   });

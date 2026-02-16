@@ -50,7 +50,7 @@ class AccountGroupRepository:
             .order_by(AccountGroup.created_at.desc())
         )
         result = await self.session.execute(stmt)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def update(self, group_id: int, user_id: int, name: str) -> Optional[AccountGroup]:
         """Update an account group."""
@@ -71,7 +71,9 @@ class AccountGroupRepository:
         await self.session.flush()
         return True
 
-    async def add_member(self, group_id: int, user_id: int, account_id: int) -> Optional[AccountGroupMember]:
+    async def add_member(
+        self, group_id: int, user_id: int, account_id: int
+    ) -> Optional[AccountGroupMember]:
         """Add an account to a group."""
         group = await self.get_by_id(group_id, user_id)
         if not group:

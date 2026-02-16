@@ -1,13 +1,10 @@
 """Service for managing deferred cash balance snapshots."""
 
 import logging
-from datetime import datetime, date
-from typing import Optional
+from datetime import date, datetime
 
 from sqlalchemy import and_, select
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.account_attribute import AccountAttribute
 from app.models.account_event import AccountEvent
 from app.models.reference_data import ReferenceData
 from app.repositories.account_attribute_repository import AccountAttributeRepository
@@ -18,34 +15,36 @@ logger = logging.getLogger(__name__)
 class DeferredCashBalanceService:
     """Service for saving and managing deferred cash balance snapshots."""
 
-    @staticmethod
+    def __init__(self, repo: AccountAttributeRepository) -> None:
+        """Initialize with repository dependency."""
+        self.repo = repo
+        self.session = repo.session
+
     async def save_daily_balance(
+        self,
         account_id: int,
         user_id: int,
         balance_value: float,
-        session: AsyncSession,
     ) -> bool:
         """
         Save deferred cash balance (with 47% discount applied) as account attribute.
-        
+
         Only saves if no balance has been recorded for this account today.
-        
+
         Args:
             account_id: Account ID
             user_id: User ID
             balance_value: Balance in pounds after 47% discount (float)
-            session: Database session
-            
+
         Returns:
             True if balance was saved, False if already saved today
         """
         try:
             # Convert balance to string with 2 decimal places
             balance_str = f"{balance_value:.2f}"
-            
+
             # Get "Deferred Cash Balance" attribute type ID using the repository method
-            repo = AccountAttributeRepository(session)
-            attr_type_id = await repo.get_attribute_type_id("deferred_cash_balance")
+            attr_type_id = await self.repo.get_attribute_type_id("deferred_cash_balance")
 
             if not attr_type_id:
                 logger.warning(
@@ -56,7 +55,7 @@ class DeferredCashBalanceService:
             # Check if balance was already saved today
             today = date.today()
             today_start = datetime.combine(today, datetime.min.time())
-            
+
             # Check if balance event already exists for today
             balance_event_stmt = select(AccountEvent).where(
                 and_(
@@ -65,16 +64,14 @@ class DeferredCashBalanceService:
                     AccountEvent.created_at >= today_start,
                 )
             ).order_by(AccountEvent.created_at.desc()).limit(1)
-            balance_event_result = await session.execute(balance_event_stmt)
+            balance_event_result = await self.session.execute(balance_event_stmt)
             existing_event = balance_event_result.scalar_one_or_none()
 
             if existing_event:
-                logger.debug(
-                    f"[DeferredCashBalanceService] Balance event already saved today for "
-                    f"account {account_id}: £{existing_event.value}"
-                )
+                msg = "Balance saved: %s, £%s" % (account_id, existing_event.value)  # pylint: disable=consider-using-f-string
+                logger.debug(msg)
                 return False
-            
+
             # Create AccountEvent for the calculated balance
             # Get "Balance Update" event type ID
             event_type_stmt = select(ReferenceData.id).where(
@@ -83,7 +80,7 @@ class DeferredCashBalanceService:
                     ReferenceData.reference_value == "Balance Update",
                 )
             )
-            event_type_result = await session.execute(event_type_stmt)
+            event_type_result = await self.session.execute(event_type_stmt)
             event_type_id = event_type_result.scalar_one_or_none()
 
             if not event_type_id:
@@ -91,34 +88,30 @@ class DeferredCashBalanceService:
                     "[DeferredCashBalanceService] 'Balance Update' event type not found"
                 )
                 return False
-            
+
             # Create the balance event
-            balance_event = AccountEvent(
+            balance_event = AccountEvent(  # type: ignore[call-arg]
                 account_id=account_id,
                 user_id=user_id,
                 type_id=event_type_id,
                 value=balance_str,
             )
-            session.add(balance_event)
-            await session.flush()
-            
+            self.session.add(balance_event)
+            await self.session.flush()
+
             # Also save as an attribute for historical tracking
-            await repo.set_attribute(
+            await self.repo.set_attribute(
                 account_id,
                 user_id,
                 attr_type_id,
                 balance_str,
             )
-            
-            logger.info(
-                f"[DeferredCashBalanceService] Saved deferred cash balance for "
-                f"account {account_id}: £{balance_str}"
-            )
+
+            msg = "Saved cash: account %s, value £%s" % (account_id, balance_str)  # pylint: disable=consider-using-f-string
+            logger.info(msg)
             return True
 
-        except Exception as e:
-            logger.error(
-                f"[DeferredCashBalanceService] Error saving balance for account {account_id}: {e}",
-                exc_info=True,
-            )
+        except (ValueError, KeyError, RuntimeError):
+            msg = "Error saving: %s" % account_id  # pylint: disable=consider-using-f-string
+            logger.error(msg, exc_info=True)
             return False

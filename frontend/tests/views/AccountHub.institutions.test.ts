@@ -104,8 +104,8 @@ describe('AccountHub - Institution interactions', () => {
       await instList.vm.$emit('edit-institution', testInstitution);
       await wrapper.vm.$nextTick();
 
-      const modal = wrapper.find('[data-testid="add-account-modal"]');
-      expect(modal.exists()).toBe(true);
+      const vm = wrapper.vm as unknown as { institutionModalOpen: boolean };
+      expect(vm.institutionModalOpen).toBe(true);
     }
   });
 

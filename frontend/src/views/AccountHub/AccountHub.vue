@@ -4,7 +4,7 @@
       <AccountHubStats
         :total-value="totalValue" :account-count="accountCount"
         :cash-at-hand="cashAtHand" :isa-savings="isaSavings" :illiquid="illiquid" :trust-assets="trustAssets"
-        :institution-count="institutionCount"
+        :institution-count="institutionCount" :event-count="eventCount"
         @create-account="openCreateAccountModal" @create-institution="openCreateInstitutionModal"
       />
     </div>
@@ -32,7 +32,7 @@
       <div class="hub-content-card p-6">
         <div class="flex items-center justify-between mb-6">
           <h3 class="section-title">Accounts</h3>
-          <button class="export-btn" @click="exportToExcel" title="Export accounts to Excel">
+          <button class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white border-none rounded text-sm font-medium cursor-pointer transition-colors hover:bg-blue-600 active:bg-blue-700" @click="exportToExcel" title="Export accounts to Excel">
             <span class="export-icon">⬇</span>
             <span class="export-text">Excel</span>
           </button>
@@ -124,7 +124,7 @@ import InstitutionCredentialsModal from '@views/AccountHub/InstitutionCredential
 import { apiService } from '@/services/ApiService';
 import { exportAccountsToExcel } from '@/utils/exportToExcel';
 
-const { state, totalValue, accountCount, cashAtHand, isaSavings, illiquid, trustAssets, loadPortfolio, clearError } = usePortfolio();
+const { state, totalValue, accountCount, institutionCount, eventCount, cashAtHand, isaSavings, illiquid, trustAssets, loadPortfolio, clearError } = usePortfolio();
 
 onMounted(async () => {
   await loadPortfolio();
@@ -374,36 +374,6 @@ const exportToExcel = (): void => {
   exportAccountsToExcel(state.items, fileName);
 };
 
-const institutionCount = computed(() => state.institutions.length);
-
 const credentialTypes = ref<any[]>([]);
 </script>
 
-<style scoped>
-.export-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.export-btn:hover {
-  background-color: #2563eb;
-}
-
-.export-btn:active {
-  background-color: #1d4ed8;
-}
-
-.export-icon {
-  font-size: 1rem;
-}
-</style>
