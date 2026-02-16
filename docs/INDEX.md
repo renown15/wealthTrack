@@ -51,6 +51,31 @@
 | [backend/alembic/README](./backend/alembic/README) | Database migrations | 5 min read |
 | [frontend/README.md](./frontend/README.md) | Frontend setup | 5 min read |
 
+### Testing Documentation
+| Document | Purpose | Time |
+|----------|---------|------|
+| [testing/E2E_QUICK_START.md](./testing/E2E_QUICK_START.md) | Get E2E tests running in 30 seconds | 2 min read |
+| [testing/E2E_IMPLEMENTATION_SUMMARY.md](./testing/E2E_IMPLEMENTATION_SUMMARY.md) | What was built in E2E | 10 min read |
+| [testing/E2E_FILE_REFERENCE.md](./testing/E2E_FILE_REFERENCE.md) | Complete E2E file reference | 15 min read |
+| [testing/E2E_TESTING_COMPLETE.md](./testing/E2E_TESTING_COMPLETE.md) | Full E2E testing overview | 12 min read |
+| [testing/E2E_TESTING_FRAMEWORK.md](./testing/E2E_TESTING_FRAMEWORK.md) | E2E architecture deep-dive | 15 min read |
+
+### Architecture & Infrastructure
+| Document | Purpose | Time |
+|----------|---------|------|
+| [architecture/DOCKER_COMPOSE_ARCHITECTURE.md](./architecture/DOCKER_COMPOSE_ARCHITECTURE.md) | Docker infrastructure design | 10 min read |
+
+### Frontend Refactoring Guides
+| Document | Purpose | Time |
+|----------|---------|------|
+| [guides/FRONTEND_REFACTORING_ANALYSIS.md](./guides/FRONTEND_REFACTORING_ANALYSIS.md) | Frontend refactoring analysis | 12 min read |
+| [guides/FRONTEND_REFACTORING_EXAMPLES.md](./guides/FRONTEND_REFACTORING_EXAMPLES.md) | Frontend refactoring examples | 15 min read |
+
+### Session Progress
+| Document | Purpose | Time |
+|----------|---------|------|
+| [progress/REFACTORING_SESSION_SUMMARY.md](./progress/REFACTORING_SESSION_SUMMARY.md) | Refactoring session summary | 10 min read |
+
 ---
 
 ## 🗂️ CODE LOCATION GUIDE
