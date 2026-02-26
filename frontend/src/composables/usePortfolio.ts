@@ -10,6 +10,7 @@ import {
   calculateIsaSavings,
   calculateIlliquid,
   calculateTrustAssets,
+  calculateProjectedAnnualYield,
 } from '@composables/portfolioCalculations';
 import { createPortfolioCrudHandlers } from '@composables/portfolioCrudHandlers';
 import type { PortfolioState, PortfolioComposableReturn } from '@composables/portfolioTypes';
@@ -20,7 +21,8 @@ export function usePortfolio(): PortfolioComposableReturn {
   const state = reactive<PortfolioState>({
     items: [],
     institutions: [],
-    loading: false,
+    itemsLoading: false,
+    institutionsLoading: false,
     error: null,
   });
 
@@ -34,22 +36,36 @@ export function usePortfolio(): PortfolioComposableReturn {
   const isaSavings = computed(() => calculateIsaSavings(state.items));
   const illiquid = computed(() => calculateIlliquid(state.items));
   const trustAssets = computed(() => calculateTrustAssets(state.items));
+  const projectedAnnualYield = computed(() => calculateProjectedAnnualYield(state.items));
 
   const loadPortfolio = async (): Promise<void> => {
-    try {
-      state.loading = true;
-      state.error = null;
-      const [portfolioData, institutionsData] = await Promise.all([
-        apiService.getPortfolio(),
-        apiService.getInstitutions(),
-      ]);
-      state.items = portfolioData.items || [];
-      state.institutions = institutionsData;
-    } catch (error) {
-      state.error = error instanceof Error ? error.message : 'Failed to load portfolio';
-    } finally {
-      state.loading = false;
-    }
+    state.error = null;
+
+    const itemsWork = (async () => {
+      state.itemsLoading = true;
+      try {
+        const portfolioData = await apiService.getPortfolio();
+        state.items = portfolioData.items || [];
+      } catch (error) {
+        state.error = error instanceof Error ? error.message : 'Failed to load portfolio';
+      } finally {
+        state.itemsLoading = false;
+      }
+    })();
+
+    const institutionsWork = (async () => {
+      state.institutionsLoading = true;
+      try {
+        const institutionsData = await apiService.getInstitutions();
+        state.institutions = institutionsData;
+      } catch (error) {
+        state.error = error instanceof Error ? error.message : 'Failed to load institutions';
+      } finally {
+        state.institutionsLoading = false;
+      }
+    })();
+
+    await Promise.all([itemsWork, institutionsWork]);
   };
 
   const crudHandlers = createPortfolioCrudHandlers(state, loadPortfolio);
@@ -64,6 +80,7 @@ export function usePortfolio(): PortfolioComposableReturn {
     isaSavings,
     illiquid,
     trustAssets,
+    projectedAnnualYield,
     loadPortfolio,
     createAccount: crudHandlers.createAccount,
     updateAccount: crudHandlers.updateAccount,

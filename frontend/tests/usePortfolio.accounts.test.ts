@@ -53,7 +53,8 @@ describe('usePortfolio', () => {
 
       expect(state.items).toEqual(mockPortfolioData.items);
       expect(state.institutions).toEqual(mockInstitutions);
-      expect(state.loading).toBe(false);
+      expect(state.itemsLoading).toBe(false);
+      expect(state.institutionsLoading).toBe(false);
       expect(state.error).toBeNull();
     });
 
@@ -74,9 +75,11 @@ describe('usePortfolio', () => {
 
       const { state, loadPortfolio } = usePortfolio();
       const promise = loadPortfolio();
-      expect(state.loading).toBe(true);
+      expect(state.itemsLoading).toBe(true);
+      expect(state.institutionsLoading).toBe(true);
       await promise;
-      expect(state.loading).toBe(false);
+      expect(state.itemsLoading).toBe(false);
+      expect(state.institutionsLoading).toBe(false);
     });
   });
 

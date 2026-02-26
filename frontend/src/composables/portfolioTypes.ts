@@ -8,7 +8,8 @@ import type { PortfolioItem, Institution } from '@/models/WealthTrackDataModels'
 export interface PortfolioState {
   items: PortfolioItem[];
   institutions: Institution[];
-  loading: boolean;
+  itemsLoading: boolean;
+  institutionsLoading: boolean;
   error: string | null;
 }
 
@@ -22,6 +23,7 @@ export interface PortfolioComposableReturn {
   isaSavings: ComputedRef<number>;
   illiquid: ComputedRef<number>;
   trustAssets: ComputedRef<number>;
+  projectedAnnualYield: ComputedRef<number>;
   loadPortfolio: () => Promise<void>;
   createAccount: (
     institutionId: number,

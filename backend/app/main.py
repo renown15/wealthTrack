@@ -14,6 +14,7 @@ from starlette.responses import Response
 from app.config import settings
 from app.controllers.account import router as account_router
 from app.controllers.account_group import router as account_group_router
+from app.controllers.analytics import router as analytics_router
 from app.controllers.auth import router as auth_router
 from app.controllers.institution import router as institution_router
 from app.controllers.institution_security_credentials import (
@@ -140,6 +141,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth_router, prefix=settings.api_v1_prefix)
+app.include_router(analytics_router, prefix=settings.api_v1_prefix)
 app.include_router(account_router, prefix=settings.api_v1_prefix)
 app.include_router(account_group_router, prefix=settings.api_v1_prefix)
 app.include_router(institution_router, prefix=settings.api_v1_prefix)

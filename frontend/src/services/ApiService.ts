@@ -13,6 +13,8 @@ import type {
   Portfolio,
   Account,
   AccountEvent,
+  PortfolioBreakdown,
+  PortfolioHistory,
   AccountEventCreateRequest,
   AccountCreateRequest,
   AccountUpdateRequest,
@@ -22,6 +24,9 @@ import type {
   InstitutionCredential,
   InstitutionCredentialCreate,
   InstitutionCredentialUpdate,
+  AccountGroup,
+  AccountGroupCreateRequest,
+  AccountGroupUpdateRequest,
 } from '@models/WealthTrackDataModels';
 import axios, { type AxiosInstance } from 'axios';
 import { authService } from '@services/AuthService';
@@ -30,6 +35,8 @@ import { accountCrudService } from '@services/AccountCrudService';
 import { institutionCrudService } from '@services/InstitutionCrudService';
 import { referenceDataService } from '@services/ReferenceDataService';
 import { institutionCredentialService } from '@services/InstitutionCredentialService';
+import { accountGroupCrudService } from '@services/AccountGroupCrudService';
+import { analyticsService } from '@services/AnalyticsService';
 
 /**
  * Facade service that aggregates all API operations.
@@ -60,6 +67,10 @@ class ApiService {
     institutionCrudService['client'] = this.client;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
     referenceDataService['client'] = this.client;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+    accountGroupCrudService['client'] = this.client;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+    analyticsService['client'] = this.client;
   }
 
   // Auth operations
@@ -166,6 +177,51 @@ class ApiService {
 
   async getReferenceData(classKey: string): Promise<ReferenceDataItem[]> {
     return referenceDataService.listByClass(classKey);
+  }
+
+  // Account Group operations
+  async getAccountGroups(): Promise<AccountGroup[]> {
+    return accountGroupCrudService.getAccountGroups();
+  }
+
+  async getAccountGroup(groupId: number): Promise<AccountGroup> {
+    return accountGroupCrudService.getAccountGroup(groupId);
+  }
+
+  async createAccountGroup(data: AccountGroupCreateRequest): Promise<AccountGroup> {
+    return accountGroupCrudService.createAccountGroup(data);
+  }
+
+  async updateAccountGroup(
+    groupId: number,
+    data: AccountGroupUpdateRequest,
+  ): Promise<AccountGroup> {
+    return accountGroupCrudService.updateAccountGroup(groupId, data);
+  }
+
+  async deleteAccountGroup(groupId: number): Promise<void> {
+    return accountGroupCrudService.deleteAccountGroup(groupId);
+  }
+
+  async addAccountToGroup(groupId: number, accountId: number): Promise<void> {
+    return accountGroupCrudService.addAccountToGroup(groupId, accountId);
+  }
+
+  async removeAccountFromGroup(groupId: number, accountId: number): Promise<void> {
+    return accountGroupCrudService.removeAccountFromGroup(groupId, accountId);
+  }
+
+  async getGroupMembers(groupId: number): Promise<number[]> {
+    return accountGroupCrudService.getGroupMembers(groupId);
+  }
+
+  // Analytics operations
+  async getAnalyticsBreakdown(): Promise<PortfolioBreakdown> {
+    return analyticsService.getBreakdown();
+  }
+
+  async getAnalyticsHistory(): Promise<PortfolioHistory> {
+    return analyticsService.getPortfolioHistory();
   }
 
   // Token management (exposed from BaseApiClient)

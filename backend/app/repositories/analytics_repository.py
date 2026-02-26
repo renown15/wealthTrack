@@ -1,0 +1,160 @@
+"""
+Repository for analytics data — portfolio history and breakdown queries.
+"""
+import logging
+from collections import defaultdict
+from datetime import date, timedelta, timezone
+from typing import Any
+
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.account import Account
+from app.models.account_event import AccountEvent
+from app.models.institution import Institution
+from app.models.reference_data import ReferenceData
+
+logger = logging.getLogger(__name__)
+
+# Earliest date that portfolio history will be shown from, regardless of when
+# balance records were first entered.
+HISTORY_START_DATE = date(2026, 2, 15)
+
+
+class AnalyticsRepository:
+    """Provides aggregated data for analytics charts."""
+
+    def __init__(self, session: AsyncSession) -> None:
+        self.session = session
+
+    async def get_portfolio_breakdown(self, user_id: int) -> dict[str, Any]:
+        """
+        Return current portfolio value broken down by account type and institution.
+
+        Uses the latest event value per account (same logic as the portfolio endpoint).
+        """
+        max_date_subq = (
+            select(
+                AccountEvent.account_id,
+                func.max(AccountEvent.created_at).label("max_date"),
+            )
+            .join(Account, Account.id == AccountEvent.account_id)
+            .where(Account.user_id == user_id)
+            .group_by(AccountEvent.account_id)
+            .subquery()
+        )
+
+        stmt = (
+            select(
+                ReferenceData.reference_value.label("account_type"),
+                Institution.name.label("institution"),
+                AccountEvent.value,
+            )
+            .select_from(Account)
+            .join(max_date_subq, max_date_subq.c.account_id == Account.id)
+            .join(
+                AccountEvent,
+                (AccountEvent.account_id == Account.id)
+                & (AccountEvent.created_at == max_date_subq.c.max_date),
+            )
+            .join(ReferenceData, ReferenceData.id == Account.type_id)
+            .outerjoin(Institution, Institution.id == Account.institution_id)
+            .where(Account.user_id == user_id)
+        )
+
+        result = await self.session.execute(stmt)
+        rows = result.all()
+
+        by_type: dict[str, float] = {}
+        by_institution: dict[str, float] = {}
+        total = 0.0
+
+        for account_type, institution, raw_value in rows:
+            try:
+                val = float(raw_value)
+            except (TypeError, ValueError):
+                continue
+            if val <= 0:
+                continue
+
+            total += val
+            by_type[account_type] = by_type.get(account_type, 0.0) + val
+            inst = institution or "Unknown"
+            by_institution[inst] = by_institution.get(inst, 0.0) + val
+
+        return {
+            "by_type": [
+                {"label": k, "value": round(v, 2)}
+                for k, v in sorted(by_type.items(), key=lambda x: -x[1])
+            ],
+            "by_institution": [
+                {"label": k, "value": round(v, 2)}
+                for k, v in sorted(by_institution.items(), key=lambda x: -x[1])
+            ],
+            "total": round(total, 2),
+        }
+
+    async def get_portfolio_history(self, user_id: int) -> list[dict[str, Any]]:
+        """
+        Return the daily portfolio total from the date of the earliest balance
+        record up to today.
+
+        Each account's balance carries forward unchanged until the next balance
+        record is written, so every day has an exact total.
+        """
+        stmt = (
+            select(
+                AccountEvent.account_id,
+                AccountEvent.created_at,
+                AccountEvent.value,
+            )
+            .join(Account, Account.id == AccountEvent.account_id)
+            .where(Account.user_id == user_id)
+            .order_by(AccountEvent.created_at)
+        )
+        result = await self.session.execute(stmt)
+        rows = result.all()
+
+        if not rows:
+            return []
+
+        # Group events by calendar date, keeping the last value per account per day
+        # (if multiple events on the same day, the latest wins)
+        events_by_date: dict[date, dict[int, float]] = defaultdict(dict)
+        for account_id, created_at, raw_value in rows:
+            try:
+                val = float(raw_value)
+            except (TypeError, ValueError):
+                continue
+            event_date = (
+                created_at.date()
+                if hasattr(created_at, "date")
+                else date.fromisoformat(str(created_at)[:10])
+            )
+            # Overwrite — rows are ordered by created_at so the last row for
+            # this (date, account) is the latest value on that day
+            events_by_date[event_date][account_id] = val
+
+        today = date.today()
+
+        # Seed account_balances with any events recorded before the cap date so
+        # their values carry forward correctly into the visible window.
+        account_balances: dict[int, float] = {}
+        for past_date in sorted(d for d in events_by_date if d < HISTORY_START_DATE):
+            account_balances.update(events_by_date[past_date])
+
+        # Start the visible history from whichever is later: the cap date or the
+        # date of the first recorded event.
+        first_date = max(min(events_by_date), HISTORY_START_DATE)
+        history: list[dict[str, Any]] = []
+
+        current = first_date
+        while current <= today:
+            if current in events_by_date:
+                account_balances.update(events_by_date[current])
+
+            total = sum(v for v in account_balances.values() if v > 0)
+            history.append({"date": current.isoformat(), "total_value": round(total, 2)})
+            current += timedelta(days=1)
+
+        return history

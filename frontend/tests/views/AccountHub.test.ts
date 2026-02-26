@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { computed } from 'vue';
+import { computed, reactive } from 'vue';
 import { mount } from '@vue/test-utils';
 import AccountHub from '@views/AccountHub/AccountHub.vue';
 import * as usePortfolioModule from '@/composables/usePortfolio';
@@ -11,6 +11,23 @@ const mockGetReferenceData = vi.fn<[string], Promise<ReferenceDataItem[]>>();
 const mockGetAccountEvents = vi.fn<[number], Promise<AccountEvent[]>>();
 
 vi.mock('@/composables/usePortfolio');
+vi.mock('@/composables/useAccountGroups', () => ({
+  useAccountGroups: () => ({
+    state: reactive({
+      groups: [],
+      groupMembers: new Map(),
+      loading: false,
+      error: null,
+    }),
+    loadGroups: vi.fn(async () => {}),
+    createGroup: vi.fn(async () => {}),
+    updateGroup: vi.fn(async () => {}),
+    deleteGroup: vi.fn(async () => {}),
+    saveGroupMembers: vi.fn(async () => {}),
+    addAccountToGroup: vi.fn(async () => {}),
+    removeAccountFromGroup: vi.fn(async () => {}),
+  }),
+}));
 vi.mock('@/services/ApiService', () => ({
   apiService: {
     getReferenceData: (...args: Parameters<typeof mockGetReferenceData>) => mockGetReferenceData(...args),
@@ -20,11 +37,17 @@ vi.mock('@/services/ApiService', () => ({
 vi.mock('@views/AccountHub/AccountHubStats.vue', () => ({
   default: { name: 'MockStats', template: '<div>stats</div>' },
 }));
+vi.mock('@views/AccountHub/PortfolioTable.vue', () => ({
+  default: { name: 'MockPortfolioTable', template: '<div>portfolio-table</div>', props: ['items', 'groups', 'groupMembers', 'accountTypes'] },
+}));
 vi.mock('@views/AccountHub/AccountHubTable.vue', () => ({
   default: { name: 'MockTable', template: '<div>table</div>' },
 }));
 vi.mock('@views/AccountHub/AddAccountModal.vue', () => ({
   default: { name: 'MockModal', template: '<div>modal</div>' },
+}));
+vi.mock('@views/AccountHub/AccountGroupModal.vue', () => ({
+  default: { name: 'MockAccountGroupModal', template: '<div>account-group-modal</div>', props: ['open', 'type', 'items', 'accountTypes', 'initialGroupName', 'initialGroupId', 'initialMemberIds'] },
 }));
 vi.mock('@views/AccountHub/DeleteConfirmModal.vue', () => ({
   default: { name: 'MockDeleteModal', template: '<div>deletemodal</div>' },

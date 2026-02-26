@@ -15,6 +15,13 @@
           Account Hub
         </router-link>
         <router-link
+          to="/analytics"
+          class="nav-btn"
+          :class="{ active: isRoute('analytics') }"
+        >
+          Analytics
+        </router-link>
+        <router-link
           to="/reference-data"
           class="nav-btn"
           :class="{ active: isRoute('reference-data') }"

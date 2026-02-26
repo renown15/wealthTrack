@@ -28,6 +28,23 @@ class InstitutionGroupRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def get_parents_for_children(
+        self, child_institution_ids: list[int], user_id: int
+    ) -> dict[int, "InstitutionGroup"]:
+        """Batch-fetch parent relationships for multiple child institutions.
+
+        Returns dict[child_institution_id, InstitutionGroup].
+        """
+        if not child_institution_ids:
+            return {}
+        stmt = (
+            select(InstitutionGroup)
+            .where(InstitutionGroup.child_institution_id.in_(child_institution_ids))
+            .where(InstitutionGroup.user_id == user_id)
+        )
+        result = await self.session.execute(stmt)
+        return {g.child_institution_id: g for g in result.scalars().all()}
+
     async def get_children_for_parent(
         self, parent_institution_id: int, user_id: int
     ) -> list[InstitutionGroup]:

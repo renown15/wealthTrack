@@ -126,6 +126,33 @@ class AccountAttributeRepository:
             return False
         return await self.delete_attribute(account_id, user_id, type_id)
 
+    async def get_all_attributes_for_accounts(
+        self, account_ids: list[int], user_id: int
+    ) -> dict[int, dict[str, str]]:
+        """Batch-fetch all attributes for multiple accounts in one query.
+
+        Returns dict[account_id, dict[reference_value_label, attribute_value]].
+        """
+        if not account_ids:
+            return {}
+        stmt = (
+            select(
+                AccountAttribute.account_id,
+                ReferenceData.reference_value,
+                AccountAttribute.value,
+            )
+            .join(ReferenceData, ReferenceData.id == AccountAttribute.type_id)
+            .where(AccountAttribute.account_id.in_(account_ids))
+            .where(AccountAttribute.user_id == user_id)
+        )
+        result = await self.session.execute(stmt)
+        attrs: dict[int, dict[str, str]] = {}
+        for account_id, type_label, value in result.all():
+            if account_id not in attrs:
+                attrs[account_id] = {}
+            attrs[account_id][type_label] = value
+        return attrs
+
     async def get_all_attributes(
         self, account_id: int, user_id: int
     ) -> list[dict[str, Any]]:

@@ -42,7 +42,6 @@ class AccountGroupResponse(BaseSchema):
     name: str
     created_at: datetime
     updated_at: Optional[datetime] = None
-    members: Optional[list[AccountGroupMemberResponse]] = None
 
     class Config:
         from_attributes = True

@@ -2,23 +2,29 @@
 
 from typing import Any
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.reference_data import ReferenceData
 from app.schemas.account import AccountResponse
 from app.schemas.institution import InstitutionResponse
 
 
 async def build_portfolio_item(
-    portfolio_data: dict[str, Any], session: AsyncSession
+    portfolio_data: dict[str, Any], _session: AsyncSession
 ) -> dict[str, Any]:
-    """Build portfolio item from account and related data."""
+    """Build portfolio item from account and pre-loaded related data.
+
+    Expects portfolio_data to include pre-loaded lookup dicts:
+      - parents_by_institution: dict[institution_id, InstitutionGroup]
+      - event_type_by_id: dict[type_id, reference_value]
+    No DB queries are made here.
+    """
     account = portfolio_data["account"]
     account_type = portfolio_data["account_type"]
     attributes = portfolio_data["attributes"]
     latest_balance = portfolio_data["latest_balance"]
     event_count = portfolio_data["event_count"]
+    parents_by_institution: dict[int, Any] = portfolio_data.get("parents_by_institution", {})
+    event_type_by_id: dict[int, str] = portfolio_data.get("event_type_by_id", {})
 
     acct_data = AccountResponse.model_validate(account).model_dump(by_alias=True)
     attrs = attributes
@@ -41,25 +47,14 @@ async def build_portfolio_item(
         inst_data = InstitutionResponse.model_validate(
             account.institution
         ).model_dump(by_alias=True)
-        from app.repositories.institution_group_repository import (
-            InstitutionGroupRepository,
-        )
-
-        grp_repo = InstitutionGroupRepository(session)
-        parent = await grp_repo.get_parent_for_child(
-            account.institution.id, account.user_id
-        )
+        parent = parents_by_institution.get(account.institution.id)
         if parent:
             inst_data["parentId"] = parent.parent_institution_id
 
     balance_data = None
     if latest_balance:
         bal = latest_balance
-        type_stmt = select(ReferenceData.reference_value).where(
-            ReferenceData.id == bal.type_id
-        )
-        type_result = await session.execute(type_stmt)
-        event_type = type_result.scalar_one_or_none() or "Event"
+        event_type = event_type_by_id.get(bal.type_id, "Event")
         balance_data = {
             "id": bal.id,
             "accountId": bal.account_id,

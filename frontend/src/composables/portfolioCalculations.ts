@@ -91,3 +91,36 @@ export function calculateTrustAssets(items: PortfolioItem[]): number {
     return sum;
   }, 0);
 }
+
+/**
+ * Calculate projected annual GBP yield by applying interest rates (and active bonus rates) to balances.
+ * Bonus rate is only included if fixedBonusRateEndDate is absent or in the future.
+ */
+export function calculateProjectedAnnualYield(items: PortfolioItem[]): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return items.reduce((sum, item) => {
+    const balance = item.latestBalance?.value ? parseFloat(item.latestBalance.value) : 0;
+    if (!balance) return sum;
+
+    const baseRate = item.account.interestRate ? parseFloat(item.account.interestRate) : 0;
+    if (!baseRate) return sum;
+
+    // Active bonus rate takes precedence over base rate — not additive
+    let effectiveRate = baseRate;
+    if (item.account.fixedBonusRate) {
+      const bonusRate = parseFloat(item.account.fixedBonusRate);
+      if (!isNaN(bonusRate) && bonusRate > 0) {
+        const endDate = item.account.fixedBonusRateEndDate
+          ? new Date(item.account.fixedBonusRateEndDate)
+          : null;
+        if (!endDate || endDate >= today) {
+          effectiveRate = bonusRate;
+        }
+      }
+    }
+
+    return sum + (balance * effectiveRate / 100);
+  }, 0);
+}

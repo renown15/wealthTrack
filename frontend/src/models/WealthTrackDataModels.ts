@@ -79,6 +79,22 @@ export interface PortfolioItem {
   eventCount?: number;
 }
 
+export interface AccountGroup {
+  id: number;
+  userId: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AccountGroupMember {
+  id: number;
+  accountGroupId: number;
+  accountId: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Portfolio {
   items: PortfolioItem[];
   totalValue: number;
@@ -135,4 +151,33 @@ export interface InstitutionUpdateRequest {
 export interface AccountEventCreateRequest {
   event_type: string;
   value: string;
+}
+
+export interface AccountGroupCreateRequest {
+  name: string;
+}
+
+export interface AccountGroupUpdateRequest {
+  name: string;
+}
+
+// Analytics types
+export interface BreakdownItem {
+  label: string;
+  value: number;
+}
+
+export interface PortfolioBreakdown {
+  byType: BreakdownItem[];
+  byInstitution: BreakdownItem[];
+  total: number;
+}
+
+export interface HistoryPoint {
+  date: string;       // "YYYY-MM-DD"
+  totalValue: number;
+}
+
+export interface PortfolioHistory {
+  history: HistoryPoint[];
 }

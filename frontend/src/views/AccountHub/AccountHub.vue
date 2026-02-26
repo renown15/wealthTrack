@@ -5,7 +5,9 @@
         :total-value="totalValue" :account-count="accountCount"
         :cash-at-hand="cashAtHand" :isa-savings="isaSavings" :illiquid="illiquid" :trust-assets="trustAssets"
         :institution-count="institutionCount" :event-count="eventCount"
+        :projected-annual-yield="projectedAnnualYield"
         @create-account="openCreateAccountModal" @create-institution="openCreateInstitutionModal"
+        @create-account-group="openCreateAccountGroupModal"
       />
     </div>
     <div v-if="state.error" class="hub-content-card p-6">
@@ -14,7 +16,7 @@
         <button class="btn-close" @click="clearError">×</button>
       </div>
     </div>
-    <div v-if="state.loading" class="hub-content-card p-8 loading-state">
+    <div v-if="state.itemsLoading" class="hub-content-card p-8 loading-state">
       <div class="flex flex-col items-center">
         <div class="spinner"></div>
         <p class="mt-4 text-muted">Loading portfolio...</p>
@@ -28,37 +30,64 @@
         <button class="btn-add mt-4" @click="openCreateAccountModal">Create Account</button>
       </div>
     </div>
-    <template v-else>
-      <div class="hub-content-card p-6">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="section-title">Accounts</h3>
-          <button class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white border-none rounded text-sm font-medium cursor-pointer transition-colors hover:bg-blue-600 active:bg-blue-700" @click="exportToExcel" title="Export accounts to Excel">
-            <span class="export-icon">⬇</span>
-            <span class="export-text">Excel</span>
-          </button>
-        </div>
-        <div class="table-wrap">
-          <AccountHubTable
-            :items="state.items" @edit-account="openEditAccountModal"
-            @delete-item="openDeleteConfirm" @show-events="handleShowEvents"
-            @update-balance="handleUpdateBalance"
-          />
-        </div>
+    <div v-else class="hub-content-card p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="section-title">Portfolio (Grouped)</h3>
+        <button class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white border-none rounded text-sm font-medium cursor-pointer transition-colors hover:bg-blue-600 active:bg-blue-700" @click="exportToExcel" title="Export accounts to Excel">
+          <span class="export-icon">⬇</span>
+          <span class="export-text">Excel</span>
+        </button>
       </div>
-      <div v-if="state.institutions.length > 0" class="hub-content-card p-6">
-        <h3 class="section-title">Institutions</h3>
-        <InstitutionsList
-          :institutions="state.institutions" :portfolio-items="state.items"
-          @edit-institution="openEditInstitutionModal"
-          @delete-institution="(id, name) => openDeleteConfirm('institution', id, name)"
-          @manage-credentials="openCredentialsModal"
+      <div class="table-wrap">
+        <PortfolioTable
+          :items="state.items"
+          :groups="accountGroupsState.groups"
+          :group-members="groupMembersMap"
+          :account-types="accountTypes"
+          @edit-account="openEditAccountModal"
+          @delete-account="(account) => openDeleteConfirm('account', account.id, account.name)"
+          @show-events="openEventsModal"
+          @edit-group="openEditAccountGroupModal"
+          @delete-group="handleDeleteGroup"
+          @update-balance="handleUpdateBalance"
         />
       </div>
-      <AccountEventsModal
-        :open="eventsModalOpen" :title="eventsTitle" :events="events"
-        :loading="eventsLoading" :error="eventsError" @close="closeEventsModal"
+    </div>
+    <div v-if="state.institutionsLoading || state.institutions.length > 0" class="hub-content-card p-6">
+      <h3 class="section-title">Institutions</h3>
+      <div v-if="state.institutionsLoading" class="loading-state py-8">
+        <div class="flex flex-col items-center">
+          <div class="spinner"></div>
+          <p class="mt-4 text-muted">Loading institutions...</p>
+        </div>
+      </div>
+      <InstitutionsList
+        v-else
+        :institutions="state.institutions" :portfolio-items="state.items"
+        @edit-institution="openEditInstitutionModal"
+        @delete-institution="(id, name) => openDeleteConfirm('institution', id, name)"
+        @manage-credentials="openCredentialsModal"
       />
-    </template>
+    </div>
+    <AccountEventsModal
+      :open="eventsModalOpen" :title="eventsTitle" :events="events"
+      :loading="eventsLoading" :error="eventsError" @close="closeEventsModal"
+    />
+    <AccountGroupModal
+      :open="accountGroupModalOpen"
+      :type="accountGroupModalType"
+      :items="state.items"
+      :account-types="accountTypes"
+      :available-groups="accountGroupsState.groups"
+      :group-members-map="groupMembersMap"
+      :api-error="accountGroupsState.error"
+      :initial-group-name="editingGroupName"
+      :initial-group-id="editingGroupId"
+      :initial-member-ids="editingGroupMemberIds"
+      @close="closeAccountGroupModal"
+      @save="handleAccountGroupSave"
+      @delete-group="handleDeleteGroupFromModal"
+    />
     <AccountModal
       :open="accountModalOpen" :type="modalType"
       :institutions="state.institutions" :account-types="accountTypes"
@@ -106,14 +135,17 @@
 import { ref, onMounted, computed } from 'vue';
 import type { Account, Institution } from '@/models/WealthTrackDataModels';
 import { usePortfolio } from '@/composables/usePortfolio';
+import { useAccountGroups } from '@/composables/useAccountGroups';
 import { useCredentialsModal } from '@/composables/useCredentialsModal';
 import { useEventsModal } from '@/composables/useEventsModal';
+import { debug } from '@/utils/debug';
 import { useAccountCrudHandlers } from '@/composables/useAccountCrudHandlers';
 import { useInstitutionCrudHandlers } from '@/composables/useInstitutionCrudHandlers';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 
 import AccountHubStats from '@views/AccountHub/AccountHubStats.vue';
-import AccountHubTable from '@views/AccountHub/AccountHubTable.vue';
+import PortfolioTable from '@views/AccountHub/PortfolioTable.vue';
+import AccountGroupModal from '@views/AccountHub/AccountGroupModal.vue';
 import AccountModal from '@views/AccountHub/AccountModal.vue';
 import InstitutionModal from '@views/AccountHub/InstitutionModal.vue';
 import DeleteConfirmModal from '@views/AccountHub/DeleteConfirmModal.vue';
@@ -124,26 +156,23 @@ import InstitutionCredentialsModal from '@views/AccountHub/InstitutionCredential
 import { apiService } from '@/services/ApiService';
 import { exportAccountsToExcel } from '@/utils/exportToExcel';
 
-const { state, totalValue, accountCount, institutionCount, eventCount, cashAtHand, isaSavings, illiquid, trustAssets, loadPortfolio, clearError } = usePortfolio();
+const { state, totalValue, accountCount, institutionCount, eventCount, cashAtHand, isaSavings, illiquid, trustAssets, projectedAnnualYield, loadPortfolio, clearError } = usePortfolio();
+const { state: accountGroupsState, loadGroups, createGroup, updateGroup, deleteGroup, saveGroupMembers } = useAccountGroups();
 
-onMounted(async () => {
-  await loadPortfolio();
-  const [types, statuses, institutionTypesData, credentialTypesData] = await Promise.all([
+onMounted(() => {
+  void loadPortfolio();
+  void loadGroups();
+  void Promise.all([
     apiService.getReferenceData('account_type'),
     apiService.getReferenceData('account_status'),
     apiService.getReferenceData('institution_type'),
     apiService.getReferenceData('credential_type'),
-  ]);
-  console.log('[AccountHub] Reference data loaded', { 
-    accountTypes: types?.length, 
-    accountStatuses: statuses?.length,  
-    institutionTypes: institutionTypesData?.length,
-    credentialTypes: credentialTypesData?.length 
+  ]).then(([types, statuses, institutionTypesData, credentialTypesData]) => {
+    accountTypes.value = types;
+    accountStatuses.value = statuses;
+    institutionTypes.value = institutionTypesData;
+    credentialTypes.value = credentialTypesData;
   });
-  accountTypes.value = types;
-  accountStatuses.value = statuses;
-  institutionTypes.value = institutionTypesData;
-  credentialTypes.value = credentialTypesData;
 });
 
 const {
@@ -184,6 +213,13 @@ const deleteConfirmOpen = ref(false);
 const deleteConfirmType = ref<'account' | 'institution'>('account');
 const deleteConfirmId = ref(0);
 const deleteConfirmName = ref('');
+
+// Account group modal state
+const accountGroupModalOpen = ref(false);
+const accountGroupModalType = ref<'create' | 'edit'>('create');
+const editingGroupId = ref(0);
+const editingGroupName = ref('');
+const editingGroupMemberIds = ref<number[]>([]);
 
 // Initial values for modals
 const initialModalName = computed(() => editingItem.value?.name ?? '');
@@ -294,6 +330,72 @@ const closeDeleteConfirm = (): void => {
   deleteConfirmOpen.value = false;
 };
 
+// Account group modal handlers
+const openCreateAccountGroupModal = (): void => {
+  accountGroupModalType.value = 'create';
+  editingGroupId.value = 0;
+  editingGroupName.value = '';
+  editingGroupMemberIds.value = [];
+  accountGroupModalOpen.value = true;
+};
+
+const openEditAccountGroupModal = (groupId: number, groupName: string): void => {
+  accountGroupModalType.value = 'edit';
+  editingGroupId.value = groupId;
+  editingGroupName.value = groupName;
+  // Get member IDs for this group from API or state
+  editingGroupMemberIds.value = groupMembersMap.value.get(groupId) || [];
+  accountGroupModalOpen.value = true;
+};
+
+const closeAccountGroupModal = (): void => {
+  accountGroupModalOpen.value = false;
+};
+
+const handleAccountGroupSave = async (data: { name: string; accountIds: number[]; groupId?: number }): Promise<void> => {
+  try {
+    const isEditingExisting = accountGroupModalType.value === 'edit' || !!data.groupId;
+    const targetGroupId = data.groupId || editingGroupId.value;
+
+    if (isEditingExisting) {
+      const groupUpdated = await updateGroup(targetGroupId, data.name);
+      if (!groupUpdated) return;
+      const existingMembers = groupMembersMap.value.get(targetGroupId) || [];
+      const membersSaved = await saveGroupMembers(targetGroupId, data.accountIds, existingMembers);
+      if (!membersSaved) return;
+    } else {
+      const group = await createGroup(data.name);
+      if (!group) return;
+      const membersSaved = await saveGroupMembers(group.id, data.accountIds, []);
+      if (!membersSaved) return;
+    }
+
+    await loadGroups();
+    closeAccountGroupModal();
+  } catch (error) {
+    debug.error('[AccountHub] Save group error:', error);
+  }
+};
+
+const handleDeleteGroup = async (groupId: number): Promise<void> => {
+  if (confirm('Are you sure you want to delete this group?')) {
+    await deleteGroup(groupId);
+    await loadGroups();
+  }
+};
+
+const handleDeleteGroupFromModal = async (groupId: number): Promise<void> => {
+  if (confirm('Are you sure you want to delete this group?')) {
+    await deleteGroup(groupId);
+    await loadGroups();
+  }
+};
+
+// Compute group members map
+const groupMembersMap = computed(() => {
+  return accountGroupsState.groupMembers;
+});
+
 // Account and institution CRUD handlers
 const accountTypes = ref<ReferenceDataItem[]>([]);
 const accountStatuses = ref<ReferenceDataItem[]>([]);
@@ -350,20 +452,29 @@ const handleShowEvents = async (accountId: number, accountName: string): Promise
 
 const handleUpdateBalance = async (accountId: number, value: string): Promise<void> => {
   try {
-    // eslint-disable-next-line no-console
-    console.log('[AccountHub] Updating balance', { accountId, value });
-    const balanceValue = parseFloat(value);
+    let balanceValue = parseFloat(value);
     if (Number.isNaN(balanceValue)) {
       state.error = 'Invalid balance value';
       return;
     }
-    // Create a balance event
+    // Optimistically update the item in place — no full reload needed
+    const item = state.items.find(i => i.account.id === accountId);
     await apiService.createAccountEvent(accountId, {
       event_type: 'Balance',
       value: balanceValue.toString(),
     });
-    // Reload portfolio to refresh display
-    await loadPortfolio();
+    if (item) {
+      const now = new Date().toISOString();
+      item.latestBalance = {
+        id: item.latestBalance?.id ?? 0,
+        accountId,
+        userId: item.latestBalance?.userId ?? 0,
+        eventType: 'Balance',
+        value: balanceValue.toString(),
+        createdAt: now,
+        updatedAt: now,
+      };
+    }
   } catch (error) {
     state.error = error instanceof Error ? error.message : 'Failed to update balance';
   }

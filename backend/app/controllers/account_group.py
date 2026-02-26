@@ -45,6 +45,18 @@ async def get_account_group(
     return AccountGroupResponse.from_orm(group)
 
 
+@router.get("/{group_id}/members", response_model=dict[str, list[int]])
+async def get_group_members(
+    group_id: int,
+    session: AsyncSession = Depends(get_db),
+    current_user: UserProfile = Depends(get_current_user),
+) -> dict[str, list[int]]:
+    """Get all account IDs in a group."""
+    repo = AccountGroupRepository(session)
+    account_ids = await repo.get_group_members(group_id, current_user.id)
+    return {"accountIds": account_ids}
+
+
 @router.post("", response_model=AccountGroupResponse, status_code=status.HTTP_201_CREATED)
 async def create_account_group(
     group_data: AccountGroupCreate,

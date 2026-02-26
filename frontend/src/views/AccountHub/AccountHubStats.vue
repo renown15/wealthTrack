@@ -9,6 +9,7 @@
       <div class="header-actions">
         <button class="btn-primary" @click="emitCreateAccount">+ Add Account</button>
         <button class="btn-secondary" @click="emitCreateInstitution">+ Add Institution</button>
+        <button class="btn-secondary" @click="emitCreateAccountGroup">+ Account Group</button>
       </div>
     </div>
 
@@ -55,6 +56,14 @@
         <p class="stat-label">Events</p>
         <p class="stat-value">{{ eventCount }}</p>
       </article>
+
+      <article class="stat-card" title="Projected annual yield based on interest rates applied to current balances. Bonus rates are included while active.">
+        <p class="stat-label">
+          Projected Annual Yield
+          <span class="info-icon" style="cursor: help;">{{ Icons.info }}</span>
+        </p>
+        <p class="stat-value">{{ formatCurrency(projectedAnnualYield) }}</p>
+      </article>
     </div>
   </header>
 </template>
@@ -71,11 +80,13 @@ const props = defineProps<{
   isaSavings: number;
   illiquid: number;
   trustAssets: number;
+  projectedAnnualYield: number;
 }>();
 
 const emit = defineEmits<{
   createAccount: [];
   createInstitution: [];
+  createAccountGroup: [];
 }>();
 
 const formatCurrency = (value: number): string => {
@@ -112,6 +123,10 @@ const emitCreateAccount = (): void => {
 
 const emitCreateInstitution = (): void => {
   emit('createInstitution');
+};
+
+const emitCreateAccountGroup = (): void => {
+  emit('createAccountGroup');
 };
 </script>
 
