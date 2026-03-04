@@ -25,13 +25,15 @@ describe('useEventsModal', () => {
       mockApi.getAccountEvents.mockResolvedValue(mockEvents);
       const m = useEventsModal();
 
-      await m.openEventsModal(10, 'My Savings');
+      await m.openEventsModal(10, 'My Savings', 'Premium Bonds');
 
       expect(m.eventsModalOpen.value).toBe(true);
       expect(m.eventsTitle.value).toBe('My Savings · Events');
       expect(m.events.value).toEqual(mockEvents);
       expect(m.eventsLoading.value).toBe(false);
       expect(m.eventsError.value).toBeUndefined();
+      expect(m.accountType.value).toBe('Premium Bonds');
+      expect(m.currentAccountId.value).toBe(10);
     });
 
     it('sets eventsError when fetch fails', async () => {
@@ -60,13 +62,15 @@ describe('useEventsModal', () => {
     it('resets all state', async () => {
       mockApi.getAccountEvents.mockResolvedValue(mockEvents);
       const m = useEventsModal();
-      await m.openEventsModal(10, 'Savings');
+      await m.openEventsModal(10, 'Savings', 'Premium Bonds');
 
       m.closeEventsModal();
 
       expect(m.eventsModalOpen.value).toBe(false);
       expect(m.events.value).toEqual([]);
       expect(m.eventsError.value).toBeUndefined();
+      expect(m.accountType.value).toBeUndefined();
+      expect(m.currentAccountId.value).toBe(0);
     });
   });
 });

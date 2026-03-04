@@ -1,6 +1,33 @@
 import { ref, watch, type Ref } from 'vue';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 
+/**
+ * Convert DD/MM/YYYY to YYYY-MM-DD for HTML date input
+ */
+export function convertToDateInputFormat(dateStr: string | null | undefined): string {
+  if (!dateStr) return '';
+  // Handle both DD/MM/YYYY and YYYY-MM-DD formats
+  if (dateStr.includes('/')) {
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+  }
+  return dateStr;
+}
+
+/**
+ * Convert YYYY-MM-DD to DD/MM/YYYY for API submission
+ */
+export function convertFromDateInputFormat(dateStr: string | null | undefined): string {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+  return dateStr;
+}
+
 export interface AccountFormData {
   name: string;
   institutionId: number;
@@ -20,6 +47,7 @@ export interface AccountFormData {
   price: string;
   purchasePrice: string;
   pensionMonthlyPayment: string;
+  assetClass: string;
 }
 
 export interface AccountFormProps {
@@ -43,6 +71,7 @@ export interface AccountFormProps {
   initialPrice?: string | null;
   initialPurchasePrice?: string | null;
   initialPensionMonthlyPayment?: string | null;
+  initialAssetClass?: string | null;
   accountTypes: ReferenceDataItem[];
   accountStatuses: ReferenceDataItem[];
 }
@@ -67,6 +96,7 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     price: props.value.initialPrice || '',
     purchasePrice: props.value.initialPurchasePrice || '',
     pensionMonthlyPayment: props.value.initialPensionMonthlyPayment || '',
+    assetClass: props.value.initialAssetClass || '',
   });
 
   const syncAccountType = (): void => {
@@ -114,20 +144,21 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     formData.value.institutionId = props.value.initialInstitutionId || 0;
     formData.value.typeId = props.value.initialTypeId || 0;
     formData.value.statusId = props.value.initialStatusId || 0;
-    formData.value.openedAt = props.value.initialOpenedAt || '';
-    formData.value.closedAt = props.value.initialClosedAt || '';
+    formData.value.openedAt = convertToDateInputFormat(props.value.initialOpenedAt);
+    formData.value.closedAt = convertToDateInputFormat(props.value.initialClosedAt);
     formData.value.accountNumber = props.value.initialAccountNumber || '';
     formData.value.sortCode = props.value.initialSortCode || '';
     formData.value.rollRefNumber = props.value.initialRollRefNumber || '';
     formData.value.interestRate = props.value.initialInterestRate || '';
     formData.value.fixedBonusRate = props.value.initialFixedBonusRate || '';
-    formData.value.fixedBonusRateEndDate = props.value.initialFixedBonusRateEndDate || '';
-    formData.value.releaseDate = props.value.initialReleaseDate || '';
+    formData.value.fixedBonusRateEndDate = convertToDateInputFormat(props.value.initialFixedBonusRateEndDate);
+    formData.value.releaseDate = convertToDateInputFormat(props.value.initialReleaseDate);
     formData.value.numberOfShares = props.value.initialNumberOfShares || '';
     formData.value.underlying = props.value.initialUnderlying || '';
     formData.value.price = props.value.initialPrice || '';
     formData.value.purchasePrice = props.value.initialPurchasePrice || '';
     formData.value.pensionMonthlyPayment = props.value.initialPensionMonthlyPayment || '';
+    formData.value.assetClass = props.value.initialAssetClass || '';
     syncAccountType();
     syncAccountStatus();
   };

@@ -8,7 +8,9 @@ export interface UseEventsModalReturn {
   eventsLoading: Ref<boolean>;
   eventsError: Ref<string | undefined>;
   events: Ref<AccountEvent[]>;
-  openEventsModal: (accountId: number, accountName: string) => Promise<void>;
+  accountType: Ref<string | undefined>;
+  currentAccountId: Ref<number>;
+  openEventsModal: (accountId: number, accountName: string, accountType?: string) => Promise<void>;
   closeEventsModal: () => void;
 }
 
@@ -18,16 +20,21 @@ export function useEventsModal(): UseEventsModalReturn {
   const eventsLoading = ref(false);
   const eventsError = ref<string | undefined>(undefined);
   const events = ref<AccountEvent[]>([]);
+  const accountType = ref<string | undefined>(undefined);
+  const currentAccountId = ref(0);
 
   const openEventsModal = async (
     accountId: number,
     accountName: string,
+    acctType?: string,
   ): Promise<void> => {
     eventsModalOpen.value = true;
     eventsTitle.value = `${accountName} · Events`;
     eventsLoading.value = true;
     eventsError.value = undefined;
     events.value = [];
+    accountType.value = acctType;
+    currentAccountId.value = accountId;
 
     try {
       events.value = await apiService.getAccountEvents(accountId);
@@ -42,6 +49,8 @@ export function useEventsModal(): UseEventsModalReturn {
     eventsModalOpen.value = false;
     events.value = [];
     eventsError.value = undefined;
+    accountType.value = undefined;
+    currentAccountId.value = 0;
   };
 
   return {
@@ -50,6 +59,8 @@ export function useEventsModal(): UseEventsModalReturn {
     eventsLoading,
     eventsError,
     events,
+    accountType,
+    currentAccountId,
     openEventsModal,
     closeEventsModal,
   };

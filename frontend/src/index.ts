@@ -22,6 +22,23 @@ export async function initializeApp(): Promise<void> {
   // Initialize auth from localStorage
   authModule.init();
 
+  // Redirect to login on any 401 (expired/invalid token)
+  apiService.client.interceptors.response.use(
+    response => response,
+    (error: unknown) => {
+      if (
+        error != null &&
+        typeof error === 'object' &&
+        'response' in error &&
+        (error as { response?: { status?: number } }).response?.status === 401
+      ) {
+        authModule.clearToken();
+        void router.push({ name: 'login' });
+      }
+      return Promise.reject(error);
+    },
+  );
+
   // Create Vue app
   const app = createApp(App);
   app.use(router);

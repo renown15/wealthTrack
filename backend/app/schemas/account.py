@@ -52,6 +52,9 @@ class AccountCreate(BaseSchema):
     pension_monthly_payment: Optional[str] = Field(
         None, max_length=255, description="Monthly pension payment amount"
     )
+    asset_class: Optional[str] = Field(
+        None, max_length=255, description="Asset class (Cash, Single Stock, Equity Index)"
+    )
 
 
 class AccountUpdate(BaseSchema):
@@ -96,6 +99,9 @@ class AccountUpdate(BaseSchema):
     pension_monthly_payment: Optional[str] = Field(
         None, max_length=255, description="Monthly pension payment amount"
     )
+    asset_class: Optional[str] = Field(
+        None, max_length=255, description="Asset class (Cash, Single Stock, Equity Index)"
+    )
 
 
 class AccountResponse(BaseSchema):
@@ -119,6 +125,7 @@ class AccountResponse(BaseSchema):
     price: Optional[str] = None
     purchase_price: Optional[str] = None
     pension_monthly_payment: Optional[str] = None
+    asset_class: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

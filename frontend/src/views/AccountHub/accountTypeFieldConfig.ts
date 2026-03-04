@@ -12,6 +12,7 @@ export interface FieldConfig {
   showPrice: boolean;
   showPurchasePrice: boolean;
   showPensionMonthlyPayment: boolean;
+  showAssetClass: boolean;
 }
 
 export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
@@ -25,6 +26,7 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
     showPrice: false,
     showPurchasePrice: false,
     showPensionMonthlyPayment: false,
+    showAssetClass: true,
   },
   'Savings Account': {
     showInterestRate: true,
@@ -36,6 +38,7 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
     showPrice: false,
     showPurchasePrice: false,
     showPensionMonthlyPayment: false,
+    showAssetClass: true,
   },
   'Premium Bonds': {
     showInterestRate: false,
@@ -47,6 +50,7 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
     showPrice: false,
     showPurchasePrice: false,
     showPensionMonthlyPayment: false,
+    showAssetClass: true,
   },
   'Fixed / Bonus Rate Saver': {
     showInterestRate: true,
@@ -58,6 +62,7 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
     showPrice: false,
     showPurchasePrice: false,
     showPensionMonthlyPayment: false,
+    showAssetClass: true,
   },
   'Fixed Rate ISA': {
     showInterestRate: true,
@@ -69,6 +74,7 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
     showPrice: false,
     showPurchasePrice: false,
     showPensionMonthlyPayment: false,
+    showAssetClass: true,
   },
   'Cash ISA': {
     showInterestRate: true,
@@ -80,6 +86,7 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
     showPrice: false,
     showPurchasePrice: false,
     showPensionMonthlyPayment: false,
+    showAssetClass: true,
   },
   'Stocks ISA': {
     showInterestRate: false,
@@ -91,6 +98,7 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
     showPrice: false,
     showPurchasePrice: false,
     showPensionMonthlyPayment: false,
+    showAssetClass: true,
   },
   'ISA': {
     showInterestRate: true,
@@ -102,6 +110,7 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
     showPrice: false,
     showPurchasePrice: false,
     showPensionMonthlyPayment: false,
+    showAssetClass: true,
   },
   'Deferred DC Pension': {
     showInterestRate: false,
@@ -113,6 +122,7 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
     showPrice: false,
     showPurchasePrice: false,
     showPensionMonthlyPayment: false,
+    showAssetClass: true,
   },
   'Deferred DB Pension': {
     showInterestRate: false,
@@ -124,6 +134,7 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
     showPrice: false,
     showPurchasePrice: false,
     showPensionMonthlyPayment: true,
+    showAssetClass: true,
   },
   'Deferred Cash': {
     showInterestRate: false,
@@ -135,6 +146,7 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
     showPrice: false,
     showPurchasePrice: false,
     showPensionMonthlyPayment: false,
+    showAssetClass: true,
   },
   'Deferred Shares': {
     showInterestRate: false,
@@ -146,6 +158,7 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
     showPrice: true,
     showPurchasePrice: true,
     showPensionMonthlyPayment: false,
+    showAssetClass: true,
   },
   'RSU': {
     showInterestRate: false,
@@ -157,6 +170,7 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
     showPrice: true,
     showPurchasePrice: false,
     showPensionMonthlyPayment: false,
+    showAssetClass: true,
   },
   'Trust Bank Account': {
     showInterestRate: true,
@@ -168,6 +182,7 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
     showPrice: false,
     showPurchasePrice: false,
     showPensionMonthlyPayment: false,
+    showAssetClass: true,
   },
   'Trust Stocks Investment Account': {
     showInterestRate: false,
@@ -179,6 +194,7 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
     showPrice: false,
     showPurchasePrice: false,
     showPensionMonthlyPayment: false,
+    showAssetClass: true,
   },
   'DEFAULT': {
     showInterestRate: true,
@@ -190,5 +206,6 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
     showPrice: false,
     showPurchasePrice: false,
     showPensionMonthlyPayment: false,
+    showAssetClass: true,
   },
 };

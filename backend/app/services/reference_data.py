@@ -71,6 +71,7 @@ REFERENCE_DATA_ITEMS: list[ReferenceDataItem] = [
     ),
     ReferenceDataItem(class_key="account_event_type", reference_value="Interest", sort_index=2),
     ReferenceDataItem(class_key="account_event_type", reference_value="Dividend", sort_index=3),
+    ReferenceDataItem(class_key="account_event_type", reference_value="Win", sort_index=4),
     # -----------------------------------------------------------------------
     # Account attribute types
     # -----------------------------------------------------------------------
@@ -126,6 +127,15 @@ REFERENCE_DATA_ITEMS: list[ReferenceDataItem] = [
     ReferenceDataItem(
         class_key="account_attribute_type", reference_value="Pension Monthly Payment", sort_index=18
     ),
+    ReferenceDataItem(
+        class_key="account_attribute_type", reference_value="Asset Class", sort_index=19
+    ),
+    # -----------------------------------------------------------------------
+    # Asset class values
+    # -----------------------------------------------------------------------
+    ReferenceDataItem(class_key="asset_class", reference_value="Cash", sort_index=1),
+    ReferenceDataItem(class_key="asset_class", reference_value="Single Stock", sort_index=2),
+    ReferenceDataItem(class_key="asset_class", reference_value="Equity Index", sort_index=3),
     # -----------------------------------------------------------------------
     # Credential types
     # -----------------------------------------------------------------------
@@ -149,6 +159,9 @@ REFERENCE_DATA_ITEMS: list[ReferenceDataItem] = [
     ReferenceDataItem(
         class_key="credential_type", reference_value="Memorable Place", sort_index=10
     ),
+    ReferenceDataItem(
+        class_key="credential_type", reference_value="Secret Word", sort_index=11
+    ),
     # -----------------------------------------------------------------------
     # Institution types
     # -----------------------------------------------------------------------
@@ -163,6 +176,12 @@ REFERENCE_DATA_ITEMS: list[ReferenceDataItem] = [
     ),
     ReferenceDataItem(
         class_key="institution_type", reference_value="Share Registrar", sort_index=6
+    ),
+    # -----------------------------------------------------------------------
+    # Analytics baseline date
+    # -----------------------------------------------------------------------
+        ReferenceDataItem(
+        class_key="analytics_baseline_date", reference_value="", sort_index=0
     ),
     # -----------------------------------------------------------------------
     # Deposit insurance limit (FSCS limit in GBP)

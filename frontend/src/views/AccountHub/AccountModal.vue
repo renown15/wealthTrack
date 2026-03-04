@@ -23,7 +23,7 @@ import type { Institution } from '@/models/WealthTrackDataModels';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 import BaseResourceModal from '@/components/BaseResourceModal.vue';
 import AccountFormFields from '@views/AccountHub/AccountFormFields.vue';
-import { useAccountForm, type AccountFormProps } from '@/composables/useAccountForm';
+import { useAccountForm, type AccountFormProps, convertFromDateInputFormat } from '@/composables/useAccountForm';
 
 interface Props {
   open: boolean;
@@ -49,6 +49,7 @@ interface Props {
   initialPrice?: string | null;
   initialPurchasePrice?: string | null;
   initialPensionMonthlyPayment?: string | null;
+  initialAssetClass?: string | null;
   error?: string | null;
 }
 
@@ -71,6 +72,7 @@ interface SavePayload {
   price?: string;
   purchasePrice?: string;
   pensionMonthlyPayment?: string;
+  assetClass?: string;
 }
 
 const props = defineProps<Props>();
@@ -100,6 +102,7 @@ const formProps = computed<AccountFormProps>(() => ({
   initialPrice: props.initialPrice,
   initialPurchasePrice: props.initialPurchasePrice,
   initialPensionMonthlyPayment: props.initialPensionMonthlyPayment,
+  initialAssetClass: props.initialAssetClass,
   accountTypes: props.accountTypes,
   accountStatuses: props.accountStatuses,
 }));
@@ -144,20 +147,21 @@ const handleSave = (): void => {
     institutionId: formData.value.institutionId,
     typeId: formData.value.typeId,
     statusId: formData.value.statusId,
-    openedAt: formData.value.openedAt || undefined,
-    closedAt: formData.value.closedAt || undefined,
+    openedAt: formData.value.openedAt ? convertFromDateInputFormat(formData.value.openedAt) : undefined,
+    closedAt: formData.value.closedAt ? convertFromDateInputFormat(formData.value.closedAt) : undefined,
     accountNumber: formData.value.accountNumber || undefined,
     sortCode: formData.value.sortCode || undefined,
     rollRefNumber: formData.value.rollRefNumber || undefined,
     interestRate: formData.value.interestRate || undefined,
     fixedBonusRate: formData.value.fixedBonusRate || undefined,
-    fixedBonusRateEndDate: formData.value.fixedBonusRateEndDate || undefined,
-    releaseDate: formData.value.releaseDate || undefined,
+    fixedBonusRateEndDate: formData.value.fixedBonusRateEndDate ? convertFromDateInputFormat(formData.value.fixedBonusRateEndDate) : undefined,
+    releaseDate: formData.value.releaseDate ? convertFromDateInputFormat(formData.value.releaseDate) : undefined,
     numberOfShares: formData.value.numberOfShares || undefined,
     underlying: formData.value.underlying || undefined,
     price: formData.value.price || undefined,
     purchasePrice: formData.value.purchasePrice || undefined,
     pensionMonthlyPayment: formData.value.pensionMonthlyPayment || undefined,
+    assetClass: formData.value.assetClass || undefined,
   });
 };
 </script>

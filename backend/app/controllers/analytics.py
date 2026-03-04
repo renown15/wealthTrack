@@ -32,8 +32,12 @@ async def get_portfolio_history(
     """
     Daily portfolio value from the earliest balance record to today.
     Each account's balance carries forward unchanged until the next record is written.
+    Returns baseline_date (from reference data) for UI date range selection.
     Range filtering is done client-side.
     """
     repo = AnalyticsRepository(session)
-    history = await repo.get_portfolio_history(current_user.id)
-    return PortfolioHistory(history=[HistoryPoint(**p) for p in history])
+    data = await repo.get_portfolio_history(current_user.id)
+    return PortfolioHistory(
+        baseline_date=data.get("baseline_date"),
+        history=[HistoryPoint(**p) for p in data.get("history", [])],
+    )

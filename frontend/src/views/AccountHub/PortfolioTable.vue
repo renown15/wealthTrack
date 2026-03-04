@@ -96,7 +96,7 @@
                 v-show="expandedGroups.has(row.groupId)"
                 :key="`member-${item.account.id}`"
                 class="table-row-hover bg-gray-100"
-                :class="{ 'first-member': idx === 0 }"
+                :class="{ 'first-member': idx === 0, 'bg-red-50': isFixedRateEndingWithin30Days(getFixedRateEndDate(item)) }"
               >
                 <td class="table-cell"></td>
                 <td class="table-cell">{{ item.institution?.name || 'Unassigned' }}</td>
@@ -140,7 +140,7 @@
                   <button
                     class="btn-events inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200"
                     type="button"
-                    @click="$emit('showEvents', item.account.id, item.account.name, item.eventCount ?? 0)"
+                    @click="emitShowEvents(item)"
                   >{{ item.eventCount ?? 0 }}</button>
                 </td>
                 <td class="table-cell">
@@ -163,7 +163,7 @@
             </template>
 
             <!-- Ungrouped account row -->
-            <tr v-else class="table-row-hover">
+            <tr v-else class="table-row-hover" :class="{ 'bg-red-50': isFixedRateEndingWithin30Days(getFixedRateEndDate(row.item)) }">
               <td class="table-cell"></td>
               <td class="table-cell">{{ row.item.institution?.name || 'Unassigned' }}</td>
               <td class="table-cell font-semibold">{{ row.item.account.name }}</td>
@@ -206,7 +206,7 @@
                 <button
                   class="btn-events inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200"
                   type="button"
-                  @click="$emit('showEvents', row.item.account.id, row.item.account.name, row.item.eventCount ?? 0)"
+                  @click="emitShowEvents(row.item)"
                 >{{ row.item.eventCount ?? 0 }}</button>
               </td>
               <td class="table-cell">
@@ -271,7 +271,7 @@ interface Emits {
   deleteAccount: [account: Account];
   editGroup: [groupId: number, groupName: string];
   deleteGroup: [groupId: number];
-  showEvents: [accountId: number, accountName: string, eventCount: number];
+  showEvents: [accountId: number, accountName: string, eventCount: number, accountType: string];
   updateBalance: [accountId: number, value: string];
 }
 
@@ -310,6 +310,12 @@ const toggleSort = (col: SortCol) => {
 const sortIcon = (col: SortCol): string => {
   if (sortCol.value !== col) return '↕';
   return sortDir.value === 'asc' ? '↑' : '↓';
+};
+
+const emitShowEvents = (item: PortfolioItem): void => {
+  // Find the account type name from the accountTypes array
+  const accountType = props.accountTypes.find(t => t.id === item.account.typeId)?.referenceValue || 'Unknown';
+  emit('showEvents', item.account.id, item.account.name, item.eventCount ?? 0, accountType);
 };
 
 const getGroupSummary = (groupItems: PortfolioItem[]) => {
@@ -448,6 +454,29 @@ const sortedRows = computed((): TableRow[] => {
     return String(av).localeCompare(String(bv)) * dir;
   });
 });
+
+const isFixedRateEndingWithin30Days = (dateStr: string | null | undefined): boolean => {
+  if (!dateStr) return false;
+
+  let isoDate = dateStr;
+  if (dateStr.includes('/')) {
+    // Convert DD/MM/YYYY to YYYY-MM-DD
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+      isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+  }
+
+  const endDate = new Date(isoDate);
+  if (Number.isNaN(endDate.getTime())) return false;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  endDate.setHours(0, 0, 0, 0);
+
+  const daysUntil = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  return daysUntil >= 0 && daysUntil <= 30;
+};
 
 const saveBalance = (accountId: number) => {
   const result = onSaveBalance(accountId);

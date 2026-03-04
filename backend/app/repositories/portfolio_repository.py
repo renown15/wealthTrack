@@ -34,6 +34,7 @@ _LABEL_TO_KEY: dict[str, str] = {
     "Price": "price",
     "Purchase Price": "purchase_price",
     "Pension Monthly Payment": "pension_monthly_payment",
+    "Asset Class": "asset_class",
 }
 
 
@@ -66,6 +67,7 @@ class PortfolioRepository:
             "price": keyed.get("price"),
             "purchase_price": keyed.get("purchase_price"),
             "pension_monthly_payment": keyed.get("pension_monthly_payment"),
+            "asset_class": keyed.get("asset_class"),
         }
 
     async def get_user_portfolio(self, user_id: int) -> list[dict[str, Any]]:

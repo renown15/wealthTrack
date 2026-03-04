@@ -61,10 +61,34 @@ describe('isDeferredShares / isDeferredCash / isRSU', () => {
 });
 
 describe('getFixedRateEndDate', () => {
-  it('returns releaseDate for deferred/RSU types', () => {
+  it('returns releaseDate for deferred shares', () => {
     const item = makeItem({ accountType: 'Deferred Shares' });
     item.account.releaseDate = '2025-12-31';
     expect(getFixedRateEndDate(item)).toBe('2025-12-31');
+  });
+
+  it('returns releaseDate for RSU', () => {
+    const item = makeItem({ accountType: 'RSU' });
+    item.account.releaseDate = '2025-06-15';
+    expect(getFixedRateEndDate(item)).toBe('2025-06-15');
+  });
+
+  it('returns releaseDate for Deferred Cash', () => {
+    const item = makeItem({ accountType: 'Deferred Cash' });
+    item.account.releaseDate = '2026-03-01';
+    expect(getFixedRateEndDate(item)).toBe('2026-03-01');
+  });
+
+  it('returns releaseDate for Deferred DC Pension', () => {
+    const item = makeItem({ accountType: 'Deferred DC Pension' });
+    item.account.releaseDate = '2030-01-01';
+    expect(getFixedRateEndDate(item)).toBe('2030-01-01');
+  });
+
+  it('returns releaseDate for Deferred DB Pension', () => {
+    const item = makeItem({ accountType: 'Deferred DB Pension' });
+    item.account.releaseDate = '2028-06-30';
+    expect(getFixedRateEndDate(item)).toBe('2028-06-30');
   });
 
   it('returns fixedBonusRateEndDate for standard accounts', () => {

@@ -14,24 +14,47 @@ export function formatCurrency(value?: string | number | null): string {
 
 export function formatDate(value?: string | null): string {
   if (!value) return '—';
-  const date = new Date(value);
+  
+  // Handle both DD/MM/YYYY and YYYY-MM-DD formats from backend
+  let isoDate = value;
+  if (value.includes('/')) {
+    // Convert DD/MM/YYYY to YYYY-MM-DD
+    const parts = value.split('/');
+    if (parts.length === 3) {
+      isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+  }
+  
+  const date = new Date(isoDate);
   if (Number.isNaN(date.getTime())) return '—';
+  
+  // Display as dd mmm yyyy (e.g., "12 Mar 2026")
   return new Intl.DateTimeFormat('en-GB', {
-    day: 'numeric',
+    day: '2-digit',
     month: 'short',
     year: 'numeric',
   }).format(date);
 }
 
 export function formatInterestRate(fixedBonusRate?: string | null, interestRate?: string | null): string {
-  if (fixedBonusRate && interestRate) {
-    return `${fixedBonusRate} (${interestRate})`;
+  const formatRate = (rate: string | null | undefined): string => {
+    if (!rate) return '';
+    const numeric = parseFloat(rate);
+    if (Number.isNaN(numeric)) return '';
+    return numeric.toFixed(2);
+  };
+
+  const bonus = formatRate(fixedBonusRate);
+  const interest = formatRate(interestRate);
+
+  if (bonus && interest) {
+    return `${bonus}% (${interest}%)`;
   }
-  if (fixedBonusRate) {
-    return fixedBonusRate;
+  if (bonus) {
+    return `${bonus}%`;
   }
-  if (interestRate) {
-    return interestRate;
+  if (interest) {
+    return `${interest}%`;
   }
   return '—';
 }

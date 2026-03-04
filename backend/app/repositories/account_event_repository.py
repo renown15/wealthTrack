@@ -30,6 +30,7 @@ class AccountEventRepository:
             "dividend": "Dividend",
             "deposit": "Deposit",
             "withdrawal": "Withdrawal",
+            "win": "Win",
         }
         lookup_value = event_type_map.get(event_type.lower(), event_type)
 

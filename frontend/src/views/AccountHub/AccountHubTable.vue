@@ -37,7 +37,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in sortedItems" :key="item.account.id" class="table-row-hover">
+          <tr v-for="item in sortedItems" :key="item.account.id" class="table-row-hover" :class="{ 'bg-red-50': isFixedRateEndingWithin30Days(getFixedRateEndDate(item)) }">
             <td class="table-cell">{{ item.institution?.name || 'Unassigned' }}</td>
             <td class="table-cell font-semibold">{{ item.account.name }}</td>
             <td class="table-cell">{{ item.accountType || 'Unknown' }}</td>
@@ -150,6 +150,29 @@ const emit = defineEmits<{
 
 const { sortBy, sortDirection, setSortBy, sortedItems } = useTableSorting(props.items);
 const { editingBalanceId, editingBalanceValue, startEdit, cancelEdit, saveBalance } = useBalanceEditing();
+
+const isFixedRateEndingWithin30Days = (dateStr: string | null | undefined): boolean => {
+  if (!dateStr) return false;
+
+  let isoDate = dateStr;
+  if (dateStr.includes('/')) {
+    // Convert DD/MM/YYYY to YYYY-MM-DD
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+      isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+  }
+
+  const endDate = new Date(isoDate);
+  if (Number.isNaN(endDate.getTime())) return false;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  endDate.setHours(0, 0, 0, 0);
+
+  const daysUntil = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  return daysUntil >= 0 && daysUntil <= 30;
+};
 
 const emitEdit = (account: Account): void => {
   emit('editAccount', account);

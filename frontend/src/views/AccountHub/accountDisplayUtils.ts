@@ -24,8 +24,16 @@ export function isRSU(item: PortfolioItem): boolean {
   return item.accountType === 'RSU';
 }
 
+export function isDeferredDCPension(item: PortfolioItem): boolean {
+  return item.accountType === 'Deferred DC Pension';
+}
+
+export function isDeferredDBPension(item: PortfolioItem): boolean {
+  return item.accountType === 'Deferred DB Pension';
+}
+
 export function getFixedRateEndDate(item: PortfolioItem): string | null | undefined {
-  if ((isDeferredShares(item) || isRSU(item) || isDeferredCash(item)) && item.account.releaseDate) {
+  if ((isDeferredShares(item) || isRSU(item) || isDeferredCash(item) || isDeferredDCPension(item) || isDeferredDBPension(item)) && item.account.releaseDate) {
     return item.account.releaseDate;
   }
   return item.account.fixedBonusRateEndDate;

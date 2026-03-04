@@ -10,6 +10,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.account import Account
+from app.models.account_attribute import AccountAttribute
 from app.models.account_event import AccountEvent
 from app.models.institution import Institution
 from app.models.reference_data import ReferenceData
@@ -29,7 +30,8 @@ class AnalyticsRepository:
 
     async def get_portfolio_breakdown(self, user_id: int) -> dict[str, Any]:
         """
-        Return current portfolio value broken down by account type and institution.
+        Return current portfolio value broken down by account type, institution
+        and asset class.
 
         Uses the latest event value per account (same logic as the portfolio endpoint).
         """
@@ -44,11 +46,22 @@ class AnalyticsRepository:
             .subquery()
         )
 
+        # Scalar subquery for the "Asset Class" attribute type ID
+        asset_class_type_id_subq = (
+            select(ReferenceData.id)
+            .where(
+                ReferenceData.class_key == "account_attribute_type",
+                ReferenceData.reference_value == "Asset Class",
+            )
+            .scalar_subquery()
+        )
+
         stmt = (
             select(
                 ReferenceData.reference_value.label("account_type"),
                 Institution.name.label("institution"),
                 AccountEvent.value,
+                AccountAttribute.value.label("asset_class"),
             )
             .select_from(Account)
             .join(max_date_subq, max_date_subq.c.account_id == Account.id)
@@ -59,6 +72,12 @@ class AnalyticsRepository:
             )
             .join(ReferenceData, ReferenceData.id == Account.type_id)
             .outerjoin(Institution, Institution.id == Account.institution_id)
+            .outerjoin(
+                AccountAttribute,
+                (AccountAttribute.account_id == Account.id)
+                & (AccountAttribute.user_id == user_id)
+                & (AccountAttribute.type_id == asset_class_type_id_subq),
+            )
             .where(Account.user_id == user_id)
         )
 
@@ -67,9 +86,10 @@ class AnalyticsRepository:
 
         by_type: dict[str, float] = {}
         by_institution: dict[str, float] = {}
+        by_asset_class: dict[str, float] = {}
         total = 0.0
 
-        for account_type, institution, raw_value in rows:
+        for account_type, institution, raw_value, asset_class in rows:
             try:
                 val = float(raw_value)
             except (TypeError, ValueError):
@@ -81,6 +101,8 @@ class AnalyticsRepository:
             by_type[account_type] = by_type.get(account_type, 0.0) + val
             inst = institution or "Unknown"
             by_institution[inst] = by_institution.get(inst, 0.0) + val
+            ac = asset_class or "Unclassified"
+            by_asset_class[ac] = by_asset_class.get(ac, 0.0) + val
 
         return {
             "by_type": [
@@ -91,17 +113,29 @@ class AnalyticsRepository:
                 {"label": k, "value": round(v, 2)}
                 for k, v in sorted(by_institution.items(), key=lambda x: -x[1])
             ],
+            "by_asset_class": [
+                {"label": k, "value": round(v, 2)}
+                for k, v in sorted(by_asset_class.items(), key=lambda x: -x[1])
+            ],
             "total": round(total, 2),
         }
 
-    async def get_portfolio_history(self, user_id: int) -> list[dict[str, Any]]:
+    async def get_portfolio_history(self, user_id: int) -> dict[str, Any]:
         """
         Return the daily portfolio total from the date of the earliest balance
-        record up to today.
+        record up to today, along with the baseline_date for analytics.
 
         Each account's balance carries forward unchanged until the next balance
         record is written, so every day has an exact total.
         """
+        # Get baseline date from reference data (global setting, not user-specific)
+        baseline_stmt = select(ReferenceData.reference_value).where(
+            ReferenceData.class_key == "analytics_baseline_date"
+        )
+        baseline_result = await self.session.execute(baseline_stmt)
+        baseline_value = baseline_result.scalar()
+        baseline_date_str = baseline_value if baseline_value else None
+
         stmt = (
             select(
                 AccountEvent.account_id,
@@ -116,7 +150,7 @@ class AnalyticsRepository:
         rows = result.all()
 
         if not rows:
-            return []
+            return {"baseline_date": baseline_date_str, "history": []}
 
         # Group events by calendar date, keeping the last value per account per day
         # (if multiple events on the same day, the latest wins)
@@ -157,4 +191,4 @@ class AnalyticsRepository:
             history.append({"date": current.isoformat(), "total_value": round(total, 2)})
             current += timedelta(days=1)
 
-        return history
+        return {"baseline_date": baseline_date_str, "history": history}

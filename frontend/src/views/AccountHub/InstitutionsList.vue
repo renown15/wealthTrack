@@ -62,45 +62,6 @@
                   <td class="px-4 py-3"></td>
                 </tr>
 
-                <!-- Parent Institution (if has balance and has children) -->
-                <template v-if="getInstitutionBalance(group.parentId!) > 0 && group.institutions.some(inst => inst.parentId)">
-                  <tr class="border-b border-gray-100 hover:bg-gray-50">
-                    <td class="px-4 py-3 pl-12 font-medium text-gray-800">
-                      <span class="text-blue-500 mr-2">└</span>{{ group.parentName }}
-                    </td>
-                    <td class="px-4 py-3 text-right font-semibold text-gray-900">
-                      {{ formatCurrency(getInstitutionBalance(group.parentId!)) }}
-                    </td>
-                    <td v-if="group.parentType === 'Bank' || group.parentType === 'Building Society'" class="px-4 py-3 text-right font-semibold" :class="getCapacityColor(getInstitutionBalance(group.parentId!))">
-                      {{ formatCurrency(getCapacity(getInstitutionBalance(group.parentId!))) }}
-                    </td>
-                    <td v-else class="px-4 py-3 text-right font-semibold text-gray-400">
-                      —
-                    </td>
-                    <td class="px-4 py-3 text-right">
-                      <div class="flex items-center justify-end gap-2">
-                        <button
-                          class="btn-icon edit inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200"
-                          @click="emitEdit(group.institutions.find(i => i.id === group.parentId)!)"
-                          title="Edit"
-                        >{{ Icons.edit }}</button>
-                        <button
-                          class="btn-icon delete inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-red-100 text-red-600 hover:bg-red-200"
-                          @click="emitDelete(group.parentId!, group.parentName)"
-                          title="Delete"
-                        >{{ Icons.delete }}</button>
-                        <button
-                          class="inline-flex items-center justify-center px-2 py-1.5 text-xs font-medium rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200"
-                          type="button"
-                          @click="emitManage(group.institutions.find(i => i.id === group.parentId)!)"
-                        >
-                          Creds
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </template>
-
                 <!-- Child Institutions -->
                 <tr
                   v-for="(institution, instIdx) in group.institutions.filter(inst => inst.parentId)"

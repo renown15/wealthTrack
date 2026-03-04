@@ -44,6 +44,7 @@ class AccountAttributeRepository:
             "deferred_cash_balance": "Deferred Cash Balance",
             "rsu_balance": "RSU Balance",
             "pension_monthly_payment": "Pension Monthly Payment",
+            "asset_class": "Asset Class",
         }
         lookup_value = attribute_type_map.get(attribute_type.lower(), attribute_type)
 

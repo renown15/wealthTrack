@@ -11,9 +11,10 @@ class BreakdownItem(BaseModel):
 
 
 class PortfolioBreakdown(BaseModel):
-    """Current portfolio breakdown by account type and institution."""
+    """Current portfolio breakdown by account type, institution and asset class."""
     by_type: list[BreakdownItem]
     by_institution: list[BreakdownItem]
+    by_asset_class: list[BreakdownItem]
     total: float
 
 
@@ -25,4 +26,5 @@ class HistoryPoint(BaseModel):
 
 class PortfolioHistory(BaseModel):
     """Daily portfolio value history from the earliest balance record to today."""
+    baseline_date: str | None  # "YYYY-MM-DD" or null if not set
     history: list[HistoryPoint]

@@ -26,6 +26,20 @@
       </select>
     </div>
 
+    <div v-if="getFieldConfig.showAssetClass" class="form-group">
+      <label for="assetClass" class="form-label">Asset Class</label>
+      <select
+        id="assetClass"
+        v-model="formData.assetClass"
+        class="form-select"
+      >
+        <option value="">Select Asset Class</option>
+        <option v-for="item in assetClassOptions" :key="item.id" :value="item.referenceValue">
+          {{ item.referenceValue }}
+        </option>
+      </select>
+    </div>
+
     <div v-if="type === 'create'" class="form-group">
       <label for="institution-select" class="form-label">Institution</label>
       <select
@@ -194,11 +208,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { ACCOUNT_TYPE_FIELD_CONFIG } from '@views/AccountHub/accountTypeFieldConfig';
 import { type AccountFormFieldsProps } from '@views/AccountHub/accountFormFieldsTypes';
+import { referenceDataService } from '@/services/ReferenceDataService';
+import { debug } from '@utils/debug';
 
 const props = defineProps<AccountFormFieldsProps>();
+
+const assetClassOptions = ref<Array<{ id: number; referenceValue: string }>>([]);
 
 const getFieldConfig = computed(() => {
   if (!props.formData.typeId) return ACCOUNT_TYPE_FIELD_CONFIG['DEFAULT'];
@@ -207,5 +225,15 @@ const getFieldConfig = computed(() => {
   );
   const typeName = selectedType?.referenceValue;
   return ACCOUNT_TYPE_FIELD_CONFIG[typeName || 'DEFAULT'] || ACCOUNT_TYPE_FIELD_CONFIG['DEFAULT'];
+});
+
+onMounted(async () => {
+  try {
+    const assetClassItems = await referenceDataService.listByClass('asset_class');
+    assetClassOptions.value = assetClassItems;
+    debug.log('[AccountFormFields] Loaded asset class options', { count: assetClassItems.length, items: assetClassItems });
+  } catch (error) {
+    debug.error('[AccountFormFields] Error loading asset class options', error);
+  }
 });
 </script>

@@ -24,6 +24,7 @@ export interface FormData {
   price?: string | null;
   purchasePrice?: string | null;
   pensionMonthlyPayment?: string | null;
+  assetClass?: string | null;
 }
 
 export interface AccountFormFieldsProps {
@@ -33,3 +34,4 @@ export interface AccountFormFieldsProps {
   accountTypes: ReferenceDataItem[];
   accountStatuses: ReferenceDataItem[];
 }
+

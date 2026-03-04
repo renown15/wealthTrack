@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ref } from 'vue';
-import { useAccountForm } from '@composables/useAccountForm';
+import { useAccountForm, convertToDateInputFormat, convertFromDateInputFormat } from '@composables/useAccountForm';
 import type { AccountFormProps } from '@composables/useAccountForm';
 
 const types = [
@@ -127,5 +127,47 @@ describe('useAccountForm', () => {
     props.value = { ...props.value, accountTypes: types };
     await Promise.resolve();
     expect(formData.value.typeId).toBe(1);
+  });
+});
+
+describe('convertToDateInputFormat', () => {
+  it('converts DD/MM/YYYY to YYYY-MM-DD', () => {
+    expect(convertToDateInputFormat('12/03/2026')).toBe('2026-03-12');
+  });
+
+  it('converts DD/MM/YYYY to YYYY-MM-DD for other dates', () => {
+    expect(convertToDateInputFormat('01/01/2025')).toBe('2025-01-01');
+    expect(convertToDateInputFormat('31/12/2030')).toBe('2030-12-31');
+  });
+
+  it('returns empty string for null/undefined', () => {
+    expect(convertToDateInputFormat(null)).toBe('');
+    expect(convertToDateInputFormat(undefined)).toBe('');
+  });
+
+  it('returns unchanged string if not DD/MM/YYYY format', () => {
+    expect(convertToDateInputFormat('2026-03-12')).toBe('2026-03-12');
+    expect(convertToDateInputFormat('invalid')).toBe('invalid');
+  });
+});
+
+describe('convertFromDateInputFormat', () => {
+  it('converts YYYY-MM-DD to DD/MM/YYYY', () => {
+    expect(convertFromDateInputFormat('2026-03-12')).toBe('12/03/2026');
+  });
+
+  it('converts YYYY-MM-DD to DD/MM/YYYY for other dates', () => {
+    expect(convertFromDateInputFormat('2025-01-01')).toBe('01/01/2025');
+    expect(convertFromDateInputFormat('2030-12-31')).toBe('31/12/2030');
+  });
+
+  it('returns empty string for null/undefined', () => {
+    expect(convertFromDateInputFormat(null)).toBe('');
+    expect(convertFromDateInputFormat(undefined)).toBe('');
+  });
+
+  it('returns unchanged string if not YYYY-MM-DD format', () => {
+    expect(convertFromDateInputFormat('12/03/2026')).toBe('12/03/2026');
+    expect(convertFromDateInputFormat('invalid')).toBe('invalid');
   });
 });

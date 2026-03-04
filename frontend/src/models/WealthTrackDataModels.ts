@@ -22,6 +22,7 @@ export interface Account {
   price?: string | null;
   purchasePrice?: string | null;
   pensionMonthlyPayment?: string | null;
+  assetClass?: string | null;
   openedAt: string | null;
   closedAt: string | null;
   createdAt: string;
@@ -119,6 +120,7 @@ export interface AccountCreateRequest {
   price?: string;
   purchasePrice?: string;
   pensionMonthlyPayment?: string;
+  assetClass?: string;
 }
 
 export interface AccountUpdateRequest {
@@ -137,6 +139,7 @@ export interface AccountUpdateRequest {
   price?: string;
   purchasePrice?: string;
   pensionMonthlyPayment?: string;
+  assetClass?: string;
 }
 
 export interface InstitutionCreateRequest {
@@ -173,6 +176,7 @@ export interface BreakdownItem {
 export interface PortfolioBreakdown {
   byType: BreakdownItem[];
   byInstitution: BreakdownItem[];
+  byAssetClass: BreakdownItem[];
   total: number;
 }
 
@@ -182,5 +186,6 @@ export interface HistoryPoint {
 }
 
 export interface PortfolioHistory {
+  baselineDate: string | null;  // "YYYY-MM-DD" or null if not set
   history: HistoryPoint[];
 }

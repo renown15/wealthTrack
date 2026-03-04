@@ -1,7 +1,7 @@
 # WealthTrack Development Makefile
 # Provides convenient commands for common development tasks
 
-.PHONY: help setup dev backend-dev frontend-dev test lint type-check format clean docker-up docker-down build-frontend
+.PHONY: help setup dev backend-dev frontend-dev test lint type-check format clean docker-up docker-down build-frontend tail-backend tail-frontend
 
 help:
 	@echo "WealthTrack Development Commands"
@@ -40,6 +40,8 @@ help:
 	@echo "Utilities:"
 	@echo "  make check-backend      - Check if backend is running (starts if not)"
 	@echo "  make check-db           - Check if database is running (starts if not)"
+	@echo "  make tail-backend       - Tail backend server logs"
+	@echo "  make tail-frontend      - Tail frontend development server logs"
 	@echo "  make clean              - Clean up build artifacts and cache"
 	@echo "  make pr-check           - Run all checks before PR (auto-manages servers)"
 	@echo ""
@@ -205,22 +207,26 @@ check-backend:
 		echo "⚠️  Backend startup timeout - continuing anyway"; \
 	fi
 
-# Code Quality
-lint: lint-backend lint-frontend
-	@echo "✅ All linting passed!"
+# Tail Logs
+tail-backend:
+	@if [ -f /tmp/backend.log ]; then \
+		echo "Tailing backend logs from /tmp/backend.log (Ctrl+C to stop)..."; \
+		tail -f /tmp/backend.log; \
+	else \
+		echo "❌ Backend log file not found: /tmp/backend.log"; \
+		echo "Backend may not be running. Start with: make check-backend or make dev"; \
+		exit 1; \
+	fi
 
-lint-backend:
-	@echo "Linting backend code (ruff)..."
-	cd backend && ruff check app/
-	@echo "Linting backend code (pylint)..."
-	cd backend && pylint app/ --rcfile=.pylintrc
-
-lint-frontend:
-	@echo "Linting frontend code..."
-	cd frontend && npm run lint
-
-lint-fix: lint-fix-backend lint-fix-frontend
-	@echo "✅ Auto-fixed linting issues!"
+tail-frontend:
+	@if [ -f /tmp/frontend.log ]; then \
+		echo "Tailing frontend logs from /tmp/frontend.log (Ctrl+C to stop)..."; \
+		tail -f /tmp/frontend.log; \
+	else \
+		echo "❌ Frontend log file not found: /tmp/frontend.log"; \
+		echo "Frontend may not be running. Start with: make frontend-dev or make dev"; \
+		exit 1; \
+	fi
 
 lint-fix-backend:
 	@echo "Auto-fixing backend linting issues..."
@@ -262,12 +268,12 @@ format-frontend:
 # Database
 migrate:
 	@echo "Running database migrations..."
-	cd backend && alembic upgrade head
+	@. .env.dev && cd backend && DATABASE_URL="postgresql+asyncpg://$${DB_USER}:$${DB_PASSWORD}@localhost:$${DB_PORT}/$${DB_NAME}" alembic upgrade head
 
 migrate-create:
 	@echo "Creating new migration..."
 	@read -p "Enter migration name: " name; \
-	cd backend && alembic revision --autogenerate -m "$$name"
+	. .env.dev && cd backend && DATABASE_URL="postgresql+asyncpg://$${DB_USER}:$${DB_PASSWORD}@localhost:$${DB_PORT}/$${DB_NAME}" alembic revision --autogenerate -m "$$name"
 
 # Utilities
 clean:

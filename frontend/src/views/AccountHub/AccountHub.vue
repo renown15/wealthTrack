@@ -63,7 +63,7 @@
           :grouped="grouped"
           @edit-account="openEditAccountModal"
           @delete-account="(account) => openDeleteConfirm('account', account.id, account.name)"
-          @show-events="openEventsModal"
+          @show-events="(accountId, accountName, eventCount, accountType) => openEventsModal(accountId, accountName, accountType)"
           @edit-group="openEditAccountGroupModal"
           @delete-group="handleDeleteGroup"
           @update-balance="handleUpdateBalance"
@@ -104,7 +104,8 @@
     </div>
     <AccountEventsModal
       :open="eventsModalOpen" :title="eventsTitle" :events="events"
-      :loading="eventsLoading" :error="eventsError" @close="closeEventsModal"
+      :loading="eventsLoading" :error="eventsError" :account-type="accountType"
+      @close="closeEventsModal" @add-win="handleAddWin"
     />
     <AccountGroupModal
       :open="accountGroupModalOpen"
@@ -138,6 +139,7 @@
       :initial-price="initialModalPrice"
       :initial-purchase-price="initialModalPurchasePrice"
       :initial-pension-monthly-payment="initialModalPensionMonthlyPayment"
+      :initial-asset-class="initialModalAssetClass"
       :error="state.error"
       @close="closeAccountModal" @save="handleAccountSave"
     />
@@ -247,6 +249,8 @@ const {
   eventsLoading,
   eventsError,
   events,
+  accountType,
+  currentAccountId,
   openEventsModal,
   closeEventsModal,
 } = useEventsModal();
@@ -323,6 +327,9 @@ const initialModalPurchasePrice = computed(() =>
 const initialModalPensionMonthlyPayment = computed(() =>
   editingItem.value && 'pensionMonthlyPayment' in editingItem.value
     ? (editingItem.value as Account).pensionMonthlyPayment : null);
+const initialModalAssetClass = computed(() =>
+  editingItem.value && 'assetClass' in editingItem.value
+    ? (editingItem.value as Account).assetClass : null);
 const initialModalParentId = computed(() =>
   editingItem.value && 'parentId' in editingItem.value
     ? (editingItem.value as Institution).parentId : null);
@@ -532,6 +539,21 @@ const handleUpdateBalance = async (accountId: number, value: string): Promise<vo
 const exportToExcel = (): void => {
   const fileName = `wealthtrack-accounts-${new Date().toISOString().split('T')[0]}.xlsx`;
   exportAccountsToExcel(state.items, fileName);
+};
+
+const handleAddWin = async (winAmount: string): Promise<void> => {
+  try {
+    await apiService.createAccountEvent(currentAccountId.value, {
+      event_type: 'Win',
+      value: winAmount,
+    });
+    await loadPortfolio();
+    // Reload events in the modal
+    const accountName = state.items.find(item => item.account.id === currentAccountId.value)?.account.name || 'Account';
+    await openEventsModal(currentAccountId.value, accountName, accountType.value);
+  } catch (error) {
+    debug.error('[AccountHub] Failed to add win event:', error);
+  }
 };
 
 const credentialTypes = ref<any[]>([]);
