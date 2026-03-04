@@ -21,6 +21,7 @@ export interface Account {
   underlying?: string | null;
   price?: string | null;
   purchasePrice?: string | null;
+  pensionMonthlyPayment?: string | null;
   openedAt: string | null;
   closedAt: string | null;
   createdAt: string;
@@ -117,6 +118,7 @@ export interface AccountCreateRequest {
   underlying?: string;
   price?: string;
   purchasePrice?: string;
+  pensionMonthlyPayment?: string;
 }
 
 export interface AccountUpdateRequest {
@@ -134,6 +136,7 @@ export interface AccountUpdateRequest {
   underlying?: string;
   price?: string;
   purchasePrice?: string;
+  pensionMonthlyPayment?: string;
 }
 
 export interface InstitutionCreateRequest {

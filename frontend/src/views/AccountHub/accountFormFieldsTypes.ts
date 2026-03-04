@@ -23,6 +23,7 @@ export interface FormData {
   underlying?: string | null;
   price?: string | null;
   purchasePrice?: string | null;
+  pensionMonthlyPayment?: string | null;
 }
 
 export interface AccountFormFieldsProps {

@@ -3,7 +3,7 @@ Repository for analytics data — portfolio history and breakdown queries.
 """
 import logging
 from collections import defaultdict
-from datetime import date, timedelta, timezone
+from datetime import date, timedelta
 from typing import Any
 
 from sqlalchemy import func, select

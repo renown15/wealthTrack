@@ -13,7 +13,7 @@ services:
     ports:
       - "${DB_PORT:-5432}:5432"
     volumes:
-      - wealthtrack_pgdata:/var/lib/postgresql/data
+      - ${DB_VOLUME:-wealthtrack_pgdata}:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
@@ -59,3 +59,4 @@ services:
 
 volumes:
   wealthtrack_pgdata:
+  wealthtrack_test_pgdata:

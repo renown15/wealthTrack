@@ -19,6 +19,7 @@ export interface PortfolioCrudHandlers {
     underlying?: string,
     price?: string,
     purchasePrice?: string,
+    pensionMonthlyPayment?: string,
   ) => Promise<void>;
   updateAccount: (
     accountId: number,
@@ -36,6 +37,7 @@ export interface PortfolioCrudHandlers {
     underlying?: string,
     price?: string,
     purchasePrice?: string,
+    pensionMonthlyPayment?: string,
   ) => Promise<void>;
   deleteAccount: (accountId: number) => Promise<void>;
   createInstitution: (

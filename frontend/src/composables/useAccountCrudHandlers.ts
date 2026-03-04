@@ -22,6 +22,7 @@ export interface AccountSavePayload {
   underlying?: string;
   price?: string;
   purchasePrice?: string;
+  pensionMonthlyPayment?: string;
 }
 
 export interface UseAccountCrudHandlersReturn {
@@ -76,7 +77,8 @@ export function useAccountCrudHandlers(
           payload.numberOfShares,
           payload.underlying,
           payload.price,
-          payload.purchasePrice
+          payload.purchasePrice,
+          payload.pensionMonthlyPayment
         );
       } else if (editingItem.value && 'id' in editingItem.value) {
         // eslint-disable-next-line no-console
@@ -96,7 +98,8 @@ export function useAccountCrudHandlers(
           payload.numberOfShares,
           payload.underlying,
           payload.price,
-          payload.purchasePrice
+          payload.purchasePrice,
+          payload.pensionMonthlyPayment
         );
         try {
           await accountCrudService.updateAccountDates(editingItem.value.id, {

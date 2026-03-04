@@ -16,6 +16,7 @@ describe('InstitutionsList', () => {
       props: {
         institutions: [],
         portfolioItems: mockPortfolioItems,
+        groupByParent: false,
       },
     });
 
@@ -27,11 +28,11 @@ describe('InstitutionsList', () => {
       props: {
         institutions: mockInstitutions,
         portfolioItems: mockPortfolioItems,
+        groupByParent: false,
       },
     });
 
     expect(wrapper.find('.institutions-section').exists()).toBe(true);
-    expect(wrapper.text()).toContain('Group by Parent');
     expect(wrapper.text()).toContain('Chase Bank');
     expect(wrapper.text()).toContain('Wells Fargo');
   });
@@ -41,6 +42,7 @@ describe('InstitutionsList', () => {
       props: {
         institutions: mockInstitutions,
         portfolioItems: mockPortfolioItems,
+        groupByParent: false,
       },
     });
 
@@ -57,6 +59,7 @@ describe('InstitutionsList', () => {
       props: {
         institutions: mockInstitutions,
         portfolioItems: mockPortfolioItems,
+        groupByParent: false,
       },
     });
 

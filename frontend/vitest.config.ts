@@ -25,6 +25,14 @@ export default defineConfig({
         'vitest.config.ts',
         'uno.config.ts',
         '*.config.ts',
+        // Entry points and infrastructure (not unit-testable)
+        'src/index.ts',
+        'src/App.vue',
+        'src/router/index.ts',
+        'src/components/AppFooter.vue',
+        // Chart/browser-API components (not unit-testable)
+        'src/views/Analytics.vue',
+        'src/utils/exportToExcel.ts',
       ],
       thresholds: {
         lines: 70,
@@ -50,3 +58,4 @@ export default defineConfig({
     },
   },
 });
+

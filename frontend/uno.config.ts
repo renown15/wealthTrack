@@ -118,5 +118,32 @@ export default defineConfig({
     'empty-title': 'm-0 mb-1 text-text-dark',
     'empty-text': 'm-0 text-muted',
     'spinner': 'w-12 h-12 rounded-full border-5 border-blue-200 border-l-primary animate-spin',
+
+    // PortfolioTable
+    'sort-header': 'cursor-pointer select-none hover:bg-blue-500/5',
+    'sort-icon': 'text-[0.7em] opacity-50 ml-[2px]',
+    'group-row': '[&>td]:!border-b-0',
+    'first-member': '[&>td]:border-t [&>td]:border-[#e5ecff]',
+
+    // Analytics
+    'analytics-header': 'flex items-start justify-between gap-6 flex-wrap',
+    'analytics-title': 'text-[1.375rem] font-700 m-0 mb-1',
+    'analytics-subtitle': 'text-[0.875rem] text-slate-500 m-0',
+    'analytics-summary': 'flex gap-8',
+    'summary-stat': 'flex flex-col items-end',
+    'summary-label': 'text-[0.75rem] text-slate-500 uppercase tracking-[0.05em]',
+    'summary-value': 'text-[1.25rem] font-700 text-slate-800',
+    'range-buttons': 'flex gap-1',
+    'range-btn': 'px-3 py-1 border border-slate-200 rounded-md bg-white text-slate-500 text-[0.8125rem] font-500 cursor-pointer transition-all hover:border-blue-500 hover:text-blue-500',
+    'range-btn-active': 'bg-blue-500 border-blue-500 text-white',
+    'analytics-grid': 'grid grid-cols-2 gap-4 max-[900px]:grid-cols-1',
+    'chart-container': 'relative h-[260px]',
+    'chart-tall': 'relative h-[320px]',
+    'legend-list': 'flex flex-col gap-1.5',
+    'legend-row': 'flex items-center gap-2 text-[0.8125rem]',
+    'legend-dot': 'w-[10px] h-[10px] rounded-full flex-shrink-0',
+    'legend-label': 'flex-1 text-slate-700 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap',
+    'legend-value': 'font-600 text-slate-800',
+    'legend-pct': 'text-slate-400 w-14 text-right flex-shrink-0',
   },
 });

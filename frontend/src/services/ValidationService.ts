@@ -16,17 +16,8 @@ export class ValidationService {
    * Validate password strength.
    */
   static validatePassword(password: string): { isValid: boolean; message?: string } {
-    if (password.length < 8) {
-      return { isValid: false, message: 'Password must be at least 8 characters' };
-    }
-    if (!/[A-Z]/.test(password)) {
-      return { isValid: false, message: 'Password must contain at least one uppercase letter' };
-    }
-    if (!/[a-z]/.test(password)) {
-      return { isValid: false, message: 'Password must contain at least one lowercase letter' };
-    }
-    if (!/\d/.test(password)) {
-      return { isValid: false, message: 'Password must contain at least one digit' };
+    if (password.length < 1) {
+      return { isValid: false, message: 'Password is required' };
     }
     return { isValid: true };
   }

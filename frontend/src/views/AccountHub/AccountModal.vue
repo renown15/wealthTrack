@@ -48,6 +48,7 @@ interface Props {
   initialUnderlying?: string | null;
   initialPrice?: string | null;
   initialPurchasePrice?: string | null;
+  initialPensionMonthlyPayment?: string | null;
   error?: string | null;
 }
 
@@ -69,6 +70,7 @@ interface SavePayload {
   underlying?: string;
   price?: string;
   purchasePrice?: string;
+  pensionMonthlyPayment?: string;
 }
 
 const props = defineProps<Props>();
@@ -97,6 +99,7 @@ const formProps = computed<AccountFormProps>(() => ({
   initialUnderlying: props.initialUnderlying,
   initialPrice: props.initialPrice,
   initialPurchasePrice: props.initialPurchasePrice,
+  initialPensionMonthlyPayment: props.initialPensionMonthlyPayment,
   accountTypes: props.accountTypes,
   accountStatuses: props.accountStatuses,
 }));
@@ -154,6 +157,7 @@ const handleSave = (): void => {
     underlying: formData.value.underlying || undefined,
     price: formData.value.price || undefined,
     purchasePrice: formData.value.purchasePrice || undefined,
+    pensionMonthlyPayment: formData.value.pensionMonthlyPayment || undefined,
   });
 };
 </script>

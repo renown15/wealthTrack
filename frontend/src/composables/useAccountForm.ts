@@ -19,6 +19,7 @@ export interface AccountFormData {
   underlying: string;
   price: string;
   purchasePrice: string;
+  pensionMonthlyPayment: string;
 }
 
 export interface AccountFormProps {
@@ -41,6 +42,7 @@ export interface AccountFormProps {
   initialUnderlying?: string | null;
   initialPrice?: string | null;
   initialPurchasePrice?: string | null;
+  initialPensionMonthlyPayment?: string | null;
   accountTypes: ReferenceDataItem[];
   accountStatuses: ReferenceDataItem[];
 }
@@ -64,6 +66,7 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     underlying: props.value.initialUnderlying || '',
     price: props.value.initialPrice || '',
     purchasePrice: props.value.initialPurchasePrice || '',
+    pensionMonthlyPayment: props.value.initialPensionMonthlyPayment || '',
   });
 
   const syncAccountType = (): void => {
@@ -124,6 +127,7 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     formData.value.underlying = props.value.initialUnderlying || '';
     formData.value.price = props.value.initialPrice || '';
     formData.value.purchasePrice = props.value.initialPurchasePrice || '';
+    formData.value.pensionMonthlyPayment = props.value.initialPensionMonthlyPayment || '';
     syncAccountType();
     syncAccountStatus();
   };

@@ -263,6 +263,7 @@ interface Props {
   groups: AccountGroup[];
   groupMembers: Map<number, number[]>;
   accountTypes: ReferenceDataItem[];
+  grouped?: boolean;
 }
 
 interface Emits {
@@ -379,19 +380,25 @@ type AccountRow = { kind: 'account'; item: PortfolioItem };
 type TableRow = GroupRow | AccountRow;
 
 const sortedRows = computed((): TableRow[] => {
-  const groupRows: GroupRow[] = props.groups
-    .map(group => {
-      const memberIds = props.groupMembers.get(group.id) || [];
-      const items = props.items.filter(item => memberIds.includes(item.account.id));
-      return { kind: 'group' as const, groupId: group.id, name: group.name, items, summary: getGroupSummary(items) };
-    })
-    .filter(r => r.items.length > 0);
+  let rows: TableRow[];
 
-  const accountRows: AccountRow[] = props.items
-    .filter(item => !ungroupedAccountIds.value.has(item.account.id))
-    .map(item => ({ kind: 'account' as const, item }));
+  if (props.grouped !== false) {
+    const groupRows: GroupRow[] = props.groups
+      .map(group => {
+        const memberIds = props.groupMembers.get(group.id) || [];
+        const items = props.items.filter(item => memberIds.includes(item.account.id));
+        return { kind: 'group' as const, groupId: group.id, name: group.name, items, summary: getGroupSummary(items) };
+      })
+      .filter(r => r.items.length > 0);
 
-  const rows: TableRow[] = [...groupRows, ...accountRows];
+    const accountRows: AccountRow[] = props.items
+      .filter(item => !ungroupedAccountIds.value.has(item.account.id))
+      .map(item => ({ kind: 'account' as const, item }));
+
+    rows = [...groupRows, ...accountRows];
+  } else {
+    rows = props.items.map(item => ({ kind: 'account' as const, item }));
+  }
 
   if (!sortCol.value) return rows;
 
@@ -450,30 +457,4 @@ const saveBalance = (accountId: number) => {
 };
 </script>
 
-<style scoped>
-.sort-header {
-  cursor: pointer;
-  user-select: none;
-}
-.sort-header:hover {
-  background-color: rgba(59, 130, 246, 0.05);
-}
-.sort-icon {
-  font-size: 0.7em;
-  opacity: 0.5;
-  margin-left: 2px;
-}
-.sort-header:hover .sort-icon {
-  opacity: 0.9;
-}
-
-/* Remove bottom border from group rows */
-.group-row td {
-  border-bottom: none !important;
-}
-
-/* Add top border to first member row for clean separation */
-.first-member td {
-  border-top: 1px solid #e5ecff;
-}
-</style>
+<!-- Uses UnoCSS shortcuts defined in uno.config.ts -->

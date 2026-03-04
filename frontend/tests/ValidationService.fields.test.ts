@@ -32,33 +32,15 @@ describe('ValidationService - Field Validators', () => {
   });
 
   describe('validatePassword', () => {
-    it('should validate strong password', () => {
+    it('should validate any non-empty password', () => {
       const result = ValidationService.validatePassword('StrongPass123');
       expect(result.isValid).toBe(true);
     });
 
-    it('should reject password without uppercase', () => {
-      const result = ValidationService.validatePassword('weakpass123');
+    it('should reject empty password', () => {
+      const result = ValidationService.validatePassword('');
       expect(result.isValid).toBe(false);
-      expect(result.message).toContain('uppercase');
-    });
-
-    it('should reject password without lowercase', () => {
-      const result = ValidationService.validatePassword('WEAKPASS123');
-      expect(result.isValid).toBe(false);
-      expect(result.message).toContain('lowercase');
-    });
-
-    it('should reject password without numbers', () => {
-      const result = ValidationService.validatePassword('WeakPassNoNum');
-      expect(result.isValid).toBe(false);
-      expect(result.message).toContain('digit');
-    });
-
-    it('should reject short password', () => {
-      const result = ValidationService.validatePassword('Weak1');
-      expect(result.isValid).toBe(false);
-      expect(result.message).toContain('8');
+      expect(result.message).toBeDefined();
     });
 
     it('should validate password with special characters', () => {
@@ -153,19 +135,17 @@ describe('ValidationService - Field Validators', () => {
     it('should return correct result structure', () => {
       const result = ValidationService.validatePassword('Test123');
       expect(result).toHaveProperty('isValid');
-      expect(result).toHaveProperty('message');
       expect(typeof result.isValid).toBe('boolean');
-      expect(typeof result.message).toBe('string');
     });
 
-    it('should have empty message for valid result', () => {
+    it('should have no message for valid result', () => {
       const result = ValidationService.validatePassword('ValidPass123');
       expect(result.isValid).toBe(true);
       expect(result.message).toBeUndefined();
     });
 
-    it('should have error message for invalid result', () => {
-      const result = ValidationService.validatePassword('weak');
+    it('should have error message for empty password', () => {
+      const result = ValidationService.validatePassword('');
       expect(result.isValid).toBe(false);
       expect(result.message).toBeDefined();
     });

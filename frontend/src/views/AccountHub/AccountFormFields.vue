@@ -179,6 +179,17 @@
         placeholder="e.g., 1000 (for £10.00)"
       />
     </div>
+
+    <div v-if="getFieldConfig.showPensionMonthlyPayment" class="form-group">
+      <label for="pensionMonthlyPayment" class="form-label">Pension Amount</label>
+      <input
+        id="pensionMonthlyPayment"
+        v-model="formData.pensionMonthlyPayment"
+        type="text"
+        class="form-input"
+        placeholder="e.g., 500.00"
+      />
+    </div>
   </div>
 </template>
 

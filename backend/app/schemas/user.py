@@ -3,7 +3,7 @@ Pydantic schemas for user registration and authentication.
 """
 from datetime import datetime
 
-from pydantic import EmailStr, Field, field_validator
+from pydantic import EmailStr, Field
 
 from app.schemas.base import BaseSchema
 
@@ -14,19 +14,7 @@ class UserRegistrationRequest(BaseSchema):
     email: EmailStr
     first_name: str = Field(..., min_length=1, max_length=100)
     last_name: str = Field(..., min_length=1, max_length=100)
-    password: str = Field(..., min_length=8, max_length=100)
-
-    @field_validator("password")
-    @classmethod
-    def password_strength(cls, v: str) -> str:
-        """Validate password strength."""
-        if not any(c.isupper() for c in v):
-            raise ValueError("Password must contain at least one uppercase letter")
-        if not any(c.islower() for c in v):
-            raise ValueError("Password must contain at least one lowercase letter")
-        if not any(c.isdigit() for c in v):
-            raise ValueError("Password must contain at least one digit")
-        return v
+    password: str = Field(..., min_length=1, max_length=100)
 
 
 class UserResponse(BaseSchema):

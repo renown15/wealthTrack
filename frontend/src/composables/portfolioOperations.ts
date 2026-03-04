@@ -20,6 +20,7 @@ export interface AccountCreatePayload {
   underlying?: string;
   price?: string;
   purchasePrice?: string;
+  pensionMonthlyPayment?: string;
 }
 
 export interface AccountUpdatePayload {
@@ -37,6 +38,7 @@ export interface AccountUpdatePayload {
   underlying?: string;
   price?: string;
   purchasePrice?: string;
+  pensionMonthlyPayment?: string;
 }
 
 /**

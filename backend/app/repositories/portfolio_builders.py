@@ -41,6 +41,7 @@ async def build_portfolio_item(
     acct_data["underlying"] = attrs["underlying"]
     acct_data["price"] = attrs["price"]
     acct_data["purchasePrice"] = attrs["purchase_price"]
+    acct_data["pensionMonthlyPayment"] = attrs.get("pension_monthly_payment")
 
     inst_data = None
     if account.institution:

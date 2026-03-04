@@ -4,6 +4,26 @@
 
 import type { PortfolioItem } from '@/models/WealthTrackDataModels';
 
+export interface PensionAccountBreakdown {
+  name: string;
+  institution: string;
+  type: 'DC' | 'DB';
+  value: number;
+  monthlyPayment?: number;
+}
+
+export interface PensionBreakdown {
+  total: number;
+  dcTotal: number;
+  dbTotal: number;
+  lifeExpectancy: number;
+  annuityRate: number;
+  accounts: PensionAccountBreakdown[];
+}
+
+const DC_PENSION_TYPES = ['Deferred DC Pension', 'SIPP'];
+const DB_PENSION_TYPES = ['Deferred DB Pension'];
+
 const CASH_TYPES = [
   'Current Account',
   'Savings Account',
@@ -123,4 +143,44 @@ export function calculateProjectedAnnualYield(items: PortfolioItem[]): number {
 
     return sum + (balance * effectiveRate / 100);
   }, 0);
+}
+
+/**
+ * Calculate pension capital value.
+ *
+ * DC pensions: current account balance.
+ * DB pensions: present value of annuity = annual_payment × (1 - (1+r)^(-n)) / r
+ *   where annual_payment = pensionMonthlyPayment × 12,
+ *         r = annuityRate, n = lifeExpectancy (years).
+ */
+export function calculatePensionValue(
+  items: PortfolioItem[],
+  lifeExpectancy: number,
+  annuityRate: number,
+): PensionBreakdown {
+  const accounts: PensionAccountBreakdown[] = [];
+  let dcTotal = 0;
+  let dbTotal = 0;
+
+  for (const item of items) {
+    const typeName = item.accountType || '';
+    const institutionName = item.institution?.name ?? '';
+
+    if (DC_PENSION_TYPES.includes(typeName)) {
+      const value = item.latestBalance?.value ? parseFloat(item.latestBalance.value) : 0;
+      dcTotal += value;
+      accounts.push({ name: item.account.name, institution: institutionName, type: 'DC', value });
+    } else if (DB_PENSION_TYPES.includes(typeName)) {
+      const monthly = item.account.pensionMonthlyPayment ? parseFloat(item.account.pensionMonthlyPayment) : 0;
+      const annualPayment = monthly * 12;
+      const pvFactor = annuityRate > 0
+        ? (1 - Math.pow(1 + annuityRate, -lifeExpectancy)) / annuityRate
+        : lifeExpectancy;
+      const value = annualPayment * pvFactor;
+      dbTotal += value;
+      accounts.push({ name: item.account.name, institution: institutionName, type: 'DB', value, monthlyPayment: monthly });
+    }
+  }
+
+  return { total: dcTotal + dbTotal, dcTotal, dbTotal, lifeExpectancy, annuityRate, accounts };
 }

@@ -71,14 +71,14 @@ async def test_register_invalid_email(client: AsyncClient) -> None:
 
 @pytest.mark.asyncio
 async def test_register_weak_password(client: AsyncClient) -> None:
-    """Test registration with weak password fails."""
+    """Test registration with empty password fails."""
     response = await client.post(
         "/api/v1/auth/register",
         json={
             "email": "user@example.com",
             "first_name": "Test",
             "last_name": "User",
-            "password": "weak",
+            "password": "",
         },
     )
 

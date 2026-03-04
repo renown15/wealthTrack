@@ -1,22 +1,5 @@
 <template>
   <div v-if="institutions.length > 0" class="institutions-section">
-    <div class="flex items-center justify-between mb-6">
-      <div class="flex items-center gap-3">
-        <span class="text-sm font-medium text-gray-700">Group by Parent</span>
-        <button
-          class="relative w-14 h-7 rounded-full transition-colors duration-200 border-none cursor-pointer"
-          :class="groupByParent ? 'bg-blue-600' : 'bg-gray-300'"
-          @click="groupByParent = !groupByParent"
-          title="Toggle grouping"
-        >
-          <span
-            class="absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200"
-            :class="groupByParent ? 'translate-x-7' : 'translate-x-0'"
-          />
-        </button>
-      </div>
-    </div>
-
     <div class="overflow-x-auto border border-gray-200 rounded-lg">
       <table class="w-full">
         <thead class="border-b-2 border-gray-200 bg-gray-50">
@@ -201,13 +184,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import type { Institution, PortfolioItem } from '@/models/WealthTrackDataModels';
 import { Icons } from '@/constants/icons';
 
 const props = defineProps<{
   institutions: Institution[];
   portfolioItems: PortfolioItem[];
+  groupByParent: boolean;
 }>();
 
 const DEPOSIT_INSURANCE_LIMIT = 125000;
@@ -218,7 +202,6 @@ const emit = defineEmits<{
   manageCredentials: [institution: Institution];
 }>();
 
-const groupByParent = ref(true);
 
 const getCapacity = (balance: number): number => {
   return DEPOSIT_INSURANCE_LIMIT - balance;

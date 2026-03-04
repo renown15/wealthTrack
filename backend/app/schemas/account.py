@@ -49,6 +49,9 @@ class AccountCreate(BaseSchema):
     purchase_price: Optional[str] = Field(
         None, max_length=255, description="Purchase price in pence"
     )
+    pension_monthly_payment: Optional[str] = Field(
+        None, max_length=255, description="Monthly pension payment amount"
+    )
 
 
 class AccountUpdate(BaseSchema):
@@ -90,6 +93,9 @@ class AccountUpdate(BaseSchema):
     purchase_price: Optional[str] = Field(
         None, max_length=255, description="Purchase price in pence"
     )
+    pension_monthly_payment: Optional[str] = Field(
+        None, max_length=255, description="Monthly pension payment amount"
+    )
 
 
 class AccountResponse(BaseSchema):
@@ -112,6 +118,7 @@ class AccountResponse(BaseSchema):
     underlying: Optional[str] = None
     price: Optional[str] = None
     purchase_price: Optional[str] = None
+    pension_monthly_payment: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

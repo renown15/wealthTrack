@@ -41,7 +41,7 @@ export function usePortfolio(): PortfolioComposableReturn {
   const loadPortfolio = async (): Promise<void> => {
     state.error = null;
 
-    const itemsWork = (async () => {
+    const itemsWork = (async (): Promise<void> => {
       state.itemsLoading = true;
       try {
         const portfolioData = await apiService.getPortfolio();
@@ -53,7 +53,7 @@ export function usePortfolio(): PortfolioComposableReturn {
       }
     })();
 
-    const institutionsWork = (async () => {
+    const institutionsWork = (async (): Promise<void> => {
       state.institutionsLoading = true;
       try {
         const institutionsData = await apiService.getInstitutions();

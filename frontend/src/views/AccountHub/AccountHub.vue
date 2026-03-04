@@ -2,10 +2,10 @@
   <div class="page-view">
     <div class="hub-header-card">
       <AccountHubStats
-        :total-value="totalValue" :account-count="accountCount"
+        :total-value="totalValue"
         :cash-at-hand="cashAtHand" :isa-savings="isaSavings" :illiquid="illiquid" :trust-assets="trustAssets"
-        :institution-count="institutionCount" :event-count="eventCount"
         :projected-annual-yield="projectedAnnualYield"
+        :pension-breakdown="pensionBreakdown"
         @create-account="openCreateAccountModal" @create-institution="openCreateInstitutionModal"
         @create-account-group="openCreateAccountGroupModal"
       />
@@ -22,7 +22,7 @@
         <p class="mt-4 text-muted">Loading portfolio...</p>
       </div>
     </div>
-    <div v-else-if="accountCount === 0" class="hub-content-card p-8">
+    <div v-else-if="state.items.length === 0" class="hub-content-card p-8">
       <div class="text-center">
         <div class="empty-icon">📊</div>
         <h2 class="empty-title">No accounts yet</h2>
@@ -32,11 +32,27 @@
     </div>
     <div v-else class="hub-content-card p-6">
       <div class="flex items-center justify-between mb-6">
-        <h3 class="section-title">Portfolio (Grouped)</h3>
-        <button class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white border-none rounded text-sm font-medium cursor-pointer transition-colors hover:bg-blue-600 active:bg-blue-700" @click="exportToExcel" title="Export accounts to Excel">
-          <span class="export-icon">⬇</span>
-          <span class="export-text">Excel</span>
-        </button>
+        <h3 class="section-title">Portfolio</h3>
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-3">
+            <span class="text-sm font-medium text-gray-700">Grouped</span>
+            <button
+              class="relative w-10 h-5 rounded-full transition-colors duration-200 border-none cursor-pointer"
+              :class="grouped ? 'bg-blue-600' : 'bg-gray-300'"
+              @click="grouped = !grouped"
+              title="Toggle grouping"
+            >
+              <span
+                class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200"
+                :class="grouped ? 'translate-x-5' : 'translate-x-0'"
+              />
+            </button>
+          </div>
+          <button class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white border-none rounded text-sm font-medium cursor-pointer transition-colors hover:bg-blue-600 active:bg-blue-700" @click="exportToExcel" title="Export accounts to Excel">
+            <span class="export-icon">⬇</span>
+            <span class="export-text">Excel</span>
+          </button>
+        </div>
       </div>
       <div class="table-wrap">
         <PortfolioTable
@@ -44,6 +60,7 @@
           :groups="accountGroupsState.groups"
           :group-members="groupMembersMap"
           :account-types="accountTypes"
+          :grouped="grouped"
           @edit-account="openEditAccountModal"
           @delete-account="(account) => openDeleteConfirm('account', account.id, account.name)"
           @show-events="openEventsModal"
@@ -54,7 +71,23 @@
       </div>
     </div>
     <div v-if="state.institutionsLoading || state.institutions.length > 0" class="hub-content-card p-6">
-      <h3 class="section-title">Institutions</h3>
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="section-title">Institutions</h3>
+        <div class="flex items-center gap-3">
+          <span class="text-sm font-medium text-gray-700">Group by Parent</span>
+          <button
+            class="relative w-10 h-5 rounded-full transition-colors duration-200 border-none cursor-pointer"
+            :class="groupByParent ? 'bg-blue-600' : 'bg-gray-300'"
+            @click="groupByParent = !groupByParent"
+            title="Toggle grouping"
+          >
+            <span
+              class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200"
+              :class="groupByParent ? 'translate-x-5' : 'translate-x-0'"
+            />
+          </button>
+        </div>
+      </div>
       <div v-if="state.institutionsLoading" class="loading-state py-8">
         <div class="flex flex-col items-center">
           <div class="spinner"></div>
@@ -63,7 +96,7 @@
       </div>
       <InstitutionsList
         v-else
-        :institutions="state.institutions" :portfolio-items="state.items"
+        :institutions="state.institutions" :portfolio-items="state.items" :group-by-parent="groupByParent"
         @edit-institution="openEditInstitutionModal"
         @delete-institution="(id, name) => openDeleteConfirm('institution', id, name)"
         @manage-credentials="openCredentialsModal"
@@ -104,6 +137,7 @@
       :initial-underlying="initialModalUnderlying"
       :initial-price="initialModalPrice"
       :initial-purchase-price="initialModalPurchasePrice"
+      :initial-pension-monthly-payment="initialModalPensionMonthlyPayment"
       :error="state.error"
       @close="closeAccountModal" @save="handleAccountSave"
     />
@@ -142,6 +176,8 @@ import { debug } from '@/utils/debug';
 import { useAccountCrudHandlers } from '@/composables/useAccountCrudHandlers';
 import { useInstitutionCrudHandlers } from '@/composables/useInstitutionCrudHandlers';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
+import { calculatePensionValue } from '@composables/portfolioCalculations';
+import type { PensionBreakdown } from '@composables/portfolioCalculations';
 
 import AccountHubStats from '@views/AccountHub/AccountHubStats.vue';
 import PortfolioTable from '@views/AccountHub/PortfolioTable.vue';
@@ -156,8 +192,17 @@ import InstitutionCredentialsModal from '@views/AccountHub/InstitutionCredential
 import { apiService } from '@/services/ApiService';
 import { exportAccountsToExcel } from '@/utils/exportToExcel';
 
-const { state, totalValue, accountCount, institutionCount, eventCount, cashAtHand, isaSavings, illiquid, trustAssets, projectedAnnualYield, loadPortfolio, clearError } = usePortfolio();
+const { state, totalValue, cashAtHand, isaSavings, illiquid, trustAssets, projectedAnnualYield, loadPortfolio, clearError } = usePortfolio();
 const { state: accountGroupsState, loadGroups, createGroup, updateGroup, deleteGroup, saveGroupMembers } = useAccountGroups();
+const grouped = ref(true);
+const groupByParent = ref(true);
+
+const lifeExpectancy = ref(36);
+const annuityRate = ref(0.075);
+
+const pensionBreakdown = computed<PensionBreakdown>(() =>
+  calculatePensionValue(state.items, lifeExpectancy.value, annuityRate.value)
+);
 
 onMounted(() => {
   void loadPortfolio();
@@ -167,11 +212,15 @@ onMounted(() => {
     apiService.getReferenceData('account_status'),
     apiService.getReferenceData('institution_type'),
     apiService.getReferenceData('credential_type'),
-  ]).then(([types, statuses, institutionTypesData, credentialTypesData]) => {
+    apiService.getReferenceData('life_expectancy'),
+    apiService.getReferenceData('annuity_assumption_rate'),
+  ]).then(([types, statuses, institutionTypesData, credentialTypesData, lifeExpData, annuityData]) => {
     accountTypes.value = types;
     accountStatuses.value = statuses;
     institutionTypes.value = institutionTypesData;
     credentialTypes.value = credentialTypesData;
+    if (lifeExpData[0]?.referenceValue) lifeExpectancy.value = parseFloat(lifeExpData[0].referenceValue);
+    if (annuityData[0]?.referenceValue) annuityRate.value = parseFloat(annuityData[0].referenceValue);
   });
 });
 
@@ -271,6 +320,9 @@ const initialModalPrice = computed(() =>
 const initialModalPurchasePrice = computed(() =>
   editingItem.value && 'purchasePrice' in editingItem.value
     ? (editingItem.value as Account).purchasePrice : null);
+const initialModalPensionMonthlyPayment = computed(() =>
+  editingItem.value && 'pensionMonthlyPayment' in editingItem.value
+    ? (editingItem.value as Account).pensionMonthlyPayment : null);
 const initialModalParentId = computed(() =>
   editingItem.value && 'parentId' in editingItem.value
     ? (editingItem.value as Institution).parentId : null);
@@ -446,9 +498,6 @@ const handleConfirmDelete = async (): Promise<void> => {
   closeDeleteConfirm();
 };
 
-const handleShowEvents = async (accountId: number, accountName: string): Promise<void> => {
-  await openEventsModal(accountId, accountName);
-};
 
 const handleUpdateBalance = async (accountId: number, value: string): Promise<void> => {
   try {

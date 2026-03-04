@@ -15,6 +15,7 @@ ATTRIBUTE_FIELDS = [
     "underlying",
     "price",
     "purchase_price",
+    "pension_monthly_payment",
 ]
 
 

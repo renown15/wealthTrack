@@ -69,6 +69,14 @@ def upgrade() -> None:
     # Drop old reference_data table
     op.drop_table("reference_data")
 
+    # Reset sequence so subsequent INSERT without explicit id uses the correct next value
+    op.execute(
+        "SELECT setval("
+        "pg_get_serial_sequence('\"ReferenceData\"', 'id'), "
+        "(SELECT MAX(id) FROM \"ReferenceData\")"
+        ")"
+    )
+
     # Step 2: Rename all other tables
     op.rename_table("user_profile", "UserProfile")
     op.rename_table("users", "User")

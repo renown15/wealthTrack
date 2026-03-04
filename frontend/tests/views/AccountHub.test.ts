@@ -65,7 +65,8 @@ type PortfolioMockOverrides = Partial<Omit<PortfolioMock, 'state'>> & {
 
 const createUsePortfolioMock = (overrides: PortfolioMockOverrides = {}): PortfolioMock => {
   const state: PortfolioState = {
-    loading: false,
+    itemsLoading: false,
+    institutionsLoading: false,
     error: null,
     items: [],
     institutions: [],
@@ -138,7 +139,7 @@ describe('AccountHub', () => {
 
   it('renders loading state initially', async () => {
     const { wrapper } = await mountAccountHub(
-      createUsePortfolioMock({ state: { loading: true } }),
+      createUsePortfolioMock({ state: { itemsLoading: true } }),
     );
 
     expect(wrapper.text()).toContain('Loading portfolio');

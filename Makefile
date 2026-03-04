@@ -65,9 +65,29 @@ docker-down:
 	docker-compose --env-file .env.dev -f docker-compose.yml down
 
 seed-db:
-	@echo "Seeding database with reference data (User and SuperUser types)..."
-	DB_HOST=localhost DB_PORT=5433 DB_USER=wealthtrack DB_PASSWORD=wealthtrack_dev_password DB_NAME=wealthtrack python scripts/seed-db.py
-	@echo "✅ Database seeded with User/SuperUser types and reference data"
+	@echo "Seeding database with all reference data..."
+	@cd backend && source venv/bin/activate && cd .. && python scripts/seed-db.py
+	@echo "✅ Reference data seeded"
+
+ICLOUD_BACKUP_DIR = /Users/marklewis/Library/Mobile Documents/com~apple~CloudDocs/dev/wealthtrack-backups
+
+backup-db:
+	@mkdir -p "$(ICLOUD_BACKUP_DIR)"
+	@BACKUP_FILE="$(ICLOUD_BACKUP_DIR)/wealthtrack_$$(date +%Y-%m-%d_%H%M%S).dump"; \
+	pg_dump postgresql://postgres:postgres_password@localhost:5433/wealthtrack \
+		--no-owner --no-acl -F c -f "$$BACKUP_FILE" && \
+	echo "✅ Backup saved to $$BACKUP_FILE" && \
+	ls -lh "$(ICLOUD_BACKUP_DIR)" | tail -5
+
+restore-db:
+	@LATEST=$$(ls -t "$(ICLOUD_BACKUP_DIR)"/wealthtrack_*.dump 2>/dev/null | head -1); \
+	if [ -z "$$LATEST" ]; then echo "❌ No backup files found in $(ICLOUD_BACKUP_DIR)"; exit 1; fi; \
+	echo "Restoring from $$LATEST ..."; \
+	psql postgresql://postgres:postgres_password@localhost:5433/wealthtrack \
+		-c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO postgres; GRANT ALL ON SCHEMA public TO wealthtrack;' && \
+	pg_restore postgresql://postgres:postgres_password@localhost:5433/wealthtrack \
+		--no-owner --no-acl -F c "$$LATEST" && \
+	echo "✅ Restored from $$LATEST"
 
 
 # Development Servers
@@ -269,9 +289,50 @@ clean:
 	find . -type d -name coverage -exec rm -rf {} + 2>/dev/null || true
 	@echo "✅ Cleanup complete!"
 
-pr-check: check-db lint type-check test-backend test-frontend build-frontend check-backend
-	@echo ""
-	@echo "✅ All PR checks passed! Ready to create a pull request."
+PR_TEST_DB_URL=postgresql+asyncpg://postgres:test_postgres_password@localhost:5434/wealthtrack
+
+pr-check:
+	@bash -c ' \
+		set -e; \
+		trap "docker-compose --env-file .env.test --profile test down 2>/dev/null; docker volume rm wealthtrack_wealthtrack_test_pgdata 2>/dev/null || true" EXIT; \
+		echo ""; \
+		echo "╔════════════════════════════════════════════╗"; \
+		echo "║  PR CHECK - Isolated Test Environment      ║"; \
+		echo "╚════════════════════════════════════════════╝"; \
+		echo ""; \
+		echo "[1/6] Starting isolated test database (port 5434)..."; \
+		docker-compose --env-file .env.test --profile test up -d db; \
+		RETRY=30; \
+		while [ $$RETRY -gt 0 ]; do \
+			if pg_isready -h localhost -p 5434 -U postgres >/dev/null 2>&1; then \
+				echo "   ✅ Test database ready"; break; \
+			fi; \
+			RETRY=$$((RETRY-1)); sleep 1; \
+		done; \
+		[ $$RETRY -gt 0 ] || (echo "   ❌ Test database failed to start"; exit 1); \
+		echo ""; \
+		echo "[2/6] Running migrations and seeding test database..."; \
+		(cd backend && DATABASE_URL=$(PR_TEST_DB_URL) alembic upgrade head); \
+		DATABASE_URL=$(PR_TEST_DB_URL) python scripts/seed-db.py; \
+		echo "   ✅ Migrations applied and reference data seeded"; \
+		echo ""; \
+		echo "[3/6] Linting and type checking..."; \
+		$(MAKE) lint type-check; \
+		echo ""; \
+		echo "[4/6] Running backend tests against test database..."; \
+		(cd backend && DATABASE_URL=$(PR_TEST_DB_URL) python -m pytest --cov=app --cov-report=term); \
+		echo ""; \
+		echo "[5/6] Running frontend tests..."; \
+		(cd frontend && npm run test:coverage); \
+		echo ""; \
+		echo "[6/6] Building frontend..."; \
+		$(MAKE) build-frontend; \
+		echo ""; \
+		echo "╔════════════════════════════════════════════╗"; \
+		echo "║  ✅ All PR checks passed!                  ║"; \
+		echo "╚════════════════════════════════════════════╝"; \
+		echo ""; \
+	'
 
 # CI/CD Simulation (simulate what GitHub Actions will do)
 ci-backend:

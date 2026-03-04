@@ -221,6 +221,7 @@ vi.mock('@/services/ApiService', () => ({
 const resetMocks = (): void => {
   vi.clearAllMocks();
   mockPortfolioInstance = createMockPortfolio();
+  vi.mocked(apiService.getReferenceData).mockResolvedValue([]);
   vi.mocked(apiService.getAccountEvents).mockReset();
 };
 

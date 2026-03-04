@@ -32,8 +32,8 @@ describe('ValidationService - Form Validation', () => {
       expect(result.errors.email).toContain('Invalid email');
     });
 
-    it('should reject form with weak password', () => {
-      const data = { email: 'test@example.com', firstName: 'Test', lastName: 'User', password: 'weak' };
+    it('should reject form with missing password', () => {
+      const data = { email: 'test@example.com', firstName: 'Test', lastName: 'User', password: '' };
       const result = ValidationService.validateRegistrationForm(data);
       expect(result.isValid).toBe(false);
       expect(result.errors.password).toBeDefined();
@@ -54,7 +54,7 @@ describe('ValidationService - Form Validation', () => {
     });
 
     it('should validate all required fields', () => {
-      const data = { email: 'invalid', firstName: '', lastName: '', password: 'weak' };
+      const data = { email: 'invalid', firstName: '', lastName: '', password: '' };
       const result = ValidationService.validateRegistrationForm(data);
       expect(result.isValid).toBe(false);
       expect(Object.keys(result.errors).length).toBeGreaterThan(1);

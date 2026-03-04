@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ruff format app/services/reference_data.py)",
+      "Bash(ruff check app/)"
+    ]
+  }
+}

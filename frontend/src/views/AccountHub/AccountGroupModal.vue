@@ -40,10 +40,15 @@
               type="button"
               role="switch"
               :aria-checked="hideGrouped"
-              class="toggle-switch"
-              :class="hideGrouped ? 'toggle-switch--on' : 'toggle-switch--off'"
+              class="relative w-9 h-5 rounded-[10px] border-none cursor-pointer transition-colors duration-200 flex-shrink-0"
+              :class="hideGrouped ? 'bg-blue-500' : 'bg-slate-300'"
               @click="hideGrouped = !hideGrouped"
-            />
+            >
+              <span
+                class="absolute top-[3px] w-3.5 h-3.5 bg-white rounded-full transition-all duration-200"
+                :class="hideGrouped ? 'left-[19px]' : 'left-[3px]'"
+              />
+            </button>
           </label>
           <span v-if="selectedAccountIds.size > 0" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-600 bg-blue-100 text-blue-700">
             {{ selectedAccountIds.size }} selected
@@ -293,37 +298,4 @@ const handleDelete = () => {
 const handleClose = () => emit('close');
 </script>
 
-<style scoped>
-.toggle-switch {
-  position: relative;
-  width: 36px;
-  height: 20px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  flex-shrink: 0;
-}
-.toggle-switch::after {
-  content: '';
-  position: absolute;
-  top: 3px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: white;
-  transition: left 0.2s;
-}
-.toggle-switch--on {
-  background-color: #3b82f6;
-}
-.toggle-switch--on::after {
-  left: 19px;
-}
-.toggle-switch--off {
-  background-color: #cbd5e1;
-}
-.toggle-switch--off::after {
-  left: 3px;
-}
-</style>
+<!-- Uses UnoCSS utilities -->

@@ -8,7 +8,7 @@ from app.controllers.dependencies import get_current_user
 from app.database import get_db
 from app.models.user_profile import UserProfile
 from app.repositories.analytics_repository import AnalyticsRepository
-from app.schemas.analytics import PortfolioBreakdown, PortfolioHistory
+from app.schemas.analytics import HistoryPoint, PortfolioBreakdown, PortfolioHistory
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
 
@@ -36,4 +36,4 @@ async def get_portfolio_history(
     """
     repo = AnalyticsRepository(session)
     history = await repo.get_portfolio_history(current_user.id)
-    return PortfolioHistory(history=history)
+    return PortfolioHistory(history=[HistoryPoint(**p) for p in history])

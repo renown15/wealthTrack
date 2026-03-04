@@ -42,19 +42,12 @@
         <p class="stat-value">{{ formatCurrency(trustAssets) }}</p>
       </article>
 
-      <article class="stat-card">
-        <p class="stat-label">Accounts</p>
-        <p class="stat-value">{{ accountCount }}</p>
-      </article>
-
-      <article class="stat-card">
-        <p class="stat-label">Institutions</p>
-        <p class="stat-value">{{ institutionCount }}</p>
-      </article>
-
-      <article class="stat-card">
-        <p class="stat-label">Events</p>
-        <p class="stat-value">{{ eventCount }}</p>
+      <article class="stat-card" :title="getPensionTooltip()">
+        <p class="stat-label">
+          Pension Value
+          <span class="info-icon" style="cursor: help;">{{ Icons.info }}</span>
+        </p>
+        <p class="stat-value">{{ formatCurrency(pensionBreakdown.total) }}</p>
       </article>
 
       <article class="stat-card" title="Projected annual yield based on interest rates applied to current balances. Bonus rates are included while active.">
@@ -70,17 +63,16 @@
 
 <script setup lang="ts">
 import { Icons } from '@/constants/icons';
+import type { PensionBreakdown } from '@composables/portfolioCalculations';
 
 const props = defineProps<{
   totalValue: number;
-  accountCount: number;
-  institutionCount: number;
-  eventCount: number;
   cashAtHand: number;
   isaSavings: number;
   illiquid: number;
   trustAssets: number;
   projectedAnnualYield: number;
+  pensionBreakdown: PensionBreakdown;
 }>();
 
 const emit = defineEmits<{
@@ -101,20 +93,48 @@ const getTotalValueTooltip = (): string => {
     `Cash at Hand: ${formatCurrency(props.cashAtHand)}`,
     `ISA Savings: ${formatCurrency(props.isaSavings)}`,
     `Illiquid: ${formatCurrency(props.illiquid)}`,
+    `Trust Assets: ${formatCurrency(props.trustAssets)}`,
+    `Pension Value: ${formatCurrency(props.pensionBreakdown.total)}`,
     ``,
     `Total: ${formatCurrency(props.totalValue)}`,
   ];
   return breakdown.join('\n');
 };
 
-const getTrustAssetsTooltip = (): string => {
-  const breakdown = [
-    `Trust Bank Account: ${formatCurrency(props.cashAtHand)}`,
-    `Trust Stocks Investment: ${formatCurrency(props.isaSavings)}`,
-    ``,
-    `Total Trust Assets: ${formatCurrency(props.trustAssets)}`,
-  ];
-  return breakdown.join('\n');
+const getPensionTooltip = (): string => {
+  const { accounts, lifeExpectancy, annuityRate, dcTotal, dbTotal, total } = props.pensionBreakdown;
+
+  if (accounts.length === 0) return 'No pension accounts found.';
+
+  const lines: string[] = [];
+
+  const dcAccounts = accounts.filter(a => a.type === 'DC');
+  const dbAccounts = accounts.filter(a => a.type === 'DB');
+
+  if (dcAccounts.length > 0) {
+    lines.push('DC Pensions (current balance):');
+    for (const a of dcAccounts) {
+      lines.push(`  ${a.name} (${a.institution}): ${formatCurrency(a.value)}`);
+    }
+    lines.push(`  DC Total: ${formatCurrency(dcTotal)}`);
+    lines.push('');
+  }
+
+  if (dbAccounts.length > 0) {
+    const ratePercent = (annuityRate * 100).toFixed(1);
+    lines.push('DB Pensions (capitalised value):');
+    lines.push(`  Formula: monthly × 12 × (1 − (1+r)⁻ⁿ) / r`);
+    lines.push(`  where r = ${ratePercent}% annuity rate, n = ${lifeExpectancy} yrs life expectancy`);
+    lines.push('');
+    for (const a of dbAccounts) {
+      lines.push(`  ${a.name} (${a.institution}): £${a.monthlyPayment?.toFixed(2)}/mo → ${formatCurrency(a.value)}`);
+    }
+    lines.push(`  DB Total: ${formatCurrency(dbTotal)}`);
+    lines.push('');
+  }
+
+  lines.push(`Total Pension Value: ${formatCurrency(total)}`);
+  return lines.join('\n');
 };
 
 const emitCreateAccount = (): void => {
