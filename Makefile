@@ -16,7 +16,7 @@ help:
 	@echo "Development:"
 	@echo "  make backend-dev        - Start backend development server"
 	@echo "  make frontend-dev       - Start frontend development server"
-	@echo "  make dev                - Start both backend and frontend (requires 2 terminals)"
+	@echo "  make dev                - Start all services in background (DB + backend + frontend)"
 	@echo ""
 	@echo "Testing:"
 	@echo "  make test               - Run all tests (includes backend startup)"
@@ -106,14 +106,7 @@ frontend-dev:
 	cd frontend && npm run dev
 
 dev:
-	@echo "To run both servers, open two terminals:"
-	@echo ""
-	@echo "Terminal 1 (Backend):"
-	@echo "  make backend-dev"
-	@echo ""
-	@echo "Terminal 2 (Frontend):"
-	@echo "  make frontend-dev"
-	@echo ""
+	@bash scripts/dev.sh
 
 # Testing
 test: check-db test-backend test-frontend

@@ -1,168 +1,144 @@
-# WealthTrack Project Rules & Status
+# WealthTrack Project Rules
 
-## 🔒 CRITICAL PROJECT RULES
+## Non-Negotiable Rules
 
-These rules are non-negotiable and must be followed throughout the entire project lifecycle.
+### 1. Test Coverage
 
-### 1. Test Coverage Requirement
-- **Minimum 90% code coverage ALWAYS**
-- Coverage is enforced via `pytest.ini`: `--cov-fail-under=90`
-- **Cannot be lowered, negotiated, or bypassed** under any circumstances
-- This is measured across the entire codebase
-- Every change must maintain or improve coverage
+| Layer | Threshold | Enforced via |
+|-------|-----------|--------------|
+| Backend | ≥80% overall | `pytest --cov-fail-under=80` |
+| Frontend statements | ≥70% | `vitest.config.ts` thresholds |
+| Frontend branches | ≥70% | `vitest.config.ts` thresholds |
+| Frontend lines | ≥70% | `vitest.config.ts` thresholds |
+| Frontend functions | ≥55% | `vitest.config.ts` thresholds |
 
-### 2. File Preservation Policy  
-- **NO FILES SHALL BE DELETED** without explicit user approval in chat
-- All proposed file deletions must be requested and confirmed before execution
-- Applies to ALL files: test files, source code, configuration, documentation
-- Violations of this rule have critical downstream impact
+All thresholds are hard failures in `make pr-check`. Do not lower them.
+
+### 2. File Preservation
+
+No files may be deleted without explicit user approval in chat.
+Applies to test files, source code, config, documentation — everything.
 
 ### 3. Maximum File Size
-- No Python or TypeScript/JavaScript file exceeds 200 lines
-- Enforced via automated test: `test_file_constraints.py`
-- Applies to ALL files in the project
-- Long files must be split into smaller modules
 
-## 📊 Current Coverage Status
+No Python or TypeScript/JavaScript file may exceed 200 lines.
+Enforced by `backend/tests/test_file_constraints.py`.
+Split long files into smaller modules.
 
-**Overall Coverage: 91.39%** ✅ (Target: 90%)
+### 4. No Scoped CSS Blocks
 
-### Module Breakdown
-| Module | Coverage | Status |
-|--------|----------|--------|
-| `app/config.py` | 100% | ✅ |
-| `app/services/auth.py` | 100% | ✅ |
-| `app/services/user.py` | 98% | ✅ |
-| `app/controllers/auth.py` | 71% | ⚠️ |
-| `app/controllers/dependencies.py` | 100% | ✅ |
-| `app/database.py` | 100% | ✅ |
-| `app/main.py` | 82% | ✅ |
-| `app/models/` | 94-95% | ✅ |
-| `app/schemas/user.py` | 90% | ✅ |
+Vue components must not contain `<style scoped>` blocks.
+All styles use UnoCSS utilities or shortcuts.
+Enforced by `frontend/tests/no-scoped-styles.test.ts`.
 
-### Test Summary
-- **Total Tests**: 34
-- **Passing**: 34 (100%)
-- **Failed**: 0
+## Development Workflow
 
-### Test Files
-1. `test_auth_controller.py` - 10 tests (API endpoint coverage)
-2. `test_auth_service.py` - 5 tests (Auth service logic)
-3. `test_auth_integration.py` - 4 tests (Error path testing)
-4. `test_user_service.py` - 9 tests (User CRUD operations)
-5. `test_database.py` - 2 tests (Database session handling)
-6. `test_file_constraints.py` - 2 tests (File size enforcement)
-7. `test_main_routes.py` - 2 tests (Root/health endpoints)
-
-## 📋 Coverage Strategy
-
-### High Coverage Modules (>95%)
-- **Auth Service** (100%): All password hashing and JWT token logic tested
-- **Services/Models** (92-98%): Core business logic well-tested
-- **Dependencies** (100%): Authentication dependency injection fully tested
-
-### Acceptable Lower Coverage Areas
-- **Controller error paths** (71%): Some edge cases in HTTPException handling remain
-- **Main startup** (82%): Some lifespan events not exercised (require special fixtures)
-
-## 🚀 Development Guidelines
-
-### When Adding Features
-1. Write tests FIRST (TDD approach)
-2. Ensure new code brings total coverage to ≥90%
-3. Never commit code that drops coverage below 90%
-4. Run `./scripts/dev.sh` to start environment and run tests
-
-### When Modifying Code
-1. Run full test suite: `python -m pytest tests/ --cov=app --cov-fail-under=90`
-2. All existing tests must still pass
-3. Coverage must remain ≥90%
-4. Document any untestable code paths with comments
-
-### File Organization
-- Keep all files ≤200 lines (enforced)
-- Split large files into smaller modules
-- Use clear naming for test files: `test_<module>.py`
-- Place tests in `tests/` directory
-
-## 🛠️ Running Tests
+### First-Time Setup
 
 ```bash
-# Full test run with coverage report
-python -m pytest tests/ --cov=app --cov-report=html --cov-fail-under=90
-
-# Run specific test file
-python -m pytest tests/test_auth_service.py -v
-
-# Run with detailed output
-python -m pytest tests/ -v --tb=short
-
-# Generate HTML coverage report
-python -m pytest tests/ --cov=app --cov-report=html
-# Open htmlcov/index.html to view detailed coverage
+cp .env.dev.example .env.dev   # create local env config
+make setup                      # install deps, create backend/.env, migrate, seed
 ```
 
-## 🐛 Frontend Debug Logging
+### Daily Development
 
-### Debug Utility
-All debug/diagnostic logging must go through the centralized `debug` utility at `frontend/src/utils/debug.ts`.
+```bash
+make dev        # start DB + backend (port 8000) + frontend (port 3001) in background
+make dev-down   # stop all background services
+```
 
-**Usage:**
+Or start services individually:
+```bash
+make backend-dev   # FastAPI with hot-reload at http://localhost:8000
+make frontend-dev  # Vite dev server at http://localhost:3001
+```
+
+### Before Every PR
+
+```bash
+make pr-check
+```
+
+This runs 6 steps against an isolated test database (port 5434):
+1. Start test DB container
+2. Run migrations + seed reference data
+3. Lint and type-check (ruff + pylint + mypy + ESLint + tsc)
+4. Backend tests with coverage (≥80%)
+5. Frontend tests with coverage (all thresholds)
+6. Frontend production build
+
+All 6 steps must pass. This is the gate.
+
+### Other Commands
+
+```bash
+make lint          # ruff + pylint + ESLint
+make type-check    # mypy + tsc
+make format        # ruff + prettier
+make lint-fix      # auto-fix lint issues
+make migrate       # apply Alembic migrations
+make seed-db       # seed reference data
+make test-backend  # backend tests only
+make test-frontend # frontend tests only
+make test-watch    # frontend watch mode
+```
+
+## Current Test Counts (approximate)
+
+- Backend: ~360 tests across all features
+- Frontend: ~650 tests across ~66 test files
+
+## Code Conventions
+
+### Frontend Debug Logging
+
+All debug/diagnostic logging must use the centralized utility at `frontend/src/utils/debug.ts`.
+
 ```typescript
 import { debug } from '@utils/debug';
 
-debug.log('[Category] Message', data);   // Respects debug mode
-debug.error('[Category] Error', error);  // Error logging
-debug.warn('[Category] Warning', data);  // Warning logging
-debug.info('[Category] Info', data);     // Info logging
+debug.log('[Category] Message', data);
+debug.error('[Category] Error', error);
+debug.warn('[Category] Warning', data);
 ```
 
-**Control:**
-- **Dev mode**: Debug enabled by default (controlled by `import.meta.env.DEV`)
-- **Production**: Debug disabled by default
-- **Override**: `localStorage.setItem('debugMode', 'true')` or `'false'` to override
+Direct `console.debug/warn/error` calls in source code are forbidden (ESLint `no-console` rule).
 
-**Rule:** Direct `console.debug()`, `console.error()`, `console.warn()` calls are forbidden outside the debug utility. Use ESLint rule to enforce.
+- Dev mode: debug enabled by default via `import.meta.env.DEV`
+- Production: debug disabled by default
+- Runtime override: `localStorage.setItem('debugMode', 'true')`
 
-**Rationale:**
-- Single control point for debug output
-- Easy toggle between dev and production logging
-- Consistent logging format across frontend
-- Browser localStorage allows runtime control without code changes
+### Frontend Composables
 
-## ✅ Verification Checklist
+Business logic lives in composables under `frontend/src/composables/`.
+Components should be thin wrappers around composable state and handlers.
+Never put complex logic directly in `<script setup>` blocks.
 
-Before submitting any changes:
-- [ ] All tests pass: `pytest tests/ -v`
-- [ ] Coverage ≥90%: `pytest tests/ --cov=app --cov-fail-under=90`
-- [ ] No files exceed 200 lines: `pytest tests/test_file_constraints.py -v`
-- [ ] No files were deleted without approval
-- [ ] Git status shows only intended changes
-- [ ] All debug logging uses `debug` utility, not direct `console` calls
+### Backend Services
 
-## 📝 Historical Notes
+Services in `backend/app/services/` contain business logic.
+Controllers/handlers in `backend/app/controllers/` are thin wrappers.
+Repositories in `backend/app/repositories/` handle DB access.
 
-**90% Coverage Achieved**: Session where this requirement was established and met
-- Started at 83.15% coverage
-- Added 34 comprehensive tests
-- Implemented database.py tests to push over threshold
-- Final: 91.39% coverage with all 34 tests passing
+## Config: `.env.dev` as Single Source of Truth
 
-**Critical Incident**: Agent deleted `test_auth_integration.py` without user approval
-- This violated the file preservation rule
-- Rule was subsequently emphasized as non-negotiable
-- Documentation updated to prevent future violations
+All dev config (ports, credentials) lives in `.env.dev`.
+Scripts read from it via `${VAR:-default}` — no hardcoded values in `.sh` files.
 
-**TypeScript Test File Size Violation (Known Technical Debt)**:
-- Some frontend test files exceed 200-line limit (ApiService.test.ts: 991 lines)
-- Created during initial schema fix session
-- **Action Required**: These files must be refactored into smaller modules
-- New files created respect the limit (debug.ts: 86 lines, debug.enforcement.test.ts: 60 lines)
+Key variables:
+```
+BACKEND_PORT=8000
+FRONTEND_PORT=3001
+DB_PORT=5433
+DB_USER=wealthtrack
+DB_PASSWORD=wealthtrack_dev_password
+DB_NAME=wealthtrack
+```
 
-**Debug Utility Implemented** (Session 2/5/2026):
-- Created centralized debug logging utility to replace direct console calls
-- Added ESLint rule enforcement: `no-console` rule forbids direct console usage
-- Added Vitest test to catch console calls in source code
-- All services updated to use debug utility instead of console.debug/error/warn
-- Documented in PROJECT_RULES.md under "Frontend Debug Logging" section
-- Full backward compatibility: localStorage override allows runtime debug toggle
+`.env.dev` is gitignored. `.env.dev.example` holds the template.
+
+## Project Status
+
+See `.planning/STATE.md` for current phase and progress.
+
+Current state: Phase 6/7 complete — v1 feature-complete (Household Sharing not yet built).

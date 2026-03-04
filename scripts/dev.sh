@@ -39,7 +39,7 @@ echo -e "${BLUE}1/3 Starting PostgreSQL database...${NC}"
 cd "$ROOT_DIR"
 docker compose up -d --force-recreate db > /dev/null 2>&1
 sleep 2
-echo -e "${GREEN}✓ Database running on port 5433${NC}"
+echo -e "${GREEN}✓ Database running on port ${DB_PORT:-5433}${NC}"
 echo ""
 
 # Terminate any existing backend before starting new one so ports are free
@@ -48,12 +48,17 @@ pkill -f "uvicorn app.main:app" >/dev/null 2>&1 || true
 # Start backend
 echo -e "${BLUE}2/3 Starting FastAPI backend...${NC}"
 cd "$ROOT_DIR/backend"
-export DATABASE_URL="postgresql+asyncpg://wealthtrack:wealthtrack_dev_password@localhost:5433/wealthtrack"
-export ENVIRONMENT="development"
-export SECRET_KEY="dev-secret-key-change-in-production"
-nohup python -m uvicorn app.main:app --reload --port 8001 > /tmp/backend.log 2>&1 &
+export DATABASE_URL="postgresql+asyncpg://${DB_USER:-wealthtrack}:${DB_PASSWORD:-wealthtrack_dev_password}@localhost:${DB_PORT:-5433}/${DB_NAME:-wealthtrack}"
+export ENVIRONMENT="${ENVIRONMENT:-development}"
+export SECRET_KEY="${SECRET_KEY:-dev-secret-key-change-in-production}"
+# Activate virtual environment if present
+if [ -f "$ROOT_DIR/backend/venv/bin/activate" ]; then
+    # shellcheck disable=SC1091
+    source "$ROOT_DIR/backend/venv/bin/activate"
+fi
+nohup python -m uvicorn app.main:app --reload --port "${BACKEND_PORT:-8000}" > /tmp/backend.log 2>&1 &
 BACKEND_PID=$!
-echo -e "${GREEN}✓ Backend running on http://localhost:8001${NC}"
+echo -e "${GREEN}✓ Backend running on http://localhost:${BACKEND_PORT:-8000}${NC}"
 echo "  (PID: $BACKEND_PID, logs: tail -f /tmp/backend.log)"
 echo ""
 
@@ -70,9 +75,14 @@ pkill -f "npm run dev" >/dev/null 2>&1 || true
 # Start frontend dev server
 echo -e "${BLUE}4/4 Starting Vite frontend dev server locally...${NC}"
 cd "$ROOT_DIR/frontend"
-VITE_API_URL="http://localhost:8001" nohup npm run dev -- --host 0.0.0.0 --port 3000 > /tmp/frontend.log 2>&1 &
+# Install dependencies if node_modules is missing
+if [ ! -d "node_modules" ]; then
+    echo "  Installing frontend dependencies..."
+    npm install --silent
+fi
+VITE_API_URL="${VITE_API_URL:-http://localhost:${BACKEND_PORT:-8000}}" nohup npm run dev -- --host 0.0.0.0 --port "${FRONTEND_PORT:-3001}" > /tmp/frontend.log 2>&1 &
 FRONTEND_PID=$!
-echo -e "${GREEN}✓ Frontend dev server running on http://localhost:3000${NC}"
+echo -e "${GREEN}✓ Frontend dev server running on http://localhost:${FRONTEND_PORT:-3001}${NC}"
 echo "  (PID: $FRONTEND_PID, logs: tail -f /tmp/frontend.log)"
 echo ""
 
@@ -84,9 +94,9 @@ echo -e "${GREEN}═════════════════════
 echo -e "${GREEN}Development environment ready!${NC}"
 echo ""
 echo "Services:"
-echo "  📊 Database:  localhost:5433 (PostgreSQL)"
-echo "  🔌 API:       http://localhost:8001 (FastAPI)"
-echo "  🎨 Frontend:  http://localhost:3000 (Vite)"
+echo "  📊 Database:  localhost:${DB_PORT:-5433} (PostgreSQL)"
+echo "  🔌 API:       http://localhost:${BACKEND_PORT:-8000} (FastAPI)"
+echo "  🎨 Frontend:  http://localhost:${FRONTEND_PORT:-3001} (Vite)"
 echo ""
 echo "View logs:"
 echo "  Backend:  tail -f /tmp/backend.log"
@@ -95,5 +105,5 @@ echo ""
 echo "To stop services:"
 echo "  kill $BACKEND_PID     # Stop backend"
 echo "  kill $FRONTEND_PID    # Stop frontend"
-echo "  docker-compose down   # Stop database"
+echo "  docker compose down   # Stop database"
 echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"

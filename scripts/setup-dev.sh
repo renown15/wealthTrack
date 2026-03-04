@@ -8,6 +8,18 @@ set -e
 # Get the root directory (parent of scripts/)
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# Load dev environment - this is the single source of truth for all config
+if [ -f "$ROOT_DIR/.env.dev" ]; then
+    set -a
+    # shellcheck disable=SC1090
+    source "$ROOT_DIR/.env.dev"
+    set +a
+else
+    echo "❌ .env.dev not found."
+    echo "   Copy the example first: cp .env.dev.example .env.dev"
+    exit 1
+fi
+
 echo "🚀 WealthTrack Development Environment Setup"
 echo "==========================================="
 echo ""
@@ -57,16 +69,20 @@ echo "Installing Python dependencies..."
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# Create .env file if it doesn't exist
+# Create .env file if it doesn't exist (derived from .env.dev variables)
 if [ ! -f ".env" ]; then
-    echo "Creating .env file..."
-    cat > .env << 'EOF'
-DATABASE_URL=postgresql+asyncpg://wealthtrack:wealthtrack@localhost:5432/wealthtrack
-SECRET_KEY=dev-secret-key-change-in-production
+    echo "Creating .env file from .env.dev..."
+    cat > .env << EOF
+DATABASE_URL=postgresql+asyncpg://${DB_USER:-wealthtrack}:${DB_PASSWORD:-wealthtrack_dev_password}@localhost:${DB_PORT:-5433}/${DB_NAME:-wealthtrack}
 ENVIRONMENT=development
-DEBUG=true
+SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+ALGORITHM=HS256
+API_V1_PREFIX=/api/v1
+FRONTEND_PORT=${FRONTEND_PORT:-3001}
+FRONTEND_HOST=localhost
 EOF
-    echo "✅ Created .env file (please update SECRET_KEY)"
+    echo "✅ Created .env file"
 else
     echo "✅ .env file already exists"
 fi
@@ -95,7 +111,7 @@ cd "$ROOT_DIR"
 
 if command -v docker &> /dev/null; then
     echo "Starting PostgreSQL container..."
-    docker-compose up -d db
+    docker compose --env-file "$ROOT_DIR/.env.dev" --profile dev up -d db
     
     # Wait for PostgreSQL to be ready
     echo "Waiting for PostgreSQL to be ready..."
