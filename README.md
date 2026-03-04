@@ -8,7 +8,7 @@ WealthTrack is a modern, scalable wealth management web application built with a
 ## 🏗️ Architecture
 
 - **Backend**: Python FastAPI with async PostgreSQL
-- **Frontend**: TypeScript MVC pattern with Vite
+- **Frontend**: Vue 3 SPA with TypeScript + Vite
 - **Database**: PostgreSQL 15
 - **Deployment**: Docker & Docker Compose
 - **CI/CD**: GitHub Actions
@@ -34,12 +34,12 @@ wealthtrack/
 │   └── ruff.toml           # Linting config
 ├── frontend/               # TypeScript frontend
 │   ├── src/
-│   │   ├── models/         # TypeScript models
-│   │   ├── views/          # UI views
-│   │   ├── controllers/    # View controllers
+│   │   ├── models/         # TypeScript interfaces & types
+│   │   ├── views/          # Vue components & view logic
+│   │   ├── composables/    # Reusable Vue composables
 │   │   ├── services/       # API & validation services
 │   │   ├── styles/         # CSS styles
-│   │   ├── router.ts       # Navigation router
+│   │   ├── router/         # Vue Router configuration
 │   │   └── index.ts        # Entry point
 │   ├── tests/              # Frontend tests
 │   ├── Dockerfile
@@ -58,19 +58,21 @@ wealthtrack/
 ## ✨ Features
 
 ### Implemented
-- ✅ User Registration with validation
-- ✅ User Authentication with JWT tokens
+- ✅ User registration & authentication (JWT)
 - ✅ Password hashing with bcrypt
-- ✅ Mobile-first responsive UI
-- ✅ Comprehensive test coverage (≥90%)
-- ✅ Type safety (mypy + TypeScript)
-- ✅ Automated CI/CD pipeline
+- ✅ Account Hub — institutions, accounts, portfolio table
+- ✅ Balance history (event-sourced, immutable events)
+- ✅ Financial analytics dashboard (charts, history, breakdown)
+- ✅ Encrypted credential vault (Fernet encryption)
+- ✅ Reference data management (account types, statuses, etc.)
+- ✅ Account groups & filtering
+- ✅ Mobile-responsive UI (UnoCSS utility classes)
+- ✅ Type safety (mypy + TypeScript strict)
+- ✅ Comprehensive test coverage (backend ≥80%, frontend ≥70%)
 - ✅ Docker containerization
 
 ### Planned
-- 🔄 Portfolio management
-- 🔄 Financial analytics dashboard
-- 🔄 Transaction tracking
+- 🔄 Household sharing (multi-user visibility)
 - 🔄 Real-time market data integration
 
 ## 🚀 Quick Start
@@ -213,7 +215,7 @@ pytest tests/test_user_service.py
 pytest --cov=app --cov-report=html
 ```
 
-**Coverage Requirements**: ≥90% for lines, functions, branches, and statements
+**Coverage Requirements**: ≥80% overall (enforced via pytest)
 
 ### Frontend Tests
 
@@ -276,7 +278,7 @@ The project includes a comprehensive CI/CD pipeline that runs on every push and 
 2. **Frontend Checks** (parallel jobs)
    - ESLint linting
    - TypeScript type checking
-   - Vitest with coverage (≥90%)
+   - Vitest with coverage (lines/statements/branches ≥70%, functions ≥55%)
 
 3. **Docker Build** (after checks pass)
    - Build backend image
@@ -348,27 +350,6 @@ docker-compose down
 - Change default secrets in production!
 - Set `ENCRYPTION_KEY` environment variable for credential encryption. Generate with: `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`
 
-## 📊 CI/CD Pipeline
-
-The GitHub Actions workflow automatically:
-
-1. **Lint** → Code style checks (Ruff, ESLint)
-2. **Type Check** → Static type analysis (mypy, tsc)
-3. **Test** → Run test suites with coverage
-4. **Build** → Create Docker images
-5. **Deploy** → Push to production (main branch only)
-
-### Setting up CI/CD
-
-1. Add GitHub Secrets:
-   - `DOCKER_USERNAME`: Docker Hub username
-   - `DOCKER_PASSWORD`: Docker Hub password/token
-
-2. Push to trigger pipeline:
-   ```bash
-   git push origin main
-   ```
-
 ## 📝 API Documentation
 
 Once the backend is running, visit:
@@ -383,9 +364,9 @@ curl -X POST http://localhost:8000/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "user@example.com",
-    "username": "newuser",
-    "password": "SecurePass123",
-    "fullName": "John Doe"
+    "first_name": "John",
+    "last_name": "Doe",
+    "password": "SecurePass123"
   }'
 ```
 
@@ -394,7 +375,7 @@ curl -X POST http://localhost:8000/api/v1/auth/register \
 curl -X POST http://localhost:8000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "username": "newuser",
+    "email": "user@example.com",
     "password": "SecurePass123"
   }'
 ```
@@ -412,7 +393,7 @@ curl -X POST http://localhost:8000/api/v1/auth/login \
 - **Python**: Follow PEP 8, use type hints, max 100 chars per line
 - **TypeScript**: Use strict mode, explicit return types
 - **Files**: Keep files ≤200 lines
-- **Tests**: Maintain ≥90% coverage
+- **Tests**: Maintain ≥80% backend coverage, ≥70% frontend coverage
 - **Commits**: Use conventional commit messages
 
 ## 🐛 Troubleshooting
