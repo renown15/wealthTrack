@@ -44,6 +44,7 @@ echo ""
 
 # Terminate any existing backend before starting new one so ports are free
 pkill -f "uvicorn app.main:app" >/dev/null 2>&1 || true
+lsof -ti :"${BACKEND_PORT:-8000}" 2>/dev/null | xargs kill -9 2>/dev/null || true
 
 # Start backend
 echo -e "${BLUE}2/3 Starting FastAPI backend...${NC}"
@@ -71,6 +72,7 @@ echo ""
 
 # Terminate any existing frontend dev server
 pkill -f "npm run dev" >/dev/null 2>&1 || true
+lsof -ti :"${FRONTEND_PORT:-3001}" 2>/dev/null | xargs kill -9 2>/dev/null || true
 
 # Start frontend dev server
 echo -e "${BLUE}4/4 Starting Vite frontend dev server locally...${NC}"

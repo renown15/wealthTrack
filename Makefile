@@ -319,13 +319,15 @@ pr-check:
 		$(MAKE) lint type-check; \
 		echo ""; \
 		echo "[4/6] Running backend tests against test database..."; \
-		(cd backend && DATABASE_URL=$(PR_TEST_DB_URL) python -m pytest --cov=app --cov-report=term); \
+		(cd backend && DATABASE_URL=$(PR_TEST_DB_URL) python -m pytest --cov=app --cov-report=term --cov-report=json:/tmp/backend-cov.json); \
 		echo ""; \
 		echo "[5/6] Running frontend tests..."; \
 		(cd frontend && npm run test:coverage); \
 		echo ""; \
 		echo "[6/6] Building frontend..."; \
 		$(MAKE) build-frontend; \
+		echo ""; \
+		python3 scripts/show_coverage.py; \
 		echo ""; \
 		echo "╔════════════════════════════════════════════╗"; \
 		echo "║  ✅ All PR checks passed!                  ║"; \

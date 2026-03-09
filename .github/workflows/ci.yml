@@ -112,6 +112,10 @@ jobs:
           flags: frontend
           name: frontend-coverage
 
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
+
   # Build Docker images (optional - requires DOCKER_USERNAME and DOCKER_PASSWORD secrets)
   # docker-build:
   #   name: Docker - Build Images

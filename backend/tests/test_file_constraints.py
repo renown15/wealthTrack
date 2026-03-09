@@ -5,10 +5,22 @@ Enforces constraint across Python backend and TypeScript frontend code.
 import pathlib
 
 
+TS_ALLOWLIST: frozenset[str] = frozenset()
+VUE_ALLOWLIST: frozenset[str] = frozenset()
+TS_TEST_ALLOWLIST: frozenset[str] = frozenset()
+
+
 def count_lines(file_path: pathlib.Path) -> int:
     """Count non-blank lines in a file."""
     with open(file_path, encoding="utf-8") as f:
         return len([line for line in f if line.strip()])
+
+
+def test_no_allowlist_entries():
+    """Ensure no files are exempted from the 200-line constraint."""
+    assert not TS_ALLOWLIST, f"TypeScript allowlist must be empty, found: {TS_ALLOWLIST}"
+    assert not VUE_ALLOWLIST, f"Vue allowlist must be empty, found: {VUE_ALLOWLIST}"
+    assert not TS_TEST_ALLOWLIST, f"TypeScript test allowlist must be empty, found: {TS_TEST_ALLOWLIST}"
 
 
 def test_python_files_under_200_lines():
@@ -55,14 +67,11 @@ def test_typescript_files_under_200_lines():
     if not src_dir.exists():
         return  # Frontend may not be present in all environments
 
-    # Allow certain complex service/composable files to exceed the limit
-    allowlist = {"ApiService.ts"}
-
     for ts_file in src_dir.rglob("*.ts"):
         # Skip type definition files
         if ts_file.suffix == ".d.ts":
             continue
-        if ts_file.name in allowlist:
+        if ts_file.name in TS_ALLOWLIST:
             continue
         lines = count_lines(ts_file)
         if lines > max_lines:
@@ -83,19 +92,9 @@ def test_vue_files_under_200_lines():
     if not src_dir.exists():
         return  # Frontend may not be present in all environments
 
-    # Allow certain integration/complex Vue files to exceed the limit
-    allowlist = {
-        "AccountHub.vue",
-        "InstitutionsList.vue",
-        "Analytics.vue",
-        "AccountGroupModal.vue",
-        "PortfolioTable.vue",
-        "AccountFormFields.vue",
-    }
-
     for vue_file in src_dir.rglob("*.vue"):
-        if vue_file.name in allowlist:
-            continue  # Skip allowlisted files
+        if vue_file.name in VUE_ALLOWLIST:
+            continue
         lines = count_lines(vue_file)
         if lines > max_lines:
             rel_path = vue_file.relative_to(src_dir.parent)
@@ -115,12 +114,9 @@ def test_typescript_test_files_under_200_lines():
     if not tests_dir.exists():
         return  # Frontend may not be present in all environments
 
-    # Allow certain integration test files to exceed the limit
-    allowlist = {"integration.hub.test.ts"}
-
     for ts_file in tests_dir.glob("*.test.ts"):
-        if ts_file.name in allowlist:
-            continue  # Skip allowlisted files
+        if ts_file.name in TS_TEST_ALLOWLIST:
+            continue
         lines = count_lines(ts_file)
         if lines > max_lines:
             violations.append(f"{ts_file.name}: {lines} lines")
@@ -128,4 +124,3 @@ def test_typescript_test_files_under_200_lines():
     assert not violations, (
         f"TypeScript test files exceed {max_lines} line limit:\n" + "\n".join(violations)
     )
-

@@ -56,7 +56,6 @@ class ApiService {
       },
     }) as unknown as AxiosInstance;
 
-    // Share the client across all services
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
     authService['client'] = this.client;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
@@ -73,7 +72,6 @@ class ApiService {
     analyticsService['client'] = this.client;
   }
 
-  // Auth operations
   async registerUser(userData: UserRegistration): Promise<User> {
     return authService.registerUser(userData);
   }
@@ -86,12 +84,10 @@ class ApiService {
     return authService.getCurrentUser();
   }
 
-  // Portfolio operations
   async getPortfolio(): Promise<Portfolio> {
     return portfolioFetchService.getPortfolio();
   }
 
-  // Account operations
   async getAccounts(): Promise<Account[]> {
     return accountCrudService.getAccounts();
   }
@@ -123,7 +119,6 @@ class ApiService {
     return accountCrudService.createAccountEvent(accountId, data);
   }
 
-  // Institution operations
   async getInstitutions(): Promise<Institution[]> {
     return institutionCrudService.getInstitutions();
   }
@@ -179,7 +174,6 @@ class ApiService {
     return referenceDataService.listByClass(classKey);
   }
 
-  // Account Group operations
   async getAccountGroups(): Promise<AccountGroup[]> {
     return accountGroupCrudService.getAccountGroups();
   }
@@ -215,7 +209,6 @@ class ApiService {
     return accountGroupCrudService.getGroupMembers(groupId);
   }
 
-  // Analytics operations
   async getAnalyticsBreakdown(): Promise<PortfolioBreakdown> {
     return analyticsService.getBreakdown();
   }
@@ -224,7 +217,6 @@ class ApiService {
     return analyticsService.getPortfolioHistory();
   }
 
-  // Token management (exposed from BaseApiClient)
   setAuthToken(token: string): void {
     authService.setAuthToken(token);
     // Also set in the shared client for backwards compatibility
