@@ -1,5 +1,11 @@
 # WealthTrack Quick Start
 
+WealthTrack is a self-hosted personal finance tracker. You run it locally or on your own server — your data stays with you, and nothing connects to your bank.
+
+The app lets you track balances across all your financial institutions (banks, ISAs, pensions, investment accounts) in one place. You manually update balances whenever you like, and the app keeps the full history.
+
+---
+
 ## Prerequisites
 
 - Docker & Docker Compose
@@ -8,153 +14,115 @@
 
 ---
 
-## 1. Start the Dev Database
+## First-Time Setup
 
 ```bash
-cd /Users/marklewis/dev/wealthTrack
-make docker-up
+cp .env.dev.example .env.dev   # create your local config (gitignored)
+make setup                      # install deps, run migrations, seed reference data
 ```
 
-This starts PostgreSQL on port 5432 (dev) using Docker Compose.
+`make setup` handles everything in one step: Python deps, Node deps, database migrations, and seeding the reference data (account types, credential types, etc.).
 
 ---
 
-## 2. Apply Migrations
-
-```bash
-make migrate
-```
-
-Runs all Alembic migrations (currently through migration 025).
-
----
-
-## 3. Seed Reference Data
-
-```bash
-make seed-db
-```
-
-Seeds canonical reference data (account types, statuses, credential types, etc.).
-
----
-
-## 4. Backend Development Server
-
-```bash
-make backend-dev
-```
-
-Starts FastAPI with hot-reload at http://localhost:8000.
-- Swagger UI: http://localhost:8000/docs
-
----
-
-## 5. Frontend Development Server
-
-```bash
-make frontend-dev
-```
-
-Starts Vite dev server at http://localhost:5173.
-
----
-
-## 6. Full Stack
+## Starting the App
 
 ```bash
 make dev
 ```
 
-Runs backend + frontend concurrently.
+This starts the database, backend, and frontend together in the background.
+
+- Frontend: http://localhost:3001
+- Backend API: http://localhost:8000
+- Swagger UI: http://localhost:8000/docs
+
+To start services individually:
+
+```bash
+make backend-dev    # FastAPI with hot-reload at http://localhost:8000
+make frontend-dev   # Vite dev server at http://localhost:3001
+```
 
 ---
 
 ## Running Tests
 
 ```bash
-# All tests (isolated test DB, full coverage check)
+# Full check — run this before every PR
 make pr-check
 
-# Backend tests only
-make test-backend
-
-# Frontend tests only (runs backend lint/type-check first)
-make test-frontend
-
-# Watch mode
-make test-watch
+# Individual suites
+make test-backend   # backend tests only
+make test-frontend  # frontend tests only
+make test-watch     # frontend watch mode
 ```
+
+`make pr-check` runs against a completely separate test database (port 5434) so it never touches your dev data.
 
 ---
 
 ## Code Quality
 
 ```bash
-make lint          # Run all linters (ruff + pylint + ESLint)
+make lint          # ruff + pylint + ESLint
 make type-check    # mypy + tsc
-make format        # Auto-format (ruff + prettier)
-make lint-fix      # Auto-fix lint issues
+make format        # auto-format (ruff + prettier)
+make lint-fix      # auto-fix lint issues
 ```
 
 ---
 
-## PR Readiness Check
-
-Before opening a PR, run:
+## Before Opening a PR
 
 ```bash
 make pr-check
 ```
 
-This runs in an isolated test environment:
-1. Starts a separate test database (port 5434)
-2. Runs migrations + seeds
-3. Lints and type-checks (backend + frontend)
-4. Runs backend tests with ≥80% coverage
-5. Runs frontend tests with coverage thresholds
-6. Builds frontend for production
-
-All 6 steps must pass.
+Six steps must all pass:
+1. Start isolated test database (port 5434)
+2. Run migrations and seed reference data
+3. Lint and type-check (backend + frontend)
+4. Backend tests with ≥80% coverage
+5. Frontend tests with coverage thresholds
+6. Frontend production build
 
 ---
 
-## Application Features
+## What's in the App
 
-The app is fully built (v1 minus household sharing):
+- **Account Hub** — manage institutions and accounts, log balance updates, view history
+- **Portfolio Table** — all accounts and balances grouped by institution, with total net worth
+- **Analytics** — portfolio breakdown by type/institution/asset class, balance history charts
+- **Credential Vault** — encrypted storage of institution login credentials
+- **Reference Data Admin** — manage account types, statuses, and other lookup values
 
-- **Account Hub** — manage institutions, accounts, balance events
-- **Portfolio Table** — grouped view of all accounts and balances
-- **Analytics** — charts for portfolio breakdown and history
-- **Credential Vault** — encrypted storage of institution credentials
-- **Reference Data Admin** — manage account types, statuses, etc.
+Household sharing (multiple users sharing a combined view) is planned for a future release.
 
 ---
 
 ## Troubleshooting
 
-### Database connection refused
+**Database connection refused**
 ```bash
 make docker-up
-# Wait ~5 seconds, then retry
+# Wait a few seconds for the container to be ready, then retry
 ```
 
-### Port 8000 in use
+**Port 8000 in use**
 ```bash
 lsof -ti:8000 | xargs kill -9
 ```
 
-### Frontend build errors
+**Frontend build errors**
 ```bash
 cd frontend
 rm -rf node_modules
 npm install
-npm run build
 ```
 
-### Python module not found
+**Python module not found**
 ```bash
-# Ensure correct Python version
 pyenv local 3.12.12
 cd backend && pip install -r requirements.txt
 ```

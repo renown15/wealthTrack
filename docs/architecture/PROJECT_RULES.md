@@ -1,5 +1,9 @@
 # WealthTrack Project Rules
 
+WealthTrack is a self-hosted personal wealth tracker — a single dashboard for tracking balances across all your financial institutions without connecting to any bank APIs. Users manually log balance updates and the app maintains the full history over time.
+
+This document covers the rules and conventions for working on the codebase. The gate for all contributions is `make pr-check` — it must pass before any PR is opened.
+
 ## Non-Negotiable Rules
 
 ### 1. Test Coverage

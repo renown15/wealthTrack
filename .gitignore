@@ -72,6 +72,8 @@ pgdata/
 # Testing
 coverage/
 .nyc_output/
+frontend/test-results/
+frontend/playwright-report/
 
 # OS
 .DS_Store
