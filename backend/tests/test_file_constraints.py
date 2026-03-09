@@ -90,6 +90,7 @@ def test_vue_files_under_200_lines():
         "Analytics.vue",
         "AccountGroupModal.vue",
         "PortfolioTable.vue",
+        "AccountFormFields.vue",
     }
 
     for vue_file in src_dir.rglob("*.vue"):

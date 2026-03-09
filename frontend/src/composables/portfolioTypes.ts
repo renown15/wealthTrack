@@ -42,6 +42,7 @@ export interface PortfolioComposableReturn {
     price?: string,
     purchasePrice?: string,
     pensionMonthlyPayment?: string,
+    assetClass?: string,
   ) => Promise<void>;
   updateAccount: (
     accountId: number,
@@ -60,6 +61,7 @@ export interface PortfolioComposableReturn {
     price?: string,
     purchasePrice?: string,
     pensionMonthlyPayment?: string,
+    assetClass?: string,
   ) => Promise<void>;
   deleteAccount: (accountId: number) => Promise<void>;
   createInstitution: (

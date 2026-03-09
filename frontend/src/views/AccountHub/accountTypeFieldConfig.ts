@@ -2,18 +2,8 @@
  * Account form field configuration by account type
  */
 
-export interface FieldConfig {
-  showInterestRate: boolean;
-  showFixedBonusRate: boolean;
-  showFixedBonusRateEndDate: boolean;
-  isDeferredType: boolean;
-  showNumberOfShares: boolean;
-  showUnderlying: boolean;
-  showPrice: boolean;
-  showPurchasePrice: boolean;
-  showPensionMonthlyPayment: boolean;
-  showAssetClass: boolean;
-}
+export type { FieldConfig } from '@views/AccountHub/accountTypeFieldConfigTypes';
+import type { FieldConfig } from '@views/AccountHub/accountTypeFieldConfigTypes';
 
 export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
   'Current Account': {

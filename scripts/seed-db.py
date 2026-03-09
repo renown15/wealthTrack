@@ -26,7 +26,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.models.reference_data import ReferenceData  # type: ignore
-from app.services.reference_data import REFERENCE_DATA_ITEMS, seed_reference_data  # type: ignore
+from app.services.reference_data import seed_reference_data  # type: ignore
+from app.services.reference_data_items import REFERENCE_DATA_ITEMS  # type: ignore
 
 
 async def run_seed() -> None:
