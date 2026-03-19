@@ -14,6 +14,11 @@ if [ $? -eq 0 ]; then
   echo "   ✅ Containers stopped and volumes removed"
 fi
 
+# Step 2: Remove Playwright artifacts
+echo "📍 Step 2: Removing Playwright artifacts..."
+rm -rf frontend/playwright-report frontend/test-results
+echo "   ✅ Playwright report and test results removed"
+
 echo ""
 echo "╔════════════════════════════════════════════╗"
 echo "║  ✅ CLEANUP COMPLETE                       ║"
