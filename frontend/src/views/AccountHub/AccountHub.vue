@@ -1,7 +1,7 @@
 <template>
   <div class="page-view">
     <div class="hub-header-card">
-      <AccountHubStats :total-value="totalValue" :cash-at-hand="cashAtHand" :isa-savings="isaSavings" :illiquid="illiquid" :trust-assets="trustAssets" :projected-annual-yield="projectedAnnualYield" :pension-breakdown="pensionBreakdown" @create-account="openCreateAccountModal" @create-institution="openCreateInstitutionModal" @create-account-group="openCreateAccountGroupModal" />
+      <AccountHubStats :total-value="totalValue" :cash-at-hand="cashAtHand" :isa-savings="isaSavings" :illiquid="illiquid" :trust-assets="trustAssets" :projected-annual-yield="projectedAnnualYield" :pension-breakdown="pensionBreakdown" :items="state.items" @create-account="openCreateAccountModal" @create-institution="openCreateInstitutionModal" @create-account-group="openCreateAccountGroupModal" />
     </div>
     <div v-if="state.error" class="hub-content-card p-6">
       <div class="error-banner"><span>{{ state.error }}</span><button class="btn-close" @click="clearError">×</button></div>
@@ -179,9 +179,15 @@ const handleInstitutionSave = async (payload: any): Promise<void> => {
   catch (error) { debug.error('[AccountHub] Institution save failed:', error); }
 };
 const handleConfirmDelete = async (): Promise<void> => {
-  if (deleteConfirmType.value === 'account') await handleAccountDelete(deleteConfirmId.value);
-  else await handleInstitutionDelete(deleteConfirmId.value);
-  await loadPortfolio(); closeDeleteConfirm();
+  try {
+    if (deleteConfirmType.value === 'account') await handleAccountDelete(deleteConfirmId.value);
+    else await handleInstitutionDelete(deleteConfirmId.value);
+    await loadPortfolio();
+  } catch (error) {
+    state.error = error instanceof Error ? error.message : 'Failed to delete';
+  } finally {
+    closeDeleteConfirm();
+  }
 };
 const handleUpdateBalance = async (accountId: number, value: string): Promise<void> => {
   try {

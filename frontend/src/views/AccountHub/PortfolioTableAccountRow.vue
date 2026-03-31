@@ -5,7 +5,7 @@
     <td class="table-cell font-semibold">{{ item.account.name }}</td>
     <td class="table-cell">{{ item.accountType || 'Unknown' }}</td>
     <td class="table-cell">
-      <div v-if="editingBalanceId === item.account.id && !isDeferredShares(item) && !isRSU(item)" class="balance-edit">
+      <div v-if="editingBalanceId === item.account.id && !isDeferredShares(item) && !isRSU(item) && !isShares(item)" class="balance-edit">
         <input
           :value="editingBalanceValue"
           @input="$emit('update:editingBalanceValue', ($event.target as HTMLInputElement).value)"
@@ -17,7 +17,7 @@
         />
       </div>
       <button
-        v-if="!isDeferredShares(item) && !isRSU(item)"
+        v-if="!isDeferredShares(item) && !isRSU(item) && !isShares(item)"
         type="button"
         class="flex items-center gap-1 text-left bg-transparent border-none cursor-pointer group"
         @click.stop="$emit('startEdit', item.account.id, getEditValue(item))"
@@ -71,6 +71,7 @@ import {
   isDeferredShares,
   isDeferredCash,
   isRSU,
+  isShares,
   getFixedRateEndDate,
   getEditValue,
   getDeferredTooltip,

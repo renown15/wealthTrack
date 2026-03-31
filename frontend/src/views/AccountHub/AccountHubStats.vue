@@ -22,23 +22,35 @@
         <p class="stat-value">{{ formatCurrency(totalValue) }}</p>
       </article>
 
-      <article class="stat-card">
-        <p class="stat-label">Cash at Hand</p>
+      <article class="stat-card" :title="buildBreakdownTooltip(CASH_TYPES)">
+        <p class="stat-label">
+          Cash at Hand
+          <span class="info-icon" style="cursor: help;">{{ Icons.info }}</span>
+        </p>
         <p class="stat-value">{{ formatCurrency(cashAtHand) }}</p>
       </article>
 
-      <article class="stat-card">
-        <p class="stat-label">ISA Savings</p>
+      <article class="stat-card" :title="buildBreakdownTooltip(ISA_TYPES)">
+        <p class="stat-label">
+          ISA Savings
+          <span class="info-icon" style="cursor: help;">{{ Icons.info }}</span>
+        </p>
         <p class="stat-value">{{ formatCurrency(isaSavings) }}</p>
       </article>
 
-      <article class="stat-card">
-        <p class="stat-label">Illiquid</p>
+      <article class="stat-card" :title="buildBreakdownTooltip(ILLIQUID_TYPES)">
+        <p class="stat-label">
+          Illiquid
+          <span class="info-icon" style="cursor: help;">{{ Icons.info }}</span>
+        </p>
         <p class="stat-value">{{ formatCurrency(illiquid) }}</p>
       </article>
 
-      <article class="stat-card">
-        <p class="stat-label">Trust Assets</p>
+      <article class="stat-card" :title="buildBreakdownTooltip(TRUST_TYPES)">
+        <p class="stat-label">
+          Trust Assets
+          <span class="info-icon" style="cursor: help;">{{ Icons.info }}</span>
+        </p>
         <p class="stat-value">{{ formatCurrency(trustAssets) }}</p>
       </article>
 
@@ -63,7 +75,8 @@
 
 <script setup lang="ts">
 import { Icons } from '@/constants/icons';
-import type { PensionBreakdown } from '@composables/portfolioCalculations';
+import type { PortfolioItem } from '@/models/WealthTrackDataModels';
+import { type PensionBreakdown, CASH_TYPES, ISA_TYPES, ILLIQUID_TYPES, TRUST_TYPES } from '@composables/portfolioCalculations';
 
 const props = defineProps<{
   totalValue: number;
@@ -73,6 +86,7 @@ const props = defineProps<{
   trustAssets: number;
   projectedAnnualYield: number;
   pensionBreakdown: PensionBreakdown;
+  items: PortfolioItem[];
 }>();
 
 const emit = defineEmits<{
@@ -86,6 +100,23 @@ const formatCurrency = (value: number): string => {
     style: 'currency',
     currency: 'GBP',
   }).format(value);
+};
+
+const buildBreakdownTooltip = (types: string[]): string => {
+  const totals: Record<string, number> = {};
+  for (const item of props.items) {
+    const type = item.accountType ?? '';
+    if (types.includes(type) && item.latestBalance?.value) {
+      totals[type] = (totals[type] ?? 0) + parseFloat(item.latestBalance.value);
+    }
+  }
+  const entries = Object.entries(totals);
+  if (!entries.length) return '';
+  const lines = entries.map(([t, v]) => `${t}: ${formatCurrency(v)}`);
+  const total = entries.reduce((s, [, v]) => s + v, 0);
+  lines.push(`─────────────────`);
+  lines.push(`Total: ${formatCurrency(total)}`);
+  return lines.join('\n');
 };
 
 const getTotalValueTooltip = (): string => {

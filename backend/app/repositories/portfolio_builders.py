@@ -7,6 +7,51 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.account import AccountResponse
 from app.schemas.institution import InstitutionResponse
 
+# Maps ReferenceData.reference_value labels to shorthand keys used in attributes dict
+_LABEL_TO_KEY: dict[str, str] = {
+    "Account Opened Date": "opened_date",
+    "Account Closed Date": "closed_date",
+    "Account Number": "account_number",
+    "Sort Code": "sort_code",
+    "Roll / Ref Number": "roll_ref_number",
+    "Interest Rate": "interest_rate",
+    "Fixed Bonus Rate": "fixed_bonus_rate",
+    "Fixed Bonus Rate End Date": "fixed_bonus_rate_end_date",
+    "Release Date": "release_date",
+    "Number of Shares": "number_of_shares",
+    "Underlying": "underlying",
+    "Price": "price",
+    "Purchase Price": "purchase_price",
+    "Pension Monthly Payment": "pension_monthly_payment",
+    "Asset Class": "asset_class",
+}
+
+
+def build_attributes_dict(raw: dict[str, str]) -> dict[str, Any]:
+    """Convert raw {label: value} attribute map into the structured dict expected downstream."""
+    keyed = {_LABEL_TO_KEY.get(k, k): v for k, v in raw.items()}
+    return {
+        "dates": {
+            "openedAt": keyed.get("opened_date"),
+            "closedAt": keyed.get("closed_date"),
+        },
+        "banking_details": {
+            "accountNumber": keyed.get("account_number"),
+            "sortCode": keyed.get("sort_code"),
+            "rollRefNumber": keyed.get("roll_ref_number"),
+        },
+        "interest_rate": keyed.get("interest_rate"),
+        "fixed_bonus_rate": keyed.get("fixed_bonus_rate"),
+        "fixed_bonus_rate_end_date": keyed.get("fixed_bonus_rate_end_date"),
+        "release_date": keyed.get("release_date"),
+        "number_of_shares": keyed.get("number_of_shares"),
+        "underlying": keyed.get("underlying"),
+        "price": keyed.get("price"),
+        "purchase_price": keyed.get("purchase_price"),
+        "pension_monthly_payment": keyed.get("pension_monthly_payment"),
+        "asset_class": keyed.get("asset_class"),
+    }
+
 
 async def build_portfolio_item(
     portfolio_data: dict[str, Any], _session: AsyncSession
@@ -25,6 +70,7 @@ async def build_portfolio_item(
     event_count = portfolio_data["event_count"]
     parents_by_institution: dict[int, Any] = portfolio_data.get("parents_by_institution", {})
     event_type_by_id: dict[int, str] = portfolio_data.get("event_type_by_id", {})
+    target_prices_by_ticker: dict[str, str] = portfolio_data.get("target_prices_by_ticker", {})
 
     acct_data = AccountResponse.model_validate(account).model_dump(by_alias=True)
     attrs = attributes
@@ -43,6 +89,8 @@ async def build_portfolio_item(
     acct_data["purchasePrice"] = attrs["purchase_price"]
     acct_data["pensionMonthlyPayment"] = attrs.get("pension_monthly_payment")
     acct_data["assetClass"] = attrs.get("asset_class")
+    underlying = attrs.get("underlying")
+    acct_data["targetPrice"] = target_prices_by_ticker.get(underlying) if underlying else None
 
     inst_data = None
     if account.institution:

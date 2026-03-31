@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.account_attribute import AccountAttribute
 from app.models.account_event import AccountEvent
+from app.models.account_group_member import AccountGroupMember
 from app.repositories.account_repository import AccountRepository
 
 
@@ -40,12 +41,13 @@ class AccountService:
         if not account:
             raise ValueError(f"Account {account_id} not found")
 
-        # Cascade delete related AccountAttribute records
+        # Cascade delete related records
+        await self.session.execute(
+            delete(AccountGroupMember).where(AccountGroupMember.account_id == account_id)
+        )
         await self.session.execute(
             delete(AccountAttribute).where(AccountAttribute.account_id == account_id)
         )
-
-        # Cascade delete related AccountEvent records
         await self.session.execute(
             delete(AccountEvent).where(AccountEvent.account_id == account_id)
         )

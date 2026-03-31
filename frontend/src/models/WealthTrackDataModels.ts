@@ -23,6 +23,7 @@ export interface Account {
   purchasePrice?: string | null;
   pensionMonthlyPayment?: string | null;
   assetClass?: string | null;
+  targetPrice?: string | null;
   openedAt: string | null;
   closedAt: string | null;
   createdAt: string;

@@ -60,6 +60,8 @@ out/
 .env.dev
 .env.test
 .env.prod
+.env.pi
+.env.windows
 .env.local
 .env.*.local
 

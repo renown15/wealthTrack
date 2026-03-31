@@ -24,26 +24,27 @@ export interface PensionBreakdown {
 const DC_PENSION_TYPES = ['Deferred DC Pension', 'SIPP'];
 const DB_PENSION_TYPES = ['Deferred DB Pension'];
 
-const CASH_TYPES = [
+export const CASH_TYPES = [
   'Current Account',
   'Savings Account',
   'Premium Bonds',
   'Fixed / Bonus Rate Saver',
 ];
 
-const ISA_TYPES = [
+export const ISA_TYPES = [
   'Cash ISA',
   'Fixed Rate ISA',
   'Stocks ISA',
 ];
 
-const ILLIQUID_TYPES = [
+export const ILLIQUID_TYPES = [
   'Deferred Shares',
   'Deferred Cash',
   'RSU',
+  'Shares',
 ];
 
-const TRUST_TYPES = [
+export const TRUST_TYPES = [
   'Trust Bank Account',
   'Trust Stocks Investment Account',
 ];

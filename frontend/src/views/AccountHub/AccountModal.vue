@@ -6,7 +6,7 @@
     @close="emitClose"
     @save="handleSave"
   >
-    <div v-if="error" class="error-banner mb-4">{{ error }}</div>
+    <div v-if="validationError || error" class="error-banner mb-4">{{ validationError || error }}</div>
     <AccountFormFields
       :form-data="formData"
       :type="type"
@@ -18,12 +18,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, toRef } from 'vue';
+import { computed, ref, toRef } from 'vue';
 import type { Institution } from '@/models/WealthTrackDataModels';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 import BaseResourceModal from '@/components/BaseResourceModal.vue';
 import AccountFormFields from '@views/AccountHub/AccountFormFields.vue';
 import { useAccountForm, type AccountFormProps, convertFromDateInputFormat } from '@/composables/useAccountForm';
+import { validatePenceField } from '@views/AccountHub/addAccountModalValidation';
 
 interface Props {
   open: boolean;
@@ -108,6 +109,7 @@ const formProps = computed<AccountFormProps>(() => ({
 }));
 
 const { formData } = useAccountForm(toRef(formProps));
+const validationError = ref('');
 
 const modalTitle = computed(() => {
   const verb = props.type === 'create' ? 'New' : 'Edit';
@@ -117,31 +119,27 @@ const modalTitle = computed(() => {
 const emitClose = (): void => emit('close');
 
 const handleSave = (): void => {
-  console.log('[AccountModal] handleSave called', {
-    name: formData.value.name,
-    institutionId: formData.value.institutionId,
-    typeId: formData.value.typeId,
-    statusId: formData.value.statusId,
-    type: props.type,
-  });
+  validationError.value = '';
 
   if (!formData.value.name) {
-    console.log('[AccountModal] Validation failed: no name');
+    validationError.value = 'Please enter an account name';
     return;
   }
   if (props.type === 'create' && !formData.value.institutionId) {
-    console.log('[AccountModal] Validation failed: create but no institution');
+    validationError.value = 'Please select an institution';
     return;
   }
   if (!formData.value.typeId || !formData.value.statusId) {
-    console.log('[AccountModal] Validation failed: no typeId or statusId', {
-      typeId: formData.value.typeId,
-      statusId: formData.value.statusId,
-    });
+    validationError.value = 'Please select an account type and status';
     return;
   }
 
-  console.log('[AccountModal] Validation passed, emitting save');
+  const priceErr = validatePenceField(formData.value.price, 'Price')
+    ?? validatePenceField(formData.value.purchasePrice, 'Purchase Price');
+  if (priceErr) {
+    validationError.value = priceErr;
+    return;
+  }
   emit('save', {
     name: formData.value.name,
     institutionId: formData.value.institutionId,

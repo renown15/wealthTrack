@@ -35,6 +35,19 @@ export function validateInstitutionForm(data: InstitutionFormData): string | nul
   return null;
 }
 
+function isPositiveInteger(value: string): boolean {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0;
+}
+
+export function validatePenceField(value: string | null | undefined, label: string): string | null {
+  if (!value) return null;
+  if (!isPositiveInteger(value)) {
+    return `${label} must be a whole positive number in pence (e.g., 1250 for £12.50)`;
+  }
+  return null;
+}
+
 export function validateAccountForm(
   data: AccountFormData,
   isCreate: boolean,
@@ -48,5 +61,8 @@ export function validateAccountForm(
   if (!data.typeId || !data.statusId) {
     return 'Please select an account type and status';
   }
-  return null;
+  if (data.numberOfShares && !isPositiveInteger(data.numberOfShares)) {
+    return 'Number of Shares must be a positive whole number';
+  }
+  return validatePenceField(data.price, 'Price') ?? validatePenceField(data.purchasePrice, 'Purchase Price');
 }

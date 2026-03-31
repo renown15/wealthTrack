@@ -28,8 +28,8 @@ wealthTrack/
 │   │   ├── repositories/   # DB queries (SQLAlchemy)
 │   │   ├── models/         # SQLAlchemy ORM models
 │   │   └── schemas/        # Pydantic request/response schemas
-│   ├── alembic/            # DB migrations (currently ~025)
-│   └── tests/              # ~360 backend tests
+│   ├── alembic/            # DB migrations (~26 versions)
+│   └── tests/              # ~364 backend tests
 ├── frontend/
 │   ├── src/
 │   │   ├── composables/    # Vue 3 composition API business logic
@@ -37,8 +37,9 @@ wealthTrack/
 │   │   ├── services/       # API client services
 │   │   ├── models/         # TypeScript data models
 │   │   └── utils/          # Shared utilities (debug.ts etc.)
-│   └── tests/              # ~650 frontend tests across ~66 files
-├── scripts/                # setup-dev.sh, dev.sh, seed-db.py
+│   └── tests/              # ~889 frontend tests across 89 files
+│       └── e2e/            # 5 Playwright E2E specs (run separately via make test-e2e)
+├── scripts/                # setup-dev.sh, dev.sh, seed-db.py, e2e-teardown.sh
 ├── .env.dev.example        # Template for local dev config
 ├── .env.dev                # Local dev config (gitignored)
 ├── .env.test               # Test environment config (gitignored)
@@ -75,6 +76,7 @@ make pr-check               # full pre-PR check (isolated DB)
 make test-backend           # backend tests only
 make test-frontend          # frontend tests only
 make test-watch             # frontend watch mode
+make test-e2e               # Playwright E2E tests (spins up isolated containers)
 
 # Quality
 make lint                   # ruff + pylint + ESLint
@@ -86,6 +88,14 @@ make lint-fix               # auto-fix
 make migrate                # apply Alembic migrations
 make seed-db                # seed reference data
 ```
+
+## Dev Server Logs
+
+When running `make dev`, logs write to:
+- Backend: `/tmp/backend.log`
+- Frontend: `/tmp/frontend.log`
+
+Check these first when debugging runtime errors.
 
 ## Non-Negotiable Rules
 
@@ -102,6 +112,8 @@ make seed-db                # seed reference data
 
 5. **No file deletions without user approval** — always confirm before deleting any file.
 
+6. **No allowlist entries** — `backend/tests/test_file_constraints.py` contains `test_no_allowlist_entries()` which asserts all 3 allowlist constants are empty frozensets. Never add files to allowlists — refactor instead.
+
 ## Code Conventions
 
 ### Frontend Composables Pattern
@@ -115,6 +127,10 @@ const { portfolioData, loadPortfolio } = usePortfolio()
 export function usePortfolio() { ... }
 ```
 
+### `usePortfolio()` is NOT a singleton
+
+Every call to `usePortfolio()` creates a **new** reactive state instance. If multiple composables each call `usePortfolio()`, they get separate states — errors and loading flags set in one won't appear in another. Pass functions down rather than calling `usePortfolio()` inside nested composables.
+
 ### Backend Layer Pattern
 
 ```
@@ -122,6 +138,10 @@ Controller (route handler) → Service (business logic) → Repository (DB query
 ```
 
 Controllers validate HTTP context only. Services own business rules. Repositories own SQL.
+
+### Backend Cascade Deletes
+
+When deleting an entity, manually cascade-delete all related records before deleting the parent. SQLAlchemy ORM relationships with `cascade="all, delete-orphan"` handle this automatically only when loaded — for unloaded relations use explicit `DELETE` statements. See `account_service.py` for the pattern.
 
 ### Debug Logging (Frontend)
 
@@ -142,6 +162,16 @@ myService.client = clientStub as never
 ### Testing Reactive Composables
 
 Vue wraps reactive objects in `Proxy`. Use `toStrictEqual` (not `toBe`) when asserting object values from refs.
+
+`vi.clearAllMocks()` wipes `mockResolvedValue` — always re-setup mocks in `beforeEach`.
+
+### Vue Fragment Components in Tables
+
+Multi-root components (fragments) inside `<tbody>` must NOT use double-nested `<template>`. The SFC root `<template>` should contain multiple root elements directly (e.g. `<tr>` + `<ComponentRow>`). Double-nesting causes happy-dom to fail rendering.
+
+### v-model on Props (Vue 3)
+
+`v-model` on component props is not allowed in Vue 3. Use `:value` + `@input="$emit('update:prop', ...)"` pattern instead.
 
 ## Config: `.env.dev` as Single Source of Truth
 

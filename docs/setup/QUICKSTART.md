@@ -89,6 +89,12 @@ Six steps must all pass:
 
 ---
 
+## Deploying to Raspberry Pi or Windows
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for step-by-step instructions.
+
+---
+
 ## What's in the App
 
 - **Account Hub** — manage institutions and accounts, log balance updates, view history

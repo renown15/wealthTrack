@@ -1,0 +1,11 @@
+version: '3.8'
+
+# Development overrides — adds hot-reload and code volume mount.
+# Used by: make docker-up
+# NOT used by: deploy-pi, deploy-windows (prod builds use the image directly)
+
+services:
+  backend:
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload

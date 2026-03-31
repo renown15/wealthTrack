@@ -14,28 +14,9 @@ from app.models.reference_data import ReferenceData
 from app.repositories.account_attribute_repository import AccountAttributeRepository
 from app.repositories.account_processor import AccountProcessor
 from app.repositories.institution_group_repository import InstitutionGroupRepository
-from app.repositories.portfolio_builders import build_portfolio_item
+from app.repositories.portfolio_builders import build_attributes_dict, build_portfolio_item
 
 logger = logging.getLogger(__name__)
-
-# Maps ReferenceData.reference_value labels to the shorthand keys used in attributes dict
-_LABEL_TO_KEY: dict[str, str] = {
-    "Account Opened Date": "opened_date",
-    "Account Closed Date": "closed_date",
-    "Account Number": "account_number",
-    "Sort Code": "sort_code",
-    "Roll / Ref Number": "roll_ref_number",
-    "Interest Rate": "interest_rate",
-    "Fixed Bonus Rate": "fixed_bonus_rate",
-    "Fixed Bonus Rate End Date": "fixed_bonus_rate_end_date",
-    "Release Date": "release_date",
-    "Number of Shares": "number_of_shares",
-    "Underlying": "underlying",
-    "Price": "price",
-    "Purchase Price": "purchase_price",
-    "Pension Monthly Payment": "pension_monthly_payment",
-    "Asset Class": "asset_class",
-}
 
 
 class PortfolioRepository:
@@ -45,37 +26,12 @@ class PortfolioRepository:
         """Initialize with database session."""
         self.session = session
 
-    def _build_attributes_dict(self, raw: dict[str, str]) -> dict[str, Any]:
-        """Convert raw {label: value} attribute map into the structured dict expected downstream."""
-        keyed = {_LABEL_TO_KEY.get(k, k): v for k, v in raw.items()}
-        return {
-            "dates": {
-                "openedAt": keyed.get("opened_date"),
-                "closedAt": keyed.get("closed_date"),
-            },
-            "banking_details": {
-                "accountNumber": keyed.get("account_number"),
-                "sortCode": keyed.get("sort_code"),
-                "rollRefNumber": keyed.get("roll_ref_number"),
-            },
-            "interest_rate": keyed.get("interest_rate"),
-            "fixed_bonus_rate": keyed.get("fixed_bonus_rate"),
-            "fixed_bonus_rate_end_date": keyed.get("fixed_bonus_rate_end_date"),
-            "release_date": keyed.get("release_date"),
-            "number_of_shares": keyed.get("number_of_shares"),
-            "underlying": keyed.get("underlying"),
-            "price": keyed.get("price"),
-            "purchase_price": keyed.get("purchase_price"),
-            "pension_monthly_payment": keyed.get("pension_monthly_payment"),
-            "asset_class": keyed.get("asset_class"),
-        }
-
     async def get_user_portfolio(self, user_id: int) -> list[dict[str, Any]]:
         """
         Get all user accounts with latest balances and institutions.
 
         Uses batched queries to avoid N+1: total DB round-trips is O(1) regardless
-        of account count (6 queries + optional price fetches for Deferred Shares/RSU).
+        of account count (7 queries + optional price fetches for Deferred Shares/RSU).
         """
         # 1. All accounts with their institutions
         stmt = (
@@ -92,13 +48,24 @@ class PortfolioRepository:
 
         account_ids = [a.id for a in accounts]
 
-        # 2. Latest balance per account (one subquery instead of N queries)
+        # 2. Latest Balance Update event per account
+        # Only consider "Balance Update" events — not Win/Interest/Dividend which are
+        # transactions, not balance snapshots.
+        balance_update_type_stmt = select(ReferenceData.id).where(
+            ReferenceData.class_key == "account_event_type",
+            ReferenceData.reference_value == "Balance Update",
+        )
+        balance_update_type_id = (
+            await self.session.execute(balance_update_type_stmt)
+        ).scalar_one_or_none()
+
         max_created_subq = (
             select(
                 AccountEvent.account_id,
                 func.max(AccountEvent.created_at).label("max_created_at"),
             )
             .where(AccountEvent.account_id.in_(account_ids))
+            .where(AccountEvent.type_id == balance_update_type_id)
             .group_by(AccountEvent.account_id)
             .subquery()
         )
@@ -158,13 +125,15 @@ class PortfolioRepository:
                 row.id: row.reference_value for row in event_type_result.all()
             }
 
+        tp_rows = (await self.session.execute(select(ReferenceData.reference_value).where(ReferenceData.class_key == "stock_target_ref_price"))).scalars().all()  # noqa: E501
+        target_prices_by_ticker: dict[str, str] = {r.split(":")[0].strip(): r.split(":")[1].strip() for r in tp_rows if ":" in r}  # noqa: E501
         # Build portfolio items — loop is now pure Python (no DB queries per iteration)
         portfolio: list[dict[str, Any]] = []
         for account in accounts:
             latest_balance = balances_by_account.get(account.id)
             account_type = types_by_id.get(account.type_id, "Unknown")
             event_count = event_counts.get(account.id, 0)
-            attributes = self._build_attributes_dict(all_raw_attrs.get(account.id, {}))
+            attributes = build_attributes_dict(all_raw_attrs.get(account.id, {}))
 
             # Type-specific processing (may fetch live prices for Deferred Shares / RSU)
             if account_type == "Deferred Shares":
@@ -175,6 +144,16 @@ class PortfolioRepository:
                     "purchase_price": attributes["purchase_price"],
                 }
                 attributes["price"] = await AccountProcessor.process_deferred_shares_account(
+                    attr_repo, account.id, user_id, attrs, self.session
+                )
+            elif account_type == "Shares":
+                attrs = {
+                    "number_of_shares": attributes["number_of_shares"],
+                    "underlying": attributes["underlying"],
+                    "price": attributes["price"],
+                    "purchase_price": attributes["purchase_price"],
+                }
+                attributes["price"] = await AccountProcessor.process_shares_account(
                     attr_repo, account.id, user_id, attrs, self.session
                 )
             elif account_type == "RSU":
@@ -199,6 +178,7 @@ class PortfolioRepository:
                 "event_count": event_count,
                 "parents_by_institution": parents_by_institution,
                 "event_type_by_id": event_type_by_id,
+                "target_prices_by_ticker": target_prices_by_ticker,
             }
             portfolio_item = await build_portfolio_item(portfolio_data, self.session)
             portfolio.append(portfolio_item)

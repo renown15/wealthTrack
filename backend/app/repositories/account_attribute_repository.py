@@ -43,6 +43,7 @@ class AccountAttributeRepository:
             "deferred_shares_balance": "Deferred Shares Balance",
             "deferred_cash_balance": "Deferred Cash Balance",
             "rsu_balance": "RSU Balance",
+            "shares_balance": "Shares Balance",
             "pension_monthly_payment": "Pension Monthly Payment",
             "asset_class": "Asset Class",
         }

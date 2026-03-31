@@ -162,6 +162,18 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
     showPensionMonthlyPayment: false,
     showAssetClass: true,
   },
+  'Shares': {
+    showInterestRate: false,
+    showFixedBonusRate: false,
+    showFixedBonusRateEndDate: false,
+    isDeferredType: false,
+    showNumberOfShares: true,
+    showUnderlying: true,
+    showPrice: true,
+    showPurchasePrice: true,
+    showPensionMonthlyPayment: false,
+    showAssetClass: true,
+  },
   'Trust Bank Account': {
     showInterestRate: true,
     showFixedBonusRate: false,

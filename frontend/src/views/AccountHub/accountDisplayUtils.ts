@@ -9,7 +9,7 @@ import {
   calculateRSUBalanceSafe,
 } from '@/utils/deferredSharesCalculator';
 
-export { getDeferredTooltip } from '@views/AccountHub/accountDeferredTooltips';
+export { getDeferredTooltip, getGroupDeferredTooltip } from '@views/AccountHub/accountDeferredTooltips';
 
 export function isDeferredShares(item: PortfolioItem): boolean {
   return item.accountType === 'Deferred Shares';
@@ -21,6 +21,10 @@ export function isDeferredCash(item: PortfolioItem): boolean {
 
 export function isRSU(item: PortfolioItem): boolean {
   return item.accountType === 'RSU';
+}
+
+export function isShares(item: PortfolioItem): boolean {
+  return item.accountType === 'Shares';
 }
 
 export function isDeferredDCPension(item: PortfolioItem): boolean {
@@ -143,6 +147,19 @@ export function getDisplayBalance(item: PortfolioItem): string | number | null |
         : item.latestBalance.value;
       const balanceInPenceStr = String(Math.round(valueInPounds * 100));
       const balance = calculateDeferredCashBalanceSafe(balanceInPenceStr);
+      if (balance !== null) {
+        return balance;
+      }
+    }
+  }
+
+  if (isShares(item)) {
+    if (item.account.numberOfShares && item.account.price && item.account.purchasePrice) {
+      const balance = calculateDeferredSharesBalanceSafe(
+        item.account.numberOfShares,
+        item.account.price,
+        item.account.purchasePrice
+      );
       if (balance !== null) {
         return balance;
       }

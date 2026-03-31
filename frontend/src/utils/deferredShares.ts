@@ -29,7 +29,7 @@ export function calculateDeferredSharesBalanceDetailed(
   const currentValueInPence = numberOfShares * currentPrice;
   const purchaseValueInPence = numberOfShares * purchasePrice;
   const gainInPence = currentValueInPence - purchaseValueInPence;
-  const taxOnGainInPence = gainInPence * 0.2;
+  const taxOnGainInPence = Math.max(0, gainInPence * 0.2);
   const balanceInPence = currentValueInPence - taxOnGainInPence;
 
   return {

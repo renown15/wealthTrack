@@ -1,7 +1,7 @@
 # WealthTrack Development Makefile
 # Provides convenient commands for common development tasks
 
-.PHONY: help setup dev backend-dev frontend-dev test lint type-check format clean docker-up docker-down build-frontend tail-backend tail-frontend
+.PHONY: help setup dev backend-dev frontend-dev test lint type-check format clean docker-up docker-down build-frontend tail-backend tail-frontend pi-setup deploy-pi deploy-windows
 
 help:
 	@echo "WealthTrack Development Commands"
@@ -45,6 +45,11 @@ help:
 	@echo "  make clean              - Clean up build artifacts and cache"
 	@echo "  make pr-check           - Run all checks before PR (auto-manages servers)"
 	@echo ""
+	@echo "Raspberry Pi Deployment:"
+	@echo "  make pi-setup           - First-time Pi setup (SSH + rsync + env)"
+	@echo "  make deploy-pi          - Deploy/update to Pi (rsync + build + migrate + seed)"
+	@echo "  make deploy-windows     - Deploy/update to KATE-SURFACE (rsync + build + migrate + seed)"
+	@echo ""
 	@echo "Docker Environments (.env files):"
 	@echo "  Development:  docker-compose --env-file .env.dev up -d"
 	@echo "  Test:         docker-compose --env-file .env.test --profile test up -d"
@@ -58,9 +63,8 @@ setup:
 
 docker-up:
 	@echo "Starting Docker containers for development..."
-	@echo "Loading environment from .env.dev"
-	docker-compose --env-file .env.dev --profile dev up -d db backend
-	@echo "✅ Database and API running on: localhost:5433 and localhost:8000"
+	docker-compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.dev --profile dev up -d
+	@echo "✅ DB, API, and frontend running on: localhost:5433, localhost:8000, localhost:3001"
 
 docker-down:
 	@echo "Stopping Docker containers..."
@@ -70,6 +74,77 @@ seed-db:
 	@echo "Seeding database with all reference data..."
 	@cd backend && source venv/bin/activate && cd .. && python scripts/seed-db.py
 	@echo "✅ Reference data seeded"
+
+# Raspberry Pi Deployment
+PI_HOST ?= raspberrypi.local
+PI_USER ?= marklewis
+PI_DIR  ?= ~/wealthTrack
+
+pi-setup:
+	@echo "Checking SSH connection to $(PI_USER)@$(PI_HOST)..."
+	@ssh $(PI_USER)@$(PI_HOST) "echo '✅ SSH OK'"
+	@if [ ! -f .env.pi ]; then \
+		echo ""; \
+		echo "Next: copy .env.pi.example to .env.pi and fill in values, then run 'make deploy-pi'"; \
+	else \
+		echo "Run 'make deploy-pi' to deploy."; \
+	fi
+
+deploy-pi:
+	@if [ ! -f .env.pi ]; then \
+		echo "❌ .env.pi not found — copy .env.pi.example and fill in values first"; \
+		exit 1; \
+	fi
+	@echo "Syncing code to $(PI_USER)@$(PI_HOST):$(PI_DIR)..."
+	@rsync -av --exclude='.git' --exclude='node_modules' --exclude='backend/venv' \
+		--exclude='__pycache__' --exclude='*.pyc' --exclude='.env.*' \
+		--exclude='htmlcov' --exclude='.pytest_cache' --exclude='.mypy_cache' \
+		. $(PI_USER)@$(PI_HOST):$(PI_DIR)/
+	@echo "Copying .env.pi..."
+	@scp .env.pi $(PI_USER)@$(PI_HOST):$(PI_DIR)/.env.pi
+	@echo "Building and starting containers (first build takes a few minutes)..."
+	@ssh $(PI_USER)@$(PI_HOST) "cd $(PI_DIR) && docker compose --env-file .env.pi --profile prod up -d --build"
+	@echo "Running migrations..."
+	@ssh $(PI_USER)@$(PI_HOST) "cd $(PI_DIR) && docker compose --env-file .env.pi --profile prod exec -T backend alembic upgrade head"
+	@echo "Seeding reference data..."
+	@ssh $(PI_USER)@$(PI_HOST) "cd $(PI_DIR) && docker compose --env-file .env.pi --profile prod exec -T backend python seed.py"
+	@echo "✅ Deployed to http://$(PI_HOST):3000"
+
+WINDOWS_HOST ?= KATE-SURFACE.local
+WINDOWS_USER ?= user
+WINDOWS_DIR  ?= C:/Users/user/wealthTrack
+WINDOWS_PASS := $(shell grep '^WINDOWS_SSH_PASSWORD=' .env.windows 2>/dev/null | cut -d= -f2)
+WINDOWS_SSH  := sshpass -p '$(WINDOWS_PASS)' ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no -o StrictHostKeyChecking=no
+WINDOWS_SCP  := sshpass -p '$(WINDOWS_PASS)' scp -o PreferredAuthentications=password -o PubkeyAuthentication=no -o StrictHostKeyChecking=no
+
+deploy-windows:
+	@if [ ! -f .env.windows ]; then \
+		echo "❌ .env.windows not found"; \
+		exit 1; \
+	fi
+	@echo "Building images for linux/amd64..."
+	@docker buildx build --platform linux/amd64 -t wealthtrack-backend --load ./backend
+	@docker buildx build --platform linux/amd64 \
+		--build-arg VITE_API_URL=http://KATE-SURFACE.local:8080 \
+		-t wealthtrack-frontend --load ./frontend
+	@echo "Saving images..."
+	@docker save wealthtrack-backend | gzip > /tmp/wealthtrack-backend.tar.gz
+	@docker save wealthtrack-frontend | gzip > /tmp/wealthtrack-frontend.tar.gz
+	@echo "Transferring images to $(WINDOWS_USER)@$(WINDOWS_HOST)..."
+	@$(WINDOWS_SCP) /tmp/wealthtrack-backend.tar.gz $(WINDOWS_USER)@$(WINDOWS_HOST):wealthtrack-backend.tar.gz
+	@$(WINDOWS_SCP) /tmp/wealthtrack-frontend.tar.gz $(WINDOWS_USER)@$(WINDOWS_HOST):wealthtrack-frontend.tar.gz
+	@echo "Loading images on Windows..."
+	@$(WINDOWS_SSH) $(WINDOWS_USER)@$(WINDOWS_HOST) "docker load -i wealthtrack-backend.tar.gz && docker load -i wealthtrack-frontend.tar.gz && del wealthtrack-backend.tar.gz && del wealthtrack-frontend.tar.gz"
+	@echo "Copying config files..."
+	@$(WINDOWS_SCP) docker-compose.yml $(WINDOWS_USER)@$(WINDOWS_HOST):$(WINDOWS_DIR)/docker-compose.yml
+	@$(WINDOWS_SCP) .env.windows $(WINDOWS_USER)@$(WINDOWS_HOST):$(WINDOWS_DIR)/.env.windows
+	@echo "Starting containers..."
+	@$(WINDOWS_SSH) $(WINDOWS_USER)@$(WINDOWS_HOST) "cd $(WINDOWS_DIR) && docker compose --env-file .env.windows --profile prod up -d"
+	@echo "Running migrations..."
+	@$(WINDOWS_SSH) $(WINDOWS_USER)@$(WINDOWS_HOST) "cd $(WINDOWS_DIR) && docker compose --env-file .env.windows --profile prod exec -T backend alembic upgrade head"
+	@echo "Seeding reference data..."
+	@$(WINDOWS_SSH) $(WINDOWS_USER)@$(WINDOWS_HOST) "cd $(WINDOWS_DIR) && docker compose --env-file .env.windows --profile prod exec -T backend python seed.py"
+	@echo "✅ Deployed to http://$(WINDOWS_HOST):3000"
 
 ICLOUD_BACKUP_DIR = /Users/marklewis/Library/Mobile Documents/com~apple~CloudDocs/dev/wealthtrack-backups
 
@@ -131,9 +206,26 @@ check-db:
 	fi
 
 
-test-backend: check-db
+start-test-db:
+	@if pg_isready -h localhost -p 5434 -U postgres >/dev/null 2>&1; then \
+		echo "✅ Test database already running on localhost:5434"; \
+	else \
+		echo "Starting test database on port 5434..."; \
+		docker-compose --env-file .env.test --profile test up -d db; \
+		RETRY=30; \
+		while [ $$RETRY -gt 0 ]; do \
+			if pg_isready -h localhost -p 5434 -U postgres >/dev/null 2>&1; then \
+				echo "✅ Test database ready"; break; \
+			fi; \
+			RETRY=$$((RETRY-1)); sleep 1; \
+		done; \
+		[ $$RETRY -gt 0 ] || (echo "❌ Test database failed to start"; exit 1); \
+	fi
+	@cd backend && DATABASE_URL=$(PR_TEST_DB_URL) alembic upgrade head
+
+test-backend: start-test-db
 	@echo "Running backend tests..."
-	cd backend && python -m pytest --cov=app --cov-report=term
+	cd backend && DATABASE_URL=$(PR_TEST_DB_URL) python -m pytest --cov=app --cov-report=term
 
 test-frontend: check-backend
 	@echo "Running frontend tests..."

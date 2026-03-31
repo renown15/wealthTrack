@@ -51,6 +51,7 @@ REFERENCE_DATA_ITEMS: list[ReferenceDataItem] = [
     ReferenceDataItem(
         class_key="account_type", reference_value="Trust Stocks Investment Account", sort_index=14
     ),
+    ReferenceDataItem(class_key="account_type", reference_value="Shares", sort_index=15),
     # -----------------------------------------------------------------------
     # Account statuses
     # -----------------------------------------------------------------------
@@ -129,6 +130,9 @@ REFERENCE_DATA_ITEMS: list[ReferenceDataItem] = [
     ReferenceDataItem(
         class_key="account_attribute_type", reference_value="Asset Class", sort_index=19
     ),
+    ReferenceDataItem(
+        class_key="account_attribute_type", reference_value="Shares Balance", sort_index=20
+    ),
     # -----------------------------------------------------------------------
     # Asset class values
     # -----------------------------------------------------------------------
@@ -189,4 +193,10 @@ REFERENCE_DATA_ITEMS: list[ReferenceDataItem] = [
     # -----------------------------------------------------------------------
     ReferenceDataItem(class_key="life_expectancy", reference_value="36", sort_index=1),
     ReferenceDataItem(class_key="annuity_assumption_rate", reference_value="0.075", sort_index=1),
+    # -----------------------------------------------------------------------
+    # Stock target reference prices (format: "TICKER:PRICE_IN_PENCE")
+    # -----------------------------------------------------------------------
+    ReferenceDataItem(
+        class_key="stock_target_ref_price", reference_value="HSBA.L:1400", sort_index=1
+    ),
 ]

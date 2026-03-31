@@ -42,7 +42,7 @@
             <td class="table-cell font-semibold">{{ item.account.name }}</td>
             <td class="table-cell">{{ item.accountType || 'Unknown' }}</td>
             <td class="table-cell">
-              <div v-if="editingBalanceId === item.account.id && !isDeferredShares(item) && !isRSU(item)" class="balance-edit">
+              <div v-if="editingBalanceId === item.account.id && !isDeferredShares(item) && !isRSU(item) && !isShares(item)" class="balance-edit">
                 <input
                   v-model="editingBalanceValue"
                   type="text"
@@ -53,7 +53,7 @@
                 />
               </div>
               <button
-                v-if="!isDeferredShares(item) && !isRSU(item)"
+                v-if="!isDeferredShares(item) && !isRSU(item) && !isShares(item)"
                 type="button"
                 class="flex items-center gap-1 text-left bg-transparent border-none cursor-pointer group"
                 :title="isDeferredCash(item) ? getDeferredTooltip(item) : undefined"
@@ -124,6 +124,7 @@ import {
   isDeferredShares,
   isDeferredCash,
   isRSU,
+  isShares,
   getFixedRateEndDate,
   getEditValue,
   getDeferredTooltip,
