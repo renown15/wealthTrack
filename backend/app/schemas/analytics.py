@@ -4,10 +4,19 @@ Schemas for analytics endpoints.
 from pydantic import BaseModel
 
 
+class AccountDetail(BaseModel):
+    """An individual account contributing to a breakdown segment."""
+    account_id: int
+    account_name: str
+    institution_name: str
+    balance: float
+
+
 class BreakdownItem(BaseModel):
-    """A labelled value for a breakdown chart."""
+    """A labelled value for a breakdown chart, with per-account detail."""
     label: str
     value: float
+    accounts: list["AccountDetail"] = []
 
 
 class PortfolioBreakdown(BaseModel):
@@ -15,6 +24,7 @@ class PortfolioBreakdown(BaseModel):
     by_type: list[BreakdownItem]
     by_institution: list[BreakdownItem]
     by_asset_class: list[BreakdownItem]
+    by_asset_class_no_pension: list[BreakdownItem]
     total: float
 
 

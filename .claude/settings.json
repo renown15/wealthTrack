@@ -8,7 +8,10 @@
       "Bash(ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no user@KATE-SURFACE.local \"echo connected\")",
       "Bash(brew install:*)",
       "Bash(sshpass -p 'frankliN' ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no -o StrictHostKeyChecking=no user@KATE-SURFACE.local \"docker exec wealthtrack-backend-prod python -c \"\"import os; [print\\(f\\) for f in sorted\\(os.listdir\\(''/app/alembic/versions/''\\)\\)]\"\"\")",
-      "Bash(ssh marklewis@raspberrypi.local \"cd ~/wealthTrack && docker compose --env-file .env.pi --profile prod exec -T frontend head -c 2000 /usr/share/nginx/html/assets/index-BHkhO0kd.css\")"
+      "Bash(ssh marklewis@raspberrypi.local \"cd ~/wealthTrack && docker compose --env-file .env.pi --profile prod exec -T frontend head -c 2000 /usr/share/nginx/html/assets/index-BHkhO0kd.css\")",
+      "Bash(source venv/bin/activate)",
+      "Bash(python -m mypy app/repositories/analytics_repository.py app/schemas/analytics.py --config-file mypy.ini)",
+      "Bash(mypy app/repositories/analytics_repository.py app/schemas/analytics.py --config-file mypy.ini)"
     ]
   }
 }

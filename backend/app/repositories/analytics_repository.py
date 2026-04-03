@@ -29,12 +29,8 @@ class AnalyticsRepository:
         self.session = session
 
     async def get_portfolio_breakdown(self, user_id: int) -> dict[str, Any]:
-        """
-        Return current portfolio value broken down by account type, institution
-        and asset class.
-
-        Uses the latest event value per account (same logic as the portfolio endpoint).
-        """
+        """Return current portfolio value broken down by account type, institution
+        and asset class. Uses the latest event value per account."""
         max_date_subq = (
             select(
                 AccountEvent.account_id,
@@ -58,6 +54,8 @@ class AnalyticsRepository:
 
         stmt = (
             select(
+                Account.id.label("account_id"),
+                Account.name.label("account_name"),
                 ReferenceData.reference_value.label("account_type"),
                 Institution.name.label("institution"),
                 AccountEvent.value,
@@ -83,39 +81,55 @@ class AnalyticsRepository:
 
         result = await self.session.execute(stmt)
         rows = result.all()
-
         by_type: dict[str, float] = {}
         by_institution: dict[str, float] = {}
         by_asset_class: dict[str, float] = {}
+        by_asset_class_no_pension: dict[str, float] = {}
+        by_type_accts: dict[str, list[dict[str, Any]]] = {}
+        by_inst_accts: dict[str, list[dict[str, Any]]] = {}
+        by_ac_accts: dict[str, list[dict[str, Any]]] = {}
+        by_ac_no_pension_accts: dict[str, list[dict[str, Any]]] = {}
         total = 0.0
-
-        for account_type, institution, raw_value, asset_class in rows:
+        for account_id, account_name, account_type, institution, raw_value, asset_class in rows:
             try:
                 val = float(raw_value)
             except (TypeError, ValueError):
                 continue
             if val <= 0:
                 continue
-
             total += val
-            by_type[account_type] = by_type.get(account_type, 0.0) + val
             inst = institution or "Unknown"
-            by_institution[inst] = by_institution.get(inst, 0.0) + val
             ac = asset_class or "Unclassified"
+            by_type[account_type] = by_type.get(account_type, 0.0) + val
+            by_institution[inst] = by_institution.get(inst, 0.0) + val
             by_asset_class[ac] = by_asset_class.get(ac, 0.0) + val
+            detail = {"account_id": account_id, "account_name": account_name, "institution_name": inst, "balance": round(val, 2)}
+            by_type_accts.setdefault(account_type, []).append(detail)
+            by_inst_accts.setdefault(inst, []).append(detail)
+            by_ac_accts.setdefault(ac, []).append(detail)
+            if "pension" not in account_type.lower():
+                by_asset_class_no_pension[ac] = by_asset_class_no_pension.get(ac, 0.0) + val
+                by_ac_no_pension_accts.setdefault(ac, []).append(detail)
+
+        def _sorted_accts(d: dict[str, list[dict[str, Any]]], k: str) -> list[dict[str, Any]]:
+            return sorted(d.get(k, []), key=lambda x: -x["balance"])
 
         return {
             "by_type": [
-                {"label": k, "value": round(v, 2)}
+                {"label": k, "value": round(v, 2), "accounts": _sorted_accts(by_type_accts, k)}
                 for k, v in sorted(by_type.items(), key=lambda x: -x[1])
             ],
             "by_institution": [
-                {"label": k, "value": round(v, 2)}
+                {"label": k, "value": round(v, 2), "accounts": _sorted_accts(by_inst_accts, k)}
                 for k, v in sorted(by_institution.items(), key=lambda x: -x[1])
             ],
             "by_asset_class": [
-                {"label": k, "value": round(v, 2)}
+                {"label": k, "value": round(v, 2), "accounts": _sorted_accts(by_ac_accts, k)}
                 for k, v in sorted(by_asset_class.items(), key=lambda x: -x[1])
+            ],
+            "by_asset_class_no_pension": [
+                {"label": k, "value": round(v, 2), "accounts": _sorted_accts(by_ac_no_pension_accts, k)}
+                for k, v in sorted(by_asset_class_no_pension.items(), key=lambda x: -x[1])
             ],
             "total": round(total, 2),
         }
@@ -129,19 +143,13 @@ class AnalyticsRepository:
         record is written, so every day has an exact total.
         """
         # Get baseline date from reference data (global setting, not user-specific)
-        baseline_stmt = select(ReferenceData.reference_value).where(
-            ReferenceData.class_key == "analytics_baseline_date"
+        baseline_result = await self.session.execute(
+            select(ReferenceData.reference_value).where(ReferenceData.class_key == "analytics_baseline_date")
         )
-        baseline_result = await self.session.execute(baseline_stmt)
-        baseline_value = baseline_result.scalar()
-        baseline_date_str = baseline_value if baseline_value else None
+        baseline_date_str = baseline_result.scalar() or None
 
         stmt = (
-            select(
-                AccountEvent.account_id,
-                AccountEvent.created_at,
-                AccountEvent.value,
-            )
+            select(AccountEvent.account_id, AccountEvent.created_at, AccountEvent.value)
             .join(Account, Account.id == AccountEvent.account_id)
             .where(Account.user_id == user_id)
             .order_by(AccountEvent.created_at)
@@ -160,11 +168,7 @@ class AnalyticsRepository:
                 val = float(raw_value)
             except (TypeError, ValueError):
                 continue
-            event_date = (
-                created_at.date()
-                if hasattr(created_at, "date")
-                else date.fromisoformat(str(created_at)[:10])
-            )
+            event_date = created_at.date() if hasattr(created_at, "date") else date.fromisoformat(str(created_at)[:10])
             # Overwrite — rows are ordered by created_at so the last row for
             # this (date, account) is the latest value on that day
             events_by_date[event_date][account_id] = val

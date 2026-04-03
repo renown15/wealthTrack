@@ -1,43 +1,8 @@
 <template>
   <div class="hub-content-card p-6">
-    <div class="mb-4">
-      <h3 class="section-title mb-4">Portfolio Value Over Time</h3>
-      <div class="flex flex-col gap-4">
-        <div class="flex items-end gap-4">
-          <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-slate-700">Start Date (Analysis Baseline)</label>
-            <input
-              :value="startDate"
-              @input="(e) => $emit('update:startDate', (e.target as HTMLInputElement).value)"
-              type="date"
-              class="form-input px-3 py-2 border border-gray-300 rounded"
-              :min="minDate"
-              :max="endDate"
-            />
-            <button
-              v-if="startDate !== baselineDate"
-              @click="$emit('saveBaseline')"
-              class="mt-2 px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer"
-            >
-              Save Baseline
-            </button>
-          </div>
-          <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium text-slate-700">End Date</label>
-            <input
-              :value="endDate"
-              @input="(e) => $emit('update:endDate', (e.target as HTMLInputElement).value)"
-              type="date"
-              class="form-input px-3 py-2 border border-gray-300 rounded"
-              :min="startDate"
-              :max="today"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+    <h3 class="section-title mb-4">Portfolio Value Over Time</h3>
     <div v-if="historyChartData" class="chart-container chart-tall">
-      <Bar :data="historyChartData" :options="barChartOptions" />
+      <Line :data="historyChartData" :options="lineChartOptions" />
     </div>
     <div v-else class="text-center text-muted py-8">
       No balance history recorded yet.
@@ -47,23 +12,12 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Bar } from 'vue-chartjs';
+import { Line } from 'vue-chartjs';
 import type { HistoryPoint } from '@/models/WealthTrackDataModels';
 
 const props = defineProps<{
-  startDate: string;
-  endDate: string;
-  today: string;
-  minDate: string;
-  baselineDate: string;
   filteredHistory: HistoryPoint[];
   formatCurrency: (v: number) => string;
-}>();
-
-defineEmits<{
-  'update:startDate': [value: string];
-  'update:endDate': [value: string];
-  saveBaseline: [];
 }>();
 
 function formatDateLabel(dateStr: string, totalPoints: number): string {
@@ -81,15 +35,19 @@ const historyChartData = computed(() => {
     datasets: [{
       label: 'Portfolio Value',
       data: pts.map(p => p.totalValue),
-      backgroundColor: 'rgba(59,130,246,0.8)',
       borderColor: '#3b82f6',
-      borderWidth: 1,
-      borderRadius: 2,
+      borderWidth: 2,
+      tension: 0.3,
+      fill: false,
+      pointRadius: 4,
+      pointBackgroundColor: '#3b82f6',
+      pointBorderColor: '#fff',
+      pointBorderWidth: 2,
     }],
   };
 });
 
-const barChartOptions = computed(() => ({
+const lineChartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   interaction: { mode: 'index' as const, intersect: false },
@@ -97,6 +55,7 @@ const barChartOptions = computed(() => ({
   layout: { padding: { left: 0, right: 0, top: 0, bottom: 0 } },
   plugins: {
     legend: { display: false },
+    datalabels: { display: false },
     tooltip: {
       callbacks: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

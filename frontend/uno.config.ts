@@ -126,17 +126,10 @@ export default defineConfig({
     'first-member': '[&>td]:border-t [&>td]:border-[#e5ecff]',
 
     // Analytics
-    'analytics-header': 'flex items-start justify-between gap-6 flex-wrap',
-    'analytics-title': 'text-[1.375rem] font-700 m-0 mb-1',
-    'analytics-subtitle': 'text-[0.875rem] text-slate-500 m-0',
-    'analytics-summary': 'flex gap-8',
-    'summary-stat': 'flex flex-col items-end',
-    'summary-label': 'text-[0.75rem] text-slate-500 uppercase tracking-[0.05em]',
-    'summary-value': 'text-[1.25rem] font-700 text-slate-800',
     'range-buttons': 'flex gap-1',
     'range-btn': 'px-3 py-1 border border-slate-200 rounded-md bg-white text-slate-500 text-[0.8125rem] font-500 cursor-pointer transition-all hover:border-blue-500 hover:text-blue-500',
     'range-btn-active': 'bg-blue-500 border-blue-500 text-white',
-    'analytics-grid': 'grid grid-cols-2 gap-4 max-[900px]:grid-cols-1 w-full',
+    'analytics-grid': 'grid grid-cols-3 gap-4 max-[1100px]:grid-cols-2 max-[700px]:grid-cols-1 w-[1920px]',
     'analytics-card': 'bg-card rounded-[24px] overflow-visible shadow-card p-6 min-h-[700px]',
     'chart-container': 'relative h-[260px]',
     'chart-institution': 'relative h-[420px]',

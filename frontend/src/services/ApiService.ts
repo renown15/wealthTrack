@@ -1,7 +1,4 @@
-/**
- * API service facade for backwards compatibility.
- * Re-exports specialized services for cleaner organization.
- */
+/** API service facade — aggregates all API operations for backwards compatibility. */
 import type {
   User,
   UserRegistration,

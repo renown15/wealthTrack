@@ -169,15 +169,24 @@ export interface AccountGroupUpdateRequest {
 }
 
 // Analytics types
+export interface AccountDetail {
+  accountId: number;
+  accountName: string;
+  institutionName: string;
+  balance: number;
+}
+
 export interface BreakdownItem {
   label: string;
   value: number;
+  accounts: AccountDetail[];
 }
 
 export interface PortfolioBreakdown {
   byType: BreakdownItem[];
   byInstitution: BreakdownItem[];
   byAssetClass: BreakdownItem[];
+  byAssetClassNoPension: BreakdownItem[];
   total: number;
 }
 

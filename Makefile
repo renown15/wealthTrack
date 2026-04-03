@@ -122,28 +122,39 @@ deploy-windows:
 		echo "❌ .env.windows not found"; \
 		exit 1; \
 	fi
-	@echo "Building images for linux/amd64..."
-	@docker buildx build --platform linux/amd64 -t wealthtrack-backend --load ./backend
-	@docker buildx build --platform linux/amd64 \
+	@echo ""
+	@echo "[1/7] Building backend image for linux/amd64 (this takes a few minutes)..."
+	docker buildx build --platform linux/amd64 --progress=plain -t wealthtrack-backend --load ./backend
+	@echo ""
+	@echo "[2/7] Building frontend image for linux/amd64..."
+	docker buildx build --platform linux/amd64 --progress=plain \
 		--build-arg VITE_API_URL=http://KATE-SURFACE.local:8080 \
 		-t wealthtrack-frontend --load ./frontend
-	@echo "Saving images..."
-	@docker save wealthtrack-backend | gzip > /tmp/wealthtrack-backend.tar.gz
-	@docker save wealthtrack-frontend | gzip > /tmp/wealthtrack-frontend.tar.gz
-	@echo "Transferring images to $(WINDOWS_USER)@$(WINDOWS_HOST)..."
-	@$(WINDOWS_SCP) /tmp/wealthtrack-backend.tar.gz $(WINDOWS_USER)@$(WINDOWS_HOST):wealthtrack-backend.tar.gz
-	@$(WINDOWS_SCP) /tmp/wealthtrack-frontend.tar.gz $(WINDOWS_USER)@$(WINDOWS_HOST):wealthtrack-frontend.tar.gz
-	@echo "Loading images on Windows..."
-	@$(WINDOWS_SSH) $(WINDOWS_USER)@$(WINDOWS_HOST) "docker load -i wealthtrack-backend.tar.gz && docker load -i wealthtrack-frontend.tar.gz && del wealthtrack-backend.tar.gz && del wealthtrack-frontend.tar.gz"
-	@echo "Copying config files..."
-	@$(WINDOWS_SCP) docker-compose.yml $(WINDOWS_USER)@$(WINDOWS_HOST):$(WINDOWS_DIR)/docker-compose.yml
-	@$(WINDOWS_SCP) .env.windows $(WINDOWS_USER)@$(WINDOWS_HOST):$(WINDOWS_DIR)/.env.windows
-	@echo "Starting containers..."
-	@$(WINDOWS_SSH) $(WINDOWS_USER)@$(WINDOWS_HOST) "cd $(WINDOWS_DIR) && docker compose --env-file .env.windows --profile prod up -d"
-	@echo "Running migrations..."
-	@$(WINDOWS_SSH) $(WINDOWS_USER)@$(WINDOWS_HOST) "cd $(WINDOWS_DIR) && docker compose --env-file .env.windows --profile prod exec -T backend alembic upgrade head"
-	@echo "Seeding reference data..."
-	@$(WINDOWS_SSH) $(WINDOWS_USER)@$(WINDOWS_HOST) "cd $(WINDOWS_DIR) && docker compose --env-file .env.windows --profile prod exec -T backend python seed.py"
+	@echo ""
+	@echo "[3/7] Saving images to /tmp (backend then frontend)..."
+	docker save wealthtrack-backend | gzip > /tmp/wealthtrack-backend.tar.gz
+	@echo "   backend saved"
+	docker save wealthtrack-frontend | gzip > /tmp/wealthtrack-frontend.tar.gz
+	@echo "   frontend saved"
+	@echo ""
+	@echo "[4/7] Transferring images to $(WINDOWS_USER)@$(WINDOWS_HOST)..."
+	$(WINDOWS_SCP) /tmp/wealthtrack-backend.tar.gz $(WINDOWS_USER)@$(WINDOWS_HOST):wealthtrack-backend.tar.gz
+	@echo "   backend transferred"
+	$(WINDOWS_SCP) /tmp/wealthtrack-frontend.tar.gz $(WINDOWS_USER)@$(WINDOWS_HOST):wealthtrack-frontend.tar.gz
+	@echo "   frontend transferred"
+	@echo ""
+	@echo "[5/7] Loading images on Windows and starting containers..."
+	$(WINDOWS_SSH) $(WINDOWS_USER)@$(WINDOWS_HOST) "docker load -i wealthtrack-backend.tar.gz && docker load -i wealthtrack-frontend.tar.gz && del wealthtrack-backend.tar.gz && del wealthtrack-frontend.tar.gz"
+	$(WINDOWS_SCP) docker-compose.yml $(WINDOWS_USER)@$(WINDOWS_HOST):$(WINDOWS_DIR)/docker-compose.yml
+	$(WINDOWS_SCP) .env.windows $(WINDOWS_USER)@$(WINDOWS_HOST):$(WINDOWS_DIR)/.env.windows
+	$(WINDOWS_SSH) $(WINDOWS_USER)@$(WINDOWS_HOST) "cd $(WINDOWS_DIR) && docker compose --env-file .env.windows --profile prod up -d"
+	@echo ""
+	@echo "[6/7] Running migrations..."
+	$(WINDOWS_SSH) $(WINDOWS_USER)@$(WINDOWS_HOST) "cd $(WINDOWS_DIR) && docker compose --env-file .env.windows --profile prod exec -T backend alembic upgrade head"
+	@echo ""
+	@echo "[7/7] Seeding reference data..."
+	$(WINDOWS_SSH) $(WINDOWS_USER)@$(WINDOWS_HOST) "cd $(WINDOWS_DIR) && docker compose --env-file .env.windows --profile prod exec -T backend python seed.py"
+	@echo ""
 	@echo "✅ Deployed to http://$(WINDOWS_HOST):3000"
 
 ICLOUD_BACKUP_DIR = /Users/marklewis/Library/Mobile Documents/com~apple~CloudDocs/dev/wealthtrack-backups

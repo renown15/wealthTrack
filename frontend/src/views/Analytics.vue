@@ -1,24 +1,26 @@
 <template>
   <div class="page-view">
     <div class="hub-header-card">
-      <div class="analytics-header">
-        <div>
-          <h2 class="analytics-title">Analytics</h2>
-          <p class="analytics-subtitle">Portfolio performance and composition</p>
+      <div class="header-panel">
+        <div class="header-top">
+          <div>
+            <h2 class="header-title">Analytics</h2>
+            <p class="header-subtitle">Portfolio performance and composition</p>
+          </div>
         </div>
-        <div v-if="!loading && breakdown" class="analytics-summary">
-          <div class="summary-stat">
-            <span class="summary-label">Total Value</span>
-            <span class="summary-value">{{ formatCurrency(breakdown.total) }}</span>
-          </div>
-          <div class="summary-stat">
-            <span class="summary-label">Account Types</span>
-            <span class="summary-value">{{ breakdown.byType.length }}</span>
-          </div>
-          <div class="summary-stat">
-            <span class="summary-label">Institutions</span>
-            <span class="summary-value">{{ breakdown.byInstitution.length }}</span>
-          </div>
+        <div v-if="!loading && breakdown" class="stats-grid">
+          <article class="stat-card">
+            <p class="stat-label">Total Value</p>
+            <p class="stat-value">{{ formatCurrency(breakdown.total) }}</p>
+          </article>
+          <article class="stat-card">
+            <p class="stat-label">Account Types</p>
+            <p class="stat-value">{{ breakdown.byType.length }}</p>
+          </article>
+          <article class="stat-card">
+            <p class="stat-label">Institutions</p>
+            <p class="stat-value">{{ breakdown.byInstitution.length }}</p>
+          </article>
         </div>
       </div>
     </div>
@@ -39,24 +41,38 @@
 
     <template v-else-if="breakdown && history">
       <AnalyticsHistory
-        :start-date="startDate"
-        :end-date="endDate"
-        :today="today"
-        :min-date="minDate"
-        :baseline-date="history.baselineDate ?? ''"
         :filtered-history="filteredHistory"
         :format-currency="formatCurrency"
-        @update:start-date="startDate = $event"
-        @update:end-date="endDate = $event"
-        @save-baseline="saveBaselineDate"
       />
       <AnalyticsBreakdown
         :breakdown="breakdown"
         :chart-palette="chartPalette"
         :format-currency="formatCurrency"
         :pct="pct"
+        :selected="selectedSegment"
+        @select-segment="onSelectSegment"
+      />
+      <AnalyticsDetailPane
+        v-if="selectedSegment"
+        :item="selectedSegment"
+        :color="selectedColor"
+        :total="breakdown.total"
+        :format-currency="formatCurrency"
+        :pct="pct"
+        @close="selectedSegment = null"
+        @edit-account="openEdit"
       />
     </template>
+    <AnalyticsEditModal
+      :account="editingAccount"
+      :open="editModalOpen"
+      :institutions="institutions"
+      :account-types="accountTypes"
+      :account-statuses="accountStatuses"
+      :error="editModalError"
+      @close="closeEdit"
+      @save="handleEditSave"
+    />
   </div>
 </template>
 
@@ -76,15 +92,18 @@ import {
   Legend,
   Filler,
 } from 'chart.js';
+import DataLabelsPlugin from 'chartjs-plugin-datalabels';
 import { apiService } from '@/services/ApiService';
-import { referenceDataService } from '@/services/ReferenceDataService';
-import type { PortfolioBreakdown, PortfolioHistory, HistoryPoint } from '@/models/WealthTrackDataModels';
+import type { PortfolioBreakdown, PortfolioHistory, HistoryPoint, BreakdownItem } from '@/models/WealthTrackDataModels';
 import AnalyticsHistory from '@views/AnalyticsHistory.vue';
 import AnalyticsBreakdown from '@views/AnalyticsBreakdown.vue';
+import AnalyticsDetailPane from '@views/AnalyticsDetailPane.vue';
+import AnalyticsEditModal from '@views/AnalyticsEditModal.vue';
+import { useAnalyticsEdit } from '@/composables/useAnalyticsEdit';
 
 ChartJS.register(
   CategoryScale, LinearScale, LogarithmicScale, PointElement,
-  LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler,
+  LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler, DataLabelsPlugin,
 );
 
 const loading = ref(false);
@@ -94,7 +113,24 @@ const history = ref<PortfolioHistory | null>(null);
 const startDate = ref<string>('');
 const endDate = ref<string>('');
 const today = computed(() => new Date().toISOString().slice(0, 10));
-const minDate = computed(() => history.value?.baselineDate ?? '2026-01-01');
+
+const selectedSegment = ref<BreakdownItem | null>(null);
+const selectedColor = ref('');
+
+const {
+  editingAccount, editModalOpen, editModalError,
+  institutions, accountTypes, accountStatuses,
+  openEdit, handleSave: handleEditSave, closeEdit,
+} = useAnalyticsEdit(reloadAndReselect);
+
+async function reloadAndReselect(): Promise<void> {
+  const prev = selectedSegment.value?.label;
+  await loadAll();
+  if (prev && breakdown.value)
+    selectedSegment.value = [...breakdown.value.byType, ...breakdown.value.byInstitution, ...breakdown.value.byAssetClass].find(i => i.label === prev) ?? selectedSegment.value;
+}
+
+function onSelectSegment(item: BreakdownItem | null, color: string): void { selectedSegment.value = item; selectedColor.value = color; }
 
 const chartPalette = [
   '#3b82f6', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b',
@@ -135,21 +171,6 @@ function pct(v: number, total: number): string {
   return `${((v / total) * 100).toFixed(1)}%`;
 }
 
-async function saveBaselineDate(): Promise<void> {
-  try {
-    const items = await referenceDataService.listByClass('analytics_baseline_date');
-    if (items.length === 0) { error.value = 'Baseline date configuration not found'; return; }
-    const item = items[0];
-    await referenceDataService.update(item.id, {
-      classKey: 'analytics_baseline_date',
-      referenceValue: startDate.value,
-      sortIndex: item.sortIndex || 0,
-    });
-    if (history.value) { history.value.baselineDate = startDate.value; }
-  } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Failed to save baseline date';
-  }
-}
 </script>
 
 <!-- Uses UnoCSS shortcuts defined in uno.config.ts -->
