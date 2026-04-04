@@ -12,43 +12,56 @@ export function exportAccountsToExcel(accounts: PortfolioItem[], fileName: strin
     'Roll / Ref Number': item.account?.rollRefNumber || '',
     'Interest Rate': item.account?.interestRate || '',
     'Fixed Bonus Rate': item.account?.fixedBonusRate || '',
-    'Fixed Rate End Date': item.account?.fixedBonusRateEndDate ? new Date(item.account.fixedBonusRateEndDate).toLocaleDateString('en-GB') : '',
-    'Opened Date': item.account?.openedAt ? new Date(item.account.openedAt).toLocaleDateString('en-GB') : '',
-    'Closed Date': item.account?.closedAt ? new Date(item.account.closedAt).toLocaleDateString('en-GB') : '',
-    'Release Date': item.account?.releaseDate ? new Date(item.account.releaseDate).toLocaleDateString('en-GB') : '',
+    'Fixed Rate End Date': item.account?.fixedBonusRateEndDate ? formatDateForExcel(item.account.fixedBonusRateEndDate) : '',
+    'Opened Date': item.account?.openedAt ? formatDateForExcel(item.account.openedAt) : '',
+    'Closed Date': item.account?.closedAt ? formatDateForExcel(item.account.closedAt) : '',
+    'Release Date': item.account?.releaseDate ? formatDateForExcel(item.account.releaseDate) : '',
     'Shares': item.account?.numberOfShares || '',
     'Price': item.account?.price || '',
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(data);
   
-  // Format Balance column (column D) as currency
   const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
+  
   for (let row = range.s.r + 1; row <= range.e.r; row++) {
-    const cellAddress = XLSX.utils.encode_cell({ r: row, c: 3 }); // Column D (index 3) is Balance
-    const cellData = worksheet[cellAddress] as Record<string, unknown> | undefined;
-    if (cellData && typeof cellData === 'object') {
-      cellData.z = '#,##0.00'; // Format as number with 2 decimal places
+    // Format Balance as GBP currency
+    const balanceCellAddress = XLSX.utils.encode_cell({ r: row, c: 3 });
+    const balanceCellData = worksheet[balanceCellAddress] as Record<string, unknown> | undefined;
+    if (balanceCellData && typeof balanceCellData === 'object') {
+      balanceCellData.z = '"£"#,##0.00';
     }
+    
+    // Format date columns - these contain ISO date strings now
+    const dateColumnIndices = [9, 10, 11, 12]; // Fixed Rate End Date, Opened Date, Closed Date, Release Date
+    dateColumnIndices.forEach((col) => {
+      const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+      const cellData = worksheet[cellAddress] as Record<string, unknown> | undefined;
+      if (cellData && typeof cellData === 'object' && cellData.v && cellData.v !== '') {
+        // Convert ISO string to Date object
+        cellData.t = 'd';
+        cellData.v = new Date(cellData.v as string);
+        cellData.z = 'yyyy-mm-dd';
+      }
+    });
   }
   
-  // Set column widths
   const columnWidths = [
-    { wch: 25 }, // Account Name
-    { wch: 20 }, // Institution
-    { wch: 20 }, // Type
-    { wch: 15 }, // Balance
-    { wch: 18 }, // Account Number
-    { wch: 12 }, // Sort Code
-    { wch: 16 }, // Roll / Ref Number
-    { wch: 12 }, // Interest Rate
-    { wch: 15 }, // Fixed Bonus Rate
-    { wch: 16 }, // Fixed Rate End Date
-    { wch: 12 }, // Opened Date
-    { wch: 12 }, // Closed Date
-    { wch: 12 }, // Release Date
-    { wch: 10 }, // Shares
-    { wch: 10 }, // Price
+    { wch: 25 },
+    { wch: 20 },
+    { wch: 20 },
+    { wch: 15 },
+    { wch: 18 },
+    { wch: 12 },
+    { wch: 16 },
+    { wch: 12 },
+    { wch: 15 },
+    { wch: 16 },
+    { wch: 12 },
+    { wch: 12 },
+    { wch: 12 },
+    { wch: 10 },
+    { wch: 10 },
   ];
   worksheet['!cols'] = columnWidths;
 
@@ -56,4 +69,29 @@ export function exportAccountsToExcel(accounts: PortfolioItem[], fileName: strin
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Accounts');
 
   XLSX.writeFile(workbook, fileName);
+}
+
+function formatDateForExcel(dateString: string): string {
+  if (!dateString || dateString.trim() === '') {
+    return '';
+  }
+
+  let date = new Date(dateString);
+  
+  // If standard parsing fails, try DD/MM/YYYY format
+  if (isNaN(date.getTime())) {
+    const ddmmyyyyMatch = dateString.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (ddmmyyyyMatch) {
+      const day = parseInt(ddmmyyyyMatch[1], 10);
+      const month = parseInt(ddmmyyyyMatch[2], 10);
+      const year = parseInt(ddmmyyyyMatch[3], 10);
+      date = new Date(year, month - 1, day); // month is 0-indexed
+    }
+  }
+  
+  if (isNaN(date.getTime())) {
+    throw new Error(`Invalid date format: "${dateString}". Expected ISO format (YYYY-MM-DD), DD/MM/YYYY, or valid JavaScript date string.`);
+  }
+
+  return date.toISOString().split('T')[0];
 }

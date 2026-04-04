@@ -48,6 +48,7 @@ export interface AccountFormData {
   purchasePrice: string;
   pensionMonthlyPayment: string;
   assetClass: string;
+  encumbrance: string;
 }
 
 export interface AccountFormProps {
@@ -72,6 +73,7 @@ export interface AccountFormProps {
   initialPurchasePrice?: string | null;
   initialPensionMonthlyPayment?: string | null;
   initialAssetClass?: string | null;
+  initialEncumbrance?: string | null;
   accountTypes: ReferenceDataItem[];
   accountStatuses: ReferenceDataItem[];
 }
@@ -97,6 +99,7 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     purchasePrice: props.value.initialPurchasePrice || '',
     pensionMonthlyPayment: props.value.initialPensionMonthlyPayment || '',
     assetClass: props.value.initialAssetClass || '',
+    encumbrance: props.value.initialEncumbrance || '',
   });
 
   const syncAccountType = (): void => {
@@ -159,6 +162,7 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     formData.value.purchasePrice = props.value.initialPurchasePrice || '';
     formData.value.pensionMonthlyPayment = props.value.initialPensionMonthlyPayment || '';
     formData.value.assetClass = props.value.initialAssetClass || '';
+    formData.value.encumbrance = props.value.initialEncumbrance || '';
     syncAccountType();
     syncAccountStatus();
   };

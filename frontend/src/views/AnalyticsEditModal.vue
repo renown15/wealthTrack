@@ -25,6 +25,7 @@
     :initial-purchase-price="initialModalPurchasePrice"
     :initial-pension-monthly-payment="initialModalPensionMonthlyPayment"
     :initial-asset-class="initialModalAssetClass"
+    :initial-encumbrance="initialModalEncumbrance"
     :error="error"
     @close="$emit('close')"
     @save="(p) => $emit('save', p)"
@@ -57,6 +58,6 @@ const {
   initialModalRollRefNumber, initialModalInterestRate, initialModalFixedBonusRate,
   initialModalFixedBonusRateEndDate, initialModalReleaseDate, initialModalNumberOfShares,
   initialModalUnderlying, initialModalPrice, initialModalPurchasePrice,
-  initialModalPensionMonthlyPayment, initialModalAssetClass,
+  initialModalPensionMonthlyPayment, initialModalAssetClass, initialModalEncumbrance,
 } = useModalInitialValues(editingItem);
 </script>

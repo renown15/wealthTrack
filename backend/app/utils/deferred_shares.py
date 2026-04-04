@@ -46,7 +46,7 @@ def calculate_deferred_shares_balance_detailed(
     current_value_in_pence = number_of_shares * current_price
     purchase_value_in_pence = number_of_shares * purchase_price
     gain_in_pence = current_value_in_pence - purchase_value_in_pence
-    tax_on_gain_in_pence = max(0.0, gain_in_pence * 0.2)
+    tax_on_gain_in_pence = gain_in_pence * 0.2
     balance_in_pence = current_value_in_pence - tax_on_gain_in_pence
 
     return DeferredSharesCalculation(

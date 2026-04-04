@@ -98,8 +98,7 @@ import { useAccountCrudHandlers } from '@/composables/useAccountCrudHandlers';
 import { useInstitutionCrudHandlers } from '@/composables/useInstitutionCrudHandlers';
 import { useAccountGroupHandlers } from '@/composables/useAccountGroupHandlers';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
-import { calculatePensionValue } from '@composables/portfolioCalculations';
-import type { PensionBreakdown } from '@composables/portfolioCalculations';
+import { calculatePensionValue, type PensionBreakdown } from '@composables/portfolioCalculations';
 import AccountHubStats from '@views/AccountHub/AccountHubStats.vue';
 import PortfolioTable from '@views/AccountHub/PortfolioTable.vue';
 import InstitutionsList from '@views/AccountHub/InstitutionsList.vue';
@@ -109,19 +108,13 @@ import { exportAccountsToExcel } from '@/utils/exportToExcel';
 
 const { state, totalValue, cashAtHand, isaSavings, illiquid, trustAssets, projectedAnnualYield, loadPortfolio, clearError } = usePortfolio();
 const { state: accountGroupsState, loadGroups, createGroup, updateGroup, deleteGroup, saveGroupMembers } = useAccountGroups();
-const grouped = ref(true);
-const groupByParent = ref(true);
-const lifeExpectancy = ref(36);
-const annuityRate = ref(0.075);
+const grouped = ref(true); const groupByParent = ref(true);
+const lifeExpectancy = ref(36); const annuityRate = ref(0.075);
 const pensionBreakdown = computed<PensionBreakdown>(() => calculatePensionValue(state.items, lifeExpectancy.value, annuityRate.value));
-const accountTypes = ref<ReferenceDataItem[]>([]);
-const accountStatuses = ref<ReferenceDataItem[]>([]);
-const institutionTypes = ref<ReferenceDataItem[]>([]);
-const credentialTypes = ref<any[]>([]);
-
+const accountTypes = ref<ReferenceDataItem[]>([]); const accountStatuses = ref<ReferenceDataItem[]>([]);
+const institutionTypes = ref<ReferenceDataItem[]>([]); const credentialTypes = ref<any[]>([]);
 onMounted(() => {
-  void loadPortfolio();
-  void loadGroups();
+  void loadPortfolio(); void loadGroups();
   void Promise.all([
     apiService.getReferenceData('account_type'), apiService.getReferenceData('account_status'),
     apiService.getReferenceData('institution_type'), apiService.getReferenceData('credential_type'),
@@ -139,7 +132,6 @@ const {
   credentialDeletingId, credentialError, editingCredential, openCredentialsModal, closeCredentialsModal,
   handleCredentialSave, handleCredentialEdit, cancelCredentialEdit, handleCredentialDelete,
 } = useCredentialsModal();
-
 const { eventsModalOpen, eventsTitle, eventsLoading, eventsError, events, accountType, currentAccountId, openEventsModal, closeEventsModal } = useEventsModal();
 
 const accountModalOpen = ref(false);
@@ -148,9 +140,7 @@ const modalType = ref<'create' | 'edit'>('create');
 const editingItem = ref<Account | Institution | null>(null);
 const deleteConfirmOpen = ref(false);
 const deleteConfirmType = ref<'account' | 'institution'>('account');
-const deleteConfirmId = ref(0);
-const deleteConfirmName = ref('');
-
+const deleteConfirmId = ref(0); const deleteConfirmName = ref('');
 const groupMembersMap = computed(() => accountGroupsState.groupMembers);
 const {
   accountGroupModalOpen, accountGroupModalType, editingGroupId, editingGroupName, editingGroupMemberIds,
@@ -165,11 +155,10 @@ const openCreateInstitutionModal = (): void => { modalType.value = 'create'; edi
 const openEditInstitutionModal = (institution: Institution): void => { modalType.value = 'edit'; editingItem.value = institution; institutionModalOpen.value = true; };
 const closeInstitutionModal = (): void => { institutionModalOpen.value = false; editingItem.value = null; };
 const openDeleteConfirm = (type: 'account' | 'institution', id: number, name: string): void => { deleteConfirmType.value = type; deleteConfirmId.value = id; deleteConfirmName.value = name; deleteConfirmOpen.value = true; };
-const closeDeleteConfirm = (): void => { deleteConfirmOpen.value = false; };
-
+const closeDeleteConfirm = (): void => { deleteConfirmOpen.value = false };
+const exportToExcel = (): void => { exportAccountsToExcel(state.items, `wealthtrack-accounts-${new Date().toISOString().split('T')[0]}.xlsx`); };
 const { handleSave: handleAccountCrudSave, handleDelete: handleAccountDelete } = useAccountCrudHandlers(accountTypes, accountStatuses, modalType, editingItem, closeAccountModal);
 const { handleSave: handleInstitutionCrudSave, handleDelete: handleInstitutionDelete } = useInstitutionCrudHandlers(modalType, editingItem, closeInstitutionModal);
-
 const handleAccountSave = async (payload: any): Promise<void> => {
   try { await handleAccountCrudSave(payload); await loadPortfolio(); closeAccountModal(); }
   catch (error) { debug.error('[AccountHub] Account save failed:', error); }
@@ -183,22 +172,23 @@ const handleConfirmDelete = async (): Promise<void> => {
     if (deleteConfirmType.value === 'account') await handleAccountDelete(deleteConfirmId.value);
     else await handleInstitutionDelete(deleteConfirmId.value);
     await loadPortfolio();
-  } catch (error) {
-    state.error = error instanceof Error ? error.message : 'Failed to delete';
-  } finally {
-    closeDeleteConfirm();
-  }
+  } catch (error) { state.error = error instanceof Error ? error.message : 'Failed to delete'; }
+  finally { closeDeleteConfirm(); }
 };
 const handleUpdateBalance = async (accountId: number, value: string): Promise<void> => {
   try {
-    const balanceValue = parseFloat(value);
-    if (Number.isNaN(balanceValue)) { state.error = 'Invalid balance value'; return; }
+    const grossValue = parseFloat(value);
+    if (Number.isNaN(grossValue)) { state.error = 'Invalid balance value'; return; }
     const item = state.items.find(i => i.account.id === accountId);
-    await apiService.createAccountEvent(accountId, { event_type: 'Balance', value: balanceValue.toString() });
-    if (item) { const now = new Date().toISOString(); item.latestBalance = { id: item.latestBalance?.id ?? 0, accountId, userId: item.latestBalance?.userId ?? 0, eventType: 'Balance', value: balanceValue.toString(), createdAt: now, updatedAt: now }; }
+    const encumbrance = item?.account.encumbrance;
+    if (encumbrance) {
+      await apiService.updateAccount(accountId, { encumbrance, newGrossBalance: grossValue.toString() }); await loadPortfolio();
+    } else {
+      await apiService.createAccountEvent(accountId, { event_type: 'Balance', value: grossValue.toString() });
+      if (item) { const now = new Date().toISOString(); item.latestBalance = { id: item.latestBalance?.id ?? 0, accountId, userId: item.latestBalance?.userId ?? 0, eventType: 'Balance', value: grossValue.toString(), createdAt: now, updatedAt: now }; }
+    }
   } catch (error) { state.error = error instanceof Error ? error.message : 'Failed to update balance'; }
 };
-const exportToExcel = (): void => { exportAccountsToExcel(state.items, `wealthtrack-accounts-${new Date().toISOString().split('T')[0]}.xlsx`); };
 const handleAddWin = async (winAmount: string): Promise<void> => {
   try {
     await apiService.createAccountEvent(currentAccountId.value, { event_type: 'Win', value: winAmount });

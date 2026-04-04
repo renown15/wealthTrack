@@ -119,7 +119,7 @@ async def create_account(
     # Save banking details and interest rate if provided
     attr_repo = AccountAttributeRepository(session)
     await save_account_attributes(
-        attr_repo, account.id, current_user.id, account_data
+        attr_repo, account.id, current_user.id, account_data, session
     )
 
     await session.commit()
@@ -147,14 +147,6 @@ async def update_account(
     current_user: UserProfile = Depends(get_current_user),
 ) -> AccountResponse:
     """Update an account."""
-    print(f"[DEBUG] update_account called with account_id={account_id}")
-    print(f"[DEBUG] account_data: {account_data}")
-    print(f"[DEBUG] account_data.dict(): {account_data.dict()}")
-    fbr = getattr(account_data, 'fixed_bonus_rate', 'NOT_FOUND')
-    print(f"[DEBUG] fixedBonusRate={fbr}")
-    fbre = getattr(account_data, 'fixed_bonus_rate_end_date', 'NOT_FOUND')
-    print(f"[DEBUG] fixedBonusRateEndDate={fbre}")
-
     service = AccountService(session)
     update_dict: dict[str, Any] = {}
     if account_data.name is not None:
@@ -174,7 +166,7 @@ async def update_account(
 
     # Update banking details and interest rate if provided
     attr_repo = AccountAttributeRepository(session)
-    await update_account_attributes(attr_repo, account_id, current_user.id, account_data)
+    await update_account_attributes(attr_repo, account_id, current_user.id, account_data, session)
 
     await session.commit()
 

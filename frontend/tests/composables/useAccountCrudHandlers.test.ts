@@ -89,7 +89,7 @@ describe('useAccountCrudHandlers', () => {
       });
       expect(mockUpdate).toHaveBeenCalledWith(3, 'Updated', undefined, undefined,
         undefined, undefined, undefined, undefined, undefined, undefined,
-        undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+        undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
       expect(mockDates).toHaveBeenCalledWith(3, { opened_at: '2020-01-01', closed_at: null });
       expect(mockLoad).toHaveBeenCalled();
       expect(closeModal).toHaveBeenCalled();

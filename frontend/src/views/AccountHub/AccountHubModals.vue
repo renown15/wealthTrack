@@ -29,7 +29,7 @@
       :initial-underlying="initialModalUnderlying" :initial-price="initialModalPrice"
       :initial-purchase-price="initialModalPurchasePrice"
       :initial-pension-monthly-payment="initialModalPensionMonthlyPayment"
-      :initial-asset-class="initialModalAssetClass" :error="accountError"
+      :initial-asset-class="initialModalAssetClass" :initial-encumbrance="initialModalEncumbrance" :error="accountError"
       @close="$emit('closeAccount')" @save="(p) => $emit('saveAccount', p)"
     />
     <InstitutionModal
@@ -131,7 +131,7 @@ const {
   initialModalRollRefNumber, initialModalInterestRate, initialModalFixedBonusRate,
   initialModalFixedBonusRateEndDate, initialModalReleaseDate, initialModalNumberOfShares,
   initialModalUnderlying, initialModalPrice, initialModalPurchasePrice,
-  initialModalPensionMonthlyPayment, initialModalAssetClass, initialModalParentId,
+  initialModalPensionMonthlyPayment, initialModalAssetClass, initialModalEncumbrance, initialModalParentId,
   initialModalInstitutionType,
 } = useModalInitialValues(editingItemRef);
 </script>

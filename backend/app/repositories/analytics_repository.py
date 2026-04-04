@@ -6,8 +6,9 @@ from collections import defaultdict
 from datetime import date, timedelta
 from typing import Any
 
-from sqlalchemy import func, select
+from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 
 from app.models.account import Account
 from app.models.account_attribute import AccountAttribute
@@ -27,7 +28,6 @@ class AnalyticsRepository:
 
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
-
     async def get_portfolio_breakdown(self, user_id: int) -> dict[str, Any]:
         """Return current portfolio value broken down by account type, institution
         and asset class. Uses the latest event value per account."""
@@ -41,17 +41,12 @@ class AnalyticsRepository:
             .group_by(AccountEvent.account_id)
             .subquery()
         )
-
-        # Scalar subquery for the "Asset Class" attribute type ID
         asset_class_type_id_subq = (
             select(ReferenceData.id)
-            .where(
-                ReferenceData.class_key == "account_attribute_type",
-                ReferenceData.reference_value == "Asset Class",
-            )
+            .where(ReferenceData.class_key == "account_attribute_type", ReferenceData.reference_value == "Asset Class")
             .scalar_subquery()
         )
-
+        asset_class_attr = aliased(AccountAttribute)
         stmt = (
             select(
                 Account.id.label("account_id"),
@@ -59,7 +54,7 @@ class AnalyticsRepository:
                 ReferenceData.reference_value.label("account_type"),
                 Institution.name.label("institution"),
                 AccountEvent.value,
-                AccountAttribute.value.label("asset_class"),
+                asset_class_attr.value.label("asset_class"),
             )
             .select_from(Account)
             .join(max_date_subq, max_date_subq.c.account_id == Account.id)
@@ -71,24 +66,20 @@ class AnalyticsRepository:
             .join(ReferenceData, ReferenceData.id == Account.type_id)
             .outerjoin(Institution, Institution.id == Account.institution_id)
             .outerjoin(
-                AccountAttribute,
-                (AccountAttribute.account_id == Account.id)
-                & (AccountAttribute.user_id == user_id)
-                & (AccountAttribute.type_id == asset_class_type_id_subq),
+                asset_class_attr,
+                (asset_class_attr.account_id == Account.id)
+                & (asset_class_attr.user_id == user_id)
+                & (asset_class_attr.type_id == asset_class_type_id_subq),
             )
             .where(Account.user_id == user_id)
         )
 
         result = await self.session.execute(stmt)
         rows = result.all()
-        by_type: dict[str, float] = {}
-        by_institution: dict[str, float] = {}
-        by_asset_class: dict[str, float] = {}
-        by_asset_class_no_pension: dict[str, float] = {}
-        by_type_accts: dict[str, list[dict[str, Any]]] = {}
-        by_inst_accts: dict[str, list[dict[str, Any]]] = {}
-        by_ac_accts: dict[str, list[dict[str, Any]]] = {}
-        by_ac_no_pension_accts: dict[str, list[dict[str, Any]]] = {}
+        by_type: dict[str, float] = {}; by_institution: dict[str, float] = {}
+        by_asset_class: dict[str, float] = {}; by_asset_class_no_pension: dict[str, float] = {}
+        by_type_accts: dict[str, list[dict[str, Any]]] = {}; by_inst_accts: dict[str, list[dict[str, Any]]] = {}
+        by_ac_accts: dict[str, list[dict[str, Any]]] = {}; by_ac_no_pension_accts: dict[str, list[dict[str, Any]]] = {}
         total = 0.0
         for account_id, account_name, account_type, institution, raw_value, asset_class in rows:
             try:
@@ -133,7 +124,6 @@ class AnalyticsRepository:
             ],
             "total": round(total, 2),
         }
-
     async def get_portfolio_history(self, user_id: int) -> dict[str, Any]:
         """
         Return the daily portfolio total from the date of the earliest balance
@@ -156,12 +146,8 @@ class AnalyticsRepository:
         )
         result = await self.session.execute(stmt)
         rows = result.all()
-
         if not rows:
             return {"baseline_date": baseline_date_str, "history": []}
-
-        # Group events by calendar date, keeping the last value per account per day
-        # (if multiple events on the same day, the latest wins)
         events_by_date: dict[date, dict[int, float]] = defaultdict(dict)
         for account_id, created_at, raw_value in rows:
             try:

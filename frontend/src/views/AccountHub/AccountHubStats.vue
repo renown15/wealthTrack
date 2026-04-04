@@ -104,7 +104,7 @@ const formatCurrency = (value: number): string => {
 
 const buildBreakdownTooltip = (types: string[]): string => {
   const totals: Record<string, number> = {};
-  for (const item of props.items) {
+  for (const item of (props.items ?? [])) {
     const type = item.accountType ?? '';
     if (types.includes(type) && item.latestBalance?.value) {
       totals[type] = (totals[type] ?? 0) + parseFloat(item.latestBalance.value);
@@ -120,16 +120,22 @@ const buildBreakdownTooltip = (types: string[]): string => {
 };
 
 const getTotalValueTooltip = (): string => {
-  const breakdown = [
+  const totalEncumbrance = (props.items ?? []).reduce((sum, item) => {
+    const enc = item.account.encumbrance ? parseFloat(item.account.encumbrance) : 0;
+    return sum + (isNaN(enc) ? 0 : enc);
+  }, 0);
+  const lines = [
     `Cash at Hand: ${formatCurrency(props.cashAtHand)}`,
     `ISA Savings: ${formatCurrency(props.isaSavings)}`,
     `Illiquid: ${formatCurrency(props.illiquid)}`,
     `Trust Assets: ${formatCurrency(props.trustAssets)}`,
     `Pension Value: ${formatCurrency(props.pensionBreakdown.total)}`,
-    ``,
-    `Total: ${formatCurrency(props.totalValue)}`,
   ];
-  return breakdown.join('\n');
+  if (totalEncumbrance > 0) {
+    lines.push(``, `Encumbrances: ${formatCurrency(totalEncumbrance)}`);
+  }
+  lines.push(``, `Total: ${formatCurrency(props.totalValue)}`);
+  return lines.join('\n');
 };
 
 const getPensionTooltip = (): string => {

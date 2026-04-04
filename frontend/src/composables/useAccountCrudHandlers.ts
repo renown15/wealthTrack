@@ -25,6 +25,7 @@ export interface AccountSavePayload {
   purchasePrice?: string;
   pensionMonthlyPayment?: string;
   assetClass?: string;
+  encumbrance?: string;
 }
 
 export interface UseAccountCrudHandlersReturn {
@@ -74,7 +75,8 @@ export function useAccountCrudHandlers(
           payload.price,
           payload.purchasePrice,
           payload.pensionMonthlyPayment,
-          payload.assetClass
+          payload.assetClass,
+          payload.encumbrance
         );
       } else if (editingItem.value && 'id' in editingItem.value) {
         await updateAccount(
@@ -94,7 +96,8 @@ export function useAccountCrudHandlers(
           payload.price,
           payload.purchasePrice,
           payload.pensionMonthlyPayment,
-          payload.assetClass
+          payload.assetClass,
+          payload.encumbrance
         );
         try {
           await accountCrudService.updateAccountDates(editingItem.value.id, {

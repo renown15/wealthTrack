@@ -22,6 +22,7 @@ export interface AccountCreatePayload {
   purchasePrice?: string;
   pensionMonthlyPayment?: string;
   assetClass?: string;
+  encumbrance?: string;
 }
 
 export interface AccountUpdatePayload {
@@ -41,6 +42,7 @@ export interface AccountUpdatePayload {
   purchasePrice?: string;
   pensionMonthlyPayment?: string;
   assetClass?: string;
+  encumbrance?: string;
 }
 
 /**

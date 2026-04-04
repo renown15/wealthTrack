@@ -8,6 +8,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.account_event import AccountEvent
 from app.models.reference_data import ReferenceData
+from app.types.event_types import EventType
+
+# Maps shorthand keys → full ReferenceData.reference_value labels
+_EVENT_SHORTHAND_MAP: dict[str, str] = {
+    "balance": EventType.BALANCE_UPDATE,
+    "balance update": EventType.BALANCE_UPDATE,
+    "interest": EventType.INTEREST,
+    "dividend": EventType.DIVIDEND,
+    "deposit": EventType.DEPOSIT,
+    "withdrawal": EventType.WITHDRAWAL,
+    "win": EventType.WIN,
+    "fee": EventType.FEE,
+    "tax": EventType.TAX,
+}
 
 
 class AccountEventRepository:
@@ -23,16 +37,7 @@ class AccountEventRepository:
         Accepts either the full reference_value (e.g., "Balance Update")
         or a shorthand (e.g., "balance") which maps to "Balance Update".
         """
-        # Map shorthand event types to their full reference values
-        event_type_map = {
-            "balance": "Balance Update",
-            "interest": "Interest",
-            "dividend": "Dividend",
-            "deposit": "Deposit",
-            "withdrawal": "Withdrawal",
-            "win": "Win",
-        }
-        lookup_value = event_type_map.get(event_type.lower(), event_type)
+        lookup_value = _EVENT_SHORTHAND_MAP.get(event_type.lower(), event_type)
 
         stmt = select(ReferenceData.id).where(
             ReferenceData.class_key == "account_event_type",

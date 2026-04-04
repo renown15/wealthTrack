@@ -1,8 +1,4 @@
-/**
- * WealthTrack core data models
- * Defines all types for accounts, institutions, credentials, and portfolio data
- */
-
+/** WealthTrack core data models */
 export interface Account {
   id: number;
   userId: number;
@@ -23,6 +19,7 @@ export interface Account {
   purchasePrice?: string | null;
   pensionMonthlyPayment?: string | null;
   assetClass?: string | null;
+  encumbrance?: string | null;
   targetPrice?: string | null;
   openedAt: string | null;
   closedAt: string | null;
@@ -69,6 +66,8 @@ export interface AccountEvent {
   userId: number;
   eventType: string;
   value: string;
+  grossBalance?: string | null;
+  encumbrance?: string | null;
   createdAt: string;
   updatedAt: string;
   source?: 'event' | 'attribute';
@@ -98,11 +97,7 @@ export interface AccountGroupMember {
   updatedAt: string;
 }
 
-export interface Portfolio {
-  items: PortfolioItem[];
-  totalValue: number;
-  accountCount: number;
-}
+export interface Portfolio { items: PortfolioItem[]; totalValue: number; accountCount: number; }
 
 export interface AccountCreateRequest {
   institutionId: number;
@@ -122,6 +117,7 @@ export interface AccountCreateRequest {
   purchasePrice?: string;
   pensionMonthlyPayment?: string;
   assetClass?: string;
+  encumbrance?: string;
 }
 
 export interface AccountUpdateRequest {
@@ -141,6 +137,7 @@ export interface AccountUpdateRequest {
   purchasePrice?: string;
   pensionMonthlyPayment?: string;
   assetClass?: string;
+  encumbrance?: string;
 }
 
 export interface InstitutionCreateRequest {
@@ -168,7 +165,6 @@ export interface AccountGroupUpdateRequest {
   name: string;
 }
 
-// Analytics types
 export interface AccountDetail {
   accountId: number;
   accountName: string;
@@ -191,11 +187,11 @@ export interface PortfolioBreakdown {
 }
 
 export interface HistoryPoint {
-  date: string;       // "YYYY-MM-DD"
+  date: string;
   totalValue: number;
 }
 
 export interface PortfolioHistory {
-  baselineDate: string | null;  // "YYYY-MM-DD" or null if not set
+  baselineDate: string | null;
   history: HistoryPoint[];
 }

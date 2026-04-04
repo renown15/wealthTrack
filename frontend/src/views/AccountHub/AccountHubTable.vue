@@ -61,6 +61,7 @@
               >
                 <span class="font-semibold text-green-600">{{ formatCurrency(getDisplayBalance(item)) }}</span>
                 <span v-if="isDeferredCash(item)" class="text-blue-500 opacity-70 hover:opacity-100" :title="getDeferredTooltip(item)">{{ Icons.info }}</span>
+                <span v-if="getEncumbranceTooltip(item)" class="text-blue-500 opacity-70 hover:opacity-100" :title="getEncumbranceTooltip(item)">{{ Icons.info }}</span>
                 <span class="text-muted opacity-0 group-hover:opacity-100 transition-opacity">{{ Icons.edit }}</span>
               </button>
               <div
@@ -73,7 +74,8 @@
                 >
                   {{ formatCurrency(getDisplayBalance(item)) }}
                 </div>
-                <span v-if="getDeferredTooltip(item)" class="text-blue-500 opacity-70 hover:opacity-100" :title="getDeferredTooltip(item)">{{ Icons.info }}</span>
+                <span v-if="isDeferredCash(item)" class="text-blue-500 opacity-70 hover:opacity-100" :title="getDeferredTooltip(item)">{{ Icons.info }}</span>
+                <span v-if="getEncumbranceTooltip(item)" class="text-blue-500 opacity-70 hover:opacity-100" :title="getEncumbranceTooltip(item)">{{ Icons.info }}</span>
               </div>
             </td>
             <td class="table-cell text-gray-600">
@@ -129,6 +131,7 @@ import {
   getEditValue,
   getDeferredTooltip,
   getDisplayBalance,
+  getEncumbranceTooltip,
 } from '@views/AccountHub/accountDisplayUtils';
 import {
   formatCurrency,

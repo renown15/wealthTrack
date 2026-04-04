@@ -13,6 +13,8 @@ from starlette.responses import Response
 
 from app.config import settings
 from app.controllers.account import router as account_router
+from app.database import async_session_maker
+from app.services.type_validator import validate_types_against_db
 from app.controllers.account_group import router as account_group_router
 from app.controllers.analytics import router as analytics_router
 from app.controllers.auth import router as auth_router
@@ -32,6 +34,8 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     Handles startup and shutdown events.
     """
     # Database tables and reference data are created and managed by Alembic migrations
+    async with async_session_maker() as session:
+        await validate_types_against_db(session)
     yield
 
     # Shutdown: Close database connections

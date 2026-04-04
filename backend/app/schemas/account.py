@@ -55,6 +55,9 @@ class AccountCreate(BaseSchema):
     asset_class: Optional[str] = Field(
         None, max_length=255, description="Asset class (Cash, Single Stock, Equity Index)"
     )
+    encumbrance: Optional[str] = Field(
+        None, max_length=255, description="Temporary encumbrance amount"
+    )
 
 
 class AccountUpdate(BaseSchema):
@@ -102,6 +105,12 @@ class AccountUpdate(BaseSchema):
     asset_class: Optional[str] = Field(
         None, max_length=255, description="Asset class (Cash, Single Stock, Equity Index)"
     )
+    encumbrance: Optional[str] = Field(
+        None, max_length=255, description="Temporary encumbrance amount"
+    )
+    new_gross_balance: Optional[str] = Field(
+        None, max_length=255, description="New gross balance when re-applying encumbrance after balance edit"
+    )
 
 
 class AccountResponse(BaseSchema):
@@ -126,6 +135,8 @@ class AccountResponse(BaseSchema):
     purchase_price: Optional[str] = None
     pension_monthly_payment: Optional[str] = None
     asset_class: Optional[str] = None
+    encumbrance: Optional[str] = None
+    unencumbered_balance: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

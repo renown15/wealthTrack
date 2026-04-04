@@ -20,6 +20,7 @@
 
 <script setup lang="ts">
 import BaseModal from '@/components/BaseModal.vue';
+import { debug } from '@utils/debug';
 
 interface Props {
   open: boolean;
@@ -38,7 +39,7 @@ const emit = defineEmits<{
 
 const emitClose = (): void => emit('close');
 const handleSave = (): void => {
-  console.log('[BaseResourceModal] Save button clicked');
+  debug.log('[BaseResourceModal] Save button clicked');
   emit('save');
 };
 </script>

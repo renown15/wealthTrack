@@ -11,7 +11,11 @@
       "Bash(ssh marklewis@raspberrypi.local \"cd ~/wealthTrack && docker compose --env-file .env.pi --profile prod exec -T frontend head -c 2000 /usr/share/nginx/html/assets/index-BHkhO0kd.css\")",
       "Bash(source venv/bin/activate)",
       "Bash(python -m mypy app/repositories/analytics_repository.py app/schemas/analytics.py --config-file mypy.ini)",
-      "Bash(mypy app/repositories/analytics_repository.py app/schemas/analytics.py --config-file mypy.ini)"
+      "Bash(mypy app/repositories/analytics_repository.py app/schemas/analytics.py --config-file mypy.ini)",
+      "Bash(make seed-db:*)",
+      "Bash(make migrate:*)",
+      "Bash(make backend-dev:*)",
+      "Bash(kill %1)"
     ]
   }
 }

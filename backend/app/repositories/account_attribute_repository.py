@@ -8,6 +8,36 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.account_attribute import AccountAttribute
 from app.models.reference_data import ReferenceData
+from app.types.attribute_types import AttributeType
+
+# Maps snake_case shorthands → full ReferenceData.reference_value labels
+_SHORTHAND_MAP: dict[str, str] = {
+    # Typed attributes (sourced from AttributeType enum)
+    "account_number": AttributeType.ACCOUNT_NUMBER,
+    "sort_code": AttributeType.SORT_CODE,
+    "roll_ref_number": AttributeType.ROLL_REF_NUMBER,
+    "interest_rate": AttributeType.INTEREST_RATE,
+    "fixed_bonus_rate": AttributeType.FIXED_BONUS_RATE,
+    "fixed_bonus_rate_end_date": AttributeType.FIXED_BONUS_RATE_END_DATE,
+    "release_date": AttributeType.RELEASE_DATE,
+    "number_of_shares": AttributeType.NUMBER_OF_SHARES,
+    "underlying": AttributeType.UNDERLYING,
+    "price": AttributeType.PRICE,
+    "purchase_price": AttributeType.PURCHASE_PRICE,
+    "pension_monthly_payment": AttributeType.PENSION_MONTHLY_PAYMENT,
+    "asset_class": AttributeType.ASSET_CLASS,
+    "encumbrance": AttributeType.ENCUMBRANCE,
+    "unencumbered_balance": AttributeType.UNENCUMBERED_BALANCE,
+    # Non-typed attributes (not in AttributeType enum)
+    "opened_date": "Account Opened Date",
+    "closed_date": "Account Closed Date",
+    "iban": "IBAN",
+    "notes": "Notes",
+    "deferred_shares_balance": "Deferred Shares Balance",
+    "deferred_cash_balance": "Deferred Cash Balance",
+    "rsu_balance": "RSU Balance",
+    "shares_balance": "Shares Balance",
+}
 
 
 class AccountAttributeRepository:
@@ -18,36 +48,8 @@ class AccountAttributeRepository:
         self.session = session
 
     async def get_attribute_type_id(self, attribute_type: str) -> int | None:
-        """Look up the reference data ID for an attribute type.
-
-        Accepts either the full reference_value (e.g., "Account Opened Date")
-        or a shorthand (e.g., "opened_date") which maps to the full value.
-        """
-        # Map shorthand attribute types to their full reference values
-        attribute_type_map = {
-            "opened_date": "Account Opened Date",
-            "closed_date": "Account Closed Date",
-            "account_number": "Account Number",
-            "sort_code": "Sort Code",
-            "roll_ref_number": "Roll / Ref Number",
-            "interest_rate": "Interest Rate",
-            "fixed_bonus_rate": "Fixed Bonus Rate",
-            "fixed_bonus_rate_end_date": "Fixed Bonus Rate End Date",
-            "release_date": "Release Date",
-            "number_of_shares": "Number of Shares",
-            "underlying": "Underlying",
-            "price": "Price",
-            "purchase_price": "Purchase Price",
-            "iban": "IBAN",
-            "notes": "Notes",
-            "deferred_shares_balance": "Deferred Shares Balance",
-            "deferred_cash_balance": "Deferred Cash Balance",
-            "rsu_balance": "RSU Balance",
-            "shares_balance": "Shares Balance",
-            "pension_monthly_payment": "Pension Monthly Payment",
-            "asset_class": "Asset Class",
-        }
-        lookup_value = attribute_type_map.get(attribute_type.lower(), attribute_type)
+        """Look up the reference data ID for an attribute type (full label or snake_case shorthand)."""
+        lookup_value = _SHORTHAND_MAP.get(attribute_type.lower(), attribute_type)
 
         stmt = select(ReferenceData.id).where(
             ReferenceData.class_key == "account_attribute_type",
@@ -83,7 +85,6 @@ class AccountAttributeRepository:
     ) -> AccountAttribute:
         """Set an attribute value (upsert)."""
         existing = await self.get_attribute(account_id, user_id, type_id)
-
         if existing:
             existing.value = value
             await self.session.flush()
@@ -180,26 +181,17 @@ class AccountAttributeRepository:
             })
         return attributes
 
-    async def get_dates_for_account(
-        self, account_id: int, user_id: int
-    ) -> dict[str, Optional[str]]:
+    async def get_dates_for_account(self, account_id: int, user_id: int) -> dict[str, Optional[str]]:
         """Get opened and closed dates for an account."""
-        opened = await self.get_attribute_by_name(account_id, user_id, "opened_date")
-        closed = await self.get_attribute_by_name(account_id, user_id, "closed_date")
         return {
-            "openedAt": opened,
-            "closedAt": closed,
+            "openedAt": await self.get_attribute_by_name(account_id, user_id, "opened_date"),
+            "closedAt": await self.get_attribute_by_name(account_id, user_id, "closed_date"),
         }
 
-    async def get_banking_details_for_account(
-        self, account_id: int, user_id: int
-    ) -> dict[str, Optional[str]]:
-        """Get banking details (account number, sort code, and roll/ref number) for an account."""
-        account_number = await self.get_attribute_by_name(account_id, user_id, "account_number")
-        sort_code = await self.get_attribute_by_name(account_id, user_id, "sort_code")
-        roll_ref = await self.get_attribute_by_name(account_id, user_id, "roll_ref_number")
+    async def get_banking_details_for_account(self, account_id: int, user_id: int) -> dict[str, Optional[str]]:
+        """Get banking details for an account."""
         return {
-            "accountNumber": account_number,
-            "sortCode": sort_code,
-            "rollRefNumber": roll_ref,
+            "accountNumber": await self.get_attribute_by_name(account_id, user_id, "account_number"),
+            "sortCode": await self.get_attribute_by_name(account_id, user_id, "sort_code"),
+            "rollRefNumber": await self.get_attribute_by_name(account_id, user_id, "roll_ref_number"),
         }

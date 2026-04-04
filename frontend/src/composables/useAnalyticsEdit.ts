@@ -24,6 +24,7 @@ export interface AnalyticsEditSavePayload {
   purchasePrice?: string;
   pensionMonthlyPayment?: string;
   assetClass?: string;
+  encumbrance?: string;
 }
 
 export function useAnalyticsEdit(onSaved?: () => Promise<void> | void) {
@@ -80,6 +81,7 @@ export function useAnalyticsEdit(onSaved?: () => Promise<void> | void) {
         purchasePrice: payload.purchasePrice,
         pensionMonthlyPayment: payload.pensionMonthlyPayment,
         assetClass: payload.assetClass,
+        encumbrance: payload.encumbrance,
       };
       await apiService.updateAccount(editingAccount.value.id, update);
       editModalOpen.value = false;

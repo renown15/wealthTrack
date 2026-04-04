@@ -10,6 +10,7 @@ import {
 } from '@/utils/deferredSharesCalculator';
 
 export { getDeferredTooltip, getGroupDeferredTooltip } from '@views/AccountHub/accountDeferredTooltips';
+export { getEncumbranceTooltip, getGroupEncumbranceTooltip } from '@views/AccountHub/accountEncumbranceTooltips';
 
 export function isDeferredShares(item: PortfolioItem): boolean {
   return item.accountType === 'Deferred Shares';
@@ -45,6 +46,9 @@ export function getFixedRateEndDate(item: PortfolioItem): string | null | undefi
 export function getEditValue(item: PortfolioItem): string | number | null | undefined {
   if (isDeferredCash(item)) {
     return item.latestBalance?.value;
+  }
+  if (item.latestBalance?.grossBalance) {
+    return item.latestBalance.grossBalance;
   }
   return getDisplayBalance(item);
 }

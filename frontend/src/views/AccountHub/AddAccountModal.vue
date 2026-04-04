@@ -97,6 +97,7 @@ const formData = ref<AccountFormData>({
   underlying: undefined,
   price: undefined,
   purchasePrice: undefined,
+  encumbrance: undefined,
   ...props.initialAccountData,
 });
 
@@ -152,6 +153,7 @@ const handleSave = (): void => {
       interestRate: formData.value.interestRate || undefined,
       fixedBonusRate: formData.value.fixedBonusRate || undefined,
       fixedBonusRateEndDate: formData.value.fixedBonusRateEndDate || undefined,
+      encumbrance: formData.value.encumbrance || undefined,
     });
   }
 };

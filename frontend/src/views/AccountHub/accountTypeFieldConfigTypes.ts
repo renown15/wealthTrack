@@ -13,4 +13,6 @@ export interface FieldConfig {
   showPurchasePrice: boolean;
   showPensionMonthlyPayment: boolean;
   showAssetClass: boolean;
+  showEncumbrance: boolean;
+  showBankingDetails: boolean;
 }

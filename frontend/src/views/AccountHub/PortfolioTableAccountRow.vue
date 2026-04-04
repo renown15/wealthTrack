@@ -23,12 +23,14 @@
         @click.stop="$emit('startEdit', item.account.id, getEditValue(item))"
       >
         <span class="font-semibold text-green-600">{{ formatCurrency(getDisplayBalance(item)) }}</span>
-        <span v-if="isDeferredCash(item)" class="text-blue-500 opacity-70 hover:opacity-100" :title="getDeferredTooltip(item)">ℹ️</span>
+        <span v-if="getEncumbranceTooltip(item)" class="text-orange-500 opacity-70 hover:opacity-100" :title="getEncumbranceTooltip(item)">ℹ️</span>
+        <span v-else-if="isDeferredCash(item)" class="text-blue-500 opacity-70 hover:opacity-100" :title="getDeferredTooltip(item)">ℹ️</span>
         <span class="text-muted opacity-0 group-hover:opacity-100 transition-opacity">{{ Icons.edit }}</span>
       </button>
       <div v-else class="flex items-center gap-1">
         <div class="font-semibold text-green-600">{{ formatCurrency(getDisplayBalance(item)) }}</div>
-        <span v-if="getDeferredTooltip(item)" class="text-blue-500 opacity-70 hover:opacity-100" :title="getDeferredTooltip(item)">ℹ️</span>
+        <span v-if="getEncumbranceTooltip(item)" class="text-orange-500 opacity-70 hover:opacity-100" :title="getEncumbranceTooltip(item)">ℹ️</span>
+        <span v-else-if="getDeferredTooltip(item)" class="text-blue-500 opacity-70 hover:opacity-100" :title="getDeferredTooltip(item)">ℹ️</span>
       </div>
     </td>
     <td class="table-cell text-gray-600">{{ formatDate(item.latestBalance?.createdAt) }}</td>
@@ -75,6 +77,7 @@ import {
   getFixedRateEndDate,
   getEditValue,
   getDeferredTooltip,
+  getEncumbranceTooltip,
   getDisplayBalance,
   getYieldTooltip,
 } from '@views/AccountHub/accountDisplayUtils';

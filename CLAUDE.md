@@ -28,7 +28,7 @@ wealthTrack/
 │   │   ├── repositories/   # DB queries (SQLAlchemy)
 │   │   ├── models/         # SQLAlchemy ORM models
 │   │   └── schemas/        # Pydantic request/response schemas
-│   ├── alembic/            # DB migrations (~26 versions)
+│   ├── alembic/            # DB migrations (~31 versions)
 │   └── tests/              # ~364 backend tests
 ├── frontend/
 │   ├── src/

@@ -14,8 +14,8 @@
             <p class="stat-value">{{ formatCurrency(breakdown.total) }}</p>
           </article>
           <article class="stat-card">
-            <p class="stat-label">Account Types</p>
-            <p class="stat-value">{{ breakdown.byType.length }}</p>
+            <p class="stat-label">Accounts</p>
+            <p class="stat-value">{{ totalAccounts }}</p>
           </article>
           <article class="stat-card">
             <p class="stat-label">Institutions</p>
@@ -162,6 +162,15 @@ onMounted(() => { void loadAll(); });
 const filteredHistory = computed((): HistoryPoint[] => {
   const all = history.value?.history ?? [];
   return all.filter(p => p.date >= startDate.value && p.date <= endDate.value);
+});
+
+const totalAccounts = computed((): number => {
+  if (!breakdown.value) return 0;
+  const accountIds = new Set<number>();
+  breakdown.value.byType.forEach(item => {
+    item.accounts.forEach(acc => accountIds.add(acc.accountId));
+  });
+  return accountIds.size;
 });
 
 const gbp = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 });

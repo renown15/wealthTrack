@@ -22,6 +22,7 @@
         <span class="flex items-center gap-1">
           <span>{{ formatCurrency(summary?.totalBalance || 0) }}</span>
           <span v-if="groupDeferredTooltip" class="text-blue-500 opacity-70 hover:opacity-100" :title="groupDeferredTooltip">ℹ️</span>
+          <span v-if="groupEncumbranceTooltip" class="text-blue-500 opacity-70 hover:opacity-100" :title="groupEncumbranceTooltip">ℹ️</span>
         </span>
       </td>
       <td class="table-cell">{{ summary?.commonBalanceUpdatedAt ? formatDate(summary.commonBalanceUpdatedAt) : '—' }}</td>
@@ -79,7 +80,7 @@
 <script setup lang="ts">
 import type { Account, PortfolioItem } from '@/models/WealthTrackDataModels';
 import { formatCurrency, formatDate, formatInterestRate } from '@views/AccountHub/formattingUtils';
-import { getGroupYieldTooltip, getGroupDeferredTooltip } from '@views/AccountHub/accountDisplayUtils';
+import { getGroupYieldTooltip, getGroupDeferredTooltip, getGroupEncumbranceTooltip } from '@views/AccountHub/accountDisplayUtils';
 import { Icons } from '@/constants/icons';
 import { computed } from 'vue';
 import PortfolioTableMemberRow from '@views/AccountHub/PortfolioTableMemberRow.vue';
@@ -121,4 +122,5 @@ defineEmits<{
 
 const groupYieldTooltip = computed(() => getGroupYieldTooltip(props.items));
 const groupDeferredTooltip = computed(() => getGroupDeferredTooltip(props.items));
+const groupEncumbranceTooltip = computed(() => getGroupEncumbranceTooltip(props.items));
 </script>

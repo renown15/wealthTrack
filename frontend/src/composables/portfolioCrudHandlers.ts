@@ -39,6 +39,7 @@ export function createPortfolioCrudHandlers(
     purchasePrice?: string,
     pensionMonthlyPayment?: string,
     assetClass?: string,
+    encumbrance?: string,
   ): Promise<void> => {
     try {
       state.error = null;
@@ -60,6 +61,7 @@ export function createPortfolioCrudHandlers(
         purchasePrice,
         pensionMonthlyPayment,
         assetClass,
+        encumbrance,
       };
       await createAccountOp(payload);
       await loadPortfolio();
@@ -87,6 +89,7 @@ export function createPortfolioCrudHandlers(
     purchasePrice?: string,
     pensionMonthlyPayment?: string,
     assetClass?: string,
+    encumbrance?: string,
   ): Promise<void> => {
     try {
       state.error = null;
@@ -107,6 +110,7 @@ export function createPortfolioCrudHandlers(
         purchasePrice,
         pensionMonthlyPayment,
         assetClass,
+        encumbrance,
       };
       await updateAccountOp(accountId, payload);
       await loadPortfolio();

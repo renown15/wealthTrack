@@ -51,6 +51,7 @@ interface Props {
   initialPurchasePrice?: string | null;
   initialPensionMonthlyPayment?: string | null;
   initialAssetClass?: string | null;
+  initialEncumbrance?: string | null;
   error?: string | null;
 }
 
@@ -74,6 +75,7 @@ interface SavePayload {
   purchasePrice?: string;
   pensionMonthlyPayment?: string;
   assetClass?: string;
+  encumbrance?: string;
 }
 
 const props = defineProps<Props>();
@@ -104,6 +106,7 @@ const formProps = computed<AccountFormProps>(() => ({
   initialPurchasePrice: props.initialPurchasePrice,
   initialPensionMonthlyPayment: props.initialPensionMonthlyPayment,
   initialAssetClass: props.initialAssetClass,
+  initialEncumbrance: props.initialEncumbrance,
   accountTypes: props.accountTypes,
   accountStatuses: props.accountStatuses,
 }));
@@ -160,6 +163,7 @@ const handleSave = (): void => {
     purchasePrice: formData.value.purchasePrice || undefined,
     pensionMonthlyPayment: formData.value.pensionMonthlyPayment || undefined,
     assetClass: formData.value.assetClass || undefined,
+    encumbrance: formData.value.encumbrance || undefined,
   });
 };
 </script>

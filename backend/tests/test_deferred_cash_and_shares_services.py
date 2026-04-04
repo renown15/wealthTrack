@@ -46,17 +46,16 @@ class TestDeferredCashBalanceService:
 
     @pytest.mark.asyncio
     async def test_save_already_saved_today(self):
-        """Test balance already saved today."""
+        """Test balance already saved today returns False."""
+        from datetime import date
         mock_session = AsyncMock()
         mock_repo = AsyncMock(spec=AccountAttributeRepository)
         mock_repo.session = mock_session
         mock_repo.get_attribute_type_id = AsyncMock(return_value=10)
 
-        existing_event = MagicMock()
-        existing_event.value = "123.45"
-        balance_event_result = MagicMock()
-        balance_event_result.scalar_one_or_none.return_value = existing_event
-        mock_session.execute.return_value = balance_event_result
+        existing_attr = MagicMock()
+        existing_attr.updated_at.date.return_value = date.today()
+        mock_repo.get_attribute = AsyncMock(return_value=existing_attr)
 
         service = DeferredCashBalanceService(mock_repo)
         result = await service.save_daily_balance(1, 1, 100.0)
@@ -64,23 +63,24 @@ class TestDeferredCashBalanceService:
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_save_missing_event_type(self):
-        """Test fails when event type not found."""
+    async def test_save_with_stale_existing_attribute(self):
+        """Test save proceeds when existing attribute is from a previous day."""
+        from datetime import date, timedelta
         mock_session = AsyncMock()
         mock_repo = AsyncMock(spec=AccountAttributeRepository)
         mock_repo.session = mock_session
         mock_repo.get_attribute_type_id = AsyncMock(return_value=10)
 
-        balance_event_result = MagicMock()
-        balance_event_result.scalar_one_or_none.return_value = None
-        event_type_result = MagicMock()
-        event_type_result.scalar_one_or_none.return_value = None
-        mock_session.execute.side_effect = [balance_event_result, event_type_result]
+        existing_attr = MagicMock()
+        existing_attr.updated_at.date.return_value = date.today() - timedelta(days=1)
+        mock_repo.get_attribute = AsyncMock(return_value=existing_attr)
+        mock_repo.set_attribute = AsyncMock()
 
         service = DeferredCashBalanceService(mock_repo)
         result = await service.save_daily_balance(1, 1, 100.0)
 
-        assert result is False
+        assert result is True
+        mock_repo.set_attribute.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_save_missing_attribute_type(self):

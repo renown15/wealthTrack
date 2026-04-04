@@ -24,6 +24,8 @@ _LABEL_TO_KEY: dict[str, str] = {
     "Purchase Price": "purchase_price",
     "Pension Monthly Payment": "pension_monthly_payment",
     "Asset Class": "asset_class",
+    "Encumbrance": "encumbrance",
+    "Unencumbered Balance": "unencumbered_balance",
 }
 
 
@@ -50,6 +52,8 @@ def build_attributes_dict(raw: dict[str, str]) -> dict[str, Any]:
         "purchase_price": keyed.get("purchase_price"),
         "pension_monthly_payment": keyed.get("pension_monthly_payment"),
         "asset_class": keyed.get("asset_class"),
+        "encumbrance": keyed.get("encumbrance"),
+        "unencumbered_balance": keyed.get("unencumbered_balance"),
     }
 
 
@@ -89,6 +93,7 @@ async def build_portfolio_item(
     acct_data["purchasePrice"] = attrs["purchase_price"]
     acct_data["pensionMonthlyPayment"] = attrs.get("pension_monthly_payment")
     acct_data["assetClass"] = attrs.get("asset_class")
+    acct_data["encumbrance"] = attrs.get("encumbrance")
     underlying = attrs.get("underlying")
     acct_data["targetPrice"] = target_prices_by_ticker.get(underlying) if underlying else None
 
@@ -105,12 +110,20 @@ async def build_portfolio_item(
     if latest_balance:
         bal = latest_balance
         event_type = event_type_by_id.get(bal.type_id, "Event")
+        
+        # Balance in AccountEvent is already adjusted if encumbrance was set
+        # (it's the net balance created when encumbrance was applied)
+        unencumbered_balance_str = attrs.get("unencumbered_balance")
+        encumbrance_str = attrs.get("encumbrance")
+        
         balance_data = {
             "id": bal.id,
             "accountId": bal.account_id,
             "userId": bal.user_id,
             "eventType": event_type,
-            "value": bal.value,
+            "value": bal.value,  # Use as-is (already net if encumbered)
+            "grossBalance": unencumbered_balance_str,  # Store unencumbered for tooltip display
+            "encumbrance": encumbrance_str,  # Store encumbrance for tooltip display
             "createdAt": bal.created_at.isoformat() if bal.created_at else None,
             "updatedAt": bal.updated_at.isoformat() if bal.updated_at else None,
         }
