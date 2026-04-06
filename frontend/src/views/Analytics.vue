@@ -168,7 +168,7 @@ const totalAccounts = computed((): number => {
   if (!breakdown.value) return 0;
   const accountIds = new Set<number>();
   breakdown.value.byType.forEach(item => {
-    item.accounts.forEach(acc => accountIds.add(acc.accountId));
+    item.accounts.forEach(acc => { if (!acc.isClosed) accountIds.add(acc.accountId); });
   });
   return accountIds.size;
 });

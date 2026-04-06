@@ -10,6 +10,7 @@ class AccountDetail(BaseModel):
     account_name: str
     institution_name: str
     balance: float
+    is_closed: bool = False
 
 
 class BreakdownItem(BaseModel):

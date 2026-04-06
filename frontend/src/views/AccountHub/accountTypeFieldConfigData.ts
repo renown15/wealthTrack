@@ -14,7 +14,7 @@ const baseConfig: FieldConfig = {
   showPrice: false,
   showPurchasePrice: false,
   showPensionMonthlyPayment: false,
-  showAssetClass: false,
+  showAssetClass: true,
   showEncumbrance: false,
   showBankingDetails: false,
 };

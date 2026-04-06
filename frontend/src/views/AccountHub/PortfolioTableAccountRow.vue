@@ -23,21 +23,21 @@
         @click.stop="$emit('startEdit', item.account.id, getEditValue(item))"
       >
         <span class="font-semibold text-green-600">{{ formatCurrency(getDisplayBalance(item)) }}</span>
-        <span v-if="getEncumbranceTooltip(item)" class="text-orange-500 opacity-70 hover:opacity-100" :title="getEncumbranceTooltip(item)">ℹ️</span>
-        <span v-else-if="isDeferredCash(item)" class="text-blue-500 opacity-70 hover:opacity-100" :title="getDeferredTooltip(item)">ℹ️</span>
+        <span v-if="getEncumbranceTooltip(item)" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="getEncumbranceTooltip(item)">i</span>
+        <span v-else-if="isDeferredCash(item)" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="getDeferredTooltip(item)">i</span>
         <span class="text-muted opacity-0 group-hover:opacity-100 transition-opacity">{{ Icons.edit }}</span>
       </button>
       <div v-else class="flex items-center gap-1">
         <div class="font-semibold text-green-600">{{ formatCurrency(getDisplayBalance(item)) }}</div>
-        <span v-if="getEncumbranceTooltip(item)" class="text-orange-500 opacity-70 hover:opacity-100" :title="getEncumbranceTooltip(item)">ℹ️</span>
-        <span v-else-if="getDeferredTooltip(item)" class="text-blue-500 opacity-70 hover:opacity-100" :title="getDeferredTooltip(item)">ℹ️</span>
+        <span v-if="getEncumbranceTooltip(item)" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="getEncumbranceTooltip(item)">i</span>
+        <span v-else-if="getDeferredTooltip(item)" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="getDeferredTooltip(item)">i</span>
       </div>
     </td>
     <td class="table-cell text-gray-600">{{ formatDate(item.latestBalance?.createdAt) }}</td>
     <td class="table-cell">
       <span class="flex items-center gap-1">
         <span>{{ formatInterestRate(item.account.fixedBonusRate, item.account.interestRate) }}</span>
-        <span v-if="getYieldTooltip(item)" class="text-blue-500 opacity-70 hover:opacity-100" :title="getYieldTooltip(item)">ℹ️</span>
+        <span v-if="getYieldTooltip(item)" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="getYieldTooltip(item)">i</span>
       </span>
     </td>
     <td class="table-cell">{{ formatDate(getFixedRateEndDate(item)) }}</td>

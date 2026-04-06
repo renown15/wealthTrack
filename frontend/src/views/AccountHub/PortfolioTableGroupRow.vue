@@ -21,8 +21,8 @@
       <td class="table-cell font-semibold text-green-700">
         <span class="flex items-center gap-1">
           <span>{{ formatCurrency(summary?.totalBalance || 0) }}</span>
-          <span v-if="groupDeferredTooltip" class="text-blue-500 opacity-70 hover:opacity-100" :title="groupDeferredTooltip">ℹ️</span>
-          <span v-if="groupEncumbranceTooltip" class="text-blue-500 opacity-70 hover:opacity-100" :title="groupEncumbranceTooltip">ℹ️</span>
+          <span v-if="groupDeferredTooltip" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="groupDeferredTooltip">i</span>
+          <span v-if="groupEncumbranceTooltip" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="groupEncumbranceTooltip">i</span>
         </span>
       </td>
       <td class="table-cell">{{ summary?.commonBalanceUpdatedAt ? formatDate(summary.commonBalanceUpdatedAt) : '—' }}</td>
@@ -31,7 +31,7 @@
           <span>{{ summary?.commonBonusRate !== null && summary?.commonInterestRate !== null
             ? formatInterestRate(summary?.commonBonusRate, summary?.commonInterestRate)
             : '—' }}</span>
-          <span v-if="groupYieldTooltip" class="text-blue-500 opacity-70 hover:opacity-100" :title="groupYieldTooltip">ℹ️</span>
+          <span v-if="groupYieldTooltip" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="groupYieldTooltip">i</span>
         </span>
       </td>
       <td class="table-cell">{{ summary?.commonEndDate ? formatDate(summary.commonEndDate) : '—' }}</td>

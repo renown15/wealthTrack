@@ -1,15 +1,24 @@
 <template>
   <div>
-    <div class="form-group">
-      <label for="accountName" class="form-label">Account Name</label>
-      <input
-        id="accountName"
-        :value="formData.name"
-        @input="(e) => formData.name = (e.target as HTMLInputElement).value"
-        type="text"
-        class="form-input"
-        placeholder="e.g., Checking, Savings"
-      />
+    <div class="grid grid-cols-3 gap-4">
+      <div class="form-group" :class="getFieldConfig.showAssetClass ? 'col-span-2' : 'col-span-3'">
+        <label for="accountName" class="form-label">Account Name</label>
+        <input
+          id="accountName"
+          :value="formData.name"
+          @input="(e) => formData.name = (e.target as HTMLInputElement).value"
+          type="text"
+          class="form-input"
+          placeholder="e.g., Checking, Savings"
+        />
+      </div>
+      <div v-if="getFieldConfig.showAssetClass" class="form-group">
+        <label for="assetClass" class="form-label">Asset Class</label>
+        <select id="assetClass" v-model="formData.assetClass" class="form-select">
+          <option value="">—</option>
+          <option v-for="item in assetClassOptions" :key="item.id" :value="item.referenceValue">{{ item.referenceValue }}</option>
+        </select>
+      </div>
     </div>
 
     <div class="grid grid-cols-2 gap-4">
@@ -93,14 +102,6 @@
     <div v-if="getFieldConfig.showFixedBonusRateEndDate" class="form-group">
       <label for="fixedBonusRateEndDate" class="form-label">Fixed Rate End</label>
       <input id="fixedBonusRateEndDate" v-model="formData.fixedBonusRateEndDate" type="date" class="form-input" />
-    </div>
-
-    <div v-if="getFieldConfig.showAssetClass" class="form-group">
-      <label for="assetClass" class="form-label">Asset Class</label>
-      <select id="assetClass" v-model="formData.assetClass" class="form-select">
-        <option value="">Select Asset Class</option>
-        <option v-for="item in assetClassOptions" :key="item.id" :value="item.referenceValue">{{ item.referenceValue }}</option>
-      </select>
     </div>
 
     <AccountFormDeferredFields :form-data="formData" :field-config="getFieldConfig" />

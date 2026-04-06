@@ -22,6 +22,13 @@
           Analytics
         </router-link>
         <router-link
+          to="/tax"
+          class="nav-btn"
+          :class="{ active: isRoute('tax') }"
+        >
+          Tax Hub
+        </router-link>
+        <router-link
           to="/reference-data"
           class="nav-btn"
           :class="{ active: isRoute('reference-data') }"

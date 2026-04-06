@@ -37,6 +37,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/tax',
+    name: 'tax',
+    component: () => import('@views/TaxHub/TaxHub.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/reference-data',
     name: 'reference-data',
     component: () => import('@views/ReferenceDataAdmin.vue'),

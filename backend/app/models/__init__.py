@@ -10,6 +10,9 @@ from app.models.institution import Institution
 from app.models.institution_group import InstitutionGroup
 from app.models.institution_security_credentials import InstitutionSecurityCredentials
 from app.models.reference_data import ReferenceData
+from app.models.tax_document import TaxDocument
+from app.models.tax_period import TaxPeriod
+from app.models.tax_return import TaxReturn
 from app.models.user_profile import UserProfile
 
 __all__ = [
@@ -23,4 +26,7 @@ __all__ = [
     "InstitutionSecurityCredentials",
     "AccountGroup",
     "AccountGroupMember",
+    "TaxPeriod",
+    "TaxReturn",
+    "TaxDocument",
 ]

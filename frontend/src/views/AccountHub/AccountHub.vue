@@ -1,7 +1,7 @@
 <template>
   <div class="page-view">
     <div class="hub-header-card">
-      <AccountHubStats :total-value="totalValue" :cash-at-hand="cashAtHand" :isa-savings="isaSavings" :illiquid="illiquid" :trust-assets="trustAssets" :projected-annual-yield="projectedAnnualYield" :pension-breakdown="pensionBreakdown" :items="state.items" @create-account="openCreateAccountModal" @create-institution="openCreateInstitutionModal" @create-account-group="openCreateAccountGroupModal" />
+      <AccountHubStats :total-value="totalValue" :cash-at-hand="cashAtHand" :isa-savings="isaSavings" :illiquid="illiquid" :trust-assets="trustAssets" :projected-annual-yield="projectedAnnualYield" :pension-breakdown="pensionBreakdown" :items="visibleItems" @create-account="openCreateAccountModal" @create-institution="openCreateInstitutionModal" @create-account-group="openCreateAccountGroupModal" />
     </div>
     <div v-if="state.error" class="hub-content-card p-6">
       <div class="error-banner"><span>{{ state.error }}</span><button class="btn-close" @click="clearError">×</button></div>
@@ -21,19 +21,25 @@
         <h3 class="section-title">Portfolio</h3>
         <div class="flex items-center gap-4">
           <div class="flex items-center gap-3">
+            <span class="text-sm font-medium text-gray-700">Hide Closed</span>
+            <button class="relative w-10 h-5 rounded-full transition-colors duration-200 border-none cursor-pointer" :class="hideClosed ? 'bg-blue-600' : 'bg-gray-300'" @click="hideClosed = !hideClosed" title="Toggle closed accounts">
+              <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200" :class="hideClosed ? 'translate-x-5' : 'translate-x-0'" />
+            </button>
+          </div>
+          <div class="flex items-center gap-3">
             <span class="text-sm font-medium text-gray-700">Grouped</span>
             <button class="relative w-10 h-5 rounded-full transition-colors duration-200 border-none cursor-pointer" :class="grouped ? 'bg-blue-600' : 'bg-gray-300'" @click="grouped = !grouped" title="Toggle grouping">
               <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200" :class="grouped ? 'translate-x-5' : 'translate-x-0'" />
             </button>
           </div>
           <button class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white border-none rounded text-sm font-medium cursor-pointer transition-colors hover:bg-blue-600 active:bg-blue-700" @click="exportToExcel" title="Export accounts to Excel">
-            <span class="export-icon">⬇</span><span class="export-text">Excel</span>
+            <span class="export-icon">{{ Icons.download }}</span><span class="export-text">Excel</span>
           </button>
         </div>
       </div>
       <div class="table-wrap">
         <PortfolioTable
-          :items="state.items" :groups="accountGroupsState.groups"
+          :items="visibleItems" :groups="accountGroupsState.groups"
           :group-members="groupMembersMap" :account-types="accountTypes" :grouped="grouped"
           @edit-account="openEditAccountModal"
           @delete-account="(a) => openDeleteConfirm('account', a.id, a.name)"
@@ -46,10 +52,15 @@
     <div v-if="state.institutionsLoading || state.institutions.length > 0" class="hub-content-card p-6">
       <div class="flex items-center justify-between mb-6">
         <h3 class="section-title">Institutions</h3>
-        <div class="flex items-center gap-3">
-          <span class="text-sm font-medium text-gray-700">Group by Parent</span>
-          <button class="relative w-10 h-5 rounded-full transition-colors duration-200 border-none cursor-pointer" :class="groupByParent ? 'bg-blue-600' : 'bg-gray-300'" @click="groupByParent = !groupByParent" title="Toggle grouping">
-            <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200" :class="groupByParent ? 'translate-x-5' : 'translate-x-0'" />
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-3">
+            <span class="text-sm font-medium text-gray-700">Group by Parent</span>
+            <button class="relative w-10 h-5 rounded-full transition-colors duration-200 border-none cursor-pointer" :class="groupByParent ? 'bg-blue-600' : 'bg-gray-300'" @click="groupByParent = !groupByParent" title="Toggle grouping">
+              <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200" :class="groupByParent ? 'translate-x-5' : 'translate-x-0'" />
+            </button>
+          </div>
+          <button class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white border-none rounded text-sm font-medium cursor-pointer transition-colors hover:bg-blue-600 active:bg-blue-700" @click="exportInstitutions" title="Export institutions and credentials to Excel">
+            <span class="export-icon">{{ Icons.download }}</span><span class="export-text">Excel</span>
           </button>
         </div>
       </div>
@@ -104,9 +115,15 @@ import PortfolioTable from '@views/AccountHub/PortfolioTable.vue';
 import InstitutionsList from '@views/AccountHub/InstitutionsList.vue';
 import AccountHubModals from '@views/AccountHub/AccountHubModals.vue';
 import { apiService } from '@/services/ApiService';
-import { exportAccountsToExcel } from '@/utils/exportToExcel';
+import { institutionCredentialsService } from '@/services/InstitutionCredentialsService';
+import { exportAccountsToExcel, exportInstitutionsToExcel } from '@/utils/exportToExcel';
+import { Icons } from '@/constants/icons';
 
 const { state, totalValue, cashAtHand, isaSavings, illiquid, trustAssets, projectedAnnualYield, loadPortfolio, clearError } = usePortfolio();
+const hideClosed = ref(true);
+const visibleItems = computed(() =>
+  hideClosed.value ? state.items.filter((i) => !i.account.closedAt) : state.items
+);
 const { state: accountGroupsState, loadGroups, createGroup, updateGroup, deleteGroup, saveGroupMembers } = useAccountGroups();
 const grouped = ref(true); const groupByParent = ref(true);
 const lifeExpectancy = ref(36); const annuityRate = ref(0.075);
@@ -157,6 +174,7 @@ const closeInstitutionModal = (): void => { institutionModalOpen.value = false; 
 const openDeleteConfirm = (type: 'account' | 'institution', id: number, name: string): void => { deleteConfirmType.value = type; deleteConfirmId.value = id; deleteConfirmName.value = name; deleteConfirmOpen.value = true; };
 const closeDeleteConfirm = (): void => { deleteConfirmOpen.value = false };
 const exportToExcel = (): void => { exportAccountsToExcel(state.items, `wealthtrack-accounts-${new Date().toISOString().split('T')[0]}.xlsx`); };
+const exportInstitutions = (): void => { void exportInstitutionsToExcel(state.institutions, (id) => institutionCredentialsService.listCredentials(id), `wealthtrack-institutions-${new Date().toISOString().split('T')[0]}.xlsx`); };
 const { handleSave: handleAccountCrudSave, handleDelete: handleAccountDelete } = useAccountCrudHandlers(accountTypes, accountStatuses, modalType, editingItem, closeAccountModal);
 const { handleSave: handleInstitutionCrudSave, handleDelete: handleInstitutionDelete } = useInstitutionCrudHandlers(modalType, editingItem, closeInstitutionModal);
 const handleAccountSave = async (payload: any): Promise<void> => {

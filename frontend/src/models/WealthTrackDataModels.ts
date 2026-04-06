@@ -170,6 +170,7 @@ export interface AccountDetail {
   accountName: string;
   institutionName: string;
   balance: number;
+  isClosed?: boolean;
 }
 
 export interface BreakdownItem {

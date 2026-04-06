@@ -137,6 +137,12 @@ const handleSave = (): void => {
     return;
   }
 
+  const selectedStatus = props.accountStatuses.find(s => s.id === formData.value.statusId);
+  if (selectedStatus?.referenceValue === 'Closed' && !formData.value.closedAt) {
+    validationError.value = 'Please set a Closed Date when marking an account as Closed';
+    return;
+  }
+
   const priceErr = validatePenceField(formData.value.price, 'Price')
     ?? validatePenceField(formData.value.purchasePrice, 'Purchase Price');
   if (priceErr) {
@@ -153,17 +159,17 @@ const handleSave = (): void => {
     accountNumber: formData.value.accountNumber || undefined,
     sortCode: formData.value.sortCode || undefined,
     rollRefNumber: formData.value.rollRefNumber || undefined,
-    interestRate: formData.value.interestRate || undefined,
-    fixedBonusRate: formData.value.fixedBonusRate || undefined,
+    interestRate: formData.value.interestRate != null && formData.value.interestRate !== '' ? String(formData.value.interestRate) : undefined,
+    fixedBonusRate: formData.value.fixedBonusRate != null && formData.value.fixedBonusRate !== '' ? String(formData.value.fixedBonusRate) : undefined,
     fixedBonusRateEndDate: formData.value.fixedBonusRateEndDate ? convertFromDateInputFormat(formData.value.fixedBonusRateEndDate) : undefined,
     releaseDate: formData.value.releaseDate ? convertFromDateInputFormat(formData.value.releaseDate) : undefined,
-    numberOfShares: formData.value.numberOfShares || undefined,
+    numberOfShares: formData.value.numberOfShares != null && formData.value.numberOfShares !== '' ? String(formData.value.numberOfShares) : undefined,
     underlying: formData.value.underlying || undefined,
-    price: formData.value.price || undefined,
-    purchasePrice: formData.value.purchasePrice || undefined,
-    pensionMonthlyPayment: formData.value.pensionMonthlyPayment || undefined,
+    price: formData.value.price != null && formData.value.price !== '' ? String(formData.value.price) : undefined,
+    purchasePrice: formData.value.purchasePrice != null && formData.value.purchasePrice !== '' ? String(formData.value.purchasePrice) : undefined,
+    pensionMonthlyPayment: formData.value.pensionMonthlyPayment != null && formData.value.pensionMonthlyPayment !== '' ? String(formData.value.pensionMonthlyPayment) : undefined,
     assetClass: formData.value.assetClass || undefined,
-    encumbrance: formData.value.encumbrance || undefined,
+    encumbrance: formData.value.encumbrance != null && formData.value.encumbrance !== '' ? String(formData.value.encumbrance) : undefined,
   });
 };
 </script>

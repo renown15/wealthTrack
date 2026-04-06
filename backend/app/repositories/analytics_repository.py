@@ -46,6 +46,7 @@ class AnalyticsRepository:
             .where(ReferenceData.class_key == "account_attribute_type", ReferenceData.reference_value == "Asset Class")
             .scalar_subquery()
         )
+        status_rd = aliased(ReferenceData)
         asset_class_attr = aliased(AccountAttribute)
         stmt = (
             select(
@@ -55,6 +56,7 @@ class AnalyticsRepository:
                 Institution.name.label("institution"),
                 AccountEvent.value,
                 asset_class_attr.value.label("asset_class"),
+                status_rd.reference_value.label("account_status"),
             )
             .select_from(Account)
             .join(max_date_subq, max_date_subq.c.account_id == Account.id)
@@ -71,6 +73,7 @@ class AnalyticsRepository:
                 & (asset_class_attr.user_id == user_id)
                 & (asset_class_attr.type_id == asset_class_type_id_subq),
             )
+            .outerjoin(status_rd, status_rd.id == Account.status_id)
             .where(Account.user_id == user_id)
         )
 
@@ -81,7 +84,7 @@ class AnalyticsRepository:
         by_type_accts: dict[str, list[dict[str, Any]]] = {}; by_inst_accts: dict[str, list[dict[str, Any]]] = {}
         by_ac_accts: dict[str, list[dict[str, Any]]] = {}; by_ac_no_pension_accts: dict[str, list[dict[str, Any]]] = {}
         total = 0.0
-        for account_id, account_name, account_type, institution, raw_value, asset_class in rows:
+        for account_id, account_name, account_type, institution, raw_value, asset_class, account_status in rows:
             try:
                 val = float(raw_value)
             except (TypeError, ValueError):
@@ -94,7 +97,8 @@ class AnalyticsRepository:
             by_type[account_type] = by_type.get(account_type, 0.0) + val
             by_institution[inst] = by_institution.get(inst, 0.0) + val
             by_asset_class[ac] = by_asset_class.get(ac, 0.0) + val
-            detail = {"account_id": account_id, "account_name": account_name, "institution_name": inst, "balance": round(val, 2)}
+            is_closed = (account_status or "").lower() == "closed"
+            detail = {"account_id": account_id, "account_name": account_name, "institution_name": inst, "balance": round(val, 2), "is_closed": is_closed}
             by_type_accts.setdefault(account_type, []).append(detail)
             by_inst_accts.setdefault(inst, []).append(detail)
             by_ac_accts.setdefault(ac, []).append(detail)

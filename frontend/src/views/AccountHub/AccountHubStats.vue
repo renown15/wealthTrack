@@ -17,7 +17,7 @@
       <article class="stat-card" :title="getTotalValueTooltip()">
         <p class="stat-label">
           Total Value
-          <span class="info-icon" style="cursor: help;">{{ Icons.info }}</span>
+          <span class="info-icon" style="cursor: pointer;">{{ Icons.info }}</span>
         </p>
         <p class="stat-value">{{ formatCurrency(totalValue) }}</p>
       </article>
@@ -25,7 +25,7 @@
       <article class="stat-card" :title="buildBreakdownTooltip(CASH_TYPES)">
         <p class="stat-label">
           Cash at Hand
-          <span class="info-icon" style="cursor: help;">{{ Icons.info }}</span>
+          <span class="info-icon" style="cursor: pointer;">{{ Icons.info }}</span>
         </p>
         <p class="stat-value">{{ formatCurrency(cashAtHand) }}</p>
       </article>
@@ -33,7 +33,7 @@
       <article class="stat-card" :title="buildBreakdownTooltip(ISA_TYPES)">
         <p class="stat-label">
           ISA Savings
-          <span class="info-icon" style="cursor: help;">{{ Icons.info }}</span>
+          <span class="info-icon" style="cursor: pointer;">{{ Icons.info }}</span>
         </p>
         <p class="stat-value">{{ formatCurrency(isaSavings) }}</p>
       </article>
@@ -41,7 +41,7 @@
       <article class="stat-card" :title="buildBreakdownTooltip(ILLIQUID_TYPES)">
         <p class="stat-label">
           Illiquid
-          <span class="info-icon" style="cursor: help;">{{ Icons.info }}</span>
+          <span class="info-icon" style="cursor: pointer;">{{ Icons.info }}</span>
         </p>
         <p class="stat-value">{{ formatCurrency(illiquid) }}</p>
       </article>
@@ -49,7 +49,7 @@
       <article class="stat-card" :title="buildBreakdownTooltip(TRUST_TYPES)">
         <p class="stat-label">
           Trust Assets
-          <span class="info-icon" style="cursor: help;">{{ Icons.info }}</span>
+          <span class="info-icon" style="cursor: pointer;">{{ Icons.info }}</span>
         </p>
         <p class="stat-value">{{ formatCurrency(trustAssets) }}</p>
       </article>
@@ -57,7 +57,7 @@
       <article class="stat-card" :title="getPensionTooltip()">
         <p class="stat-label">
           Pension Value
-          <span class="info-icon" style="cursor: help;">{{ Icons.info }}</span>
+          <span class="info-icon" style="cursor: pointer;">{{ Icons.info }}</span>
         </p>
         <p class="stat-value">{{ formatCurrency(pensionBreakdown.total) }}</p>
       </article>
@@ -65,7 +65,7 @@
       <article class="stat-card" title="Projected annual yield based on interest rates applied to current balances. Bonus rates are included while active.">
         <p class="stat-label">
           Projected Annual Yield
-          <span class="info-icon" style="cursor: help;">{{ Icons.info }}</span>
+          <span class="info-icon" style="cursor: pointer;">{{ Icons.info }}</span>
         </p>
         <p class="stat-value">{{ formatCurrency(projectedAnnualYield) }}</p>
       </article>

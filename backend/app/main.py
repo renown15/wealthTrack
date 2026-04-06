@@ -24,6 +24,7 @@ from app.controllers.institution_security_credentials import (
 )
 from app.controllers.portfolio import router as portfolio_router
 from app.controllers.reference_data import router as reference_data_router
+from app.controllers.tax import router as tax_router
 from app.database import engine
 
 
@@ -152,6 +153,7 @@ app.include_router(institution_router, prefix=settings.api_v1_prefix)
 app.include_router(institution_credentials_router, prefix=settings.api_v1_prefix)
 app.include_router(portfolio_router, prefix=settings.api_v1_prefix)
 app.include_router(reference_data_router, prefix=settings.api_v1_prefix)
+app.include_router(tax_router, prefix=settings.api_v1_prefix)
 
 
 @app.get("/")

@@ -11,6 +11,8 @@ export const Icons = {
   sortDesc: '▼',
   eye: '👁',
   info: 'ⓘ',
+  upload: '⬆',
+  download: '⬇',
 } as const;
 
 export type IconName = keyof typeof Icons;
