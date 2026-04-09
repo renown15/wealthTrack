@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import type { PortfolioItem } from '@/models/Portfolio';
+import type { PortfolioItem } from '@/models/WealthTrackDataModels';
 import type { Institution } from '@/models/WealthTrackDataModels';
 import type { InstitutionCredential } from '@/models/InstitutionCredential';
 

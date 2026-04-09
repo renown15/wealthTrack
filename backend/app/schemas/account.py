@@ -58,6 +58,9 @@ class AccountCreate(BaseSchema):
     encumbrance: Optional[str] = Field(
         None, max_length=255, description="Temporary encumbrance amount"
     )
+    tax_year: Optional[str] = Field(
+        None, max_length=10, description="Tax year (e.g. 2024/25) for Tax Liability accounts"
+    )
 
 
 class AccountUpdate(BaseSchema):
@@ -111,6 +114,9 @@ class AccountUpdate(BaseSchema):
     new_gross_balance: Optional[str] = Field(
         None, max_length=255, description="New gross balance when re-applying encumbrance after balance edit"
     )
+    tax_year: Optional[str] = Field(
+        None, max_length=10, description="Tax year for Tax Liability accounts"
+    )
 
 
 class AccountResponse(BaseSchema):
@@ -137,6 +143,7 @@ class AccountResponse(BaseSchema):
     asset_class: Optional[str] = None
     encumbrance: Optional[str] = None
     unencumbered_balance: Optional[str] = None
+    tax_year: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

@@ -39,6 +39,7 @@ ACCOUNT_ITEMS: list[ReferenceDataItem] = [
         class_key="account_type", reference_value="Trust Stocks Investment Account", sort_index=14
     ),
     ReferenceDataItem(class_key="account_type", reference_value="Shares", sort_index=15),
+    ReferenceDataItem(class_key="account_type", reference_value="Tax Liability", sort_index=16),
     # -----------------------------------------------------------------------
     # Account statuses
     # -----------------------------------------------------------------------
@@ -53,6 +54,8 @@ ACCOUNT_ITEMS: list[ReferenceDataItem] = [
     ReferenceDataItem(class_key="account_event_type", reference_value="Interest", sort_index=2),
     ReferenceDataItem(class_key="account_event_type", reference_value="Dividend", sort_index=3),
     ReferenceDataItem(class_key="account_event_type", reference_value="Win", sort_index=4),
+    ReferenceDataItem(class_key="account_event_type", reference_value="Share Sale", sort_index=8),
+    ReferenceDataItem(class_key="account_event_type", reference_value="Liability", sort_index=9),
     # -----------------------------------------------------------------------
     # Account attribute types
     # -----------------------------------------------------------------------
@@ -125,5 +128,8 @@ ACCOUNT_ITEMS: list[ReferenceDataItem] = [
     ),
     ReferenceDataItem(
         class_key="account_attribute_type", reference_value="Unencumbered Balance", sort_index=22
+    ),
+    ReferenceDataItem(
+        class_key="account_attribute_type", reference_value="Tax Year", sort_index=23
     ),
 ]

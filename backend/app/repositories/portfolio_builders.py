@@ -26,6 +26,7 @@ _LABEL_TO_KEY: dict[str, str] = {
     "Asset Class": "asset_class",
     "Encumbrance": "encumbrance",
     "Unencumbered Balance": "unencumbered_balance",
+    "Tax Year": "tax_year",
 }
 
 
@@ -54,6 +55,7 @@ def build_attributes_dict(raw: dict[str, str]) -> dict[str, Any]:
         "asset_class": keyed.get("asset_class"),
         "encumbrance": keyed.get("encumbrance"),
         "unencumbered_balance": keyed.get("unencumbered_balance"),
+        "tax_year": keyed.get("tax_year"),
     }
 
 
@@ -95,6 +97,7 @@ async def build_portfolio_item(
     acct_data["pensionMonthlyPayment"] = attrs.get("pension_monthly_payment")
     acct_data["assetClass"] = attrs.get("asset_class")
     acct_data["encumbrance"] = attrs.get("encumbrance")
+    acct_data["taxYear"] = attrs.get("tax_year")
     underlying = attrs.get("underlying")
     acct_data["targetPrice"] = target_prices_by_ticker.get(underlying) if underlying else None
 
@@ -107,6 +110,7 @@ async def build_portfolio_item(
         if parent:
             inst_data["parentId"] = parent.parent_institution_id
 
+    account_type = portfolio_data["account_type"]
     balance_data = None
     if latest_balance:
         bal = latest_balance
@@ -128,6 +132,13 @@ async def build_portfolio_item(
             "createdAt": bal.created_at.isoformat() if bal.created_at else None,
             "updatedAt": bal.updated_at.isoformat() if bal.updated_at else None,
         }
+
+    # Negate balance for Tax Liability accounts (liability reduces net worth)
+    if account_type == "Tax Liability" and balance_data and balance_data.get("value"):
+        try:
+            balance_data["value"] = str(-abs(float(str(balance_data["value"]))))
+        except (ValueError, TypeError):
+            pass
 
     return {
         "account": acct_data,

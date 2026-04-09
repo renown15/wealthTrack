@@ -189,3 +189,45 @@ class TestDeferredSharesBalanceService:
         result = await service.save_daily_balance(1, 1, 50.0)
 
         assert result is False
+
+    @pytest.mark.asyncio
+    async def test_save_already_saved_today(self):
+        """Test returns False when balance already recorded today."""
+        mock_session = AsyncMock()
+        mock_repo = AsyncMock(spec=AccountAttributeRepository)
+        mock_repo.session = mock_session
+        mock_repo.get_attribute_type_id = AsyncMock(return_value=11)
+
+        existing_event = MagicMock()
+        existing_event.value = "50.00"
+        balance_event_result = MagicMock()
+        balance_event_result.scalar_one_or_none.return_value = existing_event
+        mock_session.execute.return_value = balance_event_result
+
+        service = DeferredSharesBalanceService(mock_repo)
+        result = await service.save_daily_balance(1, 1, 50.0)
+
+        assert result is False
+
+    @pytest.mark.asyncio
+    async def test_save_with_price_updates_price_attribute(self):
+        """Test that providing price updates the price attribute."""
+        mock_session = AsyncMock()
+        mock_repo = AsyncMock(spec=AccountAttributeRepository)
+        mock_repo.session = mock_session
+        mock_repo.get_attribute_type_id = AsyncMock(return_value=11)
+        mock_repo.set_attribute = AsyncMock()
+        mock_repo.set_attribute_by_name = AsyncMock()
+
+        balance_event_result = MagicMock()
+        balance_event_result.scalar_one_or_none.return_value = None
+        event_type_result = MagicMock()
+        event_type_result.scalar_one_or_none.return_value = 5
+        mock_session.execute.side_effect = [balance_event_result, event_type_result]
+        mock_session.flush = AsyncMock()
+
+        service = DeferredSharesBalanceService(mock_repo)
+        result = await service.save_daily_balance(1, 1, 50.0, price="1.25")
+
+        assert result is True
+        mock_repo.set_attribute_by_name.assert_called_once()

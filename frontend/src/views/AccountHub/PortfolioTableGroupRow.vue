@@ -17,7 +17,7 @@
           <span class="inline-flex items-center px-2 py-1 text-xs font-600 bg-blue-100 text-blue-700 rounded">{{ items.length }}</span>
         </span>
       </td>
-      <td class="table-cell">{{ summary?.commonAccountType || '—' }}</td>
+      <td class="table-cell"><div class="truncate whitespace-nowrap overflow-hidden max-w-[11rem]" :title="summary?.commonAccountType || '—'">{{ summary?.commonAccountType || '—' }}</div></td>
       <td class="table-cell font-semibold text-green-700">
         <span class="flex items-center gap-1">
           <span>{{ formatCurrency(summary?.totalBalance || 0) }}</span>
@@ -25,7 +25,7 @@
           <span v-if="groupEncumbranceTooltip" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="groupEncumbranceTooltip">i</span>
         </span>
       </td>
-      <td class="table-cell">{{ summary?.commonBalanceUpdatedAt ? formatDate(summary.commonBalanceUpdatedAt) : '—' }}</td>
+      <td class="table-cell whitespace-nowrap">{{ summary?.commonBalanceUpdatedAt ? formatShortDate(summary.commonBalanceUpdatedAt) : '—' }}</td>
       <td class="table-cell">
         <span class="flex items-center gap-1">
           <span>{{ summary?.commonBonusRate !== null && summary?.commonInterestRate !== null
@@ -34,7 +34,7 @@
           <span v-if="groupYieldTooltip" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="groupYieldTooltip">i</span>
         </span>
       </td>
-      <td class="table-cell">{{ summary?.commonEndDate ? formatDate(summary.commonEndDate) : '—' }}</td>
+      <td class="table-cell whitespace-nowrap">{{ summary?.commonEndDate ? formatDate(summary.commonEndDate) : '—' }}</td>
       <td class="table-cell">
         <span v-if="(summary?.totalEvents || 0) > 0" class="inline-flex items-center justify-center px-3 py-1 text-sm font-semibold rounded-lg bg-blue-100 text-blue-600">
           {{ summary?.totalEvents ?? 0 }}
@@ -81,7 +81,7 @@
 
 <script setup lang="ts">
 import type { Account, PortfolioItem } from '@/models/WealthTrackDataModels';
-import { formatCurrency, formatDate, formatInterestRate } from '@views/AccountHub/formattingUtils';
+import { formatCurrency, formatDate, formatShortDate, formatInterestRate } from '@views/AccountHub/formattingUtils';
 import { getGroupYieldTooltip, getGroupDeferredTooltip, getGroupEncumbranceTooltip } from '@views/AccountHub/accountDisplayUtils';
 import { Icons } from '@/constants/icons';
 import { computed } from 'vue';

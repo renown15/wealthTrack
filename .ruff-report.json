@@ -1,0 +1,3660 @@
+[
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 127,
+      "row": 31
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/004_rename_tables_to_pascalcase.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 31
+    },
+    "message": "Line too long (126 > 100)",
+    "noqa_row": 31,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 134,
+      "row": 32
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/004_rename_tables_to_pascalcase.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 32
+    },
+    "message": "Line too long (133 > 100)",
+    "noqa_row": 32,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 127,
+      "row": 33
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/004_rename_tables_to_pascalcase.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 33
+    },
+    "message": "Line too long (126 > 100)",
+    "noqa_row": 33,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 102,
+      "row": 35
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/004_rename_tables_to_pascalcase.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 35
+    },
+    "message": "Line too long (101 > 100)",
+    "noqa_row": 35,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 102,
+      "row": 59
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/004_rename_tables_to_pascalcase.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 59
+    },
+    "message": "Line too long (101 > 100)",
+    "noqa_row": 67,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 105,
+      "row": 90
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/004_rename_tables_to_pascalcase.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 90
+    },
+    "message": "Line too long (104 > 100)",
+    "noqa_row": 90,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 109,
+      "row": 93
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/004_rename_tables_to_pascalcase.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 93
+    },
+    "message": "Line too long (108 > 100)",
+    "noqa_row": 93,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 103,
+      "row": 95
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/004_rename_tables_to_pascalcase.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 95
+    },
+    "message": "Line too long (102 > 100)",
+    "noqa_row": 95,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 143,
+      "row": 96
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/004_rename_tables_to_pascalcase.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 96
+    },
+    "message": "Line too long (142 > 100)",
+    "noqa_row": 96,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 155,
+      "row": 97
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/004_rename_tables_to_pascalcase.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 97
+    },
+    "message": "Line too long (154 > 100)",
+    "noqa_row": 97,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 141,
+      "row": 98
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/004_rename_tables_to_pascalcase.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 98
+    },
+    "message": "Line too long (140 > 100)",
+    "noqa_row": 98,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 115,
+      "row": 99
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/004_rename_tables_to_pascalcase.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 99
+    },
+    "message": "Line too long (114 > 100)",
+    "noqa_row": 99,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 115,
+      "row": 100
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/004_rename_tables_to_pascalcase.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 100
+    },
+    "message": "Line too long (114 > 100)",
+    "noqa_row": 100,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 113,
+      "row": 101
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/004_rename_tables_to_pascalcase.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 101
+    },
+    "message": "Line too long (112 > 100)",
+    "noqa_row": 101,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 107,
+      "row": 102
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/004_rename_tables_to_pascalcase.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 102
+    },
+    "message": "Line too long (106 > 100)",
+    "noqa_row": 102,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 107,
+      "row": 103
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/004_rename_tables_to_pascalcase.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 103
+    },
+    "message": "Line too long (106 > 100)",
+    "noqa_row": 103,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 105,
+      "row": 104
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/004_rename_tables_to_pascalcase.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 104
+    },
+    "message": "Line too long (104 > 100)",
+    "noqa_row": 104,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 103,
+      "row": 137
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/004_rename_tables_to_pascalcase.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 137
+    },
+    "message": "Line too long (102 > 100)",
+    "noqa_row": 146,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 103,
+      "row": 29
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/005_consolidate_user_into_userprofile.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 29
+    },
+    "message": "Line too long (102 > 100)",
+    "noqa_row": 29,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 125,
+      "row": 74
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/005_consolidate_user_into_userprofile.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 74
+    },
+    "message": "Line too long (124 > 100)",
+    "noqa_row": 77,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 200,
+      "row": 75
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/005_consolidate_user_into_userprofile.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 75
+    },
+    "message": "Line too long (199 > 100)",
+    "noqa_row": 77,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 102,
+      "row": 36
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/008_add_institution_group_table.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 36
+    },
+    "message": "Line too long (101 > 100)",
+    "noqa_row": 36,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 128,
+      "row": 37
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/008_add_institution_group_table.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 37
+    },
+    "message": "Line too long (127 > 100)",
+    "noqa_row": 37,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 126,
+      "row": 38
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/008_add_institution_group_table.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 38
+    },
+    "message": "Line too long (125 > 100)",
+    "noqa_row": 38,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "W293",
+    "end_location": {
+      "column": 5,
+      "row": 24
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/011_add_institution_type.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 5,
+            "row": 24
+          },
+          "location": {
+            "column": 1,
+            "row": 24
+          }
+        }
+      ],
+      "message": "Remove whitespace from blank line"
+    },
+    "location": {
+      "column": 1,
+      "row": 24
+    },
+    "message": "Blank line contains whitespace",
+    "noqa_row": 24,
+    "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
+  },
+  {
+    "cell": null,
+    "code": "W293",
+    "end_location": {
+      "column": 5,
+      "row": 30
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/011_add_institution_type.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 5,
+            "row": 30
+          },
+          "location": {
+            "column": 1,
+            "row": 30
+          }
+        }
+      ],
+      "message": "Remove whitespace from blank line"
+    },
+    "location": {
+      "column": 1,
+      "row": 30
+    },
+    "message": "Blank line contains whitespace",
+    "noqa_row": 30,
+    "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
+  },
+  {
+    "cell": null,
+    "code": "W293",
+    "end_location": {
+      "column": 5,
+      "row": 80
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/011_add_institution_type.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 5,
+            "row": 80
+          },
+          "location": {
+            "column": 1,
+            "row": 80
+          }
+        }
+      ],
+      "message": "Remove whitespace from blank line"
+    },
+    "location": {
+      "column": 1,
+      "row": 80
+    },
+    "message": "Blank line contains whitespace",
+    "noqa_row": 80,
+    "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
+  },
+  {
+    "cell": null,
+    "code": "W293",
+    "end_location": {
+      "column": 5,
+      "row": 88
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/011_add_institution_type.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 5,
+            "row": 88
+          },
+          "location": {
+            "column": 1,
+            "row": 88
+          }
+        }
+      ],
+      "message": "Remove whitespace from blank line"
+    },
+    "location": {
+      "column": 1,
+      "row": 88
+    },
+    "message": "Blank line contains whitespace",
+    "noqa_row": 88,
+    "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 134,
+      "row": 59
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/012_add_memorable_date_credential_type.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 59
+    },
+    "message": "Line too long (133 > 100)",
+    "noqa_row": 59,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 113,
+      "row": 52
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/013_add_memorable_name_credential_type.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 52
+    },
+    "message": "Line too long (112 > 100)",
+    "noqa_row": 52,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 114,
+      "row": 52
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/014_add_memorable_place_credential_type.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 52
+    },
+    "message": "Line too long (113 > 100)",
+    "noqa_row": 52,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 123,
+      "row": 68
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/017_add_deferred_account_attributes.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 68
+    },
+    "message": "Line too long (122 > 100)",
+    "noqa_row": 69,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 14
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/025_add_trust_account_types.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime\n\nimport sqlalchemy as sa\n\nfrom alembic import op\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 14
+          },
+          "location": {
+            "column": 1,
+            "row": 8
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 8
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 8,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 152,
+      "row": 57
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/025_add_trust_account_types.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 57
+    },
+    "message": "Line too long (151 > 100)",
+    "noqa_row": 57,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 10
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/032_add_tax_tables.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import sqlalchemy as sa\n\nfrom alembic import op\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 10
+          },
+          "location": {
+            "column": 1,
+            "row": 7
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 7
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 7,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 10
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/033_add_account_document_table.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import sqlalchemy as sa\n\nfrom alembic import op\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 10
+          },
+          "location": {
+            "column": 1,
+            "row": 7
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 7
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 7,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 10
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/034_add_description_to_account_document.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import sqlalchemy as sa\n\nfrom alembic import op\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 10
+          },
+          "location": {
+            "column": 1,
+            "row": 7
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 7
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 7,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 10
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/035_add_share_sale_and_tax_liability.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from sqlalchemy import text\n\nfrom alembic import op\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 10
+          },
+          "location": {
+            "column": 1,
+            "row": 7
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 7
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 7,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 108,
+      "row": 1
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/de3af94e70a5_add_feature_tables_account_institution_.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 1
+    },
+    "message": "Line too long (107 > 100)",
+    "noqa_row": 7,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 126,
+      "row": 65
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/de3af94e70a5_add_feature_tables_account_institution_.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 65
+    },
+    "message": "Line too long (125 > 100)",
+    "noqa_row": 65,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 148,
+      "row": 66
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/de3af94e70a5_add_feature_tables_account_institution_.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 66
+    },
+    "message": "Line too long (147 > 100)",
+    "noqa_row": 66,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 134,
+      "row": 67
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/de3af94e70a5_add_feature_tables_account_institution_.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 67
+    },
+    "message": "Line too long (133 > 100)",
+    "noqa_row": 67,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 112,
+      "row": 81
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/de3af94e70a5_add_feature_tables_account_institution_.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 81
+    },
+    "message": "Line too long (111 > 100)",
+    "noqa_row": 81,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 106,
+      "row": 83
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/de3af94e70a5_add_feature_tables_account_institution_.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 83
+    },
+    "message": "Line too long (105 > 100)",
+    "noqa_row": 83,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 104,
+      "row": 97
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/de3af94e70a5_add_feature_tables_account_institution_.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 97
+    },
+    "message": "Line too long (103 > 100)",
+    "noqa_row": 97,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 105,
+      "row": 102
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/de3af94e70a5_add_feature_tables_account_institution_.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 102
+    },
+    "message": "Line too long (104 > 100)",
+    "noqa_row": 102,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 117,
+      "row": 131
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/de3af94e70a5_add_feature_tables_account_institution_.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 131
+    },
+    "message": "Line too long (116 > 100)",
+    "noqa_row": 131,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 124,
+      "row": 132
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/de3af94e70a5_add_feature_tables_account_institution_.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 132
+    },
+    "message": "Line too long (123 > 100)",
+    "noqa_row": 132,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 113,
+      "row": 133
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/alembic/versions/de3af94e70a5_add_feature_tables_account_institution_.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 133
+    },
+    "message": "Line too long (112 > 100)",
+    "noqa_row": 133,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 10
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/controllers/account_attributes_handler.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from sqlalchemy.ext.asyncio import AsyncSession\n\nfrom app.repositories.account_attribute_repository import AccountAttributeRepository\nfrom app.repositories.account_event_repository import AccountEventRepository\nfrom app.schemas.account import AccountCreate, AccountResponse, AccountUpdate\nfrom app.services.account_event_service import AccountEventService\nfrom app.types.attribute_types import validate_attribute_field as _validate_field\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 10
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 2
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 2,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 104,
+      "row": 101
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/controllers/account_attributes_handler.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 101
+    },
+    "message": "Line too long (103 > 100)",
+    "noqa_row": 101,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 107,
+      "row": 103
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/controllers/account_attributes_handler.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 103
+    },
+    "message": "Line too long (106 > 100)",
+    "noqa_row": 103,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 105,
+      "row": 108
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/controllers/account_attributes_handler.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 108
+    },
+    "message": "Line too long (104 > 100)",
+    "noqa_row": 108,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 107,
+      "row": 111
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/controllers/account_attributes_handler.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 111
+    },
+    "message": "Line too long (106 > 100)",
+    "noqa_row": 111,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 110,
+      "row": 155
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/controllers/account_attributes_handler.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 155
+    },
+    "message": "Line too long (109 > 100)",
+    "noqa_row": 155,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 103,
+      "row": 165
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/controllers/account_attributes_handler.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 165
+    },
+    "message": "Line too long (102 > 100)",
+    "noqa_row": 165,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 106,
+      "row": 176
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/controllers/account_attributes_handler.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 176
+    },
+    "message": "Line too long (105 > 100)",
+    "noqa_row": 176,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 15
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/controllers/tax_periods.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from fastapi import APIRouter, Depends, HTTPException, status\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom app.controllers.dependencies import get_current_user\nfrom app.database import get_db\nfrom app.models.user_profile import UserProfile\nfrom app.repositories.tax_period_repository import TaxPeriodRepository\nfrom app.schemas.tax import (\n    EligibleAccountResponse,\n    TaxDocumentResponse,\n    TaxPeriodCreate,\n    TaxPeriodResponse,\n    TaxReturnResponse,\n)\nfrom app.services.tax_service import get_eligible_with_returns\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 15
+          },
+          "location": {
+            "column": 1,
+            "row": 4
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 4
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 4,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 104,
+      "row": 83
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/controllers/tax_periods.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 83
+    },
+    "message": "Line too long (103 > 100)",
+    "noqa_row": 83,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 109,
+      "row": 91
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/controllers/tax_periods.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 91
+    },
+    "message": "Line too long (108 > 100)",
+    "noqa_row": 91,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 32
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/main.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import json\nfrom collections.abc import AsyncGenerator, Awaitable, Callable\nfrom contextlib import asynccontextmanager\n\nfrom fastapi import FastAPI\nfrom fastapi.middleware.cors import CORSMiddleware\nfrom starlette.middleware.base import BaseHTTPMiddleware\nfrom starlette.requests import Request\nfrom starlette.responses import Response\n\nfrom app.config import settings\nfrom app.controllers.account import router as account_router\nfrom app.controllers.account_documents import router as account_documents_router\nfrom app.controllers.account_group import router as account_group_router\nfrom app.controllers.analytics import router as analytics_router\nfrom app.controllers.auth import router as auth_router\nfrom app.controllers.institution import router as institution_router\nfrom app.controllers.institution_security_credentials import (\n    router as institution_credentials_router,\n)\nfrom app.controllers.portfolio import router as portfolio_router\nfrom app.controllers.reference_data import router as reference_data_router\nfrom app.controllers.tax import router as tax_router\nfrom app.database import async_session_maker, engine\nfrom app.services.type_validator import validate_types_against_db\n\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 32
+          },
+          "location": {
+            "column": 1,
+            "row": 4
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 4
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 4,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 106,
+      "row": 42
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/models/account_document.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 42
+    },
+    "message": "Line too long (105 > 100)",
+    "noqa_row": 42,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 104,
+      "row": 51
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/account_attribute_repository.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 51
+    },
+    "message": "Line too long (103 > 100)",
+    "noqa_row": 51,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 102,
+      "row": 184
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/account_attribute_repository.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 184
+    },
+    "message": "Line too long (101 > 100)",
+    "noqa_row": 184,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 112,
+      "row": 191
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/account_attribute_repository.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 191
+    },
+    "message": "Line too long (111 > 100)",
+    "noqa_row": 191,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 102,
+      "row": 194
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/account_attribute_repository.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 194
+    },
+    "message": "Line too long (101 > 100)",
+    "noqa_row": 194,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 103,
+      "row": 196
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/account_attribute_repository.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 196
+    },
+    "message": "Line too long (102 > 100)",
+    "noqa_row": 196,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 28,
+      "row": 9
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/analytics_repository.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from sqlalchemy import func, select",
+          "end_location": {
+            "column": 42,
+            "row": 9
+          },
+          "location": {
+            "column": 1,
+            "row": 9
+          }
+        }
+      ],
+      "message": "Remove unused import: `sqlalchemy.and_`"
+    },
+    "location": {
+      "column": 24,
+      "row": 9
+    },
+    "message": "`sqlalchemy.and_` imported but unused",
+    "noqa_row": 9,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 120,
+      "row": 46
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/analytics_repository.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 46
+    },
+    "message": "Line too long (119 > 100)",
+    "noqa_row": 46,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E702",
+    "end_location": {
+      "column": 40,
+      "row": 82
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/analytics_repository.py",
+    "fix": null,
+    "location": {
+      "column": 39,
+      "row": 82
+    },
+    "message": "Multiple statements on one line (semicolon)",
+    "noqa_row": 82,
+    "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+  },
+  {
+    "cell": null,
+    "code": "E702",
+    "end_location": {
+      "column": 47,
+      "row": 83
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/analytics_repository.py",
+    "fix": null,
+    "location": {
+      "column": 46,
+      "row": 83
+    },
+    "message": "Multiple statements on one line (semicolon)",
+    "noqa_row": 83,
+    "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+  },
+  {
+    "cell": null,
+    "code": "E702",
+    "end_location": {
+      "column": 61,
+      "row": 84
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/analytics_repository.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 84
+    },
+    "message": "Multiple statements on one line (semicolon)",
+    "noqa_row": 84,
+    "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 113,
+      "row": 84
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/analytics_repository.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 84
+    },
+    "message": "Line too long (112 > 100)",
+    "noqa_row": 84,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E702",
+    "end_location": {
+      "column": 59,
+      "row": 85
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/analytics_repository.py",
+    "fix": null,
+    "location": {
+      "column": 58,
+      "row": 85
+    },
+    "message": "Multiple statements on one line (semicolon)",
+    "noqa_row": 85,
+    "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 120,
+      "row": 85
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/analytics_repository.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 85
+    },
+    "message": "Line too long (119 > 100)",
+    "noqa_row": 85,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 113,
+      "row": 87
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/analytics_repository.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 87
+    },
+    "message": "Line too long (112 > 100)",
+    "noqa_row": 87,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 154,
+      "row": 101
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/analytics_repository.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 101
+    },
+    "message": "Line too long (153 > 100)",
+    "noqa_row": 101,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 105,
+      "row": 126
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/analytics_repository.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 126
+    },
+    "message": "Line too long (104 > 100)",
+    "noqa_row": 126,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 110,
+      "row": 141
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/analytics_repository.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 141
+    },
+    "message": "Line too long (109 > 100)",
+    "noqa_row": 141,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 120,
+      "row": 161
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/analytics_repository.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 161
+    },
+    "message": "Line too long (119 > 100)",
+    "noqa_row": 161,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "W293",
+    "end_location": {
+      "column": 9,
+      "row": 118
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/portfolio_builders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 9,
+            "row": 118
+          },
+          "location": {
+            "column": 1,
+            "row": 118
+          }
+        }
+      ],
+      "message": "Remove whitespace from blank line"
+    },
+    "location": {
+      "column": 1,
+      "row": 118
+    },
+    "message": "Blank line contains whitespace",
+    "noqa_row": 118,
+    "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
+  },
+  {
+    "cell": null,
+    "code": "W293",
+    "end_location": {
+      "column": 9,
+      "row": 123
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/portfolio_builders.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 9,
+            "row": 123
+          },
+          "location": {
+            "column": 1,
+            "row": 123
+          }
+        }
+      ],
+      "message": "Remove whitespace from blank line"
+    },
+    "location": {
+      "column": 1,
+      "row": 123
+    },
+    "message": "Blank line contains whitespace",
+    "noqa_row": 123,
+    "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 11
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/repositories/tax_period_repository.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import date, datetime\n\nfrom sqlalchemy import select\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom app.models.tax_period import TaxPeriod\n\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 11
+          },
+          "location": {
+            "column": 1,
+            "row": 4
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 4
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 4,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 110,
+      "row": 115
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/schemas/account.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 115
+    },
+    "message": "Line too long (109 > 100)",
+    "noqa_row": 115,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 60,
+      "row": 10
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/services/db_seeds/__init__.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 10
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 10,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 10
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/app/services/type_validator.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import logging\n\nfrom sqlalchemy import select\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom app.models.reference_data import ReferenceData\nfrom app.types.attribute_types import AttributeType\nfrom app.types.event_types import EventType\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 10
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 2
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 2,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 18
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/scripts/cleanup_reference_data.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import asyncio\n\nfrom sqlalchemy import select, update\n\nfrom app.database import async_session_maker\nfrom app.models.account import Account\nfrom app.models.account_attribute import AccountAttribute\nfrom app.models.account_event import AccountEvent\nfrom app.models.institution_security_credentials import InstitutionSecurityCredentials\nfrom app.models.reference_data import ReferenceData\nfrom app.models.user_profile import UserProfile\n\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 18
+          },
+          "location": {
+            "column": 1,
+            "row": 7
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 7
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 7,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 22
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/conftest.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import asyncio\nimport os\nfrom collections.abc import AsyncGenerator\n\nimport pytest\nfrom httpx import ASGITransport, AsyncClient\nfrom sqlalchemy import event, text\nfrom sqlalchemy.ext.asyncio import (\n    AsyncEngine,\n    AsyncSession,\n    async_sessionmaker,\n    create_async_engine,\n)\nfrom sqlalchemy.pool import NullPool\n\nfrom app.database import Base, get_db\nfrom app.main import app\nfrom app.models.account import Account\nfrom app.models.institution import Institution\nfrom app.models.reference_data import ReferenceData\nfrom app.models.user_profile import UserProfile\nfrom app.services.auth import create_access_token\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 22
+          },
+          "location": {
+            "column": 1,
+            "row": 4
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 4
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 4,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 15,
+      "row": 4
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/conftest.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 5
+          },
+          "location": {
+            "column": 1,
+            "row": 4
+          }
+        }
+      ],
+      "message": "Remove unused import: `asyncio`"
+    },
+    "location": {
+      "column": 8,
+      "row": 4
+    },
+    "message": "`asyncio` imported but unused",
+    "noqa_row": 4,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 29,
+      "row": 10
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/conftest.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 11
+          },
+          "location": {
+            "column": 1,
+            "row": 10
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 24,
+      "row": 10
+    },
+    "message": "`sqlalchemy.event` imported but unused",
+    "noqa_row": 10,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 35,
+      "row": 10
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/conftest.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 11
+          },
+          "location": {
+            "column": 1,
+            "row": 10
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 31,
+      "row": 10
+    },
+    "message": "`sqlalchemy.text` imported but unused",
+    "noqa_row": 10,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 102,
+      "row": 11
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/conftest.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 11
+    },
+    "message": "Line too long (101 > 100)",
+    "noqa_row": 11,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "W291",
+    "end_location": {
+      "column": 28,
+      "row": 33
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/conftest.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 28,
+            "row": 33
+          },
+          "location": {
+            "column": 27,
+            "row": 33
+          }
+        }
+      ],
+      "message": "Remove trailing whitespace"
+    },
+    "location": {
+      "column": 27,
+      "row": 33
+    },
+    "message": "Trailing whitespace",
+    "noqa_row": 33,
+    "url": "https://docs.astral.sh/ruff/rules/trailing-whitespace"
+  },
+  {
+    "cell": null,
+    "code": "W293",
+    "end_location": {
+      "column": 5,
+      "row": 37
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/conftest.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 5,
+            "row": 37
+          },
+          "location": {
+            "column": 1,
+            "row": 37
+          }
+        }
+      ],
+      "message": "Remove whitespace from blank line"
+    },
+    "location": {
+      "column": 1,
+      "row": 37
+    },
+    "message": "Blank line contains whitespace",
+    "noqa_row": 37,
+    "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
+  },
+  {
+    "cell": null,
+    "code": "W293",
+    "end_location": {
+      "column": 5,
+      "row": 42
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/conftest.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 5,
+            "row": 42
+          },
+          "location": {
+            "column": 1,
+            "row": 42
+          }
+        }
+      ],
+      "message": "Remove whitespace from blank line"
+    },
+    "location": {
+      "column": 1,
+      "row": 42
+    },
+    "message": "Blank line contains whitespace",
+    "noqa_row": 42,
+    "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
+  },
+  {
+    "cell": null,
+    "code": "W293",
+    "end_location": {
+      "column": 5,
+      "row": 44
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/conftest.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 5,
+            "row": 44
+          },
+          "location": {
+            "column": 1,
+            "row": 44
+          }
+        }
+      ],
+      "message": "Remove whitespace from blank line"
+    },
+    "location": {
+      "column": 1,
+      "row": 44
+    },
+    "message": "Blank line contains whitespace",
+    "noqa_row": 44,
+    "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
+  },
+  {
+    "cell": null,
+    "code": "W293",
+    "end_location": {
+      "column": 5,
+      "row": 57
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/conftest.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 5,
+            "row": 57
+          },
+          "location": {
+            "column": 1,
+            "row": 57
+          }
+        }
+      ],
+      "message": "Remove whitespace from blank line"
+    },
+    "location": {
+      "column": 1,
+      "row": 57
+    },
+    "message": "Blank line contains whitespace",
+    "noqa_row": 57,
+    "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 103,
+      "row": 65
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/conftest.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 65
+    },
+    "message": "Line too long (102 > 100)",
+    "noqa_row": 65,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 102,
+      "row": 66
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/conftest.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 66
+    },
+    "message": "Line too long (101 > 100)",
+    "noqa_row": 66,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 107,
+      "row": 78
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/conftest.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 78
+    },
+    "message": "Line too long (106 > 100)",
+    "noqa_row": 78,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 103,
+      "row": 82
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/conftest.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 82
+    },
+    "message": "Line too long (102 > 100)",
+    "noqa_row": 82,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 107,
+      "row": 86
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/conftest.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 86
+    },
+    "message": "Line too long (106 > 100)",
+    "noqa_row": 86,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 110,
+      "row": 87
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/conftest.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 87
+    },
+    "message": "Line too long (109 > 100)",
+    "noqa_row": 87,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 116,
+      "row": 90
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/conftest.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 90
+    },
+    "message": "Line too long (115 > 100)",
+    "noqa_row": 90,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 116,
+      "row": 91
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/conftest.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 91
+    },
+    "message": "Line too long (115 > 100)",
+    "noqa_row": 91,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "W293",
+    "end_location": {
+      "column": 9,
+      "row": 96
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/conftest.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 9,
+            "row": 96
+          },
+          "location": {
+            "column": 1,
+            "row": 96
+          }
+        }
+      ],
+      "message": "Remove whitespace from blank line"
+    },
+    "location": {
+      "column": 1,
+      "row": 96
+    },
+    "message": "Blank line contains whitespace",
+    "noqa_row": 96,
+    "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 13
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_account_attributes_handler.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from unittest.mock import AsyncMock, MagicMock, patch\n\nimport pytest\n\nfrom app.controllers.account_attributes_handler import (\n    load_account_attributes,\n    save_account_attributes,\n    update_account_attributes,\n)\nfrom app.schemas.account import AccountCreate, AccountUpdate\n\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 13
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 2
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 2,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 130,
+      "row": 72
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_account_attributes_handler.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 72
+    },
+    "message": "Line too long (129 > 100)",
+    "noqa_row": 73,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 124,
+      "row": 94
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_account_attributes_handler.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 94
+    },
+    "message": "Line too long (123 > 100)",
+    "noqa_row": 95,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 144,
+      "row": 107
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_account_attributes_handler.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 107
+    },
+    "message": "Line too long (143 > 100)",
+    "noqa_row": 108,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 124,
+      "row": 119
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_account_attributes_handler.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 119
+    },
+    "message": "Line too long (123 > 100)",
+    "noqa_row": 120,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 147
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_account_attributes_handler.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "        from unittest.mock import AsyncMock\n\n        from app.services.shares_balance_service import SharesBalanceService\n",
+          "end_location": {
+            "column": 1,
+            "row": 147
+          },
+          "location": {
+            "column": 1,
+            "row": 145
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 145
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 145,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 30,
+      "row": 3
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_account_controller.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 4
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        }
+      ],
+      "message": "Remove unused import: `datetime.datetime`"
+    },
+    "location": {
+      "column": 22,
+      "row": 3
+    },
+    "message": "`datetime.datetime` imported but unused",
+    "noqa_row": 3,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 30,
+      "row": 8
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_account_controller.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 9
+          },
+          "location": {
+            "column": 1,
+            "row": 8
+          }
+        }
+      ],
+      "message": "Remove unused import: `sqlalchemy.select`"
+    },
+    "location": {
+      "column": 24,
+      "row": 8
+    },
+    "message": "`sqlalchemy.select` imported but unused",
+    "noqa_row": 8,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 50,
+      "row": 11
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_account_controller.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 12
+          },
+          "location": {
+            "column": 1,
+            "row": 11
+          }
+        }
+      ],
+      "message": "Remove unused import: `app.models.account_event.AccountEvent`"
+    },
+    "location": {
+      "column": 38,
+      "row": 11
+    },
+    "message": "`app.models.account_event.AccountEvent` imported but unused",
+    "noqa_row": 11,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 52,
+      "row": 13
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_account_controller.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 14
+          },
+          "location": {
+            "column": 1,
+            "row": 13
+          }
+        }
+      ],
+      "message": "Remove unused import: `app.models.reference_data.ReferenceData`"
+    },
+    "location": {
+      "column": 39,
+      "row": 13
+    },
+    "message": "`app.models.reference_data.ReferenceData` imported but unused",
+    "noqa_row": 13,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 48,
+      "row": 8
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_account_dates_controller.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 9
+          },
+          "location": {
+            "column": 1,
+            "row": 8
+          }
+        }
+      ],
+      "message": "Remove unused import: `app.models.user_profile.UserProfile`"
+    },
+    "location": {
+      "column": 37,
+      "row": 8
+    },
+    "message": "`app.models.user_profile.UserProfile` imported but unused",
+    "noqa_row": 8,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 48,
+      "row": 5
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_account_error_handling.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 6
+          },
+          "location": {
+            "column": 1,
+            "row": 5
+          }
+        }
+      ],
+      "message": "Remove unused import: `sqlalchemy.ext.asyncio.AsyncSession`"
+    },
+    "location": {
+      "column": 36,
+      "row": 5
+    },
+    "message": "`sqlalchemy.ext.asyncio.AsyncSession` imported but unused",
+    "noqa_row": 5,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 48,
+      "row": 8
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_account_error_handling.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 9
+          },
+          "location": {
+            "column": 1,
+            "row": 8
+          }
+        }
+      ],
+      "message": "Remove unused import: `app.models.user_profile.UserProfile`"
+    },
+    "location": {
+      "column": 37,
+      "row": 8
+    },
+    "message": "`app.models.user_profile.UserProfile` imported but unused",
+    "noqa_row": 8,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 12
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_attribute_and_event_types.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import pytest\n\nfrom app.types.attribute_types import (\n    FIELD_TO_ATTR_TYPE,\n    AttributeType,\n    validate_attribute_field,\n)\nfrom app.types.event_types import EventType\n\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 12
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 2
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 2,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 87,
+      "row": 9
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_credentials_error_handling.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 10
+          },
+          "location": {
+            "column": 1,
+            "row": 9
+          }
+        }
+      ],
+      "message": "Remove unused import: `app.models.institution_security_credentials.InstitutionSecurityCredentials`"
+    },
+    "location": {
+      "column": 57,
+      "row": 9
+    },
+    "message": "`app.models.institution_security_credentials.InstitutionSecurityCredentials` imported but unused",
+    "noqa_row": 9,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 48,
+      "row": 11
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_credentials_error_handling.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 12
+          },
+          "location": {
+            "column": 1,
+            "row": 11
+          }
+        }
+      ],
+      "message": "Remove unused import: `app.models.user_profile.UserProfile`"
+    },
+    "location": {
+      "column": 37,
+      "row": 11
+    },
+    "message": "`app.models.user_profile.UserProfile` imported but unused",
+    "noqa_row": 11,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 11
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_deferred_cash_and_shares_services.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from unittest.mock import AsyncMock, MagicMock\n\nimport pytest\n\nfrom app.repositories.account_attribute_repository import AccountAttributeRepository\nfrom app.services.deferred_cash_balance_service import DeferredCashBalanceService\nfrom app.services.deferred_shares_balance_service import DeferredSharesBalanceService\n\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 11
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 3
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 3,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 10
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_deferred_shares_calculator.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import pytest\n\nfrom app.utils.deferred_shares_calculator import (\n    calculate_deferred_shares_balance,\n    calculate_deferred_shares_balance_safe,\n)\n\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 10
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 3
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 3,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 127,
+      "row": 140
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_deferred_shares_calculator.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 140
+    },
+    "message": "Line too long (126 > 100)",
+    "noqa_row": 140,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 14,
+      "row": 6
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_encryption.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 7
+          },
+          "location": {
+            "column": 1,
+            "row": 6
+          }
+        }
+      ],
+      "message": "Remove unused import: `pytest`"
+    },
+    "location": {
+      "column": 8,
+      "row": 6
+    },
+    "message": "`pytest` imported but unused",
+    "noqa_row": 6,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 12
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_encryption_utils.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import os\n\nimport pytest\n\nfrom app.utils.encryption import (\n    _ENCRYPTION_KEY_CACHE,\n    decrypt_value,\n    encrypt_value,\n    get_encryption_key,\n)\n\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 12
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 2
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 2,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 10,
+      "row": 2
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_encryption_utils.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Remove unused import: `os`"
+    },
+    "location": {
+      "column": 8,
+      "row": 2
+    },
+    "message": "`os` imported but unused",
+    "noqa_row": 2,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 14,
+      "row": 3
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_encryption_utils.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 4
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        }
+      ],
+      "message": "Remove unused import: `pytest`"
+    },
+    "location": {
+      "column": 8,
+      "row": 3
+    },
+    "message": "`pytest` imported but unused",
+    "noqa_row": 3,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 26,
+      "row": 8
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_encryption_utils.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from app.utils.encryption import (\n    decrypt_value,\n    encrypt_value,\n    get_encryption_key,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 9
+          },
+          "location": {
+            "column": 1,
+            "row": 4
+          }
+        }
+      ],
+      "message": "Remove unused import: `app.utils.encryption._ENCRYPTION_KEY_CACHE`"
+    },
+    "location": {
+      "column": 5,
+      "row": 8
+    },
+    "message": "`app.utils.encryption._ENCRYPTION_KEY_CACHE` imported but unused",
+    "noqa_row": 8,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 8
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_file_constraints.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import pathlib\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 8
+          },
+          "location": {
+            "column": 1,
+            "row": 5
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 5
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 5,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 105,
+      "row": 23
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_file_constraints.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 23
+    },
+    "message": "Line too long (104 > 100)",
+    "noqa_row": 23,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 108,
+      "row": 13
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_institution_controller.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 13
+    },
+    "message": "Line too long (107 > 100)",
+    "noqa_row": 13,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 15
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_institution_security_credentials.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import pytest\nfrom fastapi import status\nfrom httpx import AsyncClient\nfrom sqlalchemy import select\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom app.models.institution import Institution\nfrom app.models.institution_security_credentials import InstitutionSecurityCredentials\nfrom app.models.reference_data import ReferenceData\nfrom app.models.user_profile import UserProfile\n\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 15
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 3
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 3,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 36,
+      "row": 4
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_institution_service.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 5
+          },
+          "location": {
+            "column": 1,
+            "row": 4
+          }
+        }
+      ],
+      "message": "Remove unused import: `unittest.mock.AsyncMock`"
+    },
+    "location": {
+      "column": 27,
+      "row": 4
+    },
+    "message": "`unittest.mock.AsyncMock` imported but unused",
+    "noqa_row": 4,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 48,
+      "row": 10
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_institution_service.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 11
+          },
+          "location": {
+            "column": 1,
+            "row": 10
+          }
+        }
+      ],
+      "message": "Remove unused import: `app.models.user_profile.UserProfile`"
+    },
+    "location": {
+      "column": 37,
+      "row": 10
+    },
+    "message": "`app.models.user_profile.UserProfile` imported but unused",
+    "noqa_row": 10,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "W293",
+    "end_location": {
+      "column": 5,
+      "row": 22
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_institution_service.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 5,
+            "row": 22
+          },
+          "location": {
+            "column": 1,
+            "row": 22
+          }
+        }
+      ],
+      "message": "Remove whitespace from blank line"
+    },
+    "location": {
+      "column": 1,
+      "row": 22
+    },
+    "message": "Blank line contains whitespace",
+    "noqa_row": 22,
+    "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
+  },
+  {
+    "cell": null,
+    "code": "W293",
+    "end_location": {
+      "column": 5,
+      "row": 24
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_institution_service.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 5,
+            "row": 24
+          },
+          "location": {
+            "column": 1,
+            "row": 24
+          }
+        }
+      ],
+      "message": "Remove whitespace from blank line"
+    },
+    "location": {
+      "column": 1,
+      "row": 24
+    },
+    "message": "Blank line contains whitespace",
+    "noqa_row": 24,
+    "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
+  },
+  {
+    "cell": null,
+    "code": "W293",
+    "end_location": {
+      "column": 5,
+      "row": 36
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_institution_service.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 5,
+            "row": 36
+          },
+          "location": {
+            "column": 1,
+            "row": 36
+          }
+        }
+      ],
+      "message": "Remove whitespace from blank line"
+    },
+    "location": {
+      "column": 1,
+      "row": 36
+    },
+    "message": "Blank line contains whitespace",
+    "noqa_row": 36,
+    "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
+  },
+  {
+    "cell": null,
+    "code": "W293",
+    "end_location": {
+      "column": 5,
+      "row": 50
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_institution_service.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 5,
+            "row": 50
+          },
+          "location": {
+            "column": 1,
+            "row": 50
+          }
+        }
+      ],
+      "message": "Remove whitespace from blank line"
+    },
+    "location": {
+      "column": 1,
+      "row": 50
+    },
+    "message": "Blank line contains whitespace",
+    "noqa_row": 50,
+    "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
+  },
+  {
+    "cell": null,
+    "code": "W293",
+    "end_location": {
+      "column": 5,
+      "row": 53
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_institution_service.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 5,
+            "row": 53
+          },
+          "location": {
+            "column": 1,
+            "row": 53
+          }
+        }
+      ],
+      "message": "Remove whitespace from blank line"
+    },
+    "location": {
+      "column": 1,
+      "row": 53
+    },
+    "message": "Blank line contains whitespace",
+    "noqa_row": 53,
+    "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
+  },
+  {
+    "cell": null,
+    "code": "W293",
+    "end_location": {
+      "column": 5,
+      "row": 65
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_institution_service.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 5,
+            "row": 65
+          },
+          "location": {
+            "column": 1,
+            "row": 65
+          }
+        }
+      ],
+      "message": "Remove whitespace from blank line"
+    },
+    "location": {
+      "column": 1,
+      "row": 65
+    },
+    "message": "Blank line contains whitespace",
+    "noqa_row": 65,
+    "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 11
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_price_service.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import time\nfrom unittest.mock import AsyncMock, MagicMock\n\nimport httpx\nimport pytest\n\nfrom app.services.price_service import PriceService, SimplePriceCache\n\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 11
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 3
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 3,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 11
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_refactoring_patterns.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from unittest.mock import AsyncMock, MagicMock\n\nimport pytest\n\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 11
+          },
+          "location": {
+            "column": 1,
+            "row": 7
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 7
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 7,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 36,
+      "row": 8
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_refactoring_patterns.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 9
+          },
+          "location": {
+            "column": 1,
+            "row": 8
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 27,
+      "row": 8
+    },
+    "message": "`unittest.mock.AsyncMock` imported but unused",
+    "noqa_row": 8,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 47,
+      "row": 8
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_refactoring_patterns.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 9
+          },
+          "location": {
+            "column": 1,
+            "row": 8
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 38,
+      "row": 8
+    },
+    "message": "`unittest.mock.MagicMock` imported but unused",
+    "noqa_row": 8,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 16
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_reference_data.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import pytest\nfrom httpx import AsyncClient\nfrom sqlalchemy import delete, func, select\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom app.models.reference_data import ReferenceData\nfrom app.services.reference_data import (\n    REFERENCE_DATA_ITEMS,\n    list_reference_data_by_class,\n    seed_reference_data,\n)\n\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 16
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 2
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 2,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 10
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_rsu_balance_service.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from unittest.mock import AsyncMock, MagicMock\n\nimport pytest\n\nfrom app.repositories.account_attribute_repository import AccountAttributeRepository\nfrom app.services.rsu_balance_service import RSUBalanceService\n\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 10
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 3
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 3,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 102,
+      "row": 115
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_tax_controllers.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 115
+    },
+    "message": "Line too long (101 > 100)",
+    "noqa_row": 115,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 123,
+      "row": 89
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_tax_returns_documents.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 89
+    },
+    "message": "Line too long (122 > 100)",
+    "noqa_row": 89,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 134,
+      "row": 90
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_tax_returns_documents.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 90
+    },
+    "message": "Line too long (133 > 100)",
+    "noqa_row": 90,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 21
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_tax_service.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import date, datetime\n\nimport pytest\nfrom sqlalchemy import select\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom app.models.account import Account\nfrom app.models.account_attribute import AccountAttribute\nfrom app.models.reference_data import ReferenceData\nfrom app.models.tax_period import TaxPeriod\nfrom app.models.user_profile import UserProfile\nfrom app.services.tax_service import (\n    _parse_date,\n    _savings_eligible,\n    _shares_sold_eligible,\n    get_eligible_with_returns,\n)\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 21
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 2
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 2,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 1,
+      "row": 10
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_type_validator.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from unittest.mock import AsyncMock, MagicMock\n\nimport pytest\n\nfrom app.services.type_validator import validate_types_against_db\nfrom app.types.attribute_types import AttributeType\nfrom app.types.event_types import EventType\n\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 10
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 2
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 2,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 104,
+      "row": 115
+    },
+    "filename": "/Users/marklewis/dev/wealthTrack/backend/tests/test_user_service.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 115
+    },
+    "message": "Line too long (103 > 100)",
+    "noqa_row": 115,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  }
+]

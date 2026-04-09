@@ -13,7 +13,7 @@
             <th class="table-cell table-header text-left sort-header" @click="toggleSort('name')">
               Account Name <span class="sort-icon">{{ sortIcon('name') }}</span>
             </th>
-            <th class="table-cell table-header text-left sort-header whitespace-nowrap" @click="toggleSort('type')">
+            <th class="table-cell table-header text-left sort-header whitespace-nowrap" style="width: 11rem; min-width: 11rem; max-width: 11rem" @click="toggleSort('type')">
               Account Type <span class="sort-icon">{{ sortIcon('type') }}</span>
             </th>
             <th class="table-cell table-header text-left sort-header" @click="toggleSort('balance')">

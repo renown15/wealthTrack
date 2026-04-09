@@ -139,6 +139,7 @@ export interface AccountUpdateRequest {
   pensionMonthlyPayment?: string;
   assetClass?: string;
   encumbrance?: string;
+  newGrossBalance?: string;
 }
 
 export interface InstitutionCreateRequest {

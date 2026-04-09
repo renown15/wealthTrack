@@ -13,6 +13,7 @@ ATTRIBUTE_FIELDS = [
     "fixed_bonus_rate", "fixed_bonus_rate_end_date", "release_date",
     "number_of_shares", "underlying", "price", "purchase_price",
     "pension_monthly_payment", "asset_class", "encumbrance", "unencumbered_balance",
+    "tax_year",
 ]
 
 

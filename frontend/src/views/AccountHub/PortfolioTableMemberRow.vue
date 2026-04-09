@@ -6,7 +6,7 @@
     <td class="table-cell"></td>
     <td class="table-cell">{{ item.institution?.name || 'Unassigned' }}</td>
     <td class="table-cell font-semibold">{{ item.account.name }}</td>
-    <td class="table-cell">{{ item.accountType || 'Unknown' }}</td>
+    <td class="table-cell"><div class="truncate whitespace-nowrap overflow-hidden max-w-[11rem]" :title="item.accountType || 'Unknown'">{{ item.accountType || 'Unknown' }}</div></td>
     <td class="table-cell">
       <div v-if="editingBalanceId === item.account.id && !isDeferredShares(item) && !isRSU(item) && !isShares(item)" class="balance-edit">
         <input
