@@ -33,20 +33,28 @@
         <span v-else-if="getDeferredTooltip(item)" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="getDeferredTooltip(item)">i</span>
       </div>
     </td>
-    <td class="table-cell text-gray-600">{{ formatDate(item.latestBalance?.createdAt) }}</td>
+    <td class="table-cell text-gray-600 whitespace-nowrap">{{ formatShortDate(item.latestBalance?.createdAt) }}</td>
     <td class="table-cell">
       <span class="flex items-center gap-1">
         <span>{{ formatInterestRate(item.account.fixedBonusRate, item.account.interestRate) }}</span>
         <span v-if="getYieldTooltip(item)" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="getYieldTooltip(item)">i</span>
       </span>
     </td>
-    <td class="table-cell">{{ formatDate(getFixedRateEndDate(item)) }}</td>
+    <td class="table-cell whitespace-nowrap">{{ formatDate(getFixedRateEndDate(item)) }}</td>
     <td class="table-cell">
       <button
         class="btn-events inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200"
         type="button"
         @click="$emit('showEvents', item)"
       >{{ item.eventCount ?? 0 }}</button>
+    </td>
+    <td class="table-cell">
+      <button
+        class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg border-none cursor-pointer bg-purple-100 text-purple-600 hover:bg-purple-200"
+        type="button"
+        title="Documents"
+        @click="$emit('showDocs', item)"
+      >{{ item.docCount ?? 0 }}</button>
     </td>
     <td class="table-cell">
       <div class="actions-col">
@@ -84,6 +92,7 @@ import {
 import {
   formatCurrency,
   formatDate,
+  formatShortDate,
   formatInterestRate,
 } from '@views/AccountHub/formattingUtils';
 import { Icons } from '@/constants/icons';
@@ -100,6 +109,7 @@ defineEmits<{
   startEdit: [accountId: number, value: string];
   'update:editingBalanceValue': [value: string];
   showEvents: [item: PortfolioItem];
+  showDocs: [item: PortfolioItem];
   editAccount: [account: Account];
   deleteAccount: [account: Account];
 }>();

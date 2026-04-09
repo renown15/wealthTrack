@@ -78,6 +78,9 @@ class EligibleAccountResponse(BaseSchema):
     institution_name: Optional[str] = None
     interest_rate: Optional[str] = None
     account_status: Optional[str] = None
+    account_number: Optional[str] = None
+    sort_code: Optional[str] = None
+    roll_ref_number: Optional[str] = None
     eligibility_reason: str  # "interest_bearing" | "sold_in_period"
     event_count: int = 0
     tax_return: Optional[TaxReturnResponse] = None

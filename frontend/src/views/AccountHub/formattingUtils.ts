@@ -12,6 +12,18 @@ export function formatCurrency(value?: string | number | null): string {
   }).format(numeric);
 }
 
+export function formatShortDate(value?: string | null): string {
+  if (!value) return '—';
+  let isoDate = value;
+  if (value.includes('/')) {
+    const parts = value.split('/');
+    if (parts.length === 3) isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+  }
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) return '—';
+  return new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short' }).format(date);
+}
+
 export function formatDate(value?: string | null): string {
   if (!value) return '—';
   

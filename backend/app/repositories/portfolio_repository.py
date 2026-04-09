@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.account import Account
+from app.models.account_document import AccountDocument
 from app.models.account_event import AccountEvent
 from app.models.reference_data import ReferenceData
 from app.repositories.account_attribute_repository import AccountAttributeRepository
@@ -125,6 +126,16 @@ class PortfolioRepository:
                 row.id: row.reference_value for row in event_type_result.all()
             }
 
+        # Document counts per account (one GROUP BY query)
+        doc_count_stmt = (
+            select(AccountDocument.account_id, func.count(AccountDocument.id).label("cnt"))  # pylint: disable=not-callable
+            .where(AccountDocument.account_id.in_(account_ids))
+            .where(AccountDocument.user_id == user_id)
+            .group_by(AccountDocument.account_id)
+        )
+        doc_count_result = await self.session.execute(doc_count_stmt)
+        doc_counts: dict[int, int] = {row.account_id: row.cnt for row in doc_count_result.all()}
+
         tp_rows = (await self.session.execute(select(ReferenceData.reference_value).where(ReferenceData.class_key == "stock_target_ref_price"))).scalars().all()  # noqa: E501
         target_prices_by_ticker: dict[str, str] = {r.split(":")[0].strip(): r.split(":")[1].strip() for r in tp_rows if ":" in r}  # noqa: E501
         # Build portfolio items — loop is now pure Python (no DB queries per iteration)
@@ -133,6 +144,7 @@ class PortfolioRepository:
             latest_balance = balances_by_account.get(account.id)
             account_type = types_by_id.get(account.type_id, "Unknown")
             event_count = event_counts.get(account.id, 0)
+            doc_count = doc_counts.get(account.id, 0)
             attributes = build_attributes_dict(all_raw_attrs.get(account.id, {}))
 
             # Type-specific processing (may fetch live prices for Deferred Shares / RSU)
@@ -176,6 +188,7 @@ class PortfolioRepository:
                 "attributes": attributes,
                 "latest_balance": latest_balance,
                 "event_count": event_count,
+                "doc_count": doc_count,
                 "parents_by_institution": parents_by_institution,
                 "event_type_by_id": event_type_by_id,
                 "target_prices_by_ticker": target_prices_by_ticker,

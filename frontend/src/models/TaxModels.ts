@@ -50,6 +50,9 @@ export interface EligibleAccount {
   institutionName: string | null;
   interestRate: string | null;
   accountStatus: string | null;
+  accountNumber: string | null;
+  sortCode: string | null;
+  rollRefNumber: string | null;
   eligibilityReason: 'interest_bearing' | 'sold_in_period';
   eventCount: number;
   taxReturn: TaxReturn | null;

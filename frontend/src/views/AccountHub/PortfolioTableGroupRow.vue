@@ -41,6 +41,7 @@
         </span>
         <span v-else class="text-gray-400">—</span>
       </td>
+      <td class="table-cell"><!-- docs --></td>
       <td class="table-cell text-right">
         <div class="flex items-center justify-end gap-1">
           <button
@@ -72,6 +73,7 @@
       @start-edit="(id, val) => $emit('startEdit', id, val)"
       @update:editingBalanceValue="$emit('update:editingBalanceValue', $event)"
       @show-events="$emit('showEvents', $event)"
+      @show-docs="$emit('showDocs', $event)"
       @edit-account="$emit('editAccount', $event)"
       @delete-account="$emit('deleteAccount', $event)"
     />
@@ -116,6 +118,7 @@ defineEmits<{
   startEdit: [accountId: number, value: string];
   'update:editingBalanceValue': [value: string];
   showEvents: [item: PortfolioItem];
+  showDocs: [item: PortfolioItem];
   editAccount: [account: Account];
   deleteAccount: [account: Account];
 }>();

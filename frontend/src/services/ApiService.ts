@@ -35,6 +35,7 @@ import { institutionCredentialService } from '@services/InstitutionCredentialSer
 import { accountGroupCrudService } from '@services/AccountGroupCrudService';
 import { analyticsService } from '@services/AnalyticsService';
 import { taxService } from '@services/TaxService';
+import { accountDocumentService } from '@services/AccountDocumentService';
 
 /**
  * Facade service that aggregates all API operations.
@@ -72,6 +73,8 @@ class ApiService {
     analyticsService['client'] = this.client;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
     taxService['client'] = this.client;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+    accountDocumentService['client'] = this.client;
   }
 
   async registerUser(userData: UserRegistration): Promise<User> {

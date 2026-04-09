@@ -19,6 +19,9 @@
           <tr>
             <th class="table-cell table-header text-left">Account</th>
             <th class="table-cell table-header text-left">Institution</th>
+            <th class="table-cell table-header text-left">Acc No.</th>
+            <th class="table-cell table-header text-left">Sort Code</th>
+            <th class="table-cell table-header text-left">Roll/Ref</th>
             <th class="table-cell table-header text-left">Type</th>
             <th class="table-cell table-header text-left">Status</th>
             <th class="table-cell table-header text-left">Interest Rate</th>
@@ -34,6 +37,9 @@
           <tr v-for="account in accounts" :key="account.accountId" class="table-row-hover">
             <td class="table-cell font-semibold">{{ account.accountName }}</td>
             <td class="table-cell">{{ account.institutionName ?? '—' }}</td>
+            <td class="table-cell">{{ account.accountNumber ?? '—' }}</td>
+            <td class="table-cell">{{ account.sortCode ?? '—' }}</td>
+            <td class="table-cell">{{ account.rollRefNumber ?? '—' }}</td>
             <td class="table-cell">{{ account.accountType }}</td>
             <td class="table-cell">
               <span

@@ -44,6 +44,7 @@
           @edit-account="openEditAccountModal"
           @delete-account="(a) => openDeleteConfirm('account', a.id, a.name)"
           @show-events="(id, name, count, type) => openEventsModal(id, name, type)"
+          @show-docs="openDocsModal"
           @edit-group="openEditAccountGroupModal" @delete-group="handleDeleteGroup"
           @update-balance="handleUpdateBalance"
         />
@@ -71,6 +72,10 @@
         @manage-credentials="openCredentialsModal"
       />
     </div>
+    <AccountDocumentsModal
+      :open="docsModalOpen" :account-id="docsAccountId" :account-name="docsAccountName"
+      @close="docsModalOpen = false" @uploaded="loadPortfolio" @deleted="loadPortfolio"
+    />
     <AccountHubModals
       :editing-item="editingItem" :items="state.items" :institutions="state.institutions"
       :account-types="accountTypes" :account-statuses="accountStatuses" :institution-types="institutionTypes"
@@ -114,9 +119,11 @@ import AccountHubStats from '@views/AccountHub/AccountHubStats.vue';
 import PortfolioTable from '@views/AccountHub/PortfolioTable.vue';
 import InstitutionsList from '@views/AccountHub/InstitutionsList.vue';
 import AccountHubModals from '@views/AccountHub/AccountHubModals.vue';
+import AccountDocumentsModal from '@views/AccountHub/AccountDocumentsModal.vue';
 import { apiService } from '@/services/ApiService';
 import { institutionCredentialsService } from '@/services/InstitutionCredentialsService';
 import { exportAccountsToExcel, exportInstitutionsToExcel } from '@/utils/exportToExcel';
+import { useHubEventHandlers } from '@/composables/useHubEventHandlers';
 import { Icons } from '@/constants/icons';
 
 const { state, totalValue, cashAtHand, isaSavings, illiquid, trustAssets, projectedAnnualYield, loadPortfolio, clearError } = usePortfolio();
@@ -150,7 +157,6 @@ const {
   handleCredentialSave, handleCredentialEdit, cancelCredentialEdit, handleCredentialDelete,
 } = useCredentialsModal();
 const { eventsModalOpen, eventsTitle, eventsLoading, eventsError, events, accountType, currentAccountId, openEventsModal, closeEventsModal } = useEventsModal();
-
 const accountModalOpen = ref(false);
 const institutionModalOpen = ref(false);
 const modalType = ref<'create' | 'edit'>('create');
@@ -164,12 +170,11 @@ const {
   openCreateAccountGroupModal, openEditAccountGroupModal, closeAccountGroupModal,
   handleAccountGroupSave, handleDeleteGroup, handleDeleteGroupFromModal,
 } = useAccountGroupHandlers(groupMembersMap, loadGroups, createGroup, updateGroup, deleteGroup, saveGroupMembers);
-
 const openCreateAccountModal = (): void => { modalType.value = 'create'; editingItem.value = null; accountModalOpen.value = true; };
 const openEditAccountModal = (account: Account): void => { modalType.value = 'edit'; editingItem.value = account; accountModalOpen.value = true; };
 const closeAccountModal = (): void => { accountModalOpen.value = false; editingItem.value = null; };
 const openCreateInstitutionModal = (): void => { modalType.value = 'create'; editingItem.value = null; institutionModalOpen.value = true; };
-const openEditInstitutionModal = (institution: Institution): void => { modalType.value = 'edit'; editingItem.value = institution; institutionModalOpen.value = true; };
+const openEditInstitutionModal = (inst: Institution): void => { modalType.value = 'edit'; editingItem.value = inst; institutionModalOpen.value = true; };
 const closeInstitutionModal = (): void => { institutionModalOpen.value = false; editingItem.value = null; };
 const openDeleteConfirm = (type: 'account' | 'institution', id: number, name: string): void => { deleteConfirmType.value = type; deleteConfirmId.value = id; deleteConfirmName.value = name; deleteConfirmOpen.value = true; };
 const closeDeleteConfirm = (): void => { deleteConfirmOpen.value = false };
@@ -190,29 +195,9 @@ const handleConfirmDelete = async (): Promise<void> => {
     if (deleteConfirmType.value === 'account') await handleAccountDelete(deleteConfirmId.value);
     else await handleInstitutionDelete(deleteConfirmId.value);
     await loadPortfolio();
-  } catch (error) { state.error = error instanceof Error ? error.message : 'Failed to delete'; }
-  finally { closeDeleteConfirm(); }
+  } catch (e) { state.error = e instanceof Error ? e.message : 'Failed to delete'; } finally { closeDeleteConfirm(); }
 };
-const handleUpdateBalance = async (accountId: number, value: string): Promise<void> => {
-  try {
-    const grossValue = parseFloat(value);
-    if (Number.isNaN(grossValue)) { state.error = 'Invalid balance value'; return; }
-    const item = state.items.find(i => i.account.id === accountId);
-    const encumbrance = item?.account.encumbrance;
-    if (encumbrance) {
-      await apiService.updateAccount(accountId, { encumbrance, newGrossBalance: grossValue.toString() }); await loadPortfolio();
-    } else {
-      await apiService.createAccountEvent(accountId, { event_type: 'Balance', value: grossValue.toString() });
-      if (item) { const now = new Date().toISOString(); item.latestBalance = { id: item.latestBalance?.id ?? 0, accountId, userId: item.latestBalance?.userId ?? 0, eventType: 'Balance', value: grossValue.toString(), createdAt: now, updatedAt: now }; }
-    }
-  } catch (error) { state.error = error instanceof Error ? error.message : 'Failed to update balance'; }
-};
-const handleAddWin = async (winAmount: string): Promise<void> => {
-  try {
-    await apiService.createAccountEvent(currentAccountId.value, { event_type: 'Win', value: winAmount });
-    await loadPortfolio();
-    const accountName = state.items.find(item => item.account.id === currentAccountId.value)?.account.name || 'Account';
-    await openEventsModal(currentAccountId.value, accountName, accountType.value);
-  } catch (error) { debug.error('[AccountHub] Failed to add win event:', error); }
-};
+const { handleUpdateBalance, handleAddWin } = useHubEventHandlers(state, loadPortfolio, currentAccountId, accountType, openEventsModal);
+const docsModalOpen = ref(false); const docsAccountId = ref(0); const docsAccountName = ref('');
+const openDocsModal = (id: number, name: string): void => { docsAccountId.value = id; docsAccountName.value = name; docsModalOpen.value = true; };
 </script>

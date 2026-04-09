@@ -13,24 +13,25 @@
             <th class="table-cell table-header text-left sort-header" @click="toggleSort('name')">
               Account Name <span class="sort-icon">{{ sortIcon('name') }}</span>
             </th>
-            <th class="table-cell table-header text-left sort-header" @click="toggleSort('type')">
+            <th class="table-cell table-header text-left sort-header whitespace-nowrap" @click="toggleSort('type')">
               Account Type <span class="sort-icon">{{ sortIcon('type') }}</span>
             </th>
             <th class="table-cell table-header text-left sort-header" @click="toggleSort('balance')">
               Latest Balance <span class="sort-icon">{{ sortIcon('balance') }}</span>
             </th>
-            <th class="table-cell table-header text-left sort-header" @click="toggleSort('balanceUpdated')">
-              Balance Updated <span class="sort-icon">{{ sortIcon('balanceUpdated') }}</span>
+            <th class="table-cell table-header text-left sort-header whitespace-nowrap" @click="toggleSort('balanceUpdated')">
+              Updated <span class="sort-icon">{{ sortIcon('balanceUpdated') }}</span>
             </th>
             <th class="table-cell table-header text-left sort-header" @click="toggleSort('interestRate')">
               Interest Rate <span class="sort-icon">{{ sortIcon('interestRate') }}</span>
             </th>
-            <th class="table-cell table-header text-left sort-header" @click="toggleSort('fixedRateEnd')">
-              Fixed Rate End <span class="sort-icon">{{ sortIcon('fixedRateEnd') }}</span>
+            <th class="table-cell table-header text-left sort-header whitespace-nowrap" @click="toggleSort('fixedRateEnd')">
+              End Date <span class="sort-icon">{{ sortIcon('fixedRateEnd') }}</span>
             </th>
             <th class="table-cell table-header text-left sort-header" @click="toggleSort('events')">
               Events <span class="sort-icon">{{ sortIcon('events') }}</span>
             </th>
+            <th class="table-cell table-header text-left">Docs</th>
             <th class="table-cell table-header text-right">Actions</th>
           </tr>
         </thead>
@@ -52,6 +53,7 @@
               @cancel-edit="cancelEdit"
               @start-edit="startEdit"
               @show-events="emitShowEvents"
+              @show-docs="emitShowDocs"
               @edit-account="(a) => $emit('editAccount', a)"
               @delete-account="(a) => $emit('deleteAccount', a)"
             />
@@ -64,6 +66,7 @@
               @cancel-edit="cancelEdit"
               @start-edit="startEdit"
               @show-events="emitShowEvents"
+              @show-docs="emitShowDocs"
               @edit-account="(a) => $emit('editAccount', a)"
               @delete-account="(a) => $emit('deleteAccount', a)"
             />
@@ -99,6 +102,7 @@ interface Emits {
   editGroup: [groupId: number, groupName: string];
   deleteGroup: [groupId: number];
   showEvents: [accountId: number, accountName: string, eventCount: number, accountType: string];
+  showDocs: [accountId: number, accountName: string];
   updateBalance: [accountId: number, value: string];
 }
 
@@ -142,6 +146,10 @@ const sortIcon = (col: SortCol): string => {
 const emitShowEvents = (item: PortfolioItem): void => {
   const accountType = props.accountTypes.find(t => t.id === item.account.typeId)?.referenceValue || 'Unknown';
   emit('showEvents', item.account.id, item.account.name, item.eventCount ?? 0, accountType);
+};
+
+const emitShowDocs = (item: PortfolioItem): void => {
+  emit('showDocs', item.account.id, item.account.name);
 };
 
 

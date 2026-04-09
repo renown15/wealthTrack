@@ -72,6 +72,7 @@ async def build_portfolio_item(
     attributes = portfolio_data["attributes"]
     latest_balance = portfolio_data["latest_balance"]
     event_count = portfolio_data["event_count"]
+    doc_count = portfolio_data.get("doc_count", 0)
     parents_by_institution: dict[int, Any] = portfolio_data.get("parents_by_institution", {})
     event_type_by_id: dict[int, str] = portfolio_data.get("event_type_by_id", {})
     target_prices_by_ticker: dict[str, str] = portfolio_data.get("target_prices_by_ticker", {})
@@ -134,4 +135,5 @@ async def build_portfolio_item(
         "latestBalance": balance_data,
         "accountType": account_type,
         "eventCount": event_count,
+        "docCount": doc_count,
     }

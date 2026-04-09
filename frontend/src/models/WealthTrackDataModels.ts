@@ -79,6 +79,7 @@ export interface PortfolioItem {
   latestBalance: AccountEvent | null;
   accountType?: string;
   eventCount?: number;
+  docCount?: number;
 }
 
 export interface AccountGroup {
@@ -177,6 +178,15 @@ export interface BreakdownItem {
   label: string;
   value: number;
   accounts: AccountDetail[];
+}
+
+export interface AccountDocument {
+  id: number;
+  accountId: number;
+  filename: string;
+  description: string | null;
+  contentType: string | null;
+  createdAt: string;
 }
 
 export interface PortfolioBreakdown {
