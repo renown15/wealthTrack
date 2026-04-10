@@ -2,10 +2,8 @@
 import pytest
 from fastapi import status
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.institution import Institution
-from app.models.user_profile import UserProfile
 
 
 @pytest.mark.asyncio

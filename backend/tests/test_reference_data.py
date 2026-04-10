@@ -1,8 +1,7 @@
 """Tests for reference data services and controller endpoints."""
-from sqlalchemy import delete, func, select
-
 import pytest
 from httpx import AsyncClient
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.reference_data import ReferenceData

@@ -6,9 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.institution import Institution
-from app.models.institution_security_credentials import InstitutionSecurityCredentials
 from app.models.reference_data import ReferenceData
-from app.models.user_profile import UserProfile
 
 
 @pytest.mark.asyncio

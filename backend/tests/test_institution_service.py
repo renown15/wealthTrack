@@ -1,13 +1,11 @@
 """
 Tests for InstitutionService.
 """
-from unittest.mock import AsyncMock
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.institution import Institution
-from app.models.user_profile import UserProfile
 from app.services.institution_service import InstitutionService
 
 
@@ -19,9 +17,9 @@ async def test_institution_service_update_success(
     """Test updating institution name."""
     service = InstitutionService(db_session)
     result = await service.update(institution.id, institution.user_id, "Updated Name")
-    
+
     assert result is True
-    
+
     # Verify update
     updated = await service.repository.get_by_id(institution.id, institution.user_id)
     assert updated.name == "Updated Name"
@@ -33,7 +31,7 @@ async def test_institution_service_update_not_found(
 ) -> None:
     """Test updating non-existent institution."""
     service = InstitutionService(db_session)
-    
+
     with pytest.raises(ValueError, match="not found"):
         await service.update(99999, 1, "New Name")
 
@@ -47,10 +45,10 @@ async def test_institution_service_delete_success(
     service = InstitutionService(db_session)
     inst_id = institution.id
     user_id = institution.user_id
-    
+
     result = await service.delete(inst_id, user_id)
     assert result is True
-    
+
     # Verify deletion
     deleted = await service.repository.get_by_id(inst_id, user_id)
     assert deleted is None
@@ -62,6 +60,6 @@ async def test_institution_service_delete_not_found(
 ) -> None:
     """Test deleting non-existent institution."""
     service = InstitutionService(db_session)
-    
+
     with pytest.raises(ValueError, match="not found"):
         await service.delete(99999, 1)

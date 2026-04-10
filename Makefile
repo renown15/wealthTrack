@@ -1,7 +1,7 @@
 # WealthTrack Development Makefile
 # Provides convenient commands for common development tasks
 
-.PHONY: help setup dev backend-dev frontend-dev test lint type-check format clean docker-up docker-down build-frontend tail-backend tail-frontend pi-setup deploy-pi deploy-windows
+.PHONY: help setup dev backend-dev frontend-dev test lint type-check format clean docker-up docker-down build-frontend tail-backend tail-frontend pi-setup deploy-pi deploy-pi-code sync-db-to-pi deploy-windows
 
 help:
 	@echo "WealthTrack Development Commands"
@@ -48,6 +48,8 @@ help:
 	@echo "Raspberry Pi Deployment:"
 	@echo "  make pi-setup           - First-time Pi setup (SSH + rsync + env)"
 	@echo "  make deploy-pi          - Deploy/update to Pi (rsync + build + migrate + seed)"
+	@echo "  make deploy-pi-code     - Deploy code only to Pi (no DB changes)"
+	@echo "  make sync-db-to-pi      - Dump local DB and restore to Pi"
 	@echo "  make deploy-windows     - Deploy/update to KATE-SURFACE (rsync + build + migrate + seed)"
 	@echo ""
 	@echo "Docker Environments (.env files):"
@@ -109,6 +111,49 @@ deploy-pi:
 	@echo "Seeding reference data..."
 	@ssh $(PI_USER)@$(PI_HOST) "cd $(PI_DIR) && docker compose --env-file .env.pi --profile prod exec -T backend python seed.py"
 	@echo "✅ Deployed to http://$(PI_HOST):3000"
+
+deploy-pi-code:
+	@if [ ! -f .env.pi ]; then \
+		echo "❌ .env.pi not found"; \
+		exit 1; \
+	fi
+	@echo "Syncing code to $(PI_USER)@$(PI_HOST):$(PI_DIR)..."
+	@rsync -av --exclude='.git' --exclude='node_modules' --exclude='backend/venv' \
+		--exclude='__pycache__' --exclude='*.pyc' --exclude='.env.*' \
+		--exclude='htmlcov' --exclude='.pytest_cache' --exclude='.mypy_cache' \
+		. $(PI_USER)@$(PI_HOST):$(PI_DIR)/
+	@echo "Copying .env.pi..."
+	@scp .env.pi $(PI_USER)@$(PI_HOST):$(PI_DIR)/.env.pi
+	@echo "Building and starting containers..."
+	@ssh $(PI_USER)@$(PI_HOST) "cd $(PI_DIR) && docker compose --env-file .env.pi --profile prod up -d --build"
+	@echo "✅ Deployed to http://$(PI_HOST):3000"
+
+sync-db-to-pi:
+	@if [ ! -f .env.dev ]; then echo "❌ .env.dev not found"; exit 1; fi
+	@if [ ! -f .env.pi ]; then echo "❌ .env.pi not found"; exit 1; fi
+	@. ./.env.dev && \
+	echo "Dumping local database via Docker container (postgres:15)..." && \
+	docker compose --env-file .env.dev exec -T db pg_dump -U $$DB_USER -d $$DB_NAME -Fc > /tmp/wealthtrack_dump.pgdump && \
+	echo "Dump complete ($$(du -h /tmp/wealthtrack_dump.pgdump | cut -f1))" && \
+	echo "Transferring to $(PI_USER)@$(PI_HOST)..." && \
+	scp /tmp/wealthtrack_dump.pgdump $(PI_USER)@$(PI_HOST):/tmp/ && \
+	echo "Dropping and recreating database on Pi..." && \
+	ssh $(PI_USER)@$(PI_HOST) "cd ~/wealthTrack && \
+		docker compose --env-file .env.pi --profile prod exec -T db psql -U postgres -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='wealthtrack' AND pid <> pg_backend_pid()\" && \
+		docker compose --env-file .env.pi --profile prod exec -T db psql -U postgres -c \"DROP DATABASE IF EXISTS wealthtrack\" && \
+		docker compose --env-file .env.pi --profile prod exec -T db psql -U postgres -c \"CREATE DATABASE wealthtrack OWNER wealthtrack\"" && \
+	echo "Copying dump into Pi container..." && \
+	ssh $(PI_USER)@$(PI_HOST) "cd ~/wealthTrack && \
+		docker cp /tmp/wealthtrack_dump.pgdump \$$(docker compose --env-file .env.pi --profile prod ps -q db):/tmp/wealthtrack_dump.pgdump" && \
+	echo "Restoring database on Pi..." && \
+	ssh $(PI_USER)@$(PI_HOST) "cd ~/wealthTrack && \
+		docker compose --env-file .env.pi --profile prod exec -T db pg_restore --no-owner --no-privileges -U wealthtrack -d wealthtrack /tmp/wealthtrack_dump.pgdump" && \
+	echo "Cleaning up..." && \
+	ssh $(PI_USER)@$(PI_HOST) "cd ~/wealthTrack && \
+		docker compose --env-file .env.pi --profile prod exec -T db rm /tmp/wealthtrack_dump.pgdump && \
+		rm /tmp/wealthtrack_dump.pgdump" && \
+	rm /tmp/wealthtrack_dump.pgdump && \
+	echo "✅ Database synced to Pi"
 
 WINDOWS_HOST ?= KATE-SURFACE.local
 WINDOWS_USER ?= user

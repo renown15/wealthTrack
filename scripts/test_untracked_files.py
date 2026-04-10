@@ -8,9 +8,9 @@ This ensures that:
 3. No accidental uncommitted files exist in source directories
 """
 
-import subprocess
 import pathlib
-from typing import Set, List
+import subprocess
+from typing import Set
 
 # Directories that should NOT have untracked files
 PROTECTED_DIRECTORIES = {
@@ -88,13 +88,13 @@ def is_allowed_untracked(file_path: str) -> bool:
 def test_no_untracked_files_in_protected_directories():
     """Test that protected directories don't have untracked files."""
     untracked = get_untracked_files()
-    
+
     # Filter for files in protected directories
     violations = []
     for file_path in sorted(untracked):
         if is_in_protected_directory(file_path) and not is_allowed_untracked(file_path):
             violations.append(file_path)
-    
+
     if violations:
         error_msg = (
             f"Found {len(violations)} untracked file(s) in protected directories:\n"
@@ -104,15 +104,15 @@ def test_no_untracked_files_in_protected_directories():
             + "2. Add them to .gitignore if they are generated/temporary files"
         )
         raise AssertionError(error_msg)
-    
-    print(f"✓ No untracked files in protected directories")
+
+    print("✓ No untracked files in protected directories")
     print(f"✓ Total untracked files (all in allowed locations): {len(untracked)}")
 
 
 def test_gitignore_coverage():
     """Test that all untracked files are properly explained."""
     untracked = get_untracked_files()
-    
+
     # Check what's untracked but not ignored properly
     suspicious = []
     for file_path in sorted(untracked):
@@ -120,7 +120,7 @@ def test_gitignore_coverage():
         if not is_in_protected_directory(file_path):
             if not is_allowed_untracked(file_path):
                 suspicious.append(file_path)
-    
+
     if suspicious:
         print(f"\n⚠ Warning: {len(suspicious)} untracked file(s) not in protected directories:")
         for f in suspicious[:10]:  # Show first 10
@@ -128,7 +128,7 @@ def test_gitignore_coverage():
         if len(suspicious) > 10:
             print(f"  ... and {len(suspicious) - 10} more")
     else:
-        print(f"✓ All untracked files are in allowed locations")
+        print("✓ All untracked files are in allowed locations")
 
 
 if __name__ == '__main__':

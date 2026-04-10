@@ -1,7 +1,8 @@
 """Tests for RSU balance service."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from app.repositories.account_attribute_repository import AccountAttributeRepository
 from app.services.rsu_balance_service import RSUBalanceService

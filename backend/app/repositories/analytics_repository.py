@@ -6,7 +6,7 @@ from collections import defaultdict
 from datetime import date, timedelta
 from typing import Any
 
-from sqlalchemy import and_, func, select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
@@ -79,10 +79,14 @@ class AnalyticsRepository:
 
         result = await self.session.execute(stmt)
         rows = result.all()
-        by_type: dict[str, float] = {}; by_institution: dict[str, float] = {}
-        by_asset_class: dict[str, float] = {}; by_asset_class_no_pension: dict[str, float] = {}
-        by_type_accts: dict[str, list[dict[str, Any]]] = {}; by_inst_accts: dict[str, list[dict[str, Any]]] = {}
-        by_ac_accts: dict[str, list[dict[str, Any]]] = {}; by_ac_no_pension_accts: dict[str, list[dict[str, Any]]] = {}
+        by_type: dict[str, float] = {}
+        by_institution: dict[str, float] = {}
+        by_asset_class: dict[str, float] = {}
+        by_asset_class_no_pension: dict[str, float] = {}
+        by_type_accts: dict[str, list[dict[str, Any]]] = {}
+        by_inst_accts: dict[str, list[dict[str, Any]]] = {}
+        by_ac_accts: dict[str, list[dict[str, Any]]] = {}
+        by_ac_no_pension_accts: dict[str, list[dict[str, Any]]] = {}
         total = 0.0
         for account_id, account_name, account_type, institution, raw_value, asset_class, account_status in rows:
             try:

@@ -1,7 +1,8 @@
 """Tests for deferred cash and shares balance services."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from app.repositories.account_attribute_repository import AccountAttributeRepository
 from app.services.deferred_cash_balance_service import DeferredCashBalanceService

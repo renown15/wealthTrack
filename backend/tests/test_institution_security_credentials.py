@@ -1,9 +1,9 @@
 """Tests for institution credential management."""
 
-from sqlalchemy import select
 import pytest
 from fastapi import status
 from httpx import AsyncClient
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.institution import Institution

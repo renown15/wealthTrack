@@ -115,12 +115,12 @@ async def build_portfolio_item(
     if latest_balance:
         bal = latest_balance
         event_type = event_type_by_id.get(bal.type_id, "Event")
-        
+
         # Balance in AccountEvent is already adjusted if encumbrance was set
         # (it's the net balance created when encumbrance was applied)
         unencumbered_balance_str = attrs.get("unencumbered_balance")
         encumbrance_str = attrs.get("encumbrance")
-        
+
         balance_data = {
             "id": bal.id,
             "accountId": bal.account_id,

@@ -3,7 +3,6 @@ import { reactive, nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import { createRouter, createMemoryHistory } from 'vue-router';
 import AppHeader from '@components/AppHeader.vue';
-import { authState, authModule } from '@/modules/auth';
 
 // Mock auth module with factory function that doesn't reference outer scope
 vi.mock('@/modules/auth', () => ({
@@ -16,6 +15,9 @@ vi.mock('@/modules/auth', () => ({
     clearToken: vi.fn(),
   },
 }));
+
+// Import mocked module AFTER vi.mock() call
+import { authState, authModule } from '@/modules/auth';
 
 function makeRouter() {
   return createRouter({

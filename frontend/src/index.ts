@@ -47,6 +47,12 @@ export async function initializeApp(): Promise<void> {
   // Mount app
   app.mount('#app');
 
+  // Show hostname in title so dev and Pi tabs are distinguishable
+  const host = window.location.hostname;
+  if (host !== 'localhost' && host !== '127.0.0.1') {
+    document.title = `WealthTrack (${host})`
+  }
+
   // If authenticated, fetch current user and navigate to dashboard
   if (authModule.isAuthenticated()) {
     try {

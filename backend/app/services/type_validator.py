@@ -1,5 +1,6 @@
 """Startup validator: checks all enum type names exist in ReferenceData."""
 import logging
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

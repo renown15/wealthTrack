@@ -1,11 +1,8 @@
 """Tests for encryption utilities."""
-import os
-import pytest
 from app.utils.encryption import (
     decrypt_value,
     encrypt_value,
     get_encryption_key,
-    _ENCRYPTION_KEY_CACHE,
 )
 
 

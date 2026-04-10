@@ -1,6 +1,5 @@
 """Display a concise coverage summary after pr-check test runs."""
 import json
-import sys
 from pathlib import Path
 
 BACKEND_COV = Path("/tmp/backend-cov.json")

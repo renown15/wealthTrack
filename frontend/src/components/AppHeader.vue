@@ -5,6 +5,9 @@
         <h1 class="logo">WealthTrack</h1>
         <p class="tagline">Strategic wealth intelligence</p>
       </div>
+      <div v-if="envLabel" class="px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide bg-yellow-400 text-gray-900">
+        {{ envLabel }}
+      </div>
       <nav v-if="isAuth" class="nav">
         <span class="text-sm font-medium text-white">{{ userName }}</span>
         <router-link
@@ -50,6 +53,11 @@ const router = useRouter();
 const route = useRoute();
 
 const isAuth = computed(() => authState.isAuthenticated && authState.token !== null);
+const envLabel = computed(() => {
+  const host = window.location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1') return null;
+  return host;
+});
 const userName = computed(() => {
   const user = authState.user;
   return user ? `${user.firstName} ${user.lastName}`.trim() : '';

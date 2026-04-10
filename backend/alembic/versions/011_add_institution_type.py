@@ -21,13 +21,13 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Add institution type column and reference data."""
-    
+
     # Add institutiontype column to Institution table
     op.add_column(
         "Institution",
         sa.Column("institutiontype", sa.String(length=100), nullable=True)
     )
-    
+
     # Add INSTITUTION_TYPE reference data
     reference_data_table = sa.table(
         "ReferenceData",
@@ -77,7 +77,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Remove institution type column and reference data."""
-    
+
     # Remove INSTITUTION_TYPE reference data
     op.execute(
         """
@@ -85,6 +85,6 @@ def downgrade() -> None:
         WHERE classkey = 'institution_type'
         """
     )
-    
+
     # Remove institutiontype column from Institution table
     op.drop_column("Institution", "institutiontype")

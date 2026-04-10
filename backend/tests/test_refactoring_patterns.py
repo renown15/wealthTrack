@@ -4,8 +4,8 @@ Example tests showing improved testability with refactored pattern.
 This demonstrates how dependency injection makes testing much easier.
 (Note: Reference implementation code is in docs/REFACTORING_PATTERNS.md)
 """
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock
 
 
 class SimplePriceCache:

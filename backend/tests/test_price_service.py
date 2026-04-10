@@ -1,11 +1,12 @@
 """Tests for PriceService with dependency injection."""
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock
-import httpx
 import time
+from unittest.mock import AsyncMock, MagicMock
 
-from app.services.price_service import SimplePriceCache, PriceService
+import httpx
+import pytest
+
+from app.services.price_service import PriceService, SimplePriceCache
 
 
 class TestSimplePriceCache:

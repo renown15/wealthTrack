@@ -1,6 +1,7 @@
 """Tests for the startup type validator."""
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from app.services.type_validator import validate_types_against_db
 from app.types.attribute_types import AttributeType

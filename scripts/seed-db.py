@@ -21,13 +21,12 @@ from pathlib import Path
 backend_path = Path(__file__).parent.parent / "backend"
 sys.path.insert(0, str(backend_path))
 
-from sqlalchemy import func, select
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
-
 from app.models.reference_data import ReferenceData  # type: ignore
 from app.services.reference_data import seed_reference_data  # type: ignore
 from app.services.reference_data_items import REFERENCE_DATA_ITEMS  # type: ignore
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
 
 
 async def run_seed() -> None:

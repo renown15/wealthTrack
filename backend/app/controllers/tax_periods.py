@@ -8,9 +8,14 @@ from app.controllers.dependencies import get_current_user
 from app.database import get_db
 from app.models.user_profile import UserProfile
 from app.repositories.tax_period_repository import TaxPeriodRepository
-from app.schemas.tax import TaxPeriodCreate, TaxPeriodResponse
+from app.schemas.tax import (
+    EligibleAccountResponse,
+    TaxDocumentResponse,
+    TaxPeriodCreate,
+    TaxPeriodResponse,
+    TaxReturnResponse,
+)
 from app.services.tax_service import get_eligible_with_returns
-from app.schemas.tax import EligibleAccountResponse, TaxReturnResponse, TaxDocumentResponse
 
 router = APIRouter()
 

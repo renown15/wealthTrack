@@ -4,7 +4,6 @@ Enforces constraint across Python backend and TypeScript frontend code.
 """
 import pathlib
 
-
 TS_ALLOWLIST: frozenset[str] = frozenset()
 VUE_ALLOWLIST: frozenset[str] = frozenset()
 TS_TEST_ALLOWLIST: frozenset[str] = frozenset()

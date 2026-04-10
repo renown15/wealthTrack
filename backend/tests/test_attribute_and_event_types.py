@@ -2,8 +2,8 @@
 import pytest
 
 from app.types.attribute_types import (
-    AttributeType,
     FIELD_TO_ATTR_TYPE,
+    AttributeType,
     validate_attribute_field,
 )
 from app.types.event_types import EventType

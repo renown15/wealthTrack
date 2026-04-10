@@ -1,6 +1,7 @@
 """Tests for Deferred Shares Balance Calculator Utility"""
 
 import pytest
+
 from app.utils.deferred_shares_calculator import (
     calculate_deferred_shares_balance,
     calculate_deferred_shares_balance_safe,

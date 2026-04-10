@@ -14,15 +14,14 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "backend"))
 
 from datetime import datetime
 
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-
 from app.models.account import Account
 from app.models.account_attribute import AccountAttribute
 from app.models.account_event import AccountEvent
 from app.models.institution import Institution
 from app.models.reference_data import ReferenceData
 from app.models.user_profile import UserProfile
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
@@ -144,7 +143,7 @@ async def restore(session: AsyncSession) -> None:
     # Institutions
     # ------------------------------------------------------------------
     print("[1/2] Creating institutions...")
-    I: dict[str, int] = {}
+    inst_ids: dict[str, int] = {}
     for name, itype in [
         ("Chase Bank",                  "Bank"),
         ("Coventry Building Society",   "Building Society"),
@@ -165,7 +164,7 @@ async def restore(session: AsyncSession) -> None:
         ("HSBC",                        "Bank"),
     ]:
         inst = await get_or_create_institution(session, uid, name, itype)
-        I[name] = inst.id
+        inst_ids[name] = inst.id
         print(f"    ✓ {name}")
 
     # ------------------------------------------------------------------
@@ -176,7 +175,7 @@ async def restore(session: AsyncSession) -> None:
     # ------------------------------------------------------------------
     print("\n[2/2] Creating accounts...")
 
-    await make_account(session, uid, I["Chase Bank"],
+    await make_account(session, uid, inst_ids["Chase Bank"],
         "Chase Saver", "Fixed / Bonus Rate Saver", 30052.00, {
             "Account Number": "79626386",
             "Sort Code": "60-84-07",
@@ -184,39 +183,39 @@ async def restore(session: AsyncSession) -> None:
             "Fixed Bonus Rate": "4.5",
         })
 
-    await make_account(session, uid, I["Coventry Building Society"],
+    await make_account(session, uid, inst_ids["Coventry Building Society"],
         "3 Access Saver - 1 Year", "Savings Account", 30001.00, {
             "Account Number": "49671977",
             "Sort Code": "40-63-01",
             "Interest Rate": "4.17",
         })
 
-    await make_account(session, uid, I["Santander"],
+    await make_account(session, uid, inst_ids["Santander"],
         "Monthly Saver", "Savings Account", 800.00, {
             "Roll / Ref Number": "R26506615 LEW",
             "Interest Rate": "5",
         })
 
-    await make_account(session, uid, I["Willis Towers Watson"],
+    await make_account(session, uid, inst_ids["Willis Towers Watson"],
         "NatWest Pension", "Deferred DB Pension", 0.00, {})
 
-    await make_account(session, uid, I["Willis Towers Watson"],
+    await make_account(session, uid, inst_ids["Willis Towers Watson"],
         "HSBC Pension", "Deferred DC Pension", 614000.00, {
             "Release Date": "21/03/2043",
         })
 
-    await make_account(session, uid, I["RCI Bank"],
+    await make_account(session, uid, inst_ids["RCI Bank"],
         "Freedom Savings Account", "Savings Account", 1.00, {
             "Roll / Ref Number": "LFW6GBMFT2",
             "Interest Rate": "3.88",
         })
 
-    await make_account(session, uid, I["Fidelity"],
+    await make_account(session, uid, inst_ids["Fidelity"],
         "Trust Invesment Account", "Trust Stocks Investment Account", 75800.79, {
             "Account Number": "AG10150506",
         })
 
-    await make_account(session, uid, I["Metro Bank"],
+    await make_account(session, uid, inst_ids["Metro Bank"],
         "Bare Trust For Zachary J Lewis", "Trust Bank Account", 199846.29, {
             "Account Number": "57303707",
             "Sort Code": "23-05-80",
@@ -229,7 +228,7 @@ async def restore(session: AsyncSession) -> None:
         ("HSBC Variable Pay Awards - Shares (2027)", 73361.34,  "11/03/2027", "10023"),
         ("HSBC Variable Pay Awards - Shares (2026)", 113171.02, "12/03/2026", "15462"),
     ]:
-        await make_account(session, uid, I["Computershare"],
+        await make_account(session, uid, inst_ids["Computershare"],
             name, "RSU", balance, {
                 "Release Date":    release,
                 "Number of Shares": shares,
@@ -243,25 +242,25 @@ async def restore(session: AsyncSession) -> None:
         ("HSBC Variable Pay Awards - Cash (2027)", 2564.10, "09/03/2027"),
         ("HSBC Variable Pay Awards - Cash (2026)", 2564.10, "12/03/2026"),
     ]:
-        await make_account(session, uid, I["Computershare"],
+        await make_account(session, uid, inst_ids["Computershare"],
             name, "Deferred Cash", balance, {
                 "Release Date": release,
             })
 
     # Deferred Shares (* name truncated in screenshot)
-    await make_account(session, uid, I["Computershare"],
+    await make_account(session, uid, inst_ids["Computershare"],
         "HSBC Nominee (Vested Shares)", "Deferred Shares", 77878.12, {
             "Release Date":     "20/03/2026",
             "Number of Shares": "6038",
             "Price":            "1381",
         })
 
-    await make_account(session, uid, I["Fidelity"],
+    await make_account(session, uid, inst_ids["Fidelity"],
         "Investment ISA", "Stocks ISA", 203719.21, {
             "Account Number": "LEWX000607",
         })
 
-    await make_account(session, uid, I["Coventry Building Society"],
+    await make_account(session, uid, inst_ids["Coventry Building Society"],
         "Fixed Rate ISA (315) 31.05.2026", "Fixed Rate ISA", 82590.55, {
             "Account Number":          "48953735",
             "Sort Code":               "40-63-01",
@@ -269,34 +268,34 @@ async def restore(session: AsyncSession) -> None:
             "Fixed Bonus Rate End Date": "14/01/2027",
         })
 
-    await make_account(session, uid, I["Kent Reliance"],
+    await make_account(session, uid, inst_ids["Kent Reliance"],
         "D131 1Y FXD RTE CASH ISA 4.25%", "Fixed Rate ISA", 21408.09, {
             "Account Number":          "AFN3697073LEW",
             "Interest Rate":           "4.25",
             "Fixed Bonus Rate End Date": "18/12/2026",
         })
 
-    await make_account(session, uid, I["Kent Reliance"],
+    await make_account(session, uid, inst_ids["Kent Reliance"],
         "D120 1Y FXD RTE CASH ISA 4.25%", "Fixed Rate ISA", 20000.00, {
             "Account Number":          "YND3550904LEW",
             "Interest Rate":           "4.25",
             "Fixed Bonus Rate End Date": "07/07/2026",
         })
 
-    await make_account(session, uid, I["Kent Reliance"],
+    await make_account(session, uid, inst_ids["Kent Reliance"],
         "D108 1Y MTRT FXD RTE ISA 4.0%", "Fixed Rate ISA", 21862.87, {
             "Account Number": "YJL3487940LEW",
             "Interest Rate":  "4",
         })
 
-    await make_account(session, uid, I["Principality"],
+    await make_account(session, uid, inst_ids["Principality"],
         "Online Bonus 5 Access Cash ISA", "Fixed Rate ISA", 37488.68, {
             "Account Number":          "619389504",
             "Interest Rate":           "4",
             "Fixed Bonus Rate End Date": "16/09/2026",
         })
 
-    await make_account(session, uid, I["NatWest"],
+    await make_account(session, uid, inst_ids["NatWest"],
         "Fixed Rate ISA Annual", "Fixed Rate ISA", 76431.93, {
             "Account Number":          "35007044",
             "Sort Code":               "60-12-13",
@@ -304,14 +303,14 @@ async def restore(session: AsyncSession) -> None:
             "Fixed Bonus Rate End Date": "12/11/2026",
         })
 
-    await make_account(session, uid, I["Yorkshire Building Society"],
+    await make_account(session, uid, inst_ids["Yorkshire Building Society"],
         "Single Access eISA", "Cash ISA", 80000.00, {
             "Account Number":   "46535650",
             "Roll / Ref Number": "4653565007",
             "Interest Rate":    "3.8",
         })
 
-    await make_account(session, uid, I["Yorkshire Building Society"],
+    await make_account(session, uid, inst_ids["Yorkshire Building Society"],
         "Internet Saver Plus Issue 13", "Savings Account", 3534.07, {
             "Account Number":   "6290368607",
             "Sort Code":        "60-92-04",
@@ -319,14 +318,14 @@ async def restore(session: AsyncSession) -> None:
             "Interest Rate":    "3.5",
         })
 
-    await make_account(session, uid, I["Santander"],
+    await make_account(session, uid, inst_ids["Santander"],
         "Easy Access Saver Sept 2023", "Savings Account", 44.56, {
             "Account Number": "90005129",
             "Sort Code":      "09-01-29",
             "Interest Rate":  "3",
         })
 
-    await make_account(session, uid, I["Tesco Bank"],
+    await make_account(session, uid, inst_ids["Tesco Bank"],
         "Internet Saver", "Fixed / Bonus Rate Saver", 113072.83, {
             "Account Number":          "24379730",
             "Sort Code":               "40-64-05",
@@ -335,12 +334,12 @@ async def restore(session: AsyncSession) -> None:
             "Fixed Bonus Rate End Date": "14/05/2026",
         })
 
-    await make_account(session, uid, I["NS & I"],
+    await make_account(session, uid, inst_ids["NS & I"],
         "Premium Bonds", "Premium Bonds", 49999.00, {
             "Account Number": "240138706",
         })
 
-    await make_account(session, uid, I["Cahoot"],
+    await make_account(session, uid, inst_ids["Cahoot"],
         "Cahoot Savings Account", "Savings Account", 80096.47, {
             "Account Number":     "51752935",
             "Sort Code":          "09-06-43",
@@ -348,7 +347,7 @@ async def restore(session: AsyncSession) -> None:
             "Account Opened Date": "05/07/2025",
         })
 
-    await make_account(session, uid, I["Marcus"],
+    await make_account(session, uid, inst_ids["Marcus"],
         "Online Savings Account", "Fixed / Bonus Rate Saver", 87609.74, {
             "Account Number":          "41019753",
             "Sort Code":               "40-64-37",
@@ -357,20 +356,20 @@ async def restore(session: AsyncSession) -> None:
             "Fixed Bonus Rate End Date": "27/03/2026",
         })
 
-    await make_account(session, uid, I["Santander"],
+    await make_account(session, uid, inst_ids["Santander"],
         "Current Account", "Current Account", 14535.97, {
             "Account Number": "30442013",
             "Sort Code":      "09-01-26",
         })
 
-    await make_account(session, uid, I["HSBC"],
+    await make_account(session, uid, inst_ids["HSBC"],
         "Premier Joint Account", "Current Account", 14575.11, {
             "Account Number":     "30018929",
             "Sort Code":          "40-02-46",
             "Account Opened Date": "10/02/2026",
         })
 
-    await make_account(session, uid, I["HSBC"],
+    await make_account(session, uid, inst_ids["HSBC"],
         "Online Bonus Saver", "Fixed / Bonus Rate Saver", 48399.38, {
             "Account Number":          "20259004",
             "Sort Code":               "40-02-46",

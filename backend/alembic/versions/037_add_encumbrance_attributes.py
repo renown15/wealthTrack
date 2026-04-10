@@ -1,8 +1,11 @@
-"""Add Tax Liability account type, Share Sale & Liability event types, Tax Year attribute type.
+"""Add missing Encumbrance and Unencumbered Balance attribute types.
 
-Revision ID: 035
-Revises: 034
-Create Date: 2026-04-09
+These types were defined in the AttributeType enum but were missing from migrations.
+Now added so backend type validation passes on startup.
+
+Revision ID: 037
+Revises: 036
+Create Date: 2026-04-10
 """
 from datetime import datetime
 
@@ -10,8 +13,8 @@ import sqlalchemy as sa
 
 from alembic import op
 
-revision = "035"
-down_revision = "034"
+revision = "037"
+down_revision = "036"
 branch_labels = None
 depends_on = None
 
@@ -25,10 +28,8 @@ _reference_data_table = sa.table(
 )
 
 _NEW_ITEMS = [
-    ("account_type", "Tax Liability", 16),
-    ("account_event_type", "Share Sale", 8),
-    ("account_event_type", "Liability", 9),
-    ("account_attribute_type", "Tax Year", 23),
+    ("account_attribute_type", "Encumbrance", 14),
+    ("account_attribute_type", "Unencumbered Balance", 15),
 ]
 
 

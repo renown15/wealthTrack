@@ -53,9 +53,11 @@ describe('ReferenceDataTable interactions', () => {
     const editBtn = wrapper.find('button.btn-icon-edit');
     await editBtn.trigger('click');
     await nextTick();
+    expect(wrapper.find('tbody input.form-input').exists()).toBe(true);
     const cancelBtn = wrapper.findAll('button').find(b => b.attributes('title') === 'Cancel');
     await cancelBtn!.trigger('click');
     await nextTick();
+    await wrapper.vm.$nextTick();
     expect(wrapper.find('tbody input.form-input').exists()).toBe(false);
   });
 

@@ -1,6 +1,7 @@
 """Tests for account attribute save/update handler."""
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from app.controllers.account_attributes_handler import (
     load_account_attributes,
@@ -39,7 +40,7 @@ class TestLoadAccountAttributes:
         attr_repo.get_attribute_by_name = AsyncMock(return_value="val")
         response = _make_response()
         await load_account_attributes(attr_repo, 1, 1, response)
-        assert attr_repo.get_attribute_by_name.call_count == 15  # 15 ATTRIBUTE_FIELDS
+        assert attr_repo.get_attribute_by_name.call_count == 16  # 16 ATTRIBUTE_FIELDS
 
 
 class TestSaveAccountAttributes:
@@ -142,8 +143,9 @@ class TestUpdateAccountAttributes:
 
 class TestSharesBalanceServiceInit:
     def test_initialization_stores_repo_and_session(self):
-        from app.services.shares_balance_service import SharesBalanceService
         from unittest.mock import AsyncMock
+
+        from app.services.shares_balance_service import SharesBalanceService
         mock_session = AsyncMock()
         mock_repo = AsyncMock()
         mock_repo.session = mock_session

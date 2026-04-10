@@ -1,16 +1,12 @@
 """Tests for account controller."""
 
-from datetime import datetime
 
 import pytest
 from fastapi import status
 from httpx import AsyncClient
-from sqlalchemy import select
 
 from app.models.account import Account
-from app.models.account_event import AccountEvent
 from app.models.institution import Institution
-from app.models.reference_data import ReferenceData
 from app.models.user_profile import UserProfile
 
 

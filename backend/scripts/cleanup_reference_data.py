@@ -5,13 +5,15 @@ Migration script to clean up reference data entries with colons in class_key.
 - Deletes colon entries
 """
 import asyncio
+
 from sqlalchemy import select, update
+
 from app.database import async_session_maker
-from app.models.reference_data import ReferenceData
 from app.models.account import Account
-from app.models.account_event import AccountEvent
 from app.models.account_attribute import AccountAttribute
+from app.models.account_event import AccountEvent
 from app.models.institution_security_credentials import InstitutionSecurityCredentials
+from app.models.reference_data import ReferenceData
 from app.models.user_profile import UserProfile
 
 

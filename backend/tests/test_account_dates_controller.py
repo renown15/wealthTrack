@@ -5,7 +5,6 @@ from fastapi import status
 from httpx import AsyncClient
 
 from app.models.account import Account
-from app.models.user_profile import UserProfile
 
 
 @pytest.mark.asyncio

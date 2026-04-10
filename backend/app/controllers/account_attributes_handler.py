@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.repositories.account_attribute_repository import AccountAttributeRepository
 from app.repositories.account_event_repository import AccountEventRepository
-from app.services.account_event_service import AccountEventService
 from app.schemas.account import AccountCreate, AccountResponse, AccountUpdate
+from app.services.account_event_service import AccountEventService
 from app.types.attribute_types import validate_attribute_field as _validate_field
 
 # Attribute names to load/save (snake_case shorthands)

@@ -13,8 +13,8 @@ from starlette.responses import Response
 
 from app.config import settings
 from app.controllers.account import router as account_router
-from app.database import async_session_maker
-from app.services.type_validator import validate_types_against_db
+from app.controllers.account_documents import router as account_documents_router
+from app.controllers.share_sale import router as share_sale_router
 from app.controllers.account_group import router as account_group_router
 from app.controllers.analytics import router as analytics_router
 from app.controllers.auth import router as auth_router
@@ -25,8 +25,8 @@ from app.controllers.institution_security_credentials import (
 from app.controllers.portfolio import router as portfolio_router
 from app.controllers.reference_data import router as reference_data_router
 from app.controllers.tax import router as tax_router
-from app.controllers.account_documents import router as account_documents_router
-from app.database import engine
+from app.database import async_session_maker, engine
+from app.services.type_validator import validate_types_against_db
 
 
 @asynccontextmanager
@@ -156,6 +156,7 @@ app.include_router(portfolio_router, prefix=settings.api_v1_prefix)
 app.include_router(reference_data_router, prefix=settings.api_v1_prefix)
 app.include_router(tax_router, prefix=settings.api_v1_prefix)
 app.include_router(account_documents_router, prefix=settings.api_v1_prefix)
+app.include_router(share_sale_router, prefix=settings.api_v1_prefix)
 
 
 @app.get("/")

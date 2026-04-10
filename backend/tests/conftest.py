@@ -1,14 +1,17 @@
 """
 Pytest configuration and fixtures.
 """
-import asyncio
 import os
 from collections.abc import AsyncGenerator
 
 import pytest
-from httpx import AsyncClient, ASGITransport
-from sqlalchemy import event, text
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine, AsyncEngine
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 from sqlalchemy.pool import NullPool
 
 from app.database import Base, get_db
@@ -30,18 +33,18 @@ TEST_DATABASE_URL = os.getenv(
 async def test_engine() -> AsyncEngine:
     """Create test engine for each test - NullPool disables connection pooling."""
     engine = create_async_engine(
-        TEST_DATABASE_URL, 
+        TEST_DATABASE_URL,
         echo=False,
         poolclass=NullPool,  # Disable pooling to avoid event loop issues
     )
-    
+
     # Initialize schema
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
-    
+
     yield engine
-    
+
     await engine.dispose()
 
 
@@ -54,7 +57,7 @@ async def db_session(test_engine: AsyncEngine) -> AsyncGenerator[AsyncSession, N
     async_session_maker = async_sessionmaker(
         test_engine, class_=AsyncSession, expire_on_commit=False
     )
-    
+
     async with async_session_maker() as session:
         # Add default ReferenceData entries for tests
         ref_data_entries = [
@@ -93,7 +96,7 @@ async def db_session(test_engine: AsyncEngine) -> AsyncGenerator[AsyncSession, N
         for ref in ref_data_entries:
             session.add(ref)
         await session.commit()
-        
+
         yield session
 
 
