@@ -4,24 +4,24 @@
       <table class="w-full">
         <thead class="border-b-2 border-gray-200 bg-gray-50">
           <tr>
-            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Institution</th>
-            <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600">Total Invested Balance</th>
-            <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600">Remaining Insured Capacity</th>
-            <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600">Actions</th>
+            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Institution</th>
+            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Invested Balance</th>
+            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Remaining Insured Capacity</th>
+            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
         <tbody>
           <!-- Ungrouped View -->
           <template v-if="!groupByParent">
             <tr v-for="institution in institutions" :key="institution.id" class="border-b border-gray-100 hover:bg-gray-50">
-              <td class="px-4 py-3 font-medium text-gray-900">{{ institution.name }}</td>
-              <td class="px-4 py-3 text-right font-semibold text-gray-900">
+              <td class="px-4 py-2 text-sm font-medium text-gray-900">{{ institution.name }}</td>
+              <td class="px-4 py-2 text-sm text-right font-semibold text-gray-900">
                 {{ formatCurrency(getInstitutionBalance(institution.id)) }}
               </td>
-              <td v-if="!institution.parentId && (institution.institutionType === 'Bank' || institution.institutionType === 'Building Society')" class="px-4 py-3 text-right font-semibold" :class="getCapacityColor(getInstitutionBalance(institution.id))">
+              <td v-if="!institution.parentId && (institution.institutionType === 'Bank' || institution.institutionType === 'Building Society')" class="px-4 py-2 text-sm text-right font-semibold" :class="getCapacityColor(getInstitutionBalance(institution.id))">
                 {{ formatCurrency(getCapacity(getInstitutionBalance(institution.id))) }}
               </td>
-              <td v-else class="px-4 py-3 text-right font-semibold text-gray-400">
+              <td v-else class="px-4 py-2 text-sm text-right font-semibold text-gray-400">
                 —
               </td>
               <td class="px-4 py-3 text-right">

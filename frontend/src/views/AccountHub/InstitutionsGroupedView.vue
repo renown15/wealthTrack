@@ -4,11 +4,11 @@
     <template v-if="group.parentId && hasChildren(group.parentId)">
       <!-- Group Header Row -->
       <tr class="bg-white border-b-2 border-blue-200 hover:bg-gray-50">
-        <td class="px-4 py-3 font-semibold text-gray-900">📁 {{ group.parentName }}</td>
-        <td class="px-4 py-3 text-right font-semibold text-gray-900">{{ formatCurrency(group.totalBalance) }}</td>
-        <td v-if="group.parentType === 'Bank' || group.parentType === 'Building Society'" class="px-4 py-3 text-right font-semibold" :class="getCapacityColor(group.totalBalance)">{{ formatCurrency(getCapacity(group.totalBalance)) }}</td>
-        <td v-else class="px-4 py-3 text-right font-semibold text-gray-400">—</td>
-        <td class="px-4 py-3"></td>
+        <td class="px-4 py-2 text-sm font-semibold text-gray-900">📁 {{ group.parentName }}</td>
+        <td class="px-4 py-2 text-sm text-right font-semibold text-gray-900">{{ formatCurrency(group.totalBalance) }}</td>
+        <td v-if="group.parentType === 'Bank' || group.parentType === 'Building Society'" class="px-4 py-2 text-sm text-right font-semibold" :class="getCapacityColor(group.totalBalance)">{{ formatCurrency(getCapacity(group.totalBalance)) }}</td>
+        <td v-else class="px-4 py-2 text-sm text-right font-semibold text-gray-400">—</td>
+        <td class="px-4 py-2 text-sm"></td>
       </tr>
 
       <!-- Child Institutions -->
@@ -18,14 +18,14 @@
         class="border-b border-gray-100 hover:bg-gray-50"
         :class="instIdx === group.institutions.filter(inst => inst.parentId).length - 1 ? 'border-b-2 border-blue-200' : ''"
       >
-        <td class="px-4 py-3 pl-12 font-medium text-gray-800">
+        <td class="px-4 py-2 text-sm pl-12 font-medium text-gray-800">
           <span class="text-blue-500 mr-2">└</span>{{ institution.name }}
         </td>
-        <td class="px-4 py-3 text-right font-semibold text-gray-900">
+        <td class="px-4 py-2 text-sm text-right font-semibold text-gray-900">
           {{ formatCurrency(getInstitutionBalance(institution.id)) }}
         </td>
-        <td class="px-4 py-3 text-right text-gray-400">—</td>
-        <td class="px-4 py-3 text-right">
+        <td class="px-4 py-2 text-sm text-right text-gray-400">—</td>
+        <td class="px-4 py-2 text-sm text-right">
           <div class="flex items-center justify-end gap-2">
             <button
               class="btn-icon edit inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200"
@@ -50,17 +50,17 @@
     <!-- Parent with no children (show as regular row) -->
     <template v-else>
       <tr v-for="institution in group.institutions" :key="`parent-${institution.id}`" class="border-b border-gray-100 hover:bg-gray-50">
-        <td class="px-4 py-3 font-medium text-gray-900">{{ institution.name }}</td>
-        <td class="px-4 py-3 text-right font-semibold text-gray-900">
+        <td class="px-4 py-2 text-sm font-medium text-gray-900">{{ institution.name }}</td>
+        <td class="px-4 py-2 text-sm text-right font-semibold text-gray-900">
           {{ formatCurrency(getInstitutionBalance(institution.id)) }}
         </td>
-        <td v-if="institution.institutionType === 'Bank' || institution.institutionType === 'Building Society'" class="px-4 py-3 text-right font-semibold" :class="getCapacityColor(getInstitutionBalance(institution.id))">
+        <td v-if="institution.institutionType === 'Bank' || institution.institutionType === 'Building Society'" class="px-4 py-2 text-sm text-right font-semibold" :class="getCapacityColor(getInstitutionBalance(institution.id))">
           {{ formatCurrency(getCapacity(getInstitutionBalance(institution.id))) }}
         </td>
-        <td v-else class="px-4 py-3 text-right font-semibold text-gray-400">
+        <td v-else class="px-4 py-2 text-sm text-right font-semibold text-gray-400">
           —
         </td>
-        <td class="px-4 py-3 text-right">
+        <td class="px-4 py-2 text-sm text-right">
           <div class="flex items-center justify-end gap-2">
             <button
               class="btn-icon edit inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200"

@@ -35,8 +35,8 @@ export default defineConfig({
   shortcuts: {
     // App shell (index.html)
     'app-shell': 'min-h-screen flex flex-col font-sans',
-    'blue-banner': 'bg-gradient-to-r from-primary to-primary-dark py-4 px-6',
-    'banner-container': 'max-w-[1200px] mx-auto flex justify-between items-center',
+    'blue-banner': 'bg-gradient-to-r from-primary to-primary-dark py-3 px-4',
+    'banner-container': 'max-w-[1200px] mx-auto flex justify-between items-center gap-3 overflow-x-auto',
     'brand-stack': 'flex flex-col',
     'logo': 'm-0 text-white text-xl font-bold tracking-wide',
     'tagline': 'm-0 text-white/70 text-xs tracking-[0.25em] uppercase',
@@ -44,7 +44,7 @@ export default defineConfig({
     'nav-link': 'px-4 py-2 rounded-md text-white/90 no-underline text-xs font-semibold tracking-wider uppercase hover:bg-white/10 transition-all',
     'nav-btn': 'px-4 py-2 text-sm font-medium text-white bg-transparent border-1 border-white/30 rounded-sm cursor-pointer transition-all duration-150 no-underline hover:bg-white/10 hover:border-white/50 active:bg-white/20 active:border-white',
     'main': 'flex-1',
-    'main-inner': 'max-w-[1200px] mx-auto py-6 px-4',
+    'main-inner': 'w-full py-3 sm:py-6 px-3 sm:px-6',
     'footer-inner': 'max-w-[1200px] mx-auto py-4 px-6 text-center text-muted text-sm',
 
     // Buttons
@@ -61,28 +61,28 @@ export default defineConfig({
     'btn-close': 'bg-transparent border-none text-2xl cursor-pointer text-muted hover:text-text-dark',
 
     // Layout
-    'page-view': 'min-h-screen bg-surface px-6 py-4 pb-16 flex flex-col items-center gap-6',
-    'hub-header-card': 'w-[1920px] rounded-[24px] overflow-hidden shadow-card',
-    'hub-content-card': 'w-[1920px] bg-card rounded-[24px] overflow-visible shadow-card',
+    'page-view': 'min-h-screen bg-surface p-3 sm:p-6 pb-16 flex flex-col gap-4',
+    'hub-header-card': 'rounded-[16px] sm:rounded-[24px] overflow-hidden shadow-card',
+    'hub-content-card': 'bg-card rounded-[16px] sm:rounded-[24px] overflow-visible shadow-card',
 
     // Header panel (blue gradient header)
-    'header-panel': 'bg-gradient-to-br from-primary to-primary-dark p-10 flex flex-col gap-8',
-    'header-top': 'flex justify-between items-center flex-wrap gap-4',
+    'header-panel': 'bg-gradient-to-br from-primary to-primary-dark p-4 sm:p-10 flex flex-col gap-4 sm:gap-8',
+    'header-top': 'flex justify-between items-start flex-wrap gap-3',
     'header-title': 'm-0 text-white text-3xl font-bold',
     'header-subtitle': 'mt-1 text-white/90 text-base',
     'header-actions': 'flex gap-3',
 
     // Stats grid
-    'stats-grid': 'flex gap-5',
-    'stat-card': 'flex-1 bg-blue-500/35 rounded-xl p-6 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.25)]',
-    'stat-label': 'm-0 text-[0.7rem] tracking-[0.35em] uppercase text-white/80 font-medium',
-    'stat-value': 'mt-2 text-2xl font-bold',
+    'stats-grid': 'grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3',
+    'stat-card': 'bg-blue-500/35 rounded-xl p-3 sm:p-5 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.25)]',
+    'stat-label': 'm-0 text-[0.65rem] tracking-[0.2em] uppercase text-white/80 font-medium leading-tight',
+    'stat-value': 'mt-2 text-lg sm:text-xl font-bold leading-tight',
 
     // Table
-    'table-wrap': 'rounded-xl border border-border',
+    'table-wrap': 'rounded-xl border border-border overflow-x-auto',
     'data-table': 'border-collapse bg-card table-auto w-full',
-    'table-header': 'text-sm tracking-[0.3em] uppercase text-muted whitespace-nowrap',
-    'table-cell': 'p-4 border-b border-border text-text-dark whitespace-nowrap',
+    'table-header': 'text-xs tracking-[0.3em] uppercase text-muted whitespace-nowrap',
+    'table-cell': 'p-2 px-4 border-b border-border text-text-dark text-sm whitespace-nowrap',
     'table-row-hover': 'hover:bg-blue-50',
     'actions-col': 'flex justify-end gap-2',
 
@@ -129,7 +129,7 @@ export default defineConfig({
     'range-buttons': 'flex gap-1',
     'range-btn': 'px-3 py-1 border border-slate-200 rounded-md bg-white text-slate-500 text-[0.8125rem] font-500 cursor-pointer transition-all hover:border-blue-500 hover:text-blue-500',
     'range-btn-active': 'bg-blue-500 border-blue-500 text-white',
-    'analytics-grid': 'grid grid-cols-3 gap-4 max-[1100px]:grid-cols-2 max-[700px]:grid-cols-1 w-[1920px]',
+    'analytics-grid': 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full',
     'analytics-card': 'bg-card rounded-[24px] overflow-visible shadow-card p-6 min-h-[700px]',
     'chart-container': 'relative h-[260px]',
     'chart-institution': 'relative h-[420px]',

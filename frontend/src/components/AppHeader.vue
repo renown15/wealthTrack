@@ -3,7 +3,7 @@
     <div class="banner-container">
       <div class="brand-stack">
         <h1 class="logo">WealthTrack</h1>
-        <p class="tagline">Strategic wealth intelligence</p>
+        <p class="tagline hidden sm:block">Strategic wealth intelligence</p>
       </div>
       <div v-if="envLabel" class="px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide bg-yellow-400 text-gray-900">
         {{ envLabel }}
@@ -19,21 +19,21 @@
         </router-link>
         <router-link
           to="/analytics"
-          class="nav-btn"
+          class="nav-btn hidden sm:inline-flex"
           :class="{ active: isRoute('analytics') }"
         >
           Analytics
         </router-link>
         <router-link
           to="/tax"
-          class="nav-btn"
+          class="nav-btn hidden sm:inline-flex"
           :class="{ active: isRoute('tax') }"
         >
           Tax Hub
         </router-link>
         <router-link
           to="/reference-data"
-          class="nav-btn"
+          class="nav-btn hidden md:inline-flex"
           :class="{ active: isRoute('reference-data') }"
         >
           Reference Data

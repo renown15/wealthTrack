@@ -6,7 +6,7 @@
         <p class="header-subtitle">Snapshot of your portfolio with fast actions to add or manage accounts.</p>
       </div>
 
-      <div class="header-actions">
+      <div class="header-actions hidden sm:flex">
         <button class="btn-primary" @click="emitCreateAccount">+ Add Account</button>
         <button class="btn-secondary" @click="emitCreateInstitution">+ Add Institution</button>
         <button class="btn-secondary" @click="emitCreateAccountGroup">+ Account Group</button>
