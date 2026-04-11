@@ -2,6 +2,7 @@
 Main FastAPI application entry point.
 """
 import json
+import logging
 from collections.abc import AsyncGenerator, Awaitable, Callable
 from contextlib import asynccontextmanager
 
@@ -12,6 +13,8 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 from app.config import settings
+
+logger = logging.getLogger(__name__)
 from app.controllers.account import router as account_router
 from app.controllers.account_documents import router as account_documents_router
 from app.controllers.share_sale import router as share_sale_router
@@ -35,6 +38,10 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     Application lifespan context manager.
     Handles startup and shutdown events.
     """
+    # Clear debug log on startup
+    with open("/tmp/share_sale_debug.log", "w") as f:
+        f.write("[APP STARTUP] WealthTrack API started\n")
+    
     # Database tables and reference data are created and managed by Alembic migrations
     async with async_session_maker() as session:
         await validate_types_against_db(session)
@@ -42,6 +49,39 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
 
     # Shutdown: Close database connections
     await engine.dispose()
+
+
+class RequestLoggingMiddleware(BaseHTTPMiddleware):
+    """
+    Middleware to log raw HTTP request bodies for debugging.
+    Specifically targets /share-sale endpoint for detailed inspection.
+    """
+
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
+        """Log request body before passing to handlers."""
+        if "/share-sale" in request.url.path:
+            try:
+                body = await request.body()
+                if body:
+                    debug_msg = f"""
+[RAW REQUEST] /share-sale endpoint
+Path: {request.url.path}
+Method: {request.method}
+Content-Type: {request.headers.get("content-type")}
+Body: {body.decode(errors="ignore")}
+---
+"""
+                    # Write to /tmp for visibility
+                    with open("/tmp/share_sale_debug.log", "a") as f:
+                        f.write(debug_msg)
+                    logger.error(f"[RequestLogging] Wrote to /tmp/share_sale_debug.log")
+            except Exception as e:
+                with open("/tmp/share_sale_debug.log", "a") as f:
+                    f.write(f"[ERROR] {e}\n")
+        
+        return await call_next(request)
 
 
 class SnakeToCamelCaseMiddleware(BaseHTTPMiddleware):
@@ -118,6 +158,28 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+
+# Add custom exception handler for validation errors
+@app.exception_handler(422)
+async def validation_exception_handler(request: Request, exc: Exception) -> Response:
+    """Handler for validation errors — log details to file."""
+    try:
+        debug_msg = f"""
+[VALIDATION ERROR] 422
+Path: {request.url.path}
+Method: {request.method}
+Error Details: {str(exc)}
+---
+"""
+        with open("/tmp/share_sale_debug.log", "a") as f:
+            f.write(debug_msg)
+    except Exception as log_err:
+        logger.error(f"Could not log validation error: {log_err}")
+    raise exc
+
+# Add request logging middleware FIRST (to see raw requests)
+app.add_middleware(RequestLoggingMiddleware)
 
 # Add snake_to_camelCase middleware BEFORE CORS (so CORS still applies)
 app.add_middleware(SnakeToCamelCaseMiddleware)

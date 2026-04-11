@@ -1,15 +1,15 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useTaxHub } from '@composables/useTaxHub';
-import { taxService } from '@services/TaxService';
+import { apiService } from '@services/ApiService';
 import type { EligibleAccount, TaxDocument, TaxReturn } from '@models/TaxModels';
 
-vi.mock('@services/TaxService', () => ({
-  taxService: {
-    getEligibleAccounts: vi.fn(),
-    upsertReturn: vi.fn(),
-    uploadDocument: vi.fn(),
-    downloadDocument: vi.fn(),
-    deleteDocument: vi.fn(),
+vi.mock('@/services/ApiService', () => ({
+  apiService: {
+    getTaxEligibleAccounts: vi.fn(),
+    upsertTaxReturn: vi.fn(),
+    uploadTaxDocument: vi.fn(),
+    downloadTaxDocument: vi.fn(),
+    deleteTaxDocument: vi.fn(),
   },
 }));
 
@@ -17,7 +17,7 @@ vi.mock('@composables/useToast', () => ({
   useToast: () => ({ showSuccess: vi.fn(), showError: vi.fn() }),
 }));
 
-const mockService = vi.mocked(taxService);
+const mockApi = vi.mocked(apiService);
 
 const mockReturn: TaxReturn = {
   id: 10, accountId: 5, taxPeriodId: 1,
@@ -39,11 +39,11 @@ const mockAccount: EligibleAccount = {
 describe('useTaxHub', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockService.getEligibleAccounts.mockResolvedValue([mockAccount]);
-    mockService.upsertReturn.mockResolvedValue(mockReturn);
-    mockService.uploadDocument.mockResolvedValue(mockDoc);
-    mockService.downloadDocument.mockResolvedValue(new Blob(['data']));
-    mockService.deleteDocument.mockResolvedValue(undefined);
+    mockApi.getTaxEligibleAccounts.mockResolvedValue([mockAccount]);
+    mockApi.upsertTaxReturn.mockResolvedValue(mockReturn);
+    mockApi.uploadTaxDocument.mockResolvedValue(mockDoc);
+    mockApi.downloadTaxDocument.mockResolvedValue(new Blob(['data']));
+    mockApi.deleteTaxDocument.mockResolvedValue(undefined);
   });
 
   it('loadAccounts populates accounts', async () => {
@@ -53,7 +53,7 @@ describe('useTaxHub', () => {
   });
 
   it('loadAccounts sets error on failure', async () => {
-    mockService.getEligibleAccounts.mockRejectedValue(new Error('Network'));
+    mockApi.getTaxEligibleAccounts.mockRejectedValue(new Error('Network'));
     const { error, loadAccounts } = useTaxHub();
     await loadAccounts(1);
     expect(error.value).toBe('Network');
@@ -68,7 +68,7 @@ describe('useTaxHub', () => {
   });
 
   it('saveReturn returns false on error', async () => {
-    mockService.upsertReturn.mockRejectedValue(new Error('Save failed'));
+    mockApi.upsertTaxReturn.mockRejectedValue(new Error('Save failed'));
     const { loadAccounts, saveReturn } = useTaxHub();
     await loadAccounts(1);
     const ok = await saveReturn(1, 5, { income: 100, capitalGain: null, taxTakenOff: 0 });
@@ -86,7 +86,7 @@ describe('useTaxHub', () => {
   });
 
   it('uploadDocument returns null on error', async () => {
-    mockService.uploadDocument.mockRejectedValue(new Error('Upload failed'));
+    mockApi.uploadTaxDocument.mockRejectedValue(new Error('Upload failed'));
     const { loadAccounts, uploadDocument } = useTaxHub();
     await loadAccounts(1);
     const file = new File(['content'], 'cert.pdf');
@@ -96,7 +96,7 @@ describe('useTaxHub', () => {
 
   it('deleteDocument removes doc from account', async () => {
     const accountWithDoc: EligibleAccount = { ...mockAccount, documents: [mockDoc] };
-    mockService.getEligibleAccounts.mockResolvedValue([accountWithDoc]);
+    mockApi.getTaxEligibleAccounts.mockResolvedValue([accountWithDoc]);
     const { accounts, loadAccounts, deleteDocument } = useTaxHub();
     await loadAccounts(1);
     await deleteDocument(1, 5, 20);

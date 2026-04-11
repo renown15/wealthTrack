@@ -93,8 +93,6 @@ class AnalyticsRepository:
                 val = float(raw_value)
             except (TypeError, ValueError):
                 continue
-            if val <= 0:
-                continue
             total += val
             inst = institution or "Unknown"
             ac = asset_class or "Unclassified"

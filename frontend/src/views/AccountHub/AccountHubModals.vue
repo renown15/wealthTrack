@@ -4,6 +4,14 @@
       :open="eventsModalOpen" :title="eventsTitle" :events="events"
       :loading="eventsLoading" :error="eventsError" :account-type="accountType"
       @close="$emit('closeEvents')" @add-win="(w) => $emit('addWin', w)"
+      @record-sale="$emit('recordSale')"
+    />
+    <ShareSaleModal
+      :open="shareSaleModalOpen"
+      :shares-account-id="sharesAccountId"
+      :all-items="items"
+      @close="$emit('closeShareSale')"
+      @sold="$emit('shareSold')"
     />
     <AccountGroupModal
       :open="accountGroupModalOpen" :type="accountGroupModalType" :items="items"
@@ -29,7 +37,8 @@
       :initial-underlying="initialModalUnderlying" :initial-price="initialModalPrice"
       :initial-purchase-price="initialModalPurchasePrice"
       :initial-pension-monthly-payment="initialModalPensionMonthlyPayment"
-      :initial-asset-class="initialModalAssetClass" :initial-encumbrance="initialModalEncumbrance" :error="accountError"
+      :initial-asset-class="initialModalAssetClass" :initial-encumbrance="initialModalEncumbrance"
+      :initial-tax-year="initialModalTaxYear" :error="accountError"
       @close="$emit('closeAccount')" @save="(p) => $emit('saveAccount', p)"
     />
     <InstitutionModal
@@ -61,6 +70,7 @@ import type { ReferenceDataItem } from '@/models/ReferenceData';
 import { useModalInitialValues } from '@/composables/useModalInitialValues';
 import { computed } from 'vue';
 import AccountEventsModal from '@views/AccountHub/AccountEventsModal.vue';
+import ShareSaleModal from '@views/AccountHub/ShareSaleModal.vue';
 import AccountGroupModal from '@views/AccountHub/AccountGroupModal.vue';
 import AccountModal from '@views/AccountHub/AccountModal.vue';
 import InstitutionModal from '@views/AccountHub/InstitutionModal.vue';
@@ -94,6 +104,8 @@ const props = defineProps<{
   eventsError?: string | null;
   events: AccountEvent[];
   accountType?: string;
+  shareSaleModalOpen: boolean;
+  sharesAccountId: number;
   credentialModalOpen: boolean;
   credentialInstitution: Institution | null;
   credentialTypes: ReferenceDataItem[];
@@ -108,6 +120,9 @@ const props = defineProps<{
 defineEmits<{
   closeEvents: [];
   addWin: [amount: string];
+  recordSale: [];
+  closeShareSale: [];
+  shareSold: [];
   closeAccountGroup: [];
   saveAccountGroup: [data: { name: string; accountIds: number[]; groupId?: number }];
   deleteGroupFromModal: [groupId: number];
@@ -131,7 +146,7 @@ const {
   initialModalRollRefNumber, initialModalInterestRate, initialModalFixedBonusRate,
   initialModalFixedBonusRateEndDate, initialModalReleaseDate, initialModalNumberOfShares,
   initialModalUnderlying, initialModalPrice, initialModalPurchasePrice,
-  initialModalPensionMonthlyPayment, initialModalAssetClass, initialModalEncumbrance, initialModalParentId,
+  initialModalPensionMonthlyPayment, initialModalAssetClass, initialModalEncumbrance, initialModalTaxYear, initialModalParentId,
   initialModalInstitutionType,
 } = useModalInitialValues(editingItemRef);
 </script>

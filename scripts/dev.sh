@@ -31,23 +31,57 @@ echo ""
 # Colors for output
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
-RED='\033[0;31m'
+YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
-# Start database
-echo -e "${BLUE}1/3 Starting PostgreSQL database...${NC}"
+# ── Database ────────────────────────────────────────────────────────────────
+echo -e "${BLUE}1/4 Starting PostgreSQL database...${NC}"
 cd "$ROOT_DIR"
-docker compose up -d --force-recreate db > /dev/null 2>&1
-sleep 2
-echo -e "${GREEN}✓ Database running on port ${DB_PORT:-5433}${NC}"
+
+DB_CONTAINER="${DB_CONTAINER:-wealthtrack-db-dev}"
+DB_PORT="${DB_PORT:-5433}"
+
+# Check if the dev container is already healthy — only (re)start if needed
+DB_STATUS=$(docker inspect --format='{{.State.Health.Status}}' "$DB_CONTAINER" 2>/dev/null || echo "missing")
+
+if [ "$DB_STATUS" = "healthy" ]; then
+	echo -e "${GREEN}✓ Database already healthy on port ${DB_PORT}${NC}"
+else
+	if [ "$DB_STATUS" = "missing" ]; then
+		echo "  Container not found — starting fresh..."
+	else
+		echo "  Container status: ${DB_STATUS} — restarting..."
+	fi
+	docker compose --env-file "$ROOT_DIR/.env.dev" --profile dev up -d db > /dev/null 2>&1
+
+	# Wait for the container to become healthy (up to 30s)
+	echo -n "  Waiting for database to be ready"
+	for i in $(seq 1 30); do
+		STATUS=$(docker inspect --format='{{.State.Health.Status}}' "$DB_CONTAINER" 2>/dev/null || echo "missing")
+		if [ "$STATUS" = "healthy" ]; then
+			echo ""
+			break
+		fi
+		echo -n "."
+		sleep 1
+	done
+
+	FINAL_STATUS=$(docker inspect --format='{{.State.Health.Status}}' "$DB_CONTAINER" 2>/dev/null || echo "missing")
+	if [ "$FINAL_STATUS" != "healthy" ]; then
+		echo ""
+		echo -e "${YELLOW}⚠️  Database may still be starting (status: ${FINAL_STATUS}) — backend may retry connections${NC}"
+	else
+		echo -e "${GREEN}✓ Database running on port ${DB_PORT}${NC}"
+	fi
+fi
 echo ""
 
+# ── Backend ──────────────────────────────────────────────────────────────────
 # Terminate any existing backend before starting new one so ports are free
 pkill -f "uvicorn app.main:app" >/dev/null 2>&1 || true
 lsof -ti :"${BACKEND_PORT:-8000}" 2>/dev/null | xargs kill -9 2>/dev/null || true
 
-# Start backend
-echo -e "${BLUE}2/3 Starting FastAPI backend...${NC}"
+echo -e "${BLUE}2/4 Starting FastAPI backend...${NC}"
 cd "$ROOT_DIR/backend"
 export DATABASE_URL="postgresql+asyncpg://${DB_USER:-wealthtrack}:${DB_PASSWORD:-wealthtrack_dev_password}@localhost:${DB_PORT:-5433}/${DB_NAME:-wealthtrack}"
 export ENVIRONMENT="${ENVIRONMENT:-development}"
@@ -63,18 +97,19 @@ echo -e "${GREEN}✓ Backend running on http://localhost:${BACKEND_PORT:-8000}${
 echo "  (PID: $BACKEND_PID, logs: tail -f /tmp/backend.log)"
 echo ""
 
-# Stop any containerized frontend preview server so it does not shadow the dev server
-echo -e "${BLUE}3/3 Stopping containerized frontend preview (if running)...${NC}"
+# ── Containerised frontend ───────────────────────────────────────────────────
+# Stop any containerised frontend preview server so it does not shadow the dev server
+echo -e "${BLUE}3/4 Stopping containerised frontend preview (if running)...${NC}"
 cd "$ROOT_DIR"
 docker compose stop frontend > /dev/null 2>&1 || true
-echo -e "${GREEN}✓ Containerized frontend stopped (if it was running)${NC}"
+echo -e "${GREEN}✓ Containerised frontend stopped (if it was running)${NC}"
 echo ""
 
+# ── Frontend dev server ──────────────────────────────────────────────────────
 # Terminate any existing frontend dev server
 pkill -f "npm run dev" >/dev/null 2>&1 || true
 lsof -ti :"${FRONTEND_PORT:-3001}" 2>/dev/null | xargs kill -9 2>/dev/null || true
 
-# Start frontend dev server
 echo -e "${BLUE}4/4 Starting Vite frontend dev server locally...${NC}"
 cd "$ROOT_DIR/frontend"
 # Install dependencies if node_modules is missing
@@ -96,7 +131,7 @@ echo -e "${GREEN}═════════════════════
 echo -e "${GREEN}Development environment ready!${NC}"
 echo ""
 echo "Services:"
-echo "  📊 Database:  localhost:${DB_PORT:-5433} (PostgreSQL)"
+echo "  📊 Database:  localhost:${DB_PORT} (PostgreSQL)"
 echo "  🔌 API:       http://localhost:${BACKEND_PORT:-8000} (FastAPI)"
 echo "  🎨 Frontend:  http://localhost:${FRONTEND_PORT:-3001} (Vite)"
 echo ""

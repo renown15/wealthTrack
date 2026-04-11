@@ -52,6 +52,7 @@ interface Props {
   initialPensionMonthlyPayment?: string | null;
   initialAssetClass?: string | null;
   initialEncumbrance?: string | null;
+  initialTaxYear?: string | null;
   error?: string | null;
 }
 
@@ -76,6 +77,7 @@ interface SavePayload {
   pensionMonthlyPayment?: string;
   assetClass?: string;
   encumbrance?: string;
+  taxYear?: string;
 }
 
 const props = defineProps<Props>();
@@ -87,6 +89,7 @@ const emit = defineEmits<{
 const formProps = computed<AccountFormProps>(() => ({
   open: props.open,
   resourceType: 'account',
+  type: props.type,
   initialName: props.initialName,
   initialInstitutionId: props.initialInstitutionId,
   initialTypeId: props.initialTypeId,
@@ -107,8 +110,10 @@ const formProps = computed<AccountFormProps>(() => ({
   initialPensionMonthlyPayment: props.initialPensionMonthlyPayment,
   initialAssetClass: props.initialAssetClass,
   initialEncumbrance: props.initialEncumbrance,
+  initialTaxYear: props.initialTaxYear,
   accountTypes: props.accountTypes,
   accountStatuses: props.accountStatuses,
+  institutions: props.institutions,
 }));
 
 const { formData } = useAccountForm(toRef(formProps));
@@ -170,6 +175,7 @@ const handleSave = (): void => {
     pensionMonthlyPayment: formData.value.pensionMonthlyPayment != null && formData.value.pensionMonthlyPayment !== '' ? String(formData.value.pensionMonthlyPayment) : undefined,
     assetClass: formData.value.assetClass || undefined,
     encumbrance: formData.value.encumbrance != null && formData.value.encumbrance !== '' ? String(formData.value.encumbrance) : undefined,
+    taxYear: formData.value.taxYear || undefined,
   });
 };
 </script>

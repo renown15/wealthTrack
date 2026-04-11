@@ -16,6 +16,7 @@ class EventType(StrEnum):
     DIVIDEND = "Dividend"
     FEE = "Fee"
     TAX = "Tax"
+    CAPITAL_GAINS_TAX = "Capital Gains Tax"
 
     @property
     def value_type(self) -> EventValueType:

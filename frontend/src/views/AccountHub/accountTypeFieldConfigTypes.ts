@@ -15,4 +15,5 @@ export interface FieldConfig {
   showAssetClass: boolean;
   showEncumbrance: boolean;
   showBankingDetails: boolean;
+  showTaxYear: boolean;
 }

@@ -17,6 +17,7 @@ const baseConfig: FieldConfig = {
   showAssetClass: true,
   showEncumbrance: false,
   showBankingDetails: false,
+  showTaxYear: false,
 };
 
 const withInterest: Partial<FieldConfig> = { showInterestRate: true };
@@ -43,5 +44,6 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
   'Shares':                        { ...baseConfig, ...shares, showPurchasePrice: true, ...assetClass },
   'Trust Bank Account':            { ...baseConfig, ...withInterest, ...banking },
   'Trust Stocks Investment Account': { ...baseConfig, ...assetClass },
+  'Tax Liability':                 { ...baseConfig, showAssetClass: false, showTaxYear: true },
   'DEFAULT':                       { ...baseConfig, ...withInterest, ...banking },
 };

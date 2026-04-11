@@ -72,6 +72,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import type { FormData } from '@views/AccountHub/accountFormFieldsTypes';
+import { debug } from '@utils/debug';
 
 interface FieldConfig {
   isDeferredType: boolean;

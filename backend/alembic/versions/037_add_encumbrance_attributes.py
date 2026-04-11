@@ -35,19 +35,23 @@ _NEW_ITEMS = [
 
 def upgrade() -> None:
     now = datetime.utcnow()
-    op.bulk_insert(
-        _reference_data_table,
-        [
-            {
-                "classkey": classkey,
-                "referencevalue": referencevalue,
-                "sortindex": sortindex,
-                "created_at": now,
-                "updated_at": now,
-            }
-            for classkey, referencevalue, sortindex in _NEW_ITEMS
-        ],
-    )
+    # Make idempotent by checking if items already exist
+    for classkey, referencevalue, sortindex in _NEW_ITEMS:
+        # Check if this row already exists
+        result = op.execute(
+            f"""
+            SELECT id FROM "ReferenceData"
+            WHERE classkey = '{classkey}' AND referencevalue = '{referencevalue}'
+            """
+        )
+        if not result.fetchone():
+            # Only insert if it doesn't exist
+            op.execute(
+                f"""
+                INSERT INTO "ReferenceData" (classkey, referencevalue, sortindex, created_at, updated_at)
+                VALUES ('{classkey}', '{referencevalue}', {sortindex}, '{now.isoformat()}', '{now.isoformat()}')
+                """
+            )
 
 
 def downgrade() -> None:

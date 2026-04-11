@@ -16,24 +16,24 @@
         <button class="btn-add mt-4" @click="openCreateAccountModal">Create Account</button>
       </div>
     </div>
-    <div v-else class="hub-content-card p-6">
-      <div class="flex items-center justify-between mb-6">
+    <div v-else class="hub-content-card p-3 sm:p-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
         <h3 class="section-title">Portfolio</h3>
-        <div class="flex items-center gap-4">
-          <div class="flex items-center gap-3">
-            <span class="text-sm font-medium text-gray-700">Hide Closed</span>
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-gray-700">Hide Closed</span>
             <button class="relative w-10 h-5 rounded-full transition-colors duration-200 border-none cursor-pointer" :class="hideClosed ? 'bg-blue-600' : 'bg-gray-300'" @click="hideClosed = !hideClosed" title="Toggle closed accounts">
               <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200" :class="hideClosed ? 'translate-x-5' : 'translate-x-0'" />
             </button>
           </div>
-          <div class="flex items-center gap-3">
-            <span class="text-sm font-medium text-gray-700">Grouped</span>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-gray-700">Grouped</span>
             <button class="relative w-10 h-5 rounded-full transition-colors duration-200 border-none cursor-pointer" :class="grouped ? 'bg-blue-600' : 'bg-gray-300'" @click="grouped = !grouped" title="Toggle grouping">
               <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200" :class="grouped ? 'translate-x-5' : 'translate-x-0'" />
             </button>
           </div>
-          <button class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white border-none rounded text-sm font-medium cursor-pointer transition-colors hover:bg-blue-600 active:bg-blue-700" @click="exportToExcel" title="Export accounts to Excel">
-            <span class="export-icon">{{ Icons.download }}</span><span class="export-text">Excel</span>
+          <button class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500 text-white border-none rounded text-xs font-medium cursor-pointer transition-colors hover:bg-blue-600" @click="exportToExcel" title="Export accounts to Excel">
+            <span>{{ Icons.download }}</span><span>Excel</span>
           </button>
         </div>
       </div>
@@ -50,18 +50,18 @@
         />
       </div>
     </div>
-    <div v-if="state.institutionsLoading || state.institutions.length > 0" class="hub-content-card p-6">
-      <div class="flex items-center justify-between mb-6">
+    <div v-if="state.institutionsLoading || state.institutions.length > 0" class="hub-content-card p-3 sm:p-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
         <h3 class="section-title">Institutions</h3>
-        <div class="flex items-center gap-4">
-          <div class="flex items-center gap-3">
-            <span class="text-sm font-medium text-gray-700">Group by Parent</span>
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-gray-700">Group by Parent</span>
             <button class="relative w-10 h-5 rounded-full transition-colors duration-200 border-none cursor-pointer" :class="groupByParent ? 'bg-blue-600' : 'bg-gray-300'" @click="groupByParent = !groupByParent" title="Toggle grouping">
               <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200" :class="groupByParent ? 'translate-x-5' : 'translate-x-0'" />
             </button>
           </div>
-          <button class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white border-none rounded text-sm font-medium cursor-pointer transition-colors hover:bg-blue-600 active:bg-blue-700" @click="exportInstitutions" title="Export institutions and credentials to Excel">
-            <span class="export-icon">{{ Icons.download }}</span><span class="export-text">Excel</span>
+          <button class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500 text-white border-none rounded text-xs font-medium cursor-pointer transition-colors hover:bg-blue-600" @click="exportInstitutions" title="Export institutions and credentials to Excel">
+            <span>{{ Icons.download }}</span><span>Excel</span>
           </button>
         </div>
       </div>
@@ -87,11 +87,14 @@
       :editing-group-id="editingGroupId" :editing-group-name="editingGroupName" :editing-group-member-ids="editingGroupMemberIds"
       :events-modal-open="eventsModalOpen" :events-title="eventsTitle" :events-loading="eventsLoading"
       :events-error="eventsError" :events="events" :account-type="accountType"
+      :share-sale-modal-open="shareSaleModalOpen" :shares-account-id="currentAccountId"
       :credential-modal-open="credentialModalOpen" :credential-institution="credentialInstitution"
       :credential-types="credentialTypes" :credentials="credentials" :credential-loading="credentialLoading"
       :credential-saving="credentialSaving" :credential-deleting-id="credentialDeletingId"
       :credential-error="credentialError" :editing-credential="editingCredential"
-      @close-events="closeEventsModal" @add-win="handleAddWin" @close-account-group="closeAccountGroupModal"
+      @close-events="closeEventsModal" @add-win="handleAddWin" @record-sale="openShareSaleModal"
+      @close-share-sale="closeShareSaleModal" @share-sold="handleShareSold"
+      @close-account-group="closeAccountGroupModal"
       @save-account-group="handleAccountGroupSave" @delete-group-from-modal="handleDeleteGroupFromModal"
       @close-account="closeAccountModal" @save-account="handleAccountSave"
       @close-institution="closeInstitutionModal" @save-institution="handleInstitutionSave"
@@ -120,36 +123,20 @@ import PortfolioTable from '@views/AccountHub/PortfolioTable.vue';
 import InstitutionsList from '@views/AccountHub/InstitutionsList.vue';
 import AccountHubModals from '@views/AccountHub/AccountHubModals.vue';
 import AccountDocumentsModal from '@views/AccountHub/AccountDocumentsModal.vue';
-import { apiService } from '@/services/ApiService';
 import { institutionCredentialsService } from '@/services/InstitutionCredentialsService';
 import { exportAccountsToExcel, exportInstitutionsToExcel } from '@/utils/exportToExcel';
 import { useHubEventHandlers } from '@/composables/useHubEventHandlers';
+import { useHubReferenceData } from '@/composables/useHubReferenceData';
 import { Icons } from '@/constants/icons';
 
 const { state, totalValue, cashAtHand, isaSavings, illiquid, trustAssets, projectedAnnualYield, loadPortfolio, clearError } = usePortfolio();
 const hideClosed = ref(true);
-const visibleItems = computed(() =>
-  hideClosed.value ? state.items.filter((i) => !i.account.closedAt) : state.items
-);
+const visibleItems = computed(() => hideClosed.value ? state.items.filter((i) => !i.account.closedAt) : state.items);
 const { state: accountGroupsState, loadGroups, createGroup, updateGroup, deleteGroup, saveGroupMembers } = useAccountGroups();
 const grouped = ref(true); const groupByParent = ref(true);
-const lifeExpectancy = ref(36); const annuityRate = ref(0.075);
+const { accountTypes, accountStatuses, institutionTypes, credentialTypes, lifeExpectancy, annuityRate } = useHubReferenceData();
 const pensionBreakdown = computed<PensionBreakdown>(() => calculatePensionValue(state.items, lifeExpectancy.value, annuityRate.value));
-const accountTypes = ref<ReferenceDataItem[]>([]); const accountStatuses = ref<ReferenceDataItem[]>([]);
-const institutionTypes = ref<ReferenceDataItem[]>([]); const credentialTypes = ref<any[]>([]);
-onMounted(() => {
-  void loadPortfolio(); void loadGroups();
-  void Promise.all([
-    apiService.getReferenceData('account_type'), apiService.getReferenceData('account_status'),
-    apiService.getReferenceData('institution_type'), apiService.getReferenceData('credential_type'),
-    apiService.getReferenceData('life_expectancy'), apiService.getReferenceData('annuity_assumption_rate'),
-  ]).then(([types, statuses, instTypes, credTypes, lifeExpData, annuityData]) => {
-    accountTypes.value = types; accountStatuses.value = statuses;
-    institutionTypes.value = instTypes; credentialTypes.value = credTypes;
-    if (lifeExpData[0]?.referenceValue) lifeExpectancy.value = parseFloat(lifeExpData[0].referenceValue);
-    if (annuityData[0]?.referenceValue) annuityRate.value = parseFloat(annuityData[0].referenceValue);
-  });
-});
+onMounted(() => { void loadPortfolio(); void loadGroups(); });
 
 const {
   credentialModalOpen, credentialInstitution, credentials, credentialLoading, credentialSaving,
@@ -157,12 +144,18 @@ const {
   handleCredentialSave, handleCredentialEdit, cancelCredentialEdit, handleCredentialDelete,
 } = useCredentialsModal();
 const { eventsModalOpen, eventsTitle, eventsLoading, eventsError, events, accountType, currentAccountId, openEventsModal, closeEventsModal } = useEventsModal();
-const accountModalOpen = ref(false);
-const institutionModalOpen = ref(false);
-const modalType = ref<'create' | 'edit'>('create');
-const editingItem = ref<Account | Institution | null>(null);
-const deleteConfirmOpen = ref(false);
-const deleteConfirmType = ref<'account' | 'institution'>('account');
+const shareSaleModalOpen = ref(false);
+const openShareSaleModal = (): void => { shareSaleModalOpen.value = true; };
+const closeShareSaleModal = (): void => { shareSaleModalOpen.value = false; };
+const handleShareSold = async (): Promise<void> => {
+  closeShareSaleModal();
+  await loadPortfolio();
+  const accountName = state.items.find((i) => i.account.id === currentAccountId.value)?.account.name ?? 'Shares Account';
+  await openEventsModal(currentAccountId.value, accountName, 'Shares');
+};
+const accountModalOpen = ref(false); const institutionModalOpen = ref(false);
+const modalType = ref<'create' | 'edit'>('create'); const editingItem = ref<Account | Institution | null>(null);
+const deleteConfirmOpen = ref(false); const deleteConfirmType = ref<'account' | 'institution'>('account');
 const deleteConfirmId = ref(0); const deleteConfirmName = ref('');
 const groupMembersMap = computed(() => accountGroupsState.groupMembers);
 const {

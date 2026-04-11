@@ -26,6 +26,7 @@ export interface FormData {
   pensionMonthlyPayment?: string | null;
   assetClass?: string | null;
   encumbrance?: string | null;
+  taxYear?: string | null;
 }
 
 export interface AccountFormFieldsProps {

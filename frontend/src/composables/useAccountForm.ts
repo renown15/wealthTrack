@@ -1,5 +1,6 @@
 import { ref, watch, type Ref } from 'vue';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
+import type { Institution } from '@/models/WealthTrackDataModels';
 
 /**
  * Convert DD/MM/YYYY to YYYY-MM-DD for HTML date input
@@ -49,11 +50,13 @@ export interface AccountFormData {
   pensionMonthlyPayment: string;
   assetClass: string;
   encumbrance: string;
+  taxYear: string;
 }
 
 export interface AccountFormProps {
   open: boolean;
   resourceType: 'account' | 'institution';
+  type?: 'create' | 'edit';
   initialName?: string;
   initialInstitutionId?: number;
   initialTypeId?: number;
@@ -74,17 +77,31 @@ export interface AccountFormProps {
   initialPensionMonthlyPayment?: string | null;
   initialAssetClass?: string | null;
   initialEncumbrance?: string | null;
+  initialTaxYear?: string | null;
   accountTypes: ReferenceDataItem[];
   accountStatuses: ReferenceDataItem[];
+  institutions?: Institution[];
 }
 
 export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<AccountFormData>; resetForm: () => void } {
+  // Only default openedAt to today for new accounts (type === 'create')
+  const getDefaultOpenDate = (): string => {
+    if (props.value.initialOpenedAt !== undefined && props.value.initialOpenedAt !== null) {
+      return props.value.initialOpenedAt;
+    }
+    // For create, default to today; for edit, preserve null/empty
+    if (props.value.type === 'create') {
+      return new Date().toISOString().slice(0, 10);
+    }
+    return props.value.initialOpenedAt || '';
+  };
+
   const formData = ref<AccountFormData>({
     name: props.value.initialName || '',
     institutionId: props.value.initialInstitutionId || 0,
     typeId: props.value.initialTypeId || 0,
     statusId: props.value.initialStatusId || 0,
-    openedAt: props.value.initialOpenedAt || '',
+    openedAt: getDefaultOpenDate(),
     closedAt: props.value.initialClosedAt || '',
     accountNumber: props.value.initialAccountNumber || '',
     sortCode: props.value.initialSortCode || '',
@@ -100,6 +117,7 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     pensionMonthlyPayment: props.value.initialPensionMonthlyPayment || '',
     assetClass: props.value.initialAssetClass || '',
     encumbrance: props.value.initialEncumbrance || '',
+    taxYear: props.value.initialTaxYear || '',
   });
 
   const syncAccountType = (): void => {
@@ -147,7 +165,14 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     formData.value.institutionId = props.value.initialInstitutionId || 0;
     formData.value.typeId = props.value.initialTypeId || 0;
     formData.value.statusId = props.value.initialStatusId || 0;
-    formData.value.openedAt = convertToDateInputFormat(props.value.initialOpenedAt);
+    // Only default openedAt to today for new accounts
+    if (props.value.initialOpenedAt) {
+      formData.value.openedAt = convertToDateInputFormat(props.value.initialOpenedAt);
+    } else if (props.value.type === 'create') {
+      formData.value.openedAt = new Date().toISOString().slice(0, 10);
+    } else {
+      formData.value.openedAt = '';
+    }
     formData.value.closedAt = convertToDateInputFormat(props.value.initialClosedAt);
     formData.value.accountNumber = props.value.initialAccountNumber || '';
     formData.value.sortCode = props.value.initialSortCode || '';
@@ -163,6 +188,7 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     formData.value.pensionMonthlyPayment = props.value.initialPensionMonthlyPayment || '';
     formData.value.assetClass = props.value.initialAssetClass || '';
     formData.value.encumbrance = props.value.initialEncumbrance || '';
+    formData.value.taxYear = props.value.initialTaxYear || '';
     syncAccountType();
     syncAccountStatus();
   };
@@ -178,6 +204,34 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
   watch(() => props.value.accountStatuses, () => {
     if (props.value.open) syncAccountStatus();
   }, { deep: true });
+
+  const syncTaxLiabilityName = (): void => {
+    const typeName = props.value.accountTypes.find(
+      (t) => t.id === formData.value.typeId,
+    )?.referenceValue;
+    if (typeName === 'Tax Liability' && formData.value.taxYear) {
+      formData.value.name = `Tax Liability - ${formData.value.taxYear}`;
+    }
+  };
+
+  watch(() => formData.value.typeId, () => {
+    syncTaxLiabilityName();
+    const typeName = props.value.accountTypes.find(
+      (t) => t.id === formData.value.typeId,
+    )?.referenceValue;
+    if (typeName === 'Tax Liability') {
+      const hmrc = props.value.institutions?.find(
+        (i) => i.name.toLowerCase() === 'hmrc',
+      );
+      if (hmrc) formData.value.institutionId = hmrc.id;
+      // Only default openedAt to today for new accounts
+      if (props.value.type === 'create' && !formData.value.openedAt) {
+        formData.value.openedAt = new Date().toISOString().slice(0, 10);
+      }
+    }
+  });
+
+  watch(() => formData.value.taxYear, syncTaxLiabilityName);
 
   return { formData, resetForm };
 }

@@ -42,7 +42,7 @@ export default defineConfig({
     'tagline': 'm-0 text-white/70 text-xs tracking-[0.25em] uppercase',
     'nav': 'flex items-center gap-3',
     'nav-link': 'px-4 py-2 rounded-md text-white/90 no-underline text-xs font-semibold tracking-wider uppercase hover:bg-white/10 transition-all',
-    'nav-btn': 'px-4 py-2 text-sm font-medium text-white bg-transparent border-1 border-white/30 rounded-sm cursor-pointer transition-all duration-150 no-underline hover:bg-white/10 hover:border-white/50 active:bg-white/20 active:border-white',
+    'nav-btn': 'px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm font-medium text-white bg-transparent border-1 border-white/30 rounded-sm cursor-pointer transition-all duration-150 no-underline hover:bg-white/10 hover:border-white/50 active:bg-white/20 active:border-white',
     'main': 'flex-1',
     'main-inner': 'w-full py-3 sm:py-6 px-3 sm:px-6',
     'footer-inner': 'max-w-[1200px] mx-auto py-4 px-6 text-center text-muted text-sm',

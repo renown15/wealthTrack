@@ -1,23 +1,7 @@
-/** API service facade — aggregates all API operations for backwards compatibility. */
+/** API service facade — extends base with groups, analytics, and share sale */
 import type {
-  User,
-  UserRegistration,
-  UserLogin,
-  AuthToken,
-} from '@models/User';
-import type { ReferenceDataItem } from '@models/ReferenceData';
-import type {
-  Portfolio,
-  Account,
-  AccountEvent,
   PortfolioBreakdown,
   PortfolioHistory,
-  AccountEventCreateRequest,
-  AccountCreateRequest,
-  AccountUpdateRequest,
-  Institution,
-  InstitutionCreateRequest,
-  InstitutionUpdateRequest,
   InstitutionCredential,
   InstitutionCredentialCreate,
   InstitutionCredentialUpdate,
@@ -25,123 +9,24 @@ import type {
   AccountGroupCreateRequest,
   AccountGroupUpdateRequest,
 } from '@models/WealthTrackDataModels';
-import axios, { type AxiosInstance } from 'axios';
-import { authService } from '@services/AuthService';
-import { portfolioFetchService } from '@services/PortfolioFetchService';
-import { accountCrudService } from '@services/AccountCrudService';
-import { institutionCrudService } from '@services/InstitutionCrudService';
-import { referenceDataService } from '@services/ReferenceDataService';
+import type { ShareSaleRequest, ShareSaleResponse, ShareSaleSummary } from '@models/ShareSaleModels';
+import type {
+  TaxPeriod,
+  TaxPeriodCreateRequest,
+  TaxReturn,
+  TaxReturnUpsertRequest,
+  TaxDocument,
+  EligibleAccount,
+} from '@models/TaxModels';
 import { institutionCredentialService } from '@services/InstitutionCredentialService';
 import { accountGroupCrudService } from '@services/AccountGroupCrudService';
 import { analyticsService } from '@services/AnalyticsService';
+import { shareSaleService } from '@services/ShareSaleService';
 import { taxService } from '@services/TaxService';
-import { accountDocumentService } from '@services/AccountDocumentService';
+import { ApiServiceBase } from '@services/ApiServiceBase';
 
-/**
- * Facade service that aggregates all API operations.
- * Maintains backwards compatibility with existing code.
- */
-class ApiService {
-  // Shared axios client for backwards compatibility with tests
-  public client: AxiosInstance;
-
-  constructor() {
-    const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.client = axios.create({
-      baseURL,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }) as unknown as AxiosInstance;
-
-    /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any */
-    authService['client'] = this.client;
-    portfolioFetchService['client'] = this.client;
-    accountCrudService['client'] = this.client;
-    institutionCrudService['client'] = this.client;
-    referenceDataService['client'] = this.client;
-    accountGroupCrudService['client'] = this.client;
-    institutionCredentialService['client'] = this.client;
-    analyticsService['client'] = this.client;
-    taxService['client'] = this.client;
-    accountDocumentService['client'] = this.client;
-    /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any */
-  }
-
-  async registerUser(userData: UserRegistration): Promise<User> {
-    return authService.registerUser(userData);
-  }
-
-  async loginUser(credentials: UserLogin): Promise<AuthToken> {
-    return authService.loginUser(credentials);
-  }
-
-  async getCurrentUser(): Promise<User> {
-    return authService.getCurrentUser();
-  }
-
-  async getPortfolio(): Promise<Portfolio> {
-    return portfolioFetchService.getPortfolio();
-  }
-
-  async getAccounts(): Promise<Account[]> {
-    return accountCrudService.getAccounts();
-  }
-
-  async getAccount(accountId: number): Promise<Account> {
-    return accountCrudService.getAccount(accountId);
-  }
-
-  async createAccount(data: AccountCreateRequest): Promise<Account> {
-    return accountCrudService.createAccount(data);
-  }
-
-  async updateAccount(accountId: number, data: AccountUpdateRequest): Promise<Account> {
-    return accountCrudService.updateAccount(accountId, data);
-  }
-
-  async deleteAccount(accountId: number): Promise<void> {
-    return accountCrudService.deleteAccount(accountId);
-  }
-
-  async getAccountEvents(accountId: number): Promise<AccountEvent[]> {
-    return accountCrudService.getAccountEvents(accountId);
-  }
-
-  async createAccountEvent(
-    accountId: number,
-    data: AccountEventCreateRequest,
-  ): Promise<AccountEvent> {
-    return accountCrudService.createAccountEvent(accountId, data);
-  }
-
-  async getInstitutions(): Promise<Institution[]> {
-    return institutionCrudService.getInstitutions();
-  }
-
-  async getInstitution(institutionId: number): Promise<Institution> {
-    return institutionCrudService.getInstitution(institutionId);
-  }
-
-  async createInstitution(data: InstitutionCreateRequest): Promise<Institution> {
-    return institutionCrudService.createInstitution(data);
-  }
-
-  async updateInstitution(
-    institutionId: number,
-    data: InstitutionUpdateRequest,
-  ): Promise<Institution> {
-    return institutionCrudService.updateInstitution(institutionId, data);
-  }
-
-  async deleteInstitution(institutionId: number): Promise<void> {
-    return institutionCrudService.deleteInstitution(institutionId);
-  }
-
-  async listInstitutionCredentials(
-    institutionId: number,
-  ): Promise<InstitutionCredential[]> {
+class ApiService extends ApiServiceBase {
+  async listInstitutionCredentials(institutionId: number): Promise<InstitutionCredential[]> {
     return institutionCredentialService.list(institutionId);
   }
 
@@ -160,15 +45,8 @@ class ApiService {
     return institutionCredentialService.update(institutionId, credentialId, payload);
   }
 
-  async deleteInstitutionCredential(
-    institutionId: number,
-    credentialId: number,
-  ): Promise<void> {
+  async deleteInstitutionCredential(institutionId: number, credentialId: number): Promise<void> {
     return institutionCredentialService.delete(institutionId, credentialId);
-  }
-
-  async getReferenceData(classKey: string): Promise<ReferenceDataItem[]> {
-    return referenceDataService.listByClass(classKey);
   }
 
   async getAccountGroups(): Promise<AccountGroup[]> {
@@ -183,10 +61,7 @@ class ApiService {
     return accountGroupCrudService.createAccountGroup(data);
   }
 
-  async updateAccountGroup(
-    groupId: number,
-    data: AccountGroupUpdateRequest,
-  ): Promise<AccountGroup> {
+  async updateAccountGroup(groupId: number, data: AccountGroupUpdateRequest): Promise<AccountGroup> {
     return accountGroupCrudService.updateAccountGroup(groupId, data);
   }
 
@@ -214,20 +89,48 @@ class ApiService {
     return analyticsService.getPortfolioHistory();
   }
 
-  setAuthToken(token: string): void {
-    authService.setAuthToken(token);
-    // Also set in the shared client for backwards compatibility
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  async recordShareSale(data: ShareSaleRequest): Promise<ShareSaleResponse> {
+    return shareSaleService.recordSale(data);
   }
 
-  clearAuthToken(): void {
-    authService.clearAuthToken();
-    // Also clear in the shared client
-    delete this.client.defaults.headers.common['Authorization'];
+  async getShareSaleHistory(accountId: number): Promise<ShareSaleSummary[]> {
+    return shareSaleService.getHistory(accountId);
   }
 
-  getAuthToken(): string | undefined {
-    return authService.getAuthToken();
+  async listTaxPeriods(): Promise<TaxPeriod[]> {
+    return taxService.listPeriods();
+  }
+
+  async createTaxPeriod(data: TaxPeriodCreateRequest): Promise<TaxPeriod> {
+    return taxService.createPeriod(data);
+  }
+
+  async deleteTaxPeriod(periodId: number): Promise<void> {
+    return taxService.deletePeriod(periodId);
+  }
+
+  async getTaxEligibleAccounts(periodId: number): Promise<EligibleAccount[]> {
+    return taxService.getEligibleAccounts(periodId);
+  }
+
+  async upsertTaxReturn(
+    periodId: number,
+    accountId: number,
+    data: TaxReturnUpsertRequest,
+  ): Promise<TaxReturn> {
+    return taxService.upsertReturn(periodId, accountId, data);
+  }
+
+  async uploadTaxDocument(periodId: number, accountId: number, file: File): Promise<TaxDocument> {
+    return taxService.uploadDocument(periodId, accountId, file);
+  }
+
+  async downloadTaxDocument(docId: number): Promise<Blob> {
+    return taxService.downloadDocument(docId);
+  }
+
+  async deleteTaxDocument(docId: number): Promise<void> {
+    return taxService.deleteDocument(docId);
   }
 }
 

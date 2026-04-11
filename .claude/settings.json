@@ -44,7 +44,10 @@
       "Bash(ssh marklewis@raspberrypi.local \"cd ~/wealthTrack && docker compose --env-file .env.pi --profile prod exec -T frontend grep -o 'html{[^}]*}' /usr/share/nginx/html/assets/index-CZEQl2V6.css | head -5\")",
       "Bash(ssh marklewis@raspberrypi.local \"cd ~/wealthTrack && docker compose --env-file .env.pi --profile prod exec -T frontend grep -c '' /usr/share/nginx/html/assets/index-CZEQl2V6.css\")",
       "Read(//Users/marklewis/dev/wealthTrack/**)",
-      "Bash(ssh marklewis@raspberrypi.local \"cd ~/wealthTrack && docker compose --env-file .env.pi --profile prod exec -T frontend cat /usr/share/nginx/html/assets/index-CZEQl2V6.css\")"
+      "Bash(ssh marklewis@raspberrypi.local \"cd ~/wealthTrack && docker compose --env-file .env.pi --profile prod exec -T frontend cat /usr/share/nginx/html/assets/index-CZEQl2V6.css\")",
+      "Bash(awk 'NF' /Users/marklewis/dev/wealthTrack/frontend/src/services/ApiService.ts)",
+      "Bash(make dev:*)",
+      "Bash(2>&1)"
     ]
   }
 }

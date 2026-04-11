@@ -3,7 +3,7 @@
  */
 import { ref } from 'vue';
 import type { EligibleAccount, TaxDocument, TaxReturnUpsertRequest } from '@models/TaxModels';
-import { taxService } from '@services/TaxService';
+import { apiService } from '@services/ApiService';
 import { useToast } from '@composables/useToast';
 
 export function useTaxHub() {
@@ -16,7 +16,7 @@ export function useTaxHub() {
     loading.value = true;
     error.value = null;
     try {
-      accounts.value = await taxService.getEligibleAccounts(periodId);
+      accounts.value = await apiService.getTaxEligibleAccounts(periodId);
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to load accounts';
     } finally {
@@ -30,7 +30,7 @@ export function useTaxHub() {
     data: TaxReturnUpsertRequest,
   ): Promise<boolean> {
     try {
-      const updated = await taxService.upsertReturn(periodId, accountId, data);
+      const updated = await apiService.upsertTaxReturn(periodId, accountId, data);
       const idx = accounts.value.findIndex((a) => a.accountId === accountId);
       if (idx !== -1) {
         accounts.value[idx] = { ...accounts.value[idx], taxReturn: updated };
@@ -49,7 +49,7 @@ export function useTaxHub() {
     file: File,
   ): Promise<TaxDocument | null> {
     try {
-      const doc = await taxService.uploadDocument(periodId, accountId, file);
+      const doc = await apiService.uploadTaxDocument(periodId, accountId, file);
       const idx = accounts.value.findIndex((a) => a.accountId === accountId);
       if (idx !== -1) {
         accounts.value[idx] = {
@@ -67,7 +67,7 @@ export function useTaxHub() {
 
   async function downloadDocument(docId: number, filename: string): Promise<void> {
     try {
-      const blob = await taxService.downloadDocument(docId);
+      const blob = await apiService.downloadTaxDocument(docId);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -82,7 +82,7 @@ export function useTaxHub() {
 
   async function deleteDocument(_periodId: number, accountId: number, docId: number): Promise<void> {
     try {
-      await taxService.deleteDocument(docId);
+      await apiService.deleteTaxDocument(docId);
       const idx = accounts.value.findIndex((a) => a.accountId === accountId);
       if (idx !== -1) {
         accounts.value[idx] = {

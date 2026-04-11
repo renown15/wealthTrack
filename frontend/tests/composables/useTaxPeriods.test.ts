@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useTaxPeriods } from '@composables/useTaxPeriods';
-import { taxService } from '@services/TaxService';
+import { apiService } from '@services/ApiService';
 import type { TaxPeriod } from '@models/TaxModels';
 
-vi.mock('@services/TaxService', () => ({
-  taxService: {
-    listPeriods: vi.fn(),
-    createPeriod: vi.fn(),
-    deletePeriod: vi.fn(),
+vi.mock('@/services/ApiService', () => ({
+  apiService: {
+    listTaxPeriods: vi.fn(),
+    createTaxPeriod: vi.fn(),
+    deleteTaxPeriod: vi.fn(),
   },
 }));
 
@@ -15,7 +15,7 @@ vi.mock('@composables/useToast', () => ({
   useToast: () => ({ showSuccess: vi.fn(), showError: vi.fn() }),
 }));
 
-const mockService = vi.mocked(taxService);
+const mockApi = vi.mocked(apiService);
 
 const p1: TaxPeriod = {
   id: 1, userId: 1, name: '2024/25',
@@ -31,9 +31,9 @@ const p2: TaxPeriod = {
 describe('useTaxPeriods', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockService.listPeriods.mockResolvedValue([p1, p2]);
-    mockService.createPeriod.mockResolvedValue(p1);
-    mockService.deletePeriod.mockResolvedValue(undefined);
+    mockApi.listTaxPeriods.mockResolvedValue([p1, p2]);
+    mockApi.createTaxPeriod.mockResolvedValue(p1);
+    mockApi.deleteTaxPeriod.mockResolvedValue(undefined);
   });
 
   it('loadPeriods populates periods and selects first', async () => {
@@ -44,7 +44,7 @@ describe('useTaxPeriods', () => {
   });
 
   it('loadPeriods sets error on failure', async () => {
-    mockService.listPeriods.mockRejectedValue(new Error('Network'));
+    mockApi.listTaxPeriods.mockRejectedValue(new Error('Network'));
     const { error, loadPeriods } = useTaxPeriods();
     await loadPeriods();
     expect(error.value).toBe('Network');
@@ -53,7 +53,7 @@ describe('useTaxPeriods', () => {
   it('createPeriod prepends period and selects it', async () => {
     const { periods, selectedPeriodId, loadPeriods, createPeriod } = useTaxPeriods();
     await loadPeriods();
-    mockService.createPeriod.mockResolvedValue({ ...p1, id: 99, name: 'New' });
+    mockApi.createTaxPeriod.mockResolvedValue({ ...p1, id: 99, name: 'New' });
     await createPeriod({ name: 'New', startDate: '2025-04-06', endDate: '2026-04-05' });
     expect(periods.value[0].id).toBe(99);
     expect(selectedPeriodId.value).toBe(99);

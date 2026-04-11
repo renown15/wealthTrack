@@ -3,7 +3,7 @@
  */
 import { ref } from 'vue';
 import type { TaxPeriod, TaxPeriodCreateRequest } from '@models/TaxModels';
-import { taxService } from '@services/TaxService';
+import { apiService } from '@services/ApiService';
 import { useToast } from '@composables/useToast';
 
 export function useTaxPeriods() {
@@ -20,7 +20,7 @@ export function useTaxPeriods() {
     loading.value = true;
     error.value = null;
     try {
-      periods.value = await taxService.listPeriods();
+      periods.value = await apiService.listTaxPeriods();
       if (periods.value.length > 0 && selectedPeriodId.value === null) {
         selectedPeriodId.value = periods.value[0].id;
       }
@@ -33,7 +33,7 @@ export function useTaxPeriods() {
 
   async function createPeriod(data: TaxPeriodCreateRequest): Promise<TaxPeriod | null> {
     try {
-      const created = await taxService.createPeriod(data);
+      const created = await apiService.createTaxPeriod(data);
       periods.value = [created, ...periods.value];
       selectedPeriodId.value = created.id;
       return created;
@@ -46,7 +46,7 @@ export function useTaxPeriods() {
 
   async function deletePeriod(periodId: number): Promise<void> {
     try {
-      await taxService.deletePeriod(periodId);
+      await apiService.deleteTaxPeriod(periodId);
       periods.value = periods.value.filter((p) => p.id !== periodId);
       if (selectedPeriodId.value === periodId) {
         selectedPeriodId.value = periods.value[0]?.id ?? null;

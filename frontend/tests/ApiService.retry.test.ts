@@ -123,27 +123,20 @@ describe('ApiService - Retry Logic', () => {
   });
 
   it('should have retry mechanism implementation', async () => {
-    // Verify that the method exists and returns a promise
     expect(typeof apiService.getPortfolio).toBe('function');
+    const spy = vi.spyOn(apiService['client'], 'get').mockRejectedValueOnce(new Error('mocked'));
     const result = apiService.getPortfolio();
     expect(result).toBeInstanceOf(Promise);
-    // Catch to prevent unhandled rejection
-    result.catch(() => {
-      // expected to fail without backend
-    });
+    await result.catch(() => {});
+    spy.mockRestore();
   });
 
   it('should have error handling in async methods', async () => {
-    // Verify that error handling exists by checking the method is callable
     expect(typeof apiService.loginUser).toBe('function');
-    const result = apiService.loginUser({
-      email: 'test@example.com',
-      password: 'password',
-    });
+    const spy = vi.spyOn(apiService['client'], 'post').mockRejectedValueOnce(new Error('mocked'));
+    const result = apiService.loginUser({ email: 'test@example.com', password: 'password' });
     expect(result).toBeInstanceOf(Promise);
-    // Catch to prevent unhandled rejection
-    result.catch(() => {
-      // expected to fail without backend
-    });
+    await result.catch(() => {});
+    spy.mockRestore();
   });
 });

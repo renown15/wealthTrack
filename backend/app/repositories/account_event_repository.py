@@ -1,7 +1,7 @@
 """
 Repository for account event read operations.
 """
-from typing import Any
+from typing import Any, Optional
 
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -59,6 +59,30 @@ class AccountEventRepository:
         await self.session.flush()
         await self.session.refresh(event)
         return event
+
+    async def get_latest_balance_update(
+        self, account_id: int, user_id: int
+    ) -> Optional[str]:
+        """Return the value of the most recent Balance Update event for an account, or None."""
+        balance_update_type_stmt = select(ReferenceData.id).where(
+            ReferenceData.class_key == "account_event_type",
+            ReferenceData.reference_value == "Balance Update",
+        )
+        type_result = await self.session.execute(balance_update_type_stmt)
+        type_id = type_result.scalar_one_or_none()
+        if not type_id:
+            return None
+
+        stmt = (
+            select(AccountEvent.value)
+            .where(AccountEvent.account_id == account_id)
+            .where(AccountEvent.user_id == user_id)
+            .where(AccountEvent.type_id == type_id)
+            .order_by(desc(AccountEvent.created_at))
+            .limit(1)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
 
     async def list_events(self, account_id: int, user_id: int) -> list[dict[str, Any]]:
         """Return chronological account events for the given user-owned account."""

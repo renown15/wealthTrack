@@ -41,6 +41,8 @@ export function useModalInitialValues(editingItem: Ref<Account | Institution | n
     editingItem.value && 'assetClass' in editingItem.value ? (editingItem.value as Account).assetClass : null);
   const initialModalEncumbrance = computed(() =>
     editingItem.value && 'encumbrance' in editingItem.value ? (editingItem.value as Account).encumbrance : null);
+  const initialModalTaxYear = computed(() =>
+    editingItem.value && 'taxYear' in editingItem.value ? (editingItem.value as Account & { taxYear?: string | null }).taxYear : null);
   const initialModalParentId = computed(() =>
     editingItem.value && 'parentId' in editingItem.value ? (editingItem.value as Institution).parentId : null);
   const initialModalInstitutionType = computed(() =>
@@ -67,6 +69,7 @@ export function useModalInitialValues(editingItem: Ref<Account | Institution | n
     initialModalPensionMonthlyPayment,
     initialModalAssetClass,
     initialModalEncumbrance,
+    initialModalTaxYear,
     initialModalParentId,
     initialModalInstitutionType,
   };

@@ -19,13 +19,12 @@
         <div v-else>
           <!-- Add Win button for Premium Bonds -->
           <div v-if="isPremiumBonds && !showWinForm" class="mb-4">
-            <button
-              class="btn-primary"
-              type="button"
-              @click="showWinForm = true"
-            >
-              Add Win
-            </button>
+            <button class="btn-primary" type="button" @click="showWinForm = true">Add Win</button>
+          </div>
+
+          <!-- Record Sale button for Shares accounts -->
+          <div v-if="isShares" class="mb-4">
+            <button class="btn-primary" type="button" @click="emit('recordSale')">Record Sale</button>
           </div>
 
           <!-- Win input form -->
@@ -123,6 +122,7 @@ const props = defineProps<Props>();
 const emit = defineEmits<{
   close: [];
   addWin: [value: string];
+  recordSale: [];
 }>();
 
 const showWinForm = ref(false);
@@ -130,6 +130,7 @@ const winAmount = ref('');
 const savingWin = ref(false);
 
 const isPremiumBonds = computed(() => props.accountType === 'Premium Bonds');
+const isShares = computed(() => props.accountType === 'Shares');
 
 const emitClose = (): void => {
   emit('close');
@@ -172,6 +173,9 @@ const formatValue = (event: AccountEvent): string => {
   if (event.source === 'attribute') {
     return value;
   }
+
+  // Share Sale events record a count of shares, not a monetary value
+  if (event.eventType === 'Share Sale') return value;
 
   // Events with numeric values are formatted as currency
   const numeric = parseFloat(value);

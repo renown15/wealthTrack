@@ -38,6 +38,16 @@
       </div>
     </div>
 
+    <div v-if="showTaxYearField" class="form-group">
+      <label for="taxYear" class="form-label">Tax Year</label>
+      <select id="taxYear" v-model="formData.taxYear" class="form-select">
+        <option value="">— select tax year —</option>
+        <option v-for="period in taxPeriods" :key="period.id" :value="period.name">
+          {{ period.name }}
+        </option>
+      </select>
+    </div>
+
     <div v-if="type === 'create'" class="form-group">
       <label for="institution-select" class="form-label">Institution</label>
       <select v-model.number="formData.institutionId" id="institution-select" class="form-select">
@@ -112,6 +122,8 @@ import { computed, ref, onMounted } from 'vue';
 import { ACCOUNT_TYPE_FIELD_CONFIG } from '@views/AccountHub/accountTypeFieldConfig';
 import { type AccountFormFieldsProps } from '@views/AccountHub/accountFormFieldsTypes';
 import { referenceDataService } from '@/services/ReferenceDataService';
+import { taxService } from '@/services/TaxService';
+import type { TaxPeriod } from '@/models/TaxModels';
 import { debug } from '@utils/debug';
 import { SORT_CODE_REGEX } from '@/constants/attributeTypes';
 import AccountFormDeferredFields from '@views/AccountHub/AccountFormDeferredFields.vue';
@@ -119,6 +131,7 @@ import AccountFormDeferredFields from '@views/AccountHub/AccountFormDeferredFiel
 const props = defineProps<AccountFormFieldsProps>();
 
 const assetClassOptions = ref<Array<{ id: number; referenceValue: string }>>([]);
+const taxPeriods = ref<TaxPeriod[]>([]);
 const sortCodeError = ref<string | null>(null);
 
 function onSortCodeInput(e: Event): void {
@@ -139,11 +152,17 @@ const isClosedStatus = computed(() => {
   return status?.referenceValue === 'Closed';
 });
 
+const showTaxYearField = computed(() => {
+  const typeName = props.accountTypes.find((t) => t.id === props.formData.typeId)?.referenceValue;
+  return typeName === 'Tax Liability';
+});
+
 onMounted(async () => {
   try {
     assetClassOptions.value = await referenceDataService.listByClass('asset_class');
+    taxPeriods.value = await taxService.listPeriods();
   } catch (error) {
-    debug.error('[AccountFormFields] Error loading asset class options', error);
+    debug.error('[AccountFormFields] Error loading options', error);
   }
 });
 </script>

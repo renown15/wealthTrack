@@ -37,6 +37,10 @@ _SHORTHAND_MAP: dict[str, str] = {
     "deferred_cash_balance": "Deferred Cash Balance",
     "rsu_balance": "RSU Balance",
     "shares_balance": "Shares Balance",
+    "sale_price_per_share": "Sale Price Per Share",
+    "purchase_price_per_share": "Purchase Price Per Share",
+    "capital_gain": "Capital Gain",
+    "cgt_rate": "CGT Rate",
 }
 
 
@@ -54,7 +58,7 @@ class AccountAttributeRepository:
         stmt = select(ReferenceData.id).where(
             ReferenceData.class_key == "account_attribute_type",
             ReferenceData.reference_value == lookup_value,
-        )
+        ).limit(1).order_by(ReferenceData.id)
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
