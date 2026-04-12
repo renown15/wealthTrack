@@ -69,6 +69,14 @@
         </p>
         <p class="stat-value">{{ formatCurrency(projectedAnnualYield) }}</p>
       </article>
+
+      <article class="stat-card" title="Timestamp of the most recent stock price or balance update across all accounts.">
+        <p class="stat-label">
+          Last Price Update
+          <span class="info-icon" style="cursor: pointer;">{{ Icons.info }}</span>
+        </p>
+        <p class="stat-value text-sm">{{ formatLastPriceUpdate(lastPriceUpdate) }}</p>
+      </article>
     </div>
   </header>
 </template>
@@ -87,6 +95,7 @@ const props = defineProps<{
   projectedAnnualYield: number;
   pensionBreakdown: PensionBreakdown;
   items: PortfolioItem[];
+  lastPriceUpdate?: string | null;
 }>();
 
 const emit = defineEmits<{
@@ -172,6 +181,33 @@ const getPensionTooltip = (): string => {
 
   lines.push(`Total Pension Value: ${formatCurrency(total)}`);
   return lines.join('\n');
+};
+
+const formatLastPriceUpdate = (timestamp: string | null | undefined): string => {
+  if (!timestamp) return 'Never';
+  try {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} min${diffMins !== 1 ? 's' : ''} ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+
+    return date.toLocaleDateString('en-GB', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return timestamp;
+  }
 };
 
 const emitCreateAccount = (): void => {

@@ -1,7 +1,7 @@
 <template>
   <div class="page-view">
     <div class="hub-header-card">
-      <AccountHubStats :total-value="totalValue" :cash-at-hand="cashAtHand" :isa-savings="isaSavings" :illiquid="illiquid" :trust-assets="trustAssets" :projected-annual-yield="projectedAnnualYield" :pension-breakdown="pensionBreakdown" :items="visibleItems" @create-account="openCreateAccountModal" @create-institution="openCreateInstitutionModal" @create-account-group="openCreateAccountGroupModal" />
+      <AccountHubStats :total-value="totalValue" :cash-at-hand="cashAtHand" :isa-savings="isaSavings" :illiquid="illiquid" :trust-assets="trustAssets" :projected-annual-yield="projectedAnnualYield" :pension-breakdown="pensionBreakdown" :items="visibleItems" :last-price-update="lastPriceUpdate" @create-account="openCreateAccountModal" @create-institution="openCreateInstitutionModal" @create-account-group="openCreateAccountGroupModal" />
     </div>
     <div v-if="state.error" class="hub-content-card p-6">
       <div class="error-banner"><span>{{ state.error }}</span><button class="btn-close" @click="clearError">×</button></div>
@@ -87,12 +87,12 @@
       :editing-group-id="editingGroupId" :editing-group-name="editingGroupName" :editing-group-member-ids="editingGroupMemberIds"
       :events-modal-open="eventsModalOpen" :events-title="eventsTitle" :events-loading="eventsLoading"
       :events-error="eventsError" :events="events" :account-type="accountType"
-      :share-sale-modal-open="shareSaleModalOpen" :shares-account-id="currentAccountId"
+      :share-sale-modal-open="shareSaleModalOpen" :shares-account-id="currentAccountId" :share-sale-start-tab="shareSaleStartTab"
       :credential-modal-open="credentialModalOpen" :credential-institution="credentialInstitution"
       :credential-types="credentialTypes" :credentials="credentials" :credential-loading="credentialLoading"
       :credential-saving="credentialSaving" :credential-deleting-id="credentialDeletingId"
       :credential-error="credentialError" :editing-credential="editingCredential"
-      @close-events="closeEventsModal" @add-win="handleAddWin" @record-sale="openShareSaleModal"
+      @close-events="closeEventsModal" @add-win="handleAddWin" @record-sale="openShareSaleModal" @view-sales="openShareSaleModalHistory"
       @close-share-sale="closeShareSaleModal" @share-sold="handleShareSold"
       @close-account-group="closeAccountGroupModal"
       @save-account-group="handleAccountGroupSave" @delete-group-from-modal="handleDeleteGroupFromModal"
@@ -129,7 +129,7 @@ import { useHubEventHandlers } from '@/composables/useHubEventHandlers';
 import { useHubReferenceData } from '@/composables/useHubReferenceData';
 import { Icons } from '@/constants/icons';
 
-const { state, totalValue, cashAtHand, isaSavings, illiquid, trustAssets, projectedAnnualYield, loadPortfolio, clearError } = usePortfolio();
+const { state, totalValue, cashAtHand, isaSavings, illiquid, trustAssets, projectedAnnualYield, lastPriceUpdate, loadPortfolio, clearError } = usePortfolio();
 const hideClosed = ref(true);
 const visibleItems = computed(() => hideClosed.value ? state.items.filter((i) => !i.account.closedAt) : state.items);
 const { state: accountGroupsState, loadGroups, createGroup, updateGroup, deleteGroup, saveGroupMembers } = useAccountGroups();
@@ -145,7 +145,9 @@ const {
 } = useCredentialsModal();
 const { eventsModalOpen, eventsTitle, eventsLoading, eventsError, events, accountType, currentAccountId, openEventsModal, closeEventsModal } = useEventsModal();
 const shareSaleModalOpen = ref(false);
-const openShareSaleModal = (): void => { shareSaleModalOpen.value = true; };
+const shareSaleStartTab = ref<'record' | 'history'>('record');
+const openShareSaleModal = (): void => { shareSaleStartTab.value = 'record'; shareSaleModalOpen.value = true; };
+const openShareSaleModalHistory = (): void => { shareSaleStartTab.value = 'history'; shareSaleModalOpen.value = true; };
 const closeShareSaleModal = (): void => { shareSaleModalOpen.value = false; };
 const handleShareSold = async (): Promise<void> => {
   closeShareSaleModal();

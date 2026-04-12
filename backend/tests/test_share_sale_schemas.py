@@ -37,6 +37,8 @@ class TestShareSaleResponse:
             sale_price_per_share="1500",
             proceeds="150000",
             purchase_price_per_share="1200",
+            capital_gain="30000",
+            cgt_rate="24",
             cgt="5000",
             remaining_shares="900",
             cash_new_balance="150000",
@@ -46,6 +48,8 @@ class TestShareSaleResponse:
         assert resp.proceeds == "150000"
         assert resp.cgt == "5000"
         assert resp.remaining_shares == "900"
+        assert resp.capital_gain == "30000"
+        assert resp.cgt_rate == "24"
 
     def test_remaining_shares_optional(self):
         resp = ShareSaleResponse(
@@ -53,6 +57,8 @@ class TestShareSaleResponse:
             sale_price_per_share="1500",
             proceeds="75000",
             purchase_price_per_share="1200",
+            capital_gain="15000",
+            cgt_rate="24",
             cgt="2500",
             remaining_shares=None,
             cash_new_balance="75000",

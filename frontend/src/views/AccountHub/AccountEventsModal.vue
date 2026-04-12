@@ -22,9 +22,10 @@
             <button class="btn-primary" type="button" @click="showWinForm = true">Add Win</button>
           </div>
 
-          <!-- Record Sale button for Shares accounts -->
-          <div v-if="isShares" class="mb-4">
+          <!-- Record Sale / View Sales buttons for Shares accounts -->
+          <div v-if="isShares" class="mb-4 flex gap-2">
             <button class="btn-primary" type="button" @click="emit('recordSale')">Record Sale</button>
+            <button class="btn-modal-secondary" type="button" @click="emit('viewSales')">View Sales</button>
           </div>
 
           <!-- Win input form -->
@@ -123,6 +124,7 @@ const emit = defineEmits<{
   close: [];
   addWin: [value: string];
   recordSale: [];
+  viewSales: [];
 }>();
 
 const showWinForm = ref(false);

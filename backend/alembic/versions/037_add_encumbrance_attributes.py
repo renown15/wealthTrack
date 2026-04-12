@@ -35,22 +35,22 @@ _NEW_ITEMS = [
 
 def upgrade() -> None:
     now = datetime.utcnow()
+    conn = op.get_bind()
     # Make idempotent by checking if items already exist
     for classkey, referencevalue, sortindex in _NEW_ITEMS:
-        # Check if this row already exists
-        result = op.execute(
-            f"""
-            SELECT id FROM "ReferenceData"
-            WHERE classkey = '{classkey}' AND referencevalue = '{referencevalue}'
-            """
+        result = conn.execute(
+            sa.text(
+                "SELECT id FROM \"ReferenceData\" WHERE classkey = :cls AND referencevalue = :rv"
+            ),
+            {"cls": classkey, "rv": referencevalue},
         )
         if not result.fetchone():
-            # Only insert if it doesn't exist
-            op.execute(
-                f"""
-                INSERT INTO "ReferenceData" (classkey, referencevalue, sortindex, created_at, updated_at)
-                VALUES ('{classkey}', '{referencevalue}', {sortindex}, '{now.isoformat()}', '{now.isoformat()}')
-                """
+            conn.execute(
+                sa.text(
+                    "INSERT INTO \"ReferenceData\" (classkey, referencevalue, sortindex, created_at, updated_at)"
+                    " VALUES (:cls, :rv, :si, :now, :now)"
+                ),
+                {"cls": classkey, "rv": referencevalue, "si": sortindex, "now": now},
             )
 
 

@@ -10,7 +10,10 @@
         </div>
         <div v-if="!loading && breakdown" class="stats-grid">
           <article class="stat-card">
-            <p class="stat-label">Total Value</p>
+            <p class="stat-label">
+              Total Value
+              <button class="text-xs text-blue-500 hover:text-blue-700 underline ml-1 bg-transparent border-none cursor-pointer p-0" title="Download account balances as CSV" @click="downloadCsv">&#8595; CSV</button>
+            </p>
             <p class="stat-value">{{ formatCurrency(breakdown.total) }}</p>
           </article>
           <article class="stat-card">
@@ -178,6 +181,26 @@ function formatCurrency(v: number): string { return gbp.format(v); }
 function pct(v: number, total: number): string {
   if (!total) return '0%';
   return `${((v / total) * 100).toFixed(1)}%`;
+}
+
+function downloadCsv(): void {
+  if (!breakdown.value) return;
+  const rows: string[] = ['Account ID,Account Name,Institution,Account Type,Balance,Closed'];
+  for (const typeItem of breakdown.value.byType) {
+    for (const acc of typeItem.accounts) {
+      const name = `"${acc.accountName.replace(/"/g, '""')}"`;
+      const inst = `"${acc.institutionName.replace(/"/g, '""')}"`;
+      rows.push(`${acc.accountId},${name},${inst},${typeItem.label},${acc.balance},${acc.isClosed}`);
+    }
+  }
+  rows.push(`,,,,${breakdown.value.total},`);
+  const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `analytics-balances-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 </script>

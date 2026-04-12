@@ -11,7 +11,7 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 
 Phase: 6 of 7 complete — v1 feature complete (Phase 7 Household Sharing not yet built)
 Status: Active development — ongoing feature additions and quality improvements
-Last activity: 2026-04-04 — Shares account type, asset class field, new event types, `make pr-check` passing
+Last activity: 2026-04-12 — Tax Hub feature complete, share sales with capital gains, stock price tracking
 
 ## Progress
 
@@ -69,11 +69,28 @@ Requirements: ~28/30 complete
 - `reference_data_items.py` extracted from `reference_data.py` (file size limit)
 - Docs cleanup: removed stale planning/research/progress docs
 - Branch: merged to master (was feature/ui-improvements)
+- **[2026-04-12] Tax Hub feature** — full implementation complete:
+  - New TaxHub view with tax period selection and capital gains tracking
+  - Share sale recording with sensible defaults (shares count from account balance)
+  - Capital gains and tax liability calculations from share sale events
+  - Tax return preparation UI with tax year eligibility
+  - Capital gain and tax taken off loading from AccountEventAttributeGroup
+  - Test database deduplication (migration 040) for reference data integrity
+- **[2026-04-12] Stock price update tracking** — last price update timestamp now visible in portfolio:
+  - Added `last_price_update` field to Portfolio schema
+  - Portfolio endpoint tracks and returns most recent account `updatedAt` timestamp
+  - AccountHub summary panel displays relative time (e.g., "2 hours ago")
+  - Frontend `formatLastPriceUpdate()` helper for user-friendly time display
+- **[2026-04-12] Portfolio consistency fixes**:
+  - Tax Liability accounts now correctly treated as negative (liabilities) in portfolio totals
+  - Negation logic applied in both portfolio controller and analytics repository
+  - All portfolio calculations now consistent across views
 
 ## Session Continuity
 
-Last session: 2026-04-04
-Stopped at: Documentation update — all 6 `make pr-check` steps passing
+Last session: 2026-04-12
+Completed: Tax Hub feature implementation, share sales, capital gains tracking, stock price update visibility, portfolio consistency fixes, comprehensive documentation updates
+Status: All `make pr-check` steps passing (81.0% backend coverage, 79.8% frontend statements/lines)
 
 ---
-*State updated: 2026-04-04*
+*State updated: 2026-04-12*

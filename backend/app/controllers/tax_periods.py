@@ -38,11 +38,6 @@ async def create_tax_period(
     current_user: UserProfile = Depends(get_current_user),
 ) -> TaxPeriodResponse:
     """Create a new tax period."""
-    if data.end_date <= data.start_date:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="end_date must be after start_date",
-        )
     repo = TaxPeriodRepository(session)
     period = await repo.create(current_user.id, data.name, data.start_date, data.end_date)
     await session.commit()

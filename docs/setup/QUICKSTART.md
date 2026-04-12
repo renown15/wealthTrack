@@ -97,9 +97,10 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for step-by-step instructions.
 
 ## What's in the App
 
-- **Account Hub** — manage institutions and accounts, log balance updates, view history
-- **Portfolio Table** — all accounts and balances grouped by institution, with total net worth
-- **Analytics** — portfolio breakdown by type/institution/asset class, balance history charts
+- **Account Hub** — manage institutions and accounts, log balance updates, view history, record stock prices and share sales
+- **Portfolio View** — all accounts and balances grouped by institution, with total net worth, portfolio breakdown, and price update timestamps
+- **Tax Hub** — track share sales and capital gains, prepare tax returns with sale data, view tax liabilities
+- **Analytics** — portfolio breakdown by type/institution/asset class, balance history charts, trends
 - **Credential Vault** — encrypted storage of institution login credentials
 - **Reference Data Admin** — manage account types, statuses, and other lookup values
 

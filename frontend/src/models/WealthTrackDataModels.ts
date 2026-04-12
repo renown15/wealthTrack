@@ -98,7 +98,7 @@ export interface AccountGroupMember {
   updatedAt: string;
 }
 
-export interface Portfolio { items: PortfolioItem[]; totalValue: number; accountCount: number; }
+export interface Portfolio { items: PortfolioItem[]; totalValue: number; accountCount: number; lastPriceUpdate?: string | null; }
 
 export interface AccountCreateRequest {
   institutionId: number;

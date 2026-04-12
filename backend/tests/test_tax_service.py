@@ -10,11 +10,11 @@ from app.models.account_attribute import AccountAttribute
 from app.models.reference_data import ReferenceData
 from app.models.tax_period import TaxPeriod
 from app.models.user_profile import UserProfile
-from app.services.tax_service import (
-    _parse_date,
-    _savings_eligible,
-    _shares_sold_eligible,
-    get_eligible_with_returns,
+from app.services.tax_service import get_eligible_with_returns
+from app.services.tax_service_helpers import (
+    parse_date as _parse_date,
+    savings_eligible as _savings_eligible,
+    shares_sold_eligible as _shares_sold_eligible,
 )
 
 # ── Pure function unit tests ─────────────────────────────────────────────────
@@ -67,22 +67,19 @@ def test_savings_eligible_closed_during_period():
 
 
 def test_shares_sold_eligible_in_period():
-    attrs = {"Account Closed Date": "2024-09-01"}
-    assert _shares_sold_eligible("Shares", attrs, date(2024, 4, 6), date(2025, 4, 5))
+    assert _shares_sold_eligible("Shares", 42, {42})
 
 
 def test_shares_sold_eligible_wrong_type():
-    attrs = {"Account Closed Date": "2024-09-01"}
-    assert not _shares_sold_eligible("Savings Account", attrs, date(2024, 4, 6), date(2025, 4, 5))
+    assert not _shares_sold_eligible("Savings Account", 42, {42})
 
 
 def test_shares_sold_not_eligible_outside_period():
-    attrs = {"Account Closed Date": "2023-01-01"}
-    assert not _shares_sold_eligible("Shares", attrs, date(2024, 4, 6), date(2025, 4, 5))
+    assert not _shares_sold_eligible("Shares", 42, {99})
 
 
 def test_shares_sold_not_eligible_no_closed_date():
-    assert not _shares_sold_eligible("Shares", {}, date(2024, 4, 6), date(2025, 4, 5))
+    assert not _shares_sold_eligible("Shares", None, {42})
 
 
 # ── Integration tests ────────────────────────────────────────────────────────

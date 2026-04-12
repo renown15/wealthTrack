@@ -29,6 +29,7 @@ async def get_user_portfolio(
     repo = PortfolioRepository(session)
     items = await repo.get_user_portfolio(current_user.id)
     total_value = 0.0
+    last_price_update = None
     for item in items:
         # Get the latest balance value from the portfolio item
         balance = item.get("latestBalance")
@@ -38,11 +39,23 @@ async def get_user_portfolio(
         if value is None:
             continue
         try:
-            total_value += float(value)
+            val = float(value)
+            # Negate Tax Liability accounts (they are liabilities, not assets)
+            if item.get("accountType") == "Tax Liability":
+                val = -val
+            total_value += val
         except (TypeError, ValueError):
             continue
+        
+        # Track the latest price update across all accounts
+        account = item.get("account", {})
+        if account.get("updatedAt"):
+            if last_price_update is None or account.get("updatedAt") > last_price_update:
+                last_price_update = account.get("updatedAt")
+    
     return {
         "items": items,
         "total_value": total_value,
         "account_count": len(items),
+        "last_price_update": last_price_update.isoformat() if last_price_update else None,
     }

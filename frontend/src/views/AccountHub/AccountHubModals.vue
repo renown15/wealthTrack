@@ -4,12 +4,13 @@
       :open="eventsModalOpen" :title="eventsTitle" :events="events"
       :loading="eventsLoading" :error="eventsError" :account-type="accountType"
       @close="$emit('closeEvents')" @add-win="(w) => $emit('addWin', w)"
-      @record-sale="$emit('recordSale')"
+      @record-sale="$emit('recordSale')" @view-sales="$emit('viewSales')"
     />
     <ShareSaleModal
       :open="shareSaleModalOpen"
       :shares-account-id="sharesAccountId"
       :all-items="items"
+      :start-tab="shareSaleStartTab"
       @close="$emit('closeShareSale')"
       @sold="$emit('shareSold')"
     />
@@ -106,6 +107,7 @@ const props = defineProps<{
   accountType?: string;
   shareSaleModalOpen: boolean;
   sharesAccountId: number;
+  shareSaleStartTab: 'record' | 'history';
   credentialModalOpen: boolean;
   credentialInstitution: Institution | null;
   credentialTypes: ReferenceDataItem[];
@@ -121,6 +123,7 @@ defineEmits<{
   closeEvents: [];
   addWin: [amount: string];
   recordSale: [];
+  viewSales: [];
   closeShareSale: [];
   shareSold: [];
   closeAccountGroup: [];

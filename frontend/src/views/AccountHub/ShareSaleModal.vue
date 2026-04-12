@@ -109,6 +109,7 @@ const props = defineProps<{
   open: boolean;
   sharesAccountId: number;
   allItems: PortfolioItem[];
+  startTab?: 'record' | 'history';
 }>();
 
 const emit = defineEmits<{
@@ -171,12 +172,16 @@ async function switchToHistory(): Promise<void> {
 
 watch(
   () => props.open,
-  (newOpen) => {
+  async (newOpen) => {
     if (newOpen) {
-      tab.value = 'record';
-      const account = sharesAccount.value;
-      if (account?.account.numberOfShares) {
-        sharesSold.value = account.account.numberOfShares.toString();
+      tab.value = props.startTab ?? 'record';
+      if (tab.value === 'history') {
+        await loadHistory(props.sharesAccountId);
+      } else {
+        const account = sharesAccount.value;
+        if (account?.account.numberOfShares) {
+          sharesSold.value = account.account.numberOfShares.toString();
+        }
       }
     }
   }

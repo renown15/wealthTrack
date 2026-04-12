@@ -10,17 +10,19 @@ WealthTrack solves this by giving you a single dashboard where you manually log 
 
 ## What It Does
 
-**Account Hub** — Add your financial institutions and the accounts you hold with each one. Update balances whenever you like and see the full history of every account over time.
+**Account Hub** — Add your financial institutions and the accounts you hold with each one. Update balances whenever you like and see the full history of every account over time. Track stock prices in Shares accounts and record share sales with capital gains calculations.
 
-**Portfolio View** — See all accounts grouped by institution, with current balances and total net worth at a glance.
+**Portfolio View** — See all accounts grouped by institution, with current balances, total net worth, and portfolio breakdown by account type, institution, and asset class. Includes timestamp of the most recent price update across all accounts.
 
-**Analytics** — Charts showing how your portfolio is split by account type, institution, and asset class, plus balance history trends.
+**Tax Hub** — Track share sales and view capital gains tax liabilities. View eligible accounts for a tax year, capital gains amounts, and taxes already paid. Prepare tax returns with share sale data.
+
+**Analytics** — Charts showing how your portfolio is split by account type, institution, and asset class, plus balance history trends over time.
 
 **Credential Vault** — Optionally store your login credentials for each institution, encrypted at rest. Useful for keeping all your financial logins in one secure place.
 
 ## Who It's For
 
-Anyone who wants a clear picture of their finances without giving a third party access to their bank accounts. Particularly suited to UK users — account types include Savings, Current, Cash ISA, Stocks & Shares ISA, Lifetime ISA, SIPP, and Premium Bonds.
+Anyone who wants a clear picture of their finances without giving a third party access to their bank accounts. Particularly suited to UK users — account types include Savings, Current, Cash ISA, Stocks & Shares ISA, Lifetime ISA, SIPP, Premium Bonds, and Shares. If you track investments or need to manage tax reporting, the Tax Hub helps with share sales and capital gains tracking.
 
 ## What It Doesn't Do
 
@@ -77,3 +79,18 @@ Credentials stored in the vault are encrypted at rest using Fernet symmetric enc
 Run `make pr-check` before any pull request — it runs linting, type checking, tests with coverage thresholds, and a production build against an isolated test database. All steps must pass.
 
 See [docs/architecture/PROJECT_RULES.md](docs/architecture/PROJECT_RULES.md) for conventions and rules.
+
+---
+
+## Documentation
+
+**[📚 DOCUMENTATION.md](DOCUMENTATION.md)** — Complete documentation index and navigation guide
+
+Quick links:
+- **[FEATURES.md](FEATURES.md)** — Comprehensive feature guide
+- **[DEVELOPMENT.md](docs/DEVELOPMENT.md)** — Architecture, development patterns, and implementation details
+- **[CHANGELOG.md](CHANGELOG.md)** — Version history and recent changes
+- **[docs/setup/QUICKSTART.md](docs/setup/QUICKSTART.md)** — Quick start guide
+- **[docs/architecture/PROJECT_RULES.md](docs/architecture/PROJECT_RULES.md)** — Project rules and conventions
+- **[docs/setup/DEPLOYMENT.md](docs/setup/DEPLOYMENT.md)** — Deployment to Raspberry Pi or Windows
+- **[CLAUDE.md](CLAUDE.md)** — Agent context for development

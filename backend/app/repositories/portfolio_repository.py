@@ -138,16 +138,16 @@ class PortfolioRepository:
 
         tp_rows = (await self.session.execute(select(ReferenceData.reference_value).where(ReferenceData.class_key == "stock_target_ref_price"))).scalars().all()  # noqa: E501
         target_prices_by_ticker: dict[str, str] = {r.split(":")[0].strip(): r.split(":")[1].strip() for r in tp_rows if ":" in r}  # noqa: E501
-        # Build portfolio items — loop is now pure Python (no DB queries per iteration)
-        portfolio: list[dict[str, Any]] = []
+        # Pass 1: run type-specific processors (may write new Balance Update events)
+        # Processors must run before we build portfolio items so fresh balances are available.
+        account_computed: dict[int, tuple[str, dict[str, Any], int, int]] = {}
         for account in accounts:
-            latest_balance = balances_by_account.get(account.id)
+            old_balance = balances_by_account.get(account.id)
             account_type = types_by_id.get(account.type_id, "Unknown")
             event_count = event_counts.get(account.id, 0)
             doc_count = doc_counts.get(account.id, 0)
             attributes = build_attributes_dict(all_raw_attrs.get(account.id, {}))
 
-            # Type-specific processing (may fetch live prices for Deferred Shares / RSU)
             if account_type == "Deferred Shares":
                 attrs = {
                     "number_of_shares": attributes["number_of_shares"],
@@ -179,14 +179,25 @@ class PortfolioRepository:
                 )
             elif account_type == "Deferred Cash":
                 await AccountProcessor.process_deferred_cash_account(
-                    attr_repo, account.id, user_id, latest_balance, self.session
+                    attr_repo, account.id, user_id, old_balance, self.session
                 )
+            account_computed[account.id] = (account_type, attributes, event_count, doc_count)
 
+        # Re-fetch balances so processors' newly-written Balance Updates are visible.
+        balances_by_account = {
+            b.account_id: b
+            for b in (await self.session.execute(balance_stmt)).scalars().all()
+        }
+
+        # Pass 2: build portfolio items with fresh balances
+        portfolio: list[dict[str, Any]] = []
+        for account in accounts:
+            account_type, attributes, event_count, doc_count = account_computed[account.id]
             portfolio_data = {
                 "account": account,
                 "account_type": account_type,
                 "attributes": attributes,
-                "latest_balance": latest_balance,
+                "latest_balance": balances_by_account.get(account.id),
                 "event_count": event_count,
                 "doc_count": doc_count,
                 "parents_by_institution": parents_by_institution,

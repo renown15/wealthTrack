@@ -52,7 +52,7 @@ export function useShareSale() {
       });
       return true;
     } catch (e) {
-      const errorMsg = e instanceof Error ? e.message : String(e);
+      const errorMsg = e instanceof Error ? e.message : 'Failed to record sale';
       error.value = errorMsg;
       debug.error('[useShareSale] Share sale submission failed:', { error: errorMsg, payload });
       return false;

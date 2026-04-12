@@ -31,6 +31,9 @@ class AnalyticsRepository:
     async def get_portfolio_breakdown(self, user_id: int) -> dict[str, Any]:
         """Return current portfolio value broken down by account type, institution
         and asset class. Uses the latest event value per account."""
+        balance_update_type_id_subq = select(ReferenceData.id).where(
+            ReferenceData.class_key == "account_event_type", ReferenceData.reference_value == "Balance Update"
+        ).scalar_subquery()
         max_date_subq = (
             select(
                 AccountEvent.account_id,
@@ -38,6 +41,7 @@ class AnalyticsRepository:
             )
             .join(Account, Account.id == AccountEvent.account_id)
             .where(Account.user_id == user_id)
+            .where(AccountEvent.type_id == balance_update_type_id_subq)
             .group_by(AccountEvent.account_id)
             .subquery()
         )
@@ -93,6 +97,9 @@ class AnalyticsRepository:
                 val = float(raw_value)
             except (TypeError, ValueError):
                 continue
+            # Negate Tax Liability accounts (they are liabilities, not assets)
+            if account_type == "Tax Liability":
+                val = -val
             total += val
             inst = institution or "Unknown"
             ac = asset_class or "Unclassified"
@@ -144,10 +151,14 @@ class AnalyticsRepository:
         )
         baseline_date_str = baseline_result.scalar() or None
 
+        balance_type_subq = select(ReferenceData.id).where(
+            ReferenceData.class_key == "account_event_type", ReferenceData.reference_value == "Balance Update"
+        ).scalar_subquery()
         stmt = (
             select(AccountEvent.account_id, AccountEvent.created_at, AccountEvent.value)
             .join(Account, Account.id == AccountEvent.account_id)
             .where(Account.user_id == user_id)
+            .where(AccountEvent.type_id == balance_type_subq)
             .order_by(AccountEvent.created_at)
         )
         result = await self.session.execute(stmt)

@@ -441,7 +441,9 @@ PR_TEST_DB_URL=postgresql+asyncpg://postgres:test_postgres_password@localhost:54
 pr-check:
 	@bash -c ' \
 		set -e; \
-		trap "docker-compose --env-file .env.test --profile test down 2>/dev/null; docker volume rm wealthtrack_wealthtrack_test_pgdata 2>/dev/null || true" EXIT; \
+		TEST_DB_CONTAINER=$$(grep "^DB_CONTAINER=" .env.test 2>/dev/null | cut -d= -f2); \
+		TEST_DB_CONTAINER=$${TEST_DB_CONTAINER:-wealthtrack-db-test}; \
+		trap "docker stop $$TEST_DB_CONTAINER 2>/dev/null || true; docker rm $$TEST_DB_CONTAINER 2>/dev/null || true; docker volume rm wealthtrack_wealthtrack_test_pgdata 2>/dev/null || true" EXIT; \
 		echo ""; \
 		echo "╔════════════════════════════════════════════╗"; \
 		echo "║  PR CHECK - Isolated Test Environment      ║"; \

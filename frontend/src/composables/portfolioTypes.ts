@@ -24,6 +24,7 @@ export interface PortfolioComposableReturn {
   illiquid: ComputedRef<number>;
   trustAssets: ComputedRef<number>;
   projectedAnnualYield: ComputedRef<number>;
+  lastPriceUpdate: ComputedRef<string | null | undefined>;
   loadPortfolio: () => Promise<void>;
   createAccount: (
     institutionId: number,

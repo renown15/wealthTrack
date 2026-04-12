@@ -4,7 +4,7 @@ Schemas for tax period, return, and document endpoints.
 from datetime import date, datetime
 from typing import Optional
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from app.schemas.base import BaseSchema
 
@@ -15,6 +15,13 @@ class TaxPeriodCreate(BaseSchema):
     name: str = Field(..., min_length=1, max_length=255)
     start_date: date
     end_date: date
+
+    @model_validator(mode="after")
+    def end_after_start(self) -> "TaxPeriodCreate":
+        """Validate end_date is after start_date."""
+        if self.end_date <= self.start_date:
+            raise ValueError("end_date must be after start_date")
+        return self
 
 
 class TaxPeriodResponse(BaseSchema):
