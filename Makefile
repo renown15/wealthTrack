@@ -1,7 +1,7 @@
 # WealthTrack Development Makefile
 # Provides convenient commands for common development tasks
 
-.PHONY: help setup dev backend-dev frontend-dev test lint type-check format clean docker-up docker-down build-frontend tail-backend tail-frontend pi-setup deploy-pi deploy-pi-code sync-db-to-pi deploy-windows
+.PHONY: help setup dev backend-dev frontend-dev test lint type-check format clean docker-up docker-down build-frontend tail-backend tail-frontend pi-setup deploy-pi deploy-pi-code sync-db-to-pi deploy-windows dump-db
 
 help:
 	@echo "WealthTrack Development Commands"
@@ -36,6 +36,7 @@ help:
 	@echo "Database:"
 	@echo "  make migrate            - Run database migrations"
 	@echo "  make migrate-create     - Create new migration"
+	@echo "  make dump-db            - Dump dev database to cloud-replicated location (iCloud/Dropbox)"
 	@echo ""
 	@echo "Utilities:"
 	@echo "  make check-backend      - Check if backend is running (starts if not)"
@@ -76,6 +77,38 @@ seed-db:
 	@echo "Seeding database with all reference data..."
 	@cd backend && source venv/bin/activate && cd .. && python scripts/seed-db.py
 	@echo "✅ Reference data seeded"
+
+dump-db:
+	@if [ ! -f .env.dev ]; then echo "❌ .env.dev not found"; exit 1; fi
+	@. ./.env.dev && \
+	TIMESTAMP=$$(date +%Y%m%d_%H%M%S) && \
+	DUMP_FILE="wealthtrack_db_$$TIMESTAMP.pgdump" && \
+	CLOUD_DIR="" && \
+	if [ -d "$$HOME/Library/CloudStorage/Dropbox-" ]; then \
+		CLOUD_DIR=$$(ls -dt $$HOME/Library/CloudStorage/Dropbox-* | head -n1); \
+		BACKUP_DIR="$$CLOUD_DIR/WealthTrack-Backups"; \
+	elif [ -d "$$HOME/Dropbox" ]; then \
+		BACKUP_DIR="$$HOME/Dropbox/WealthTrack-Backups"; \
+	elif [ -d "$$HOME/Library/CloudStorage" ]; then \
+		BACKUP_DIR="$$HOME/Library/CloudStorage/iCloud~com~apple~CloudDocs/WealthTrack-Backups"; \
+	elif [ -d "$$HOME/OneDrive" ]; then \
+		BACKUP_DIR="$$HOME/OneDrive/WealthTrack-Backups"; \
+	elif [ -d "$$HOME/Google Drive" ]; then \
+		BACKUP_DIR="$$HOME/Google Drive/WealthTrack-Backups"; \
+	else \
+		BACKUP_DIR="$$HOME/.wealthtrack-backups"; \
+		echo "⚠️  No cloud storage detected, using local fallback: $$BACKUP_DIR"; \
+	fi && \
+	mkdir -p "$$BACKUP_DIR" && \
+	echo "📦 Dumping dev database ($$DB_NAME on port $$DB_PORT) to $$BACKUP_DIR/$$DUMP_FILE..." && \
+	docker compose --env-file .env.dev exec -T db pg_dump -U $$DB_USER -d $$DB_NAME -Fc -v > "$$BACKUP_DIR/$$DUMP_FILE" 2>&1 && \
+	DUMP_SIZE=$$(du -h "$$BACKUP_DIR/$$DUMP_FILE" | cut -f1) && \
+	echo "✅ Database dumped successfully ($$DUMP_SIZE)" && \
+	echo "📍 Location: $$BACKUP_DIR/$$DUMP_FILE" && \
+	echo "☁️  File will sync to cloud automatically" && \
+	echo "" && \
+	echo "To restore this dump:" && \
+	echo "  docker compose --env-file .env.dev exec -T db pg_restore --no-owner --no-privileges -U $$DB_USER -d $$DB_NAME < $$BACKUP_DIR/$$DUMP_FILE"
 
 # Raspberry Pi Deployment
 PI_HOST ?= raspberrypi.local
