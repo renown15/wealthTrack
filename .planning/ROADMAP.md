@@ -165,32 +165,6 @@ Plans:
 
 ---
 
-### Phase 7: Household Sharing
-
-**Goal:** Users can create households and share account visibility with family members
-
-**Requirements:**
-- HOUSE-01: User can create a household
-- HOUSE-02: User can invite another user to household
-- HOUSE-03: Household members see all accounts from all members
-- HOUSE-04: Household members can update balances on any household account
-
-**Success Criteria:**
-1. User can create a household named "Smith Family"
-2. User can invite another registered user to their household via email
-3. After joining, household members see all accounts from all members on their dashboard
-4. Household member can update balance on another member's account
-5. Account ownership remains clear (shows which member owns each account)
-
-**Outputs:**
-- Household and HouseholdMember tables
-- Household API endpoints (create, invite, join)
-- Household view for managing membership
-- Multi-tenant query filters for household visibility
-- Dashboard updates to show household accounts
-
----
-
 ## Phase Summary
 
 | # | Phase | Goal | Requirements | Outputs |
@@ -201,7 +175,6 @@ Plans:
 | 4 | Balance History | Event-sourced balance tracking | BAL-01, BAL-02, BAL-03, BAL-04 | Events API, history view |
 | 5 | Dashboard | Unified account overview with net worth | DASH-01, DASH-02, DASH-03, DASH-04 | Dashboard view, aggregations |
 | 6 | Credential Vault | Encrypted credential storage | CRED-01, CRED-02, CRED-03, CRED-04, CRED-05 | Encryption service, Credentials view |
-| 7 | Household Sharing | Multi-user household visibility | HOUSE-01, HOUSE-02, HOUSE-03, HOUSE-04 | Household APIs, membership UI |
 
 ## Dependencies
 
@@ -212,7 +185,7 @@ Phase 1 (Database)
 Phase 2 (SPA Shell) ---> Phase 3 (Accounts) ---> Phase 4 (Balance) ---> Phase 5 (Dashboard)
                               |                        |
                               v                        v
-                         Phase 6 (Credentials)    Phase 7 (Household)
+                         Phase 6 (Credentials)
 ```
 
 - Phase 2 depends on Phase 1 (needs database for auth)
@@ -220,7 +193,6 @@ Phase 2 (SPA Shell) ---> Phase 3 (Accounts) ---> Phase 4 (Balance) ---> Phase 5 
 - Phase 4 depends on Phase 3 (needs accounts to track)
 - Phase 5 depends on Phase 4 (needs balance history for current values)
 - Phase 6 depends on Phase 3 (needs institutions to attach credentials)
-- Phase 7 depends on Phase 5 (needs dashboard to extend with household view)
 
 ## Coverage
 
@@ -235,7 +207,6 @@ All 30 v1 requirements mapped:
 | Balance History | 4 | Phase 4 |
 | Dashboard | 4 | Phase 5 |
 | Credential Vault | 5 | Phase 6 |
-| Household Sharing | 4 | Phase 7 |
 
 **Total:** 30 requirements mapped, 0 orphaned
 

@@ -606,9 +606,8 @@ If a file exceeds 200 lines:
 
 ---
 
-## Future Work (Phase 7)
+## Future Work
 
-- **Household Sharing** — multiple users sharing account views
 - **Mobile Apps** — native iOS/Android
 - **Bank Integration** — Plaid or Open Banking API
 - **Spending Analysis** — transaction-level tracking

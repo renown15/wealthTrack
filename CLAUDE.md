@@ -4,8 +4,8 @@
 
 A personal wealth management app: one place to see all your accounts and balances across financial institutions, with encrypted credential storage and tax tracking.
 
-**Status:** Phase 6/7 complete — v1 feature-complete with Tax Hub. Phase 7 (Household Sharing) not yet built.
-**Last Updated:** 2026-04-12 — Tax Hub complete, share sales with capital gains tracking, stock price update visibility, portfolio consistency fixes.
+**Status:** v1 complete — all 6 phases shipped, including Tax Hub.
+**Last Updated:** 2026-04-19 — Phase 7 (Household Sharing) removed from scope.
 
 ## Tech Stack
 
@@ -187,7 +187,6 @@ DB_PORT=5433        # dev DB
 
 ## What's Not Built Yet
 
-- **Phase 7: Household Sharing** — multiple users sharing a household's accounts and combined portfolio view
 - Mobile native apps (currently web-only, responsive design)
 - Bank API integration (currently manual balance entry)
 - Spending/transaction-level analysis

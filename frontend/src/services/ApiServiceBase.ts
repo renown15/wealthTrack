@@ -94,6 +94,13 @@ export class ApiServiceBase {
     return accountCrudService.deleteAccount(accountId);
   }
 
+  async updateAccountDates(
+    accountId: number,
+    data: { opened_at?: string | null; closed_at?: string | null },
+  ): Promise<void> {
+    await accountCrudService.updateAccountDates(accountId, data);
+  }
+
   async getAccountEvents(accountId: number): Promise<AccountEvent[]> {
     return accountCrudService.getAccountEvents(accountId);
   }

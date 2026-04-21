@@ -1,7 +1,7 @@
 # WealthTrack Development Makefile
 # Provides convenient commands for common development tasks
 
-.PHONY: help setup dev backend-dev frontend-dev test lint type-check format clean docker-up docker-down build-frontend tail-backend tail-frontend pi-setup deploy-pi deploy-pi-code sync-db-to-pi deploy-windows dump-db
+.PHONY: help setup dev backend-dev frontend-dev local-prod stop-dev stop-prod test lint type-check format clean docker-up docker-down build-frontend tail-backend tail-frontend pi-setup deploy-pi deploy-pi-code sync-db-to-pi deploy-windows dump-db
 
 help:
 	@echo "WealthTrack Development Commands"
@@ -17,6 +17,9 @@ help:
 	@echo "  make backend-dev        - Start backend development server"
 	@echo "  make frontend-dev       - Start frontend development server"
 	@echo "  make dev                - Start all services in background (DB + backend + frontend)"
+	@echo "  make stop-dev           - Stop dev backend and frontend (leaves database running)"
+	@echo "  make stop-prod          - Stop local-prod frontend container (leaves database running)"
+	@echo "  make local-prod         - Build and run frontend (nginx) locally against existing backend"
 	@echo ""
 	@echo "Testing:"
 	@echo "  make test               - Run all tests (includes backend startup)"
@@ -273,6 +276,34 @@ frontend-dev:
 
 dev:
 	@bash scripts/dev.sh
+
+local-prod:
+	@echo "Building and running production frontend (nginx) on port 3002..."
+	@echo "✓ Make sure DB and backend are running (use 'make dev' or start separately)"
+	docker-compose --env-file .env.local-prod build frontend
+	docker-compose --env-file .env.local-prod up -d frontend
+	@echo "✅ Frontend running at http://localhost:3002"
+
+stop-dev:
+	@echo "Stopping dev backend and frontend (leaving database running)..."
+	@pkill -f "uvicorn app.main:app" >/dev/null 2>&1 || true
+	@pkill -f "vite.*3001" >/dev/null 2>&1 || true
+	@if [ -f /tmp/wealthtrack.pids ]; then \
+		while IFS= read -r pid; do \
+			[ -n "$$pid" ] && kill "$$pid" >/dev/null 2>&1 || true; \
+		done < /tmp/wealthtrack.pids; \
+		rm -f /tmp/wealthtrack.pids; \
+	fi
+	@. ./.env.dev 2>/dev/null; \
+	docker stop "$${BACKEND_CONTAINER:-wealthtrack-backend-dev}" 2>/dev/null || true; \
+	docker stop "$${FRONTEND_CONTAINER:-wealthtrack-frontend-dev}" 2>/dev/null || true
+	@echo "✅ Dev backend and frontend stopped (database still running)"
+
+stop-prod:
+	@echo "Stopping local-prod frontend (leaving database running)..."
+	@. ./.env.local-prod 2>/dev/null; \
+	docker stop "$${FRONTEND_CONTAINER:-wealthtrack-frontend-prod}" 2>/dev/null || true
+	@echo "✅ Local-prod frontend stopped"
 
 # Testing
 test: check-db test-backend test-frontend

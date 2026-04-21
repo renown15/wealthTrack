@@ -3,6 +3,7 @@
  */
 import type { AccountDocument } from '@models/WealthTrackDataModels';
 import { BaseApiClient } from '@services/BaseApiClient';
+import { debug } from '@utils/debug';
 
 const BASE = '/api/v1/accounts';
 
@@ -23,13 +24,15 @@ class AccountDocumentService extends BaseApiClient {
       const formData = new FormData();
       formData.append('file', file);
       if (description) formData.append('description', description);
-      const response = await this.client.post<AccountDocument>(
-        `${BASE}/${accountId}/documents`,
-        formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } },
+      const token = this.getAuthToken();
+      const res = await fetch(
+        `${this.baseURL}${BASE}/${accountId}/documents`,
+        { method: 'POST', headers: token ? { Authorization: `Bearer ${token}` } : {}, body: formData },
       );
-      return response.data;
+      if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
+      return await res.json() as AccountDocument;
     } catch (error) {
+      debug.error('[AccountDocumentService] uploadDocument error', error);
       throw this.handleError(error, 'Failed to upload document');
     }
   }
@@ -50,12 +53,13 @@ class AccountDocumentService extends BaseApiClient {
     try {
       const formData = new FormData();
       if (description !== null) formData.append('description', description);
-      const response = await this.client.patch<AccountDocument>(
-        `${BASE}/documents/${docId}`,
-        formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } },
+      const token = this.getAuthToken();
+      const res = await fetch(
+        `${this.baseURL}${BASE}/documents/${docId}`,
+        { method: 'PATCH', headers: token ? { Authorization: `Bearer ${token}` } : {}, body: formData },
       );
-      return response.data;
+      if (!res.ok) throw new Error(`Update failed: ${res.status}`);
+      return await res.json() as AccountDocument;
     } catch (error) {
       throw this.handleError(error, 'Failed to update description');
     }

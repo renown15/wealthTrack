@@ -3,7 +3,7 @@
   <tr class="table-row-hover cursor-pointer group-row" @click="$emit('toggleGroup', groupId)">
       <td class="table-cell text-center">
         <span class="inline-block transition-transform" :class="{ 'rotate-90': isExpanded }">
-          ▶
+          {{ Icons.chevronRight }}
         </span>
       </td>
       <td class="table-cell">{{ summary?.commonInstitution || '—' }}</td>

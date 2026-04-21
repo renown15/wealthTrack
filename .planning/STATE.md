@@ -9,16 +9,16 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 
 ## Current Position
 
-Phase: 6 of 7 complete — v1 feature complete (Phase 7 Household Sharing not yet built)
+Phase: 6 of 6 complete — v1 feature complete
 Status: Active development — ongoing feature additions and quality improvements
 Last activity: 2026-04-12 — Tax Hub feature complete, share sales with capital gains, stock price tracking
 
 ## Progress
 
-Progress: [█████████-] 90%
+Progress: [██████████] 100%
 
-Phases: 6/7 complete
-Requirements: ~28/30 complete
+Phases: 6/6 complete
+Requirements: ~26/26 complete
 
 | Phase | Status | Notes |
 |-------|--------|-------|
@@ -28,7 +28,6 @@ Requirements: ~28/30 complete
 | 4 - Balance History | ✅ Complete | Event-sourced immutable balance events |
 | 5 - Dashboard | ✅ Complete | AccountHub with portfolio table and stats |
 | 6 - Credential Vault | ✅ Complete | Fernet encryption, credential management UI |
-| 7 - Household Sharing | ⏳ Pending | Not yet implemented |
 
 ## Accumulated Context
 
@@ -88,9 +87,9 @@ Requirements: ~28/30 complete
 
 ## Session Continuity
 
-Last session: 2026-04-12
-Completed: Tax Hub feature implementation, share sales, capital gains tracking, stock price update visibility, portfolio consistency fixes, comprehensive documentation updates
+Last session: 2026-04-19
+Completed: Phase 7 (Household Sharing) removed from scope — docs updated across all planning files
 Status: All `make pr-check` steps passing (81.0% backend coverage, 79.8% frontend statements/lines)
 
 ---
-*State updated: 2026-04-12*
+*State updated: 2026-04-19*

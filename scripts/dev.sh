@@ -45,7 +45,7 @@ DB_PORT="${DB_PORT:-5433}"
 DB_STATUS=$(docker inspect --format='{{.State.Health.Status}}' "$DB_CONTAINER" 2>/dev/null || echo "missing")
 
 if [ "$DB_STATUS" = "healthy" ]; then
-	echo -e "${GREEN}✓ Database already healthy on port ${DB_PORT}${NC}"
+	echo -e "${GREEN}✓ Database container healthy on port ${DB_PORT}${NC}"
 else
 	if [ "$DB_STATUS" = "missing" ]; then
 		echo "  Container not found — starting fresh..."
@@ -69,11 +69,29 @@ else
 	FINAL_STATUS=$(docker inspect --format='{{.State.Health.Status}}' "$DB_CONTAINER" 2>/dev/null || echo "missing")
 	if [ "$FINAL_STATUS" != "healthy" ]; then
 		echo ""
-		echo -e "${YELLOW}⚠️  Database may still be starting (status: ${FINAL_STATUS}) — backend may retry connections${NC}"
-	else
-		echo -e "${GREEN}✓ Database running on port ${DB_PORT}${NC}"
+		echo -e "${YELLOW}⚠️  Database container unhealthy (status: ${FINAL_STATUS}) — aborting${NC}"
+		exit 1
 	fi
 fi
+
+# Container healthy doesn't guarantee the host port is forwarded yet (e.g. after Colima restart).
+# Poll the actual TCP port before starting the backend to avoid a startup crash.
+echo -n "  Waiting for port ${DB_PORT} to accept connections"
+PORT_READY=0
+for i in $(seq 1 20); do
+	if nc -z 127.0.0.1 "${DB_PORT}" >/dev/null 2>&1; then
+		PORT_READY=1
+		echo ""
+		break
+	fi
+	echo -n "."
+	sleep 1
+done
+if [ "$PORT_READY" -eq 0 ]; then
+	echo ""
+	echo -e "${YELLOW}⚠️  Port ${DB_PORT} not reachable after 20s — backend may fail to connect${NC}"
+fi
+echo -e "${GREEN}✓ Database ready on port ${DB_PORT}${NC}"
 echo ""
 
 # ── Backend ──────────────────────────────────────────────────────────────────

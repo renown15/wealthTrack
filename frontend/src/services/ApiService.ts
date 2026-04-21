@@ -12,11 +12,11 @@ import type {
 import type { ShareSaleRequest, ShareSaleResponse, ShareSaleSummary } from '@models/ShareSaleModels';
 import type {
   TaxPeriod,
+  TaxPeriodAccountsResponse,
   TaxPeriodCreateRequest,
   TaxReturn,
   TaxReturnUpsertRequest,
   TaxDocument,
-  EligibleAccount,
 } from '@models/TaxModels';
 import { institutionCredentialService } from '@services/InstitutionCredentialService';
 import { accountGroupCrudService } from '@services/AccountGroupCrudService';
@@ -109,7 +109,7 @@ class ApiService extends ApiServiceBase {
     return taxService.deletePeriod(periodId);
   }
 
-  async getTaxEligibleAccounts(periodId: number): Promise<EligibleAccount[]> {
+  async getTaxEligibleAccounts(periodId: number): Promise<TaxPeriodAccountsResponse> {
     return taxService.getEligibleAccounts(periodId);
   }
 

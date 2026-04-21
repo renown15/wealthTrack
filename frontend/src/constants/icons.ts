@@ -13,6 +13,8 @@ export const Icons = {
   info: 'ⓘ',
   upload: '⬆',
   download: '⬇',
+  chevronDown: '▼',
+  chevronRight: '▶',
 } as const;
 
 export type IconName = keyof typeof Icons;

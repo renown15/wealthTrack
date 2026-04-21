@@ -57,7 +57,7 @@ class TaxReturnRepository:
         capital_gain: Optional[float],
         tax_taken_off: Optional[float],
     ) -> TaxReturn:
-        """Create or update a tax return."""
+        """Create or update a tax return, replacing all values."""
         existing = await self.get_for_account_period(user_id, account_id, tax_period_id)
         now = datetime.utcnow()
         if existing:
@@ -69,6 +69,33 @@ class TaxReturnRepository:
             await self.session.refresh(existing)
             return existing
 
+        return await self._create(user_id, account_id, tax_period_id, income, capital_gain, tax_taken_off, now)
+
+    async def get_or_create(
+        self,
+        user_id: int,
+        account_id: int,
+        tax_period_id: int,
+        income: Optional[float] = None,
+        capital_gain: Optional[float] = None,
+        tax_taken_off: Optional[float] = None,
+    ) -> TaxReturn:
+        """Get existing tax return or create if absent. Never overwrites saved user data."""
+        existing = await self.get_for_account_period(user_id, account_id, tax_period_id)
+        if existing:
+            return existing
+        return await self._create(user_id, account_id, tax_period_id, income, capital_gain, tax_taken_off, datetime.utcnow())
+
+    async def _create(
+        self,
+        user_id: int,
+        account_id: int,
+        tax_period_id: int,
+        income: Optional[float],
+        capital_gain: Optional[float],
+        tax_taken_off: Optional[float],
+        now: datetime,
+    ) -> TaxReturn:
         tax_return = TaxReturn()
         tax_return.user_id = user_id
         tax_return.account_id = account_id

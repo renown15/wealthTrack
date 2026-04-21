@@ -53,12 +53,14 @@ export async function initializeApp(): Promise<void> {
     document.title = `WealthTrack (${host})`
   }
 
-  // If authenticated, fetch current user and navigate to dashboard
+  // If authenticated, fetch current user and stay on current page (or go to dashboard if at login/root)
   if (authModule.isAuthenticated()) {
     try {
       const user = await apiService.getCurrentUser();
       authModule.setUser(user);
-      void router.push({ name: 'dashboard' });
+      const currentRoute = router.currentRoute.value;
+      const atAuthRoute = !currentRoute.name || currentRoute.name === 'login' || currentRoute.name === 'register';
+      if (atAuthRoute) void router.push({ name: 'dashboard' });
     } catch {
       // User fetch failed, clear auth
       authModule.clearToken();

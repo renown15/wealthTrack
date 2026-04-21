@@ -145,4 +145,4 @@ DB_NAME=wealthtrack
 
 See `.planning/STATE.md` for current phase and progress.
 
-Current state: Phase 6/7 complete — v1 feature-complete (Household Sharing not yet built).
+Current state: v1 complete — all 6 phases shipped.

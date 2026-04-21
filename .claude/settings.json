@@ -49,7 +49,12 @@
       "Bash(make dev:*)",
       "Bash(2>&1)",
       "Bash(python3 -m pytest tests/test_file_constraints.py::test_typescript_files_under_200_lines -s --tb=long --no-cov)",
-      "Bash(python3 -m pytest tests/test_tax_controllers.py::test_create_period_invalid_dates -s --tb=short --no-cov)"
+      "Bash(python3 -m pytest tests/test_tax_controllers.py::test_create_period_invalid_dates -s --tb=short --no-cov)",
+      "Bash(npx vitest *)",
+      "Bash(python3 -c ' *)",
+      "Bash(python -m ruff check backend/app/services/tax_service.py backend/app/controllers/tax_periods.py backend/app/models/tax_period.py backend/app/schemas/tax.py)",
+      "Bash(make start-test-db *)",
+      "Bash(DATABASE_URL=postgresql+asyncpg://postgres:test_postgres_password@localhost:5434/wealthtrack python -m pytest tests/test_tax_period_group.py -v)"
     ]
   }
 }

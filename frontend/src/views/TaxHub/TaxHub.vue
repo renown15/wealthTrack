@@ -17,14 +17,18 @@
     <div v-if="selectedPeriodId !== null" class="hub-content-card p-6">
       <div class="flex items-center justify-between mb-6">
         <h3 class="section-title">Eligible Accounts</h3>
+        <button class="btn-modal-secondary" @click="handleOpenQuickAdd">+ Add Closed Account</button>
       </div>
       <TaxHubTable
-        :accounts="accounts"
+        :in-scope="inScope"
+        :eligible="eligible"
         :loading="accountsLoading"
         :error="accountsError"
         @edit-return="openReturnModal"
         @manage-documents="openDocumentsModal"
         @show-events="handleShowEvents"
+        @move-to-in-scope="moveToInScope"
+        @move-to-eligible="moveToEligible"
       />
     </div>
 
@@ -47,7 +51,16 @@
       @close="docsModalOpen = false"
       @upload="handleUpload"
       @download="handleDownload"
+      @preview="handlePreview"
       @delete-doc="handleDeleteDoc"
+    />
+
+    <DocumentPreviewModal
+      :open="previewOpen"
+      :url="previewUrl"
+      :filename="previewFilename"
+      :content-type="previewContentType"
+      @close="closePreview"
     />
 
     <DeleteConfirmModal
@@ -55,6 +68,21 @@
       :item-name="deleteConfirmName"
       @close="deleteConfirmOpen = false"
       @confirm="handleConfirmDelete"
+    />
+
+    <AddAccountModal
+      :open="quickAddOpen"
+      type="create"
+      resource-type="account"
+      :institutions="quickAddInstitutions"
+      :account-types="quickAddTypes"
+      :account-statuses="quickAddStatuses"
+      :institution-types="quickAddInstitutionTypes"
+      :initial-account-data="quickAddInitialData"
+      :hide-opened-date="true"
+      :closed-account-mode="true"
+      @close="quickAddOpen = false"
+      @save="handleQuickAdd"
     />
 
     <AccountEventsModal
@@ -71,26 +99,31 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
-import type { EligibleAccount, TaxPeriodCreateRequest, TaxReturnUpsertRequest } from '@models/TaxModels';
+import type { TaxPeriodCreateRequest } from '@models/TaxModels';
 import { useTaxPeriods } from '@composables/useTaxPeriods';
 import { useTaxHub } from '@composables/useTaxHub';
 import { useEventsModal } from '@composables/useEventsModal';
+import { useTaxHubModals } from '@composables/useTaxHubModals';
 import TaxHubStats from '@views/TaxHub/TaxHubStats.vue';
 import TaxHubTable from '@views/TaxHub/TaxHubTable.vue';
 import AddTaxPeriodModal from '@views/TaxHub/AddTaxPeriodModal.vue';
 import TaxReturnModal from '@views/TaxHub/TaxReturnModal.vue';
 import TaxDocumentsModal from '@views/TaxHub/TaxDocumentsModal.vue';
+import AddAccountModal from '@views/AccountHub/AddAccountModal.vue';
 import DeleteConfirmModal from '@views/AccountHub/DeleteConfirmModal.vue';
 import AccountEventsModal from '@views/AccountHub/AccountEventsModal.vue';
+import DocumentPreviewModal from '@views/TaxHub/DocumentPreviewModal.vue';
+import type { EligibleAccount } from '@models/TaxModels';
 
 const {
-  periods, selectedPeriodId, loading: periodsLoading, error: periodsError,
+  periods, selectedPeriodId, error: periodsError,
   loadPeriods, createPeriod, deletePeriod, selectPeriod,
 } = useTaxPeriods();
 
 const {
-  accounts, loading: accountsLoading, error: accountsError,
-  loadAccounts, saveReturn, uploadDocument, downloadDocument, deleteDocument,
+  accounts, inScope, eligible, loading: accountsLoading, error: accountsError,
+  loadAccounts, saveReturn, uploadDocument, downloadDocument, fetchDocumentBlob, deleteDocument,
+  moveToInScope, moveToEligible,
 } = useTaxHub();
 
 const {
@@ -98,14 +131,20 @@ const {
   openEventsModal, closeEventsModal,
 } = useEventsModal();
 
-const addPeriodOpen = ref(false);
-const returnModalOpen = ref(false);
-const docsModalOpen = ref(false);
-const activeAccount = ref<EligibleAccount | null>(null);
+const {
+  returnModalOpen, docsModalOpen, quickAddOpen,
+  activeAccount, deleteConfirmOpen, deleteConfirmId, deleteConfirmName,
+  quickAddInitialData, quickAddInstitutions, quickAddTypes, quickAddStatuses, quickAddInstitutionTypes,
+  previewOpen, previewUrl, previewFilename, previewContentType,
+  openReturnModal, openDocumentsModal, openDeleteConfirm,
+  handleSaveReturn, handleUpload, handleDownload, handleDeleteDoc,
+  handleOpenQuickAdd, handleQuickAdd, handlePreview, closePreview,
+} = useTaxHubModals(
+  selectedPeriodId, periods, accounts,
+  saveReturn, uploadDocument, downloadDocument, fetchDocumentBlob, deleteDocument, moveToInScope,
+);
 
-const deleteConfirmOpen = ref(false);
-const deleteConfirmId = ref(0);
-const deleteConfirmName = ref('');
+const addPeriodOpen = ref(false);
 
 onMounted(async () => {
   await loadPeriods();
@@ -114,22 +153,11 @@ onMounted(async () => {
 
 watch(selectedPeriodId, async (id) => {
   if (id !== null) await loadAccounts(id);
-  else accounts.value = [];
+  else { inScope.value = []; eligible.value = []; }
 });
 
 function handleSelectPeriod(periodId: number): void {
   selectPeriod(periodId);
-}
-
-function openDeleteConfirm(periodId: number, periodName: string): void {
-  deleteConfirmId.value = periodId;
-  deleteConfirmName.value = periodName;
-  deleteConfirmOpen.value = true;
-}
-
-async function handleConfirmDelete(): Promise<void> {
-  deleteConfirmOpen.value = false;
-  await deletePeriod(deleteConfirmId.value);
 }
 
 async function handleCreatePeriod(data: TaxPeriodCreateRequest): Promise<void> {
@@ -137,39 +165,12 @@ async function handleCreatePeriod(data: TaxPeriodCreateRequest): Promise<void> {
   addPeriodOpen.value = false;
 }
 
-function openReturnModal(account: EligibleAccount): void {
-  activeAccount.value = account;
-  returnModalOpen.value = true;
-}
-
-function openDocumentsModal(account: EligibleAccount): void {
-  activeAccount.value = account;
-  docsModalOpen.value = true;
-}
-
-async function handleSaveReturn(data: TaxReturnUpsertRequest): Promise<void> {
-  if (!activeAccount.value || selectedPeriodId.value === null) return;
-  const ok = await saveReturn(selectedPeriodId.value, activeAccount.value.accountId, data);
-  if (ok) returnModalOpen.value = false;
-}
-
-async function handleUpload(file: File): Promise<void> {
-  if (!activeAccount.value || selectedPeriodId.value === null) return;
-  await uploadDocument(selectedPeriodId.value, activeAccount.value.accountId, file);
-  activeAccount.value = accounts.value.find((a) => a.accountId === activeAccount.value?.accountId) ?? activeAccount.value;
-}
-
-async function handleDownload(docId: number, filename: string): Promise<void> {
-  await downloadDocument(docId, filename);
+async function handleConfirmDelete(): Promise<void> {
+  deleteConfirmOpen.value = false;
+  await deletePeriod(deleteConfirmId.value);
 }
 
 async function handleShowEvents(account: EligibleAccount): Promise<void> {
   await openEventsModal(account.accountId, account.accountName, account.accountType);
-}
-
-async function handleDeleteDoc(docId: number): Promise<void> {
-  if (!activeAccount.value || selectedPeriodId.value === null) return;
-  await deleteDocument(selectedPeriodId.value, activeAccount.value.accountId, docId);
-  activeAccount.value = accounts.value.find((a) => a.accountId === activeAccount.value?.accountId) ?? activeAccount.value;
 }
 </script>

@@ -35,5 +35,7 @@ export interface AccountFormFieldsProps {
   institutions: Institution[];
   accountTypes: ReferenceDataItem[];
   accountStatuses: ReferenceDataItem[];
+  hideOpenedDate?: boolean;
+  closedAccountMode?: boolean;
 }
 

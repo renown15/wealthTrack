@@ -321,9 +321,8 @@ A comprehensive guide to all features available in WealthTrack v1 (Phase 6).
 
 ---
 
-## 9. Future Features (Phase 7+)
+## 9. Future Features
 
-- **Household Sharing** — multiple users sharing a combined household view
 - **Budget Planning** — set and track budget goals
 - **Spending Analysis** — transaction-level tracking and categorization
 - **Mobile App** — native iOS/Android apps

@@ -7,7 +7,9 @@ from collections.abc import AsyncGenerator, Awaitable, Callable
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
@@ -61,22 +63,12 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
         """Log request body before passing to handlers."""
-        if "/share-sale" in request.url.path:
+        if "/documents" in request.url.path and request.method == "POST":
             try:
-                body = await request.body()
-                if body:
-                    debug_msg = f"""
-[RAW REQUEST] /share-sale endpoint
-Path: {request.url.path}
-Method: {request.method}
-Content-Type: {request.headers.get("content-type")}
-Body: {body.decode(errors="ignore")}
----
-"""
-                    # Write to /tmp for visibility
-                    with open("/tmp/share_sale_debug.log", "a") as f:
-                        f.write(debug_msg)
-                    logger.error(f"[RequestLogging] Wrote to /tmp/share_sale_debug.log")
+                content_type = request.headers.get("content-type", "")
+                debug_msg = f"[DOC UPLOAD] {request.method} {request.url.path}\nContent-Type: {content_type}\n---\n"
+                with open("/tmp/share_sale_debug.log", "a") as f:
+                    f.write(debug_msg)
             except Exception as e:
                 with open("/tmp/share_sale_debug.log", "a") as f:
                     f.write(f"[ERROR] {e}\n")
@@ -161,22 +153,17 @@ app = FastAPI(
 
 
 # Add custom exception handler for validation errors
-@app.exception_handler(422)
-async def validation_exception_handler(request: Request, exc: Exception) -> Response:
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
     """Handler for validation errors — log details to file."""
     try:
-        debug_msg = f"""
-[VALIDATION ERROR] 422
-Path: {request.url.path}
-Method: {request.method}
-Error Details: {str(exc)}
----
-"""
+        content_type = request.headers.get("content-type", "")
+        msg = f"[VALIDATION ERROR] {request.method} {request.url.path}\nContent-Type: {content_type}\nErrors: {exc.errors()}\n---\n"
         with open("/tmp/share_sale_debug.log", "a") as f:
-            f.write(debug_msg)
+            f.write(msg)
     except Exception as log_err:
-        logger.error(f"Could not log validation error: {log_err}")
-    raise exc
+        logger.error("Could not log validation error: %s", log_err)
+    return JSONResponse(status_code=422, content={"detail": exc.errors()})
 
 # Add request logging middleware FIRST (to see raw requests)
 app.add_middleware(RequestLoggingMiddleware)

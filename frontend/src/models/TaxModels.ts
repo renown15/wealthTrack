@@ -8,6 +8,7 @@ export interface TaxPeriod {
   name: string;
   startDate: string; // ISO date string
   endDate: string;   // ISO date string
+  accountGroupId: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -43,6 +44,12 @@ export interface TaxDocument {
   createdAt: string;
 }
 
+export interface TaxPeriodAccountsResponse {
+  accountGroupId: number | null;
+  inScope: EligibleAccount[];
+  eligible: EligibleAccount[];
+}
+
 export interface EligibleAccount {
   accountId: number;
   accountName: string;
@@ -53,7 +60,7 @@ export interface EligibleAccount {
   accountNumber: string | null;
   sortCode: string | null;
   rollRefNumber: string | null;
-  eligibilityReason: 'interest_bearing' | 'sold_in_period';
+  eligibilityReason: 'interest_bearing' | 'sold_in_period' | 'in_scope';
   eventCount: number;
   taxReturn: TaxReturn | null;
   documents: TaxDocument[];

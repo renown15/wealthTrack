@@ -2,14 +2,15 @@
  * Service for Tax Hub API operations.
  */
 import type {
-  EligibleAccount,
   TaxDocument,
   TaxPeriod,
+  TaxPeriodAccountsResponse,
   TaxPeriodCreateRequest,
   TaxReturn,
   TaxReturnUpsertRequest,
 } from '@models/TaxModels';
 import { BaseApiClient } from '@services/BaseApiClient';
+import { debug } from '@utils/debug';
 
 const BASE = '/api/v1/tax';
 
@@ -46,10 +47,10 @@ class TaxService extends BaseApiClient {
     }
   }
 
-  async getEligibleAccounts(periodId: number): Promise<EligibleAccount[]> {
+  async getEligibleAccounts(periodId: number): Promise<TaxPeriodAccountsResponse> {
     try {
       const response = await this.retryRequest(() =>
-        this.client.get<EligibleAccount[]>(`${BASE}/periods/${periodId}/accounts`),
+        this.client.get<TaxPeriodAccountsResponse>(`${BASE}/periods/${periodId}/accounts`),
       );
       return response.data;
     } catch (error) {
@@ -92,13 +93,18 @@ class TaxService extends BaseApiClient {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const response = await this.client.post<TaxDocument>(
-        `${BASE}/periods/${periodId}/accounts/${accountId}/documents`,
-        formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } },
+      debug.log('[TaxService] uploadDocument', { periodId, accountId, fileName: file.name, fileType: file.type, fileSize: file.size });
+      const token = this.getAuthToken();
+      const res = await fetch(
+        `${this.baseURL}${BASE}/periods/${periodId}/accounts/${accountId}/documents`,
+        { method: 'POST', headers: token ? { Authorization: `Bearer ${token}` } : {}, body: formData },
       );
-      return response.data;
+      if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
+      const data = await res.json() as TaxDocument;
+      debug.log('[TaxService] uploadDocument success', data);
+      return data;
     } catch (error) {
+      debug.error('[TaxService] uploadDocument error', error);
       throw this.handleError(error, 'Failed to upload document');
     }
   }

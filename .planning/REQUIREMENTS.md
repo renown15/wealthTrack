@@ -47,17 +47,10 @@
 - [ ] **CRED-04**: User can update stored credentials
 - [ ] **CRED-05**: User can delete stored credentials
 
-### Household Sharing
-
-- [ ] **HOUSE-01**: User can create a household
-- [ ] **HOUSE-02**: User can invite another user to household
-- [ ] **HOUSE-03**: Household members see all accounts from all members
-- [ ] **HOUSE-04**: Household members can update balances on any household account
-
 ### SPA Shell
 
 - [ ] **UI-01**: Application has consistent layout (title bar, sidebar, main view)
-- [ ] **UI-02**: Sidebar navigation between Dashboard, Accounts, Credentials, Household
+- [ ] **UI-02**: Sidebar navigation between Dashboard, Accounts, Credentials
 
 ## v2 Requirements
 
@@ -108,14 +101,10 @@ Deferred to future release.
 | CRED-03 | Phase 6 | Pending |
 | CRED-04 | Phase 6 | Pending |
 | CRED-05 | Phase 6 | Pending |
-| HOUSE-01 | Phase 7 | Pending |
-| HOUSE-02 | Phase 7 | Pending |
-| HOUSE-03 | Phase 7 | Pending |
-| HOUSE-04 | Phase 7 | Pending |
 
 **Coverage:**
-- v1 requirements: 30 total
-- Mapped to phases: 30
+- v1 requirements: 26 total
+- Mapped to phases: 26
 - Unmapped: 0
 
 ---

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="grid grid-cols-3 gap-4">
-      <div class="form-group" :class="getFieldConfig.showAssetClass ? 'col-span-2' : 'col-span-3'">
+      <div class="form-group" :class="getFieldConfig.showAssetClass && !props.closedAccountMode ? 'col-span-2' : 'col-span-3'">
         <label for="accountName" class="form-label">Account Name</label>
         <input
           id="accountName"
@@ -12,7 +12,7 @@
           placeholder="e.g., Checking, Savings"
         />
       </div>
-      <div v-if="getFieldConfig.showAssetClass" class="form-group">
+      <div v-if="getFieldConfig.showAssetClass && !props.closedAccountMode" class="form-group">
         <label for="assetClass" class="form-label">Asset Class</label>
         <select id="assetClass" v-model="formData.assetClass" class="form-select">
           <option value="">—</option>
@@ -31,10 +31,23 @@
       </div>
       <div class="form-group">
         <label for="accountStatus" class="form-label">Account Status</label>
-        <select id="accountStatus" v-model.number="formData.statusId" class="form-select">
+        <select
+          v-if="!props.closedAccountMode"
+          id="accountStatus"
+          v-model.number="formData.statusId"
+          class="form-select"
+        >
           <option value="">Select status</option>
           <option v-for="s in accountStatuses" :key="s.id" :value="s.id">{{ s.referenceValue }}</option>
         </select>
+        <input
+          v-else
+          id="accountStatus"
+          type="text"
+          value="Closed"
+          class="form-input bg-gray-50 cursor-default"
+          readonly
+        />
       </div>
     </div>
 
@@ -56,23 +69,30 @@
       </select>
     </div>
 
-    <div v-if="!getFieldConfig.isDeferredType" :class="isClosedStatus ? 'grid grid-cols-2 gap-4' : ''">
-      <div class="form-group">
+    <div v-if="!getFieldConfig.isDeferredType" :class="isClosedStatus && !props.hideOpenedDate ? 'grid grid-cols-2 gap-4' : ''">
+      <div v-if="!props.hideOpenedDate" class="form-group">
         <label for="openedAt" class="form-label">Opened Date</label>
         <input id="openedAt" v-model="formData.openedAt" type="date" class="form-input" />
       </div>
-      <div v-if="isClosedStatus" class="form-group">
+      <div v-if="isClosedStatus || props.closedAccountMode" class="form-group">
         <label for="closedAt" class="form-label">Closed Date</label>
-        <input id="closedAt" v-model="formData.closedAt" type="date" class="form-input" />
+        <input
+          id="closedAt"
+          v-model="formData.closedAt"
+          type="date"
+          class="form-input"
+          :readonly="props.closedAccountMode"
+          :class="props.closedAccountMode ? 'bg-gray-50 cursor-default' : ''"
+        />
       </div>
     </div>
 
-    <div v-if="getFieldConfig.showBankingDetails" class="form-group">
+    <div v-if="getFieldConfig.showBankingDetails || props.closedAccountMode" class="form-group">
       <label for="accountNumber" class="form-label">Account Number</label>
       <input id="accountNumber" v-model="formData.accountNumber" type="text" class="form-input" placeholder="e.g., 12345678" />
     </div>
 
-    <div v-if="getFieldConfig.showBankingDetails" class="grid grid-cols-2 gap-4">
+    <div v-if="getFieldConfig.showBankingDetails || props.closedAccountMode" class="grid grid-cols-2 gap-4">
       <div class="form-group">
         <label for="sortCode" class="form-label">Sort Code</label>
         <input
@@ -93,12 +113,12 @@
       </div>
     </div>
 
-    <div v-if="getFieldConfig.showInterestRate && !getFieldConfig.showFixedBonusRate" class="form-group">
+    <div v-if="!props.closedAccountMode && getFieldConfig.showInterestRate && !getFieldConfig.showFixedBonusRate" class="form-group">
       <label for="interestRate" class="form-label">Interest Rate (%)</label>
       <input id="interestRate" v-model="formData.interestRate" type="number" min="0" max="100" step="0.01" class="form-input" placeholder="e.g., 2.5" />
     </div>
 
-    <div v-if="getFieldConfig.showInterestRate && getFieldConfig.showFixedBonusRate" class="grid grid-cols-2 gap-4">
+    <div v-if="!props.closedAccountMode && getFieldConfig.showInterestRate && getFieldConfig.showFixedBonusRate" class="grid grid-cols-2 gap-4">
       <div class="form-group">
         <label for="interestRate" class="form-label">Interest Rate (%)</label>
         <input id="interestRate" v-model="formData.interestRate" type="number" min="0" max="100" step="0.01" class="form-input" placeholder="e.g., 2.5" />
@@ -109,12 +129,12 @@
       </div>
     </div>
 
-    <div v-if="getFieldConfig.showFixedBonusRateEndDate" class="form-group">
+    <div v-if="!props.closedAccountMode && getFieldConfig.showFixedBonusRateEndDate" class="form-group">
       <label for="fixedBonusRateEndDate" class="form-label">Fixed Rate End</label>
       <input id="fixedBonusRateEndDate" v-model="formData.fixedBonusRateEndDate" type="date" class="form-input" />
     </div>
 
-    <AccountFormDeferredFields :form-data="formData" :field-config="getFieldConfig" />
+    <AccountFormDeferredFields v-if="!props.closedAccountMode" :form-data="formData" :field-config="getFieldConfig" />
   </div>
 </template>
 <script setup lang="ts">

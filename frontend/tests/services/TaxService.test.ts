@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { taxService } from '@services/TaxService';
-import type { TaxPeriod, TaxReturn, TaxDocument, EligibleAccount } from '@models/TaxModels';
+import type { TaxPeriod, TaxReturn, TaxDocument, EligibleAccount, TaxPeriodAccountsResponse } from '@models/TaxModels';
 
 const mockPeriod: TaxPeriod = {
   id: 1, userId: 1, name: '2024/25',
   startDate: '2024-04-06', endDate: '2025-04-05',
+  accountGroupId: null,
   createdAt: '2024-04-06T00:00:00', updatedAt: '2024-04-06T00:00:00',
 };
 
@@ -57,10 +58,13 @@ describe('TaxService', () => {
     expect(clientStub.delete).toHaveBeenCalledWith('/api/v1/tax/periods/1');
   });
 
-  it('getEligibleAccounts returns accounts', async () => {
-    clientStub.get.mockResolvedValue({ data: [mockEligible] });
+  it('getEligibleAccounts returns two-section response', async () => {
+    const mockResp: TaxPeriodAccountsResponse = {
+      accountGroupId: 1, inScope: [], eligible: [mockEligible],
+    };
+    clientStub.get.mockResolvedValue({ data: mockResp });
     const result = await taxService.getEligibleAccounts(1);
-    expect(result).toStrictEqual([mockEligible]);
+    expect(result).toStrictEqual(mockResp);
   });
 
   it('upsertReturn calls put', async () => {

@@ -32,6 +32,7 @@ class TaxPeriodResponse(BaseSchema):
     name: str
     start_date: date
     end_date: date
+    account_group_id: Optional[int] = None
     created_at: datetime
     updated_at: datetime
 
@@ -88,7 +89,15 @@ class EligibleAccountResponse(BaseSchema):
     account_number: Optional[str] = None
     sort_code: Optional[str] = None
     roll_ref_number: Optional[str] = None
-    eligibility_reason: str  # "interest_bearing" | "sold_in_period"
+    eligibility_reason: str  # "interest_bearing" | "sold_in_period" | "in_scope"
     event_count: int = 0
     tax_return: Optional[TaxReturnResponse] = None
     documents: list[TaxDocumentResponse] = Field(default_factory=list)
+
+
+class TaxPeriodAccountsResponse(BaseSchema):
+    """Two-section response for eligible accounts in a tax period."""
+
+    account_group_id: Optional[int] = None
+    in_scope: list[EligibleAccountResponse] = Field(default_factory=list)
+    eligible: list[EligibleAccountResponse] = Field(default_factory=list)

@@ -40,6 +40,7 @@ class TaxPeriodRepository:
         name: str,
         start_date: date,
         end_date: date,
+        account_group_id: int | None = None,
     ) -> TaxPeriod:
         """Create and persist a new tax period."""
         period = TaxPeriod()
@@ -47,6 +48,7 @@ class TaxPeriodRepository:
         period.name = name
         period.start_date = start_date
         period.end_date = end_date
+        period.account_group_id = account_group_id
         period.created_at = datetime.utcnow()
         period.updated_at = datetime.utcnow()
         self.session.add(period)

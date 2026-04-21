@@ -6,10 +6,10 @@
 
     <div v-else-if="error" class="error-banner"><span>{{ error }}</span></div>
 
-    <div v-else-if="accounts.length === 0" class="p-8 text-center">
-      <p class="text-muted">No eligible accounts for this tax period.</p>
+    <div v-else-if="inScope.length === 0 && eligible.length === 0" class="p-8 text-center">
+      <p class="text-muted">No accounts for this tax period.</p>
       <p class="text-sm text-muted mt-2">
-        Eligible accounts are non-ISA accounts with an interest rate, or Shares accounts sold during this period.
+        Add accounts to scope manually, or eligible accounts will appear automatically.
       </p>
     </div>
 
@@ -34,61 +34,65 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="account in accounts" :key="account.accountId" class="table-row-hover">
-            <td class="table-cell font-semibold">{{ account.accountName }}</td>
-            <td class="table-cell">{{ account.institutionName ?? '—' }}</td>
-            <td class="table-cell">{{ account.accountNumber ?? '—' }}</td>
-            <td class="table-cell">{{ account.sortCode ?? '—' }}</td>
-            <td class="table-cell">{{ account.rollRefNumber ?? '—' }}</td>
-            <td class="table-cell">{{ account.accountType }}</td>
-            <td class="table-cell">
-              <span
-                class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold rounded-full"
-                :class="account.accountStatus === 'Closed' ? 'bg-gray-200 text-gray-600' : 'bg-green-100 text-green-700'"
-                :title="account.accountStatus ?? ''"
-              >{{ account.accountStatus === 'Closed' ? 'C' : 'O' }}</span>
-            </td>
-            <td class="table-cell">
-              {{ account.eligibilityReason === 'interest_bearing' ? (account.interestRate ?? '—') : '—' }}
-            </td>
-            <td class="table-cell">
-              <span v-if="account.eligibilityReason === 'interest_bearing'">
-                {{ formatCurrency(account.taxReturn?.income) }}
-              </span>
-              <span v-else class="text-muted">—</span>
-            </td>
-            <td class="table-cell">
-              <span v-if="account.eligibilityReason === 'sold_in_period'">
-                {{ formatCurrency(account.taxReturn?.capitalGain) }}
-              </span>
-              <span v-else class="text-muted">—</span>
-            </td>
-            <td class="table-cell">{{ formatCurrency(account.taxReturn?.taxTakenOff) }}</td>
-            <td class="table-cell">
+          <tr
+            class="bg-indigo-50 border-t-2 border-indigo-200"
+            @dragover.prevent
+            @drop="onDropInScope"
+          >
+            <td colspan="14" class="table-cell py-2">
               <button
-                class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold rounded bg-blue-100 text-blue-600 hover:bg-blue-200 border-none cursor-pointer"
-                :title="`View ${account.eventCount} events`"
-                @click="emit('showEvents', account)"
-              >{{ account.eventCount }}</button>
-            </td>
-            <td class="table-cell">
-              <span class="font-medium">{{ account.documents.length }}</span>
-            </td>
-            <td class="table-cell">
-              <div class="actions-col">
-                <button
-                  class="btn-icon edit inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200"
-                  title="Edit tax return"
-                  @click="emit('editReturn', account)"
-                >{{ Icons.edit }}</button>
-                <button
-                  class="btn-icon inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-green-100 text-green-600 hover:bg-green-200"
-                  title="Manage documents"
-                  @click="emit('manageDocuments', account)"
-                >{{ Icons.eye }}</button>
-              </div>
+                class="flex items-center gap-2 font-semibold text-indigo-700 bg-transparent border-none cursor-pointer hover:text-indigo-900"
+                @click="inScopeCollapsed = !inScopeCollapsed"
+              >
+                <span>{{ inScopeCollapsed ? Icons.chevronRight : Icons.chevronDown }}</span>
+                <span>In Scope ({{ inScope.length }})</span>
+              </button>
             </td>
           </tr>
+          <template v-if="!inScopeCollapsed">
+            <TaxHubTableRow
+              v-for="account in inScope"
+              :key="account.accountId"
+              :account="account"
+              section="inScope"
+              @edit-return="emit('editReturn', $event)"
+              @manage-documents="emit('manageDocuments', $event)"
+              @show-events="emit('showEvents', $event)"
+              @drag-start="onDragStart($event, 'inScope')"
+              @move-to-eligible="emit('moveToEligible', $event)"
+              @move-to-in-scope="emit('moveToInScope', $event)"
+            />
+          </template>
+
+          <tr
+            class="bg-gray-50 border-t-2 border-gray-200"
+            @dragover.prevent
+            @drop="onDropEligible"
+          >
+            <td colspan="14" class="table-cell py-2">
+              <button
+                class="flex items-center gap-2 font-semibold text-gray-600 bg-transparent border-none cursor-pointer hover:text-gray-900"
+                @click="eligibleCollapsed = !eligibleCollapsed"
+              >
+                <span>{{ eligibleCollapsed ? Icons.chevronRight : Icons.chevronDown }}</span>
+                <span>Eligible ({{ eligible.length }})</span>
+              </button>
+            </td>
+          </tr>
+          <template v-if="!eligibleCollapsed">
+            <TaxHubTableRow
+              v-for="account in eligible"
+              :key="account.accountId"
+              :account="account"
+              section="eligible"
+              @edit-return="emit('editReturn', $event)"
+              @manage-documents="emit('manageDocuments', $event)"
+              @show-events="emit('showEvents', $event)"
+              @drag-start="onDragStart($event, 'eligible')"
+              @move-to-in-scope="emit('moveToInScope', $event)"
+              @move-to-eligible="emit('moveToEligible', $event)"
+            />
+          </template>
         </tbody>
       </table>
     </div>
@@ -96,11 +100,14 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import type { EligibleAccount } from '@models/TaxModels';
+import TaxHubTableRow from '@views/TaxHub/TaxHubTableRow.vue';
 import { Icons } from '@/constants/icons';
 
 defineProps<{
-  accounts: EligibleAccount[];
+  inScope: EligibleAccount[];
+  eligible: EligibleAccount[];
   loading: boolean;
   error: string | null;
 }>();
@@ -109,10 +116,33 @@ const emit = defineEmits<{
   editReturn: [account: EligibleAccount];
   manageDocuments: [account: EligibleAccount];
   showEvents: [account: EligibleAccount];
+  moveToInScope: [accountId: number];
+  moveToEligible: [accountId: number];
 }>();
 
-function formatCurrency(val: number | null | undefined): string {
-  if (val == null) return '—';
-  return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(val);
+const inScopeCollapsed = ref(false);
+const eligibleCollapsed = ref(false);
+const draggingAccountId = ref<number | null>(null);
+const draggingFrom = ref<'inScope' | 'eligible' | null>(null);
+
+function onDragStart(accountId: number, section: 'inScope' | 'eligible'): void {
+  draggingAccountId.value = accountId;
+  draggingFrom.value = section;
+}
+
+function onDropInScope(): void {
+  if (draggingAccountId.value !== null && draggingFrom.value === 'eligible') {
+    emit('moveToInScope', draggingAccountId.value);
+  }
+  draggingAccountId.value = null;
+  draggingFrom.value = null;
+}
+
+function onDropEligible(): void {
+  if (draggingAccountId.value !== null && draggingFrom.value === 'inScope') {
+    emit('moveToEligible', draggingAccountId.value);
+  }
+  draggingAccountId.value = null;
+  draggingFrom.value = null;
 }
 </script>

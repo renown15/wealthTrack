@@ -31,6 +31,8 @@
         :institutions="institutions"
         :account-types="accountTypes"
         :account-statuses="accountStatuses"
+        :hide-opened-date="props.hideOpenedDate"
+        :closed-account-mode="props.closedAccountMode"
       />
     </template>
 
@@ -44,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import type { Institution } from '@/models/WealthTrackDataModels';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 import BaseModal from '@/components/BaseModal.vue';
@@ -68,6 +70,8 @@ interface Props {
   institutionTypes: ReferenceDataItem[];
   initialAccountData?: Partial<AccountFormData>;
   initialInstitutionData?: Partial<InstitutionFormData>;
+  hideOpenedDate?: boolean;
+  closedAccountMode?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -80,35 +84,53 @@ const emit = defineEmits<{
 }>();
 
 const formData = ref<AccountFormData>({
-  name: '',
-  institutionId: 0,
-  typeId: undefined,
-  statusId: undefined,
-  openedAt: undefined,
-  closedAt: undefined,
-  accountNumber: undefined,
-  sortCode: undefined,
-  rollRefNumber: undefined,
-  interestRate: undefined,
-  fixedBonusRate: undefined,
-  fixedBonusRateEndDate: undefined,
-  releaseDate: undefined,
-  numberOfShares: undefined,
-  underlying: undefined,
-  price: undefined,
-  purchasePrice: undefined,
-  encumbrance: undefined,
+  name: '', institutionId: 0,
+  typeId: undefined, statusId: undefined,
+  openedAt: undefined, closedAt: undefined,
+  accountNumber: undefined, sortCode: undefined, rollRefNumber: undefined,
+  interestRate: undefined, fixedBonusRate: undefined, fixedBonusRateEndDate: undefined,
+  releaseDate: undefined, numberOfShares: undefined, underlying: undefined,
+  price: undefined, purchasePrice: undefined, encumbrance: undefined,
   ...props.initialAccountData,
 });
 
 const institutionFormData = ref<InstitutionFormData>({
-  name: '',
-  parentId: 0,
-  institutionType: null,
-  ...props.initialInstitutionData,
+  name: '', parentId: 0, institutionType: null, ...props.initialInstitutionData,
 });
 
 const validationError = ref('');
+
+function buildFormData(): AccountFormData {
+  return {
+    name: '',
+    institutionId: 0,
+    typeId: undefined,
+    statusId: undefined,
+    openedAt: undefined,
+    closedAt: undefined,
+    accountNumber: undefined,
+    sortCode: undefined,
+    rollRefNumber: undefined,
+    interestRate: undefined,
+    fixedBonusRate: undefined,
+    fixedBonusRateEndDate: undefined,
+    releaseDate: undefined,
+    numberOfShares: undefined,
+    underlying: undefined,
+    price: undefined,
+    purchasePrice: undefined,
+    encumbrance: undefined,
+    ...props.initialAccountData,
+  };
+}
+
+watch(() => props.open, (isOpen) => {
+  if (isOpen) {
+    formData.value = buildFormData();
+    institutionFormData.value = { name: '', parentId: 0, institutionType: null, ...props.initialInstitutionData };
+    validationError.value = '';
+  }
+});
 
 const modalTitle = computed(() => {
   if (props.resourceType === 'institution') {

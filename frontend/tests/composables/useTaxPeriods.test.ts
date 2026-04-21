@@ -20,11 +20,13 @@ const mockApi = vi.mocked(apiService);
 const p1: TaxPeriod = {
   id: 1, userId: 1, name: '2024/25',
   startDate: '2024-04-06', endDate: '2025-04-05',
+  accountGroupId: null,
   createdAt: '2024-04-06T00:00:00', updatedAt: '2024-04-06T00:00:00',
 };
 const p2: TaxPeriod = {
   id: 2, userId: 1, name: '2023/24',
   startDate: '2023-04-06', endDate: '2024-04-05',
+  accountGroupId: null,
   createdAt: '2023-04-06T00:00:00', updatedAt: '2023-04-06T00:00:00',
 };
 

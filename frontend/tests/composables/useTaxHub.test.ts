@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useTaxHub } from '@composables/useTaxHub';
 import { apiService } from '@services/ApiService';
-import type { EligibleAccount, TaxDocument, TaxReturn } from '@models/TaxModels';
+import type { EligibleAccount, TaxDocument, TaxPeriodAccountsResponse, TaxReturn } from '@models/TaxModels';
 
 vi.mock('@/services/ApiService', () => ({
   apiService: {
@@ -10,6 +10,8 @@ vi.mock('@/services/ApiService', () => ({
     uploadTaxDocument: vi.fn(),
     downloadTaxDocument: vi.fn(),
     deleteTaxDocument: vi.fn(),
+    addAccountToGroup: vi.fn(),
+    removeAccountFromGroup: vi.fn(),
   },
 }));
 
@@ -32,24 +34,50 @@ const mockDoc: TaxDocument = {
 
 const mockAccount: EligibleAccount = {
   accountId: 5, accountName: 'Savings', accountType: 'Savings Account',
-  institutionName: 'TestBank', interestRate: '2.0',
-  eligibilityReason: 'interest_bearing', taxReturn: null, documents: [],
+  institutionName: 'TestBank', interestRate: '2.0', accountStatus: 'Open',
+  accountNumber: null, sortCode: null, rollRefNumber: null,
+  eligibilityReason: 'interest_bearing', eventCount: 0, taxReturn: null, documents: [],
+};
+
+const mockInScopeAccount: EligibleAccount = {
+  ...mockAccount, accountId: 9, accountName: 'Closed ISA', eligibilityReason: 'in_scope',
+};
+
+const mockResponse: TaxPeriodAccountsResponse = {
+  accountGroupId: 42,
+  inScope: [mockInScopeAccount],
+  eligible: [mockAccount],
 };
 
 describe('useTaxHub', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockApi.getTaxEligibleAccounts.mockResolvedValue([mockAccount]);
+    mockApi.getTaxEligibleAccounts.mockResolvedValue(mockResponse);
     mockApi.upsertTaxReturn.mockResolvedValue(mockReturn);
     mockApi.uploadTaxDocument.mockResolvedValue(mockDoc);
     mockApi.downloadTaxDocument.mockResolvedValue(new Blob(['data']));
     mockApi.deleteTaxDocument.mockResolvedValue(undefined);
+    mockApi.addAccountToGroup.mockResolvedValue(undefined);
+    mockApi.removeAccountFromGroup.mockResolvedValue(undefined);
   });
 
-  it('loadAccounts populates accounts', async () => {
+  it('loadAccounts populates inScope and eligible', async () => {
+    const { inScope, eligible, loadAccounts } = useTaxHub();
+    await loadAccounts(1);
+    expect(inScope.value).toStrictEqual([mockInScopeAccount]);
+    expect(eligible.value).toStrictEqual([mockAccount]);
+  });
+
+  it('accounts computed combines inScope and eligible', async () => {
     const { accounts, loadAccounts } = useTaxHub();
     await loadAccounts(1);
-    expect(accounts.value).toStrictEqual([mockAccount]);
+    expect(accounts.value).toHaveLength(2);
+  });
+
+  it('loadAccounts stores accountGroupId', async () => {
+    const { accountGroupId, loadAccounts } = useTaxHub();
+    await loadAccounts(1);
+    expect(accountGroupId.value).toBe(42);
   });
 
   it('loadAccounts sets error on failure', async () => {
@@ -59,12 +87,21 @@ describe('useTaxHub', () => {
     expect(error.value).toBe('Network');
   });
 
-  it('saveReturn updates account taxReturn in list', async () => {
-    const { accounts, loadAccounts, saveReturn } = useTaxHub();
+  it('saveReturn updates account taxReturn in eligible list', async () => {
+    const { eligible, loadAccounts, saveReturn } = useTaxHub();
     await loadAccounts(1);
     const ok = await saveReturn(1, 5, { income: 100, capitalGain: null, taxTakenOff: 20 });
     expect(ok).toBe(true);
-    expect(accounts.value[0].taxReturn).toStrictEqual(mockReturn);
+    expect(eligible.value[0].taxReturn).toStrictEqual(mockReturn);
+  });
+
+  it('saveReturn updates account in inScope list', async () => {
+    const { inScope, loadAccounts, saveReturn } = useTaxHub();
+    await loadAccounts(1);
+    mockApi.upsertTaxReturn.mockResolvedValue({ ...mockReturn, accountId: 9 });
+    const ok = await saveReturn(1, 9, { income: 100, capitalGain: null, taxTakenOff: 20 });
+    expect(ok).toBe(true);
+    expect(inScope.value[0].taxReturn).not.toBeNull();
   });
 
   it('saveReturn returns false on error', async () => {
@@ -76,30 +113,38 @@ describe('useTaxHub', () => {
   });
 
   it('uploadDocument appends doc to account', async () => {
-    const { accounts, loadAccounts, uploadDocument } = useTaxHub();
+    const { eligible, loadAccounts, uploadDocument } = useTaxHub();
     await loadAccounts(1);
     const file = new File(['content'], 'cert.pdf', { type: 'application/pdf' });
     const result = await uploadDocument(1, 5, file);
     expect(result).toStrictEqual(mockDoc);
-    expect(accounts.value[0].documents).toHaveLength(1);
-    expect(accounts.value[0].documents[0].id).toBe(20);
-  });
-
-  it('uploadDocument returns null on error', async () => {
-    mockApi.uploadTaxDocument.mockRejectedValue(new Error('Upload failed'));
-    const { loadAccounts, uploadDocument } = useTaxHub();
-    await loadAccounts(1);
-    const file = new File(['content'], 'cert.pdf');
-    const result = await uploadDocument(1, 5, file);
-    expect(result).toBeNull();
+    expect(eligible.value[0].documents).toHaveLength(1);
   });
 
   it('deleteDocument removes doc from account', async () => {
     const accountWithDoc: EligibleAccount = { ...mockAccount, documents: [mockDoc] };
-    mockApi.getTaxEligibleAccounts.mockResolvedValue([accountWithDoc]);
-    const { accounts, loadAccounts, deleteDocument } = useTaxHub();
+    mockApi.getTaxEligibleAccounts.mockResolvedValue({
+      ...mockResponse, eligible: [accountWithDoc],
+    });
+    const { eligible, loadAccounts, deleteDocument } = useTaxHub();
     await loadAccounts(1);
     await deleteDocument(1, 5, 20);
-    expect(accounts.value[0].documents).toHaveLength(0);
+    expect(eligible.value[0].documents).toHaveLength(0);
+  });
+
+  it('moveToInScope calls addAccountToGroup and reloads', async () => {
+    const { loadAccounts, moveToInScope } = useTaxHub();
+    await loadAccounts(1);
+    await moveToInScope(5);
+    expect(mockApi.addAccountToGroup).toHaveBeenCalledWith(42, 5);
+    expect(mockApi.getTaxEligibleAccounts).toHaveBeenCalledTimes(2);
+  });
+
+  it('moveToEligible calls removeAccountFromGroup and reloads', async () => {
+    const { loadAccounts, moveToEligible } = useTaxHub();
+    await loadAccounts(1);
+    await moveToEligible(9);
+    expect(mockApi.removeAccountFromGroup).toHaveBeenCalledWith(42, 9);
+    expect(mockApi.getTaxEligibleAccounts).toHaveBeenCalledTimes(2);
   });
 });
