@@ -17,9 +17,7 @@ class ReferenceDataCreate(BaseSchema):
         max_length=100,
         description="Class key (e.g., 'credential_type')",
     )
-    reference_value: str = Field(
-        ..., min_length=1, max_length=255, description="Display value"
-    )
+    reference_value: str = Field(..., min_length=1, max_length=255, description="Display value")
     sort_index: Optional[int] = Field(None, ge=0, description="Sort order")
 
 

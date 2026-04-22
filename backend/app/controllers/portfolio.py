@@ -46,13 +46,13 @@ async def get_user_portfolio(
             total_value += val
         except (TypeError, ValueError):
             continue
-        
+
         # Track the latest price update across all accounts
         account = item.get("account", {})
         if account.get("updatedAt"):
             if last_price_update is None or account.get("updatedAt") > last_price_update:
                 last_price_update = account.get("updatedAt")
-    
+
     return {
         "items": items,
         "total_value": total_value,

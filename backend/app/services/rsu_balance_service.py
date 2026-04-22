@@ -49,9 +49,7 @@ class RSUBalanceService:
             attr_type_id = await self.repo.get_attribute_type_id("rsu_balance")
 
             if not attr_type_id:
-                logger.warning(
-                    "[RSUBalanceService] 'RSU Balance' attribute type not found"
-                )
+                logger.warning("[RSUBalanceService] 'RSU Balance' attribute type not found")
                 return False
 
             # Check if balance was already saved today
@@ -59,13 +57,18 @@ class RSUBalanceService:
             today_start = datetime.combine(today, datetime.min.time())
 
             # Check if balance event already exists for today
-            balance_event_stmt = select(AccountEvent).where(
-                and_(
-                    AccountEvent.account_id == account_id,
-                    AccountEvent.user_id == user_id,
-                    AccountEvent.created_at >= today_start,
+            balance_event_stmt = (
+                select(AccountEvent)
+                .where(
+                    and_(
+                        AccountEvent.account_id == account_id,
+                        AccountEvent.user_id == user_id,
+                        AccountEvent.created_at >= today_start,
+                    )
                 )
-            ).order_by(AccountEvent.created_at.desc()).limit(1)
+                .order_by(AccountEvent.created_at.desc())
+                .limit(1)
+            )
             balance_event_result = await self.session.execute(balance_event_stmt)
             existing_event = balance_event_result.scalar_one_or_none()
 
@@ -86,9 +89,7 @@ class RSUBalanceService:
             event_type_id = event_type_result.scalar_one_or_none()
 
             if not event_type_id:
-                logger.warning(
-                    "[RSUBalanceService] 'Balance Update' event type not found"
-                )
+                logger.warning("[RSUBalanceService] 'Balance Update' event type not found")
                 return False
 
             # Create the balance event

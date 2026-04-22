@@ -28,16 +28,12 @@ class TaxDocument(Base):
     filename: Mapped[str] = mapped_column(String(500), nullable=False)
     content_type: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     file_data: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )
 
-    tax_return: Mapped["TaxReturn"] = relationship(
-        "TaxReturn", back_populates="documents"
-    )
+    tax_return: Mapped["TaxReturn"] = relationship("TaxReturn", back_populates="documents")
 
     def __repr__(self) -> str:
         return f"<TaxDocument(id={self.id}, filename={self.filename})>"

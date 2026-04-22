@@ -131,9 +131,7 @@ class TestPriceServiceWithMocks:
         mock_response.status_code = 404
         mock_client.get = AsyncMock(
             side_effect=httpx.HTTPStatusError(
-                message="Not found",
-                request=MagicMock(),
-                response=mock_response
+                message="Not found", request=MagicMock(), response=mock_response
             )
         )
 

@@ -32,12 +32,8 @@ class Account(Base):
     status_id: Mapped[int] = mapped_column(
         "statusid", Integer, ForeignKey("ReferenceData.id"), nullable=False
     )
-    asset_class: Mapped[Optional[str]] = mapped_column(
-        String(255), nullable=True, default=None
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
-    )
+    asset_class: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, default=None)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )

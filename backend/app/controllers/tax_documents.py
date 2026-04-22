@@ -50,9 +50,7 @@ async def list_documents(
 ) -> list[TaxDocumentResponse]:
     """List documents for an account in a tax period."""
     return_repo = TaxReturnRepository(session)
-    tax_return = await return_repo.get_for_account_period(
-        current_user.id, account_id, period_id
-    )
+    tax_return = await return_repo.get_for_account_period(current_user.id, account_id, period_id)
     if not tax_return:
         return []
     doc_repo = TaxDocumentRepository(session)

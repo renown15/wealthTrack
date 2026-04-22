@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 class AccountDetail(BaseModel):
     """An individual account contributing to a breakdown segment."""
+
     account_id: int
     account_name: str
     institution_name: str
@@ -15,6 +16,7 @@ class AccountDetail(BaseModel):
 
 class BreakdownItem(BaseModel):
     """A labelled value for a breakdown chart, with per-account detail."""
+
     label: str
     value: float
     accounts: list["AccountDetail"] = []
@@ -22,6 +24,7 @@ class BreakdownItem(BaseModel):
 
 class PortfolioBreakdown(BaseModel):
     """Current portfolio breakdown by account type, institution and asset class."""
+
     by_type: list[BreakdownItem]
     by_institution: list[BreakdownItem]
     by_asset_class: list[BreakdownItem]
@@ -31,11 +34,13 @@ class PortfolioBreakdown(BaseModel):
 
 class HistoryPoint(BaseModel):
     """Portfolio total value on a single day."""
-    date: str        # "YYYY-MM-DD"
+
+    date: str  # "YYYY-MM-DD"
     total_value: float
 
 
 class PortfolioHistory(BaseModel):
     """Daily portfolio value history from the earliest balance record to today."""
+
     baseline_date: str | None  # "YYYY-MM-DD" or null if not set
     history: list[HistoryPoint]

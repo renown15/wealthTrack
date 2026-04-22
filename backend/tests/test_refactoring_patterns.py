@@ -22,6 +22,7 @@ class SimplePriceCache:
 
         price, timestamp = self._cache[symbol]
         import time
+
         age = time.time() - timestamp
 
         if age < self.ttl_seconds:
@@ -32,6 +33,7 @@ class SimplePriceCache:
     async def set(self, symbol: str, price: str) -> None:
         """Store price in cache."""
         import time
+
         self._cache[symbol] = (price, time.time())
 
 

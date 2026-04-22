@@ -63,9 +63,7 @@ async def test_get_current_user_from_token_success() -> None:
 
 
 @pytest.mark.asyncio
-async def test_get_current_user_returns_user(
-    db_session: AsyncSession, user: UserProfile
-) -> None:
+async def test_get_current_user_returns_user(db_session: AsyncSession, user: UserProfile) -> None:
     payload = {"sub": str(user.id)}
 
     current_user = await get_current_user(payload, db_session)

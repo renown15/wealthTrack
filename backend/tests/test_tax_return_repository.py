@@ -1,6 +1,7 @@
 """Unit tests for TaxReturnRepository."""
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from app.repositories.tax_return_repository import TaxReturnRepository
 
@@ -73,9 +74,13 @@ class TestTaxReturnRepositoryUpsert:
         session.flush = AsyncMock()
         session.refresh = AsyncMock()
 
-        result = await repo.upsert(
-            user_id=1, account_id=2, tax_period_id=3,
-            income=100.0, capital_gain=None, tax_taken_off=10.0,
+        await repo.upsert(
+            user_id=1,
+            account_id=2,
+            tax_period_id=3,
+            income=100.0,
+            capital_gain=None,
+            tax_taken_off=10.0,
         )
         session.add.assert_called_once()
         session.flush.assert_called_once()
@@ -91,9 +96,13 @@ class TestTaxReturnRepositoryUpsert:
         session.flush = AsyncMock()
         session.refresh = AsyncMock()
 
-        result = await repo.upsert(
-            user_id=1, account_id=2, tax_period_id=3,
-            income=200.0, capital_gain=500.0, tax_taken_off=50.0,
+        await repo.upsert(
+            user_id=1,
+            account_id=2,
+            tax_period_id=3,
+            income=200.0,
+            capital_gain=500.0,
+            tax_taken_off=50.0,
         )
         assert existing.income == 200.0
         assert existing.capital_gain == 500.0

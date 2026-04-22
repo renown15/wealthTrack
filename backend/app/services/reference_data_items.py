@@ -12,4 +12,3 @@ DDL changes (new tables, columns, indexes) still go in Alembic migrations.
 from app.services.db_seeds import REFERENCE_DATA_ITEMS, ReferenceDataItem
 
 __all__ = ["REFERENCE_DATA_ITEMS", "ReferenceDataItem"]
-

@@ -186,9 +186,7 @@ async def test_portfolio_repository_get_account_current_balance():
 
 
 @pytest.mark.asyncio
-async def test_account_repository_with_data(
-    db_session, user, account
-):
+async def test_account_repository_with_data(db_session, user, account):
     """Test account repository with real data."""
     repo = AccountRepository(db_session)
     accounts = await repo.get_by_user(user.id)
@@ -197,9 +195,7 @@ async def test_account_repository_with_data(
 
 
 @pytest.mark.asyncio
-async def test_institution_repository_with_data(
-    db_session, user, institution
-):
+async def test_institution_repository_with_data(db_session, user, institution):
     """Test institution repository with real data."""
     repo = InstitutionRepository(db_session)
     institutions = await repo.get_by_user(user.id)
@@ -208,9 +204,7 @@ async def test_institution_repository_with_data(
 
 
 @pytest.mark.asyncio
-async def test_portfolio_repository_with_data(
-    db_session, user, account
-):
+async def test_portfolio_repository_with_data(db_session, user, account):
     """Test portfolio repository with real data."""
     repo = PortfolioRepository(db_session)
     portfolio = await repo.get_user_portfolio(user.id)
@@ -218,4 +212,3 @@ async def test_portfolio_repository_with_data(
     assert len(portfolio) >= 1
     assert isinstance(portfolio[0]["account"], dict)
     assert portfolio[0]["account"]["id"] == account.id
-

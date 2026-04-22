@@ -20,7 +20,9 @@ class TaxReturn(Base):
     __tablename__ = "TaxReturn"
     __table_args__ = (
         UniqueConstraint(
-            "userid", "accountid", "taxperiodid",
+            "userid",
+            "accountid",
+            "taxperiodid",
             name="uq_tax_return_user_account_period",
         ),
     )
@@ -38,9 +40,7 @@ class TaxReturn(Base):
     income: Mapped[Optional[float]] = mapped_column(Numeric(15, 2), nullable=True)
     capital_gain: Mapped[Optional[float]] = mapped_column(Numeric(15, 2), nullable=True)
     tax_taken_off: Mapped[Optional[float]] = mapped_column(Numeric(15, 2), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )

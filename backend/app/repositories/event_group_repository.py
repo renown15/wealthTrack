@@ -6,10 +6,10 @@ from typing import Any, Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.account_attribute import AccountAttribute
+from app.models.account_event import AccountEvent
 from app.models.account_event_attribute_group import AccountEventAttributeGroup
 from app.models.account_event_attribute_group_member import AccountEventAttributeGroupMember
-from app.models.account_event import AccountEvent
-from app.models.account_attribute import AccountAttribute
 from app.models.reference_data import ReferenceData
 
 
@@ -80,7 +80,9 @@ class EventGroupRepository:
         # Find all group IDs that have at least one event on this account
         event_group_id_stmt = (
             select(AccountEventAttributeGroupMember.group_id)
-            .join(AccountEvent, AccountEvent.id == AccountEventAttributeGroupMember.account_event_id)
+            .join(
+                AccountEvent, AccountEvent.id == AccountEventAttributeGroupMember.account_event_id
+            )
             .where(AccountEvent.account_id == account_id)
             .where(AccountEvent.user_id == user_id)
             .distinct()
@@ -124,13 +126,15 @@ class EventGroupRepository:
                     row = ev_result.one_or_none()
                     if row:
                         ev, ev_type = row
-                        events.append({
-                            "id": ev.id,
-                            "account_id": ev.account_id,
-                            "event_type": ev_type,
-                            "value": ev.value,
-                            "created_at": ev.created_at,
-                        })
+                        events.append(
+                            {
+                                "id": ev.id,
+                                "account_id": ev.account_id,
+                                "event_type": ev_type,
+                                "value": ev.value,
+                                "created_at": ev.created_at,
+                            }
+                        )
                 elif member.account_attribute_id:
                     at_stmt = (
                         select(AccountAttribute, ReferenceData.reference_value)
@@ -141,18 +145,22 @@ class EventGroupRepository:
                     at_row = at_result.one_or_none()
                     if at_row:
                         attr, attr_type = at_row
-                        attributes.append({
-                            "id": attr.id,
-                            "account_id": attr.account_id,
-                            "attribute_type": attr_type,
-                            "value": attr.value,
-                        })
+                        attributes.append(
+                            {
+                                "id": attr.id,
+                                "account_id": attr.account_id,
+                                "attribute_type": attr_type,
+                                "value": attr.value,
+                            }
+                        )
 
-            output.append({
-                "group_id": group.id,
-                "created_at": group.created_at,
-                "events": events,
-                "attributes": attributes,
-            })
+            output.append(
+                {
+                    "group_id": group.id,
+                    "created_at": group.created_at,
+                    "events": events,
+                    "attributes": attributes,
+                }
+            )
 
         return output

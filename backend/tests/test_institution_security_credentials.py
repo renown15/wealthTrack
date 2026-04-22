@@ -21,9 +21,7 @@ async def test_list_institution_credentials(
     user: UserProfile,
 ) -> None:
     """Ensure credentials are listed for an institution."""
-    type_stmt = select(ReferenceData).where(
-        ReferenceData.class_key == "credential_type"
-    )
+    type_stmt = select(ReferenceData).where(ReferenceData.class_key == "credential_type")
     type_result = await db_session.execute(type_stmt)
     credential_type = type_result.scalars().first()
     assert credential_type is not None
@@ -60,9 +58,7 @@ async def test_create_institution_credential(
     user: UserProfile,
 ) -> None:
     """Create a credential through the API."""
-    type_stmt = select(ReferenceData).where(
-        ReferenceData.class_key == "credential_type"
-    )
+    type_stmt = select(ReferenceData).where(ReferenceData.class_key == "credential_type")
     type_result = await db_session.execute(type_stmt)
     credential_type = type_result.scalars().first()
     assert credential_type is not None
@@ -99,9 +95,7 @@ async def test_update_institution_credential(
     user: UserProfile,
 ) -> None:
     """Update a credential value and type."""
-    select_stmt = select(ReferenceData).where(
-        ReferenceData.class_key == "credential_type"
-    )
+    select_stmt = select(ReferenceData).where(ReferenceData.class_key == "credential_type")
     type_result = await db_session.execute(select_stmt)
     credential_types = type_result.scalars().all()
     assert len(credential_types) >= 2

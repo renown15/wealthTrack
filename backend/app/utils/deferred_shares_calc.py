@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 class DeferredSharesCalculation(TypedDict):
     """Result of deferred shares calculation with breakdown"""
+
     balance: float  # In pounds
     gross_amount: float  # In pounds (before tax)
     capital_gains_tax: float  # In pounds (20% of gain)

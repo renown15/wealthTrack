@@ -23,9 +23,7 @@ async def _enrich_institution_response(
     group_repo: InstitutionGroupRepository,
 ) -> None:
     """Load parent institution relationship if exists."""
-    parent_group = await group_repo.get_parent_for_child(
-        institution_id, current_user_id
-    )
+    parent_group = await group_repo.get_parent_for_child(institution_id, current_user_id)
     if parent_group:
         response.parent_id = parent_group.parent_institution_id
 

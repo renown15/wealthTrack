@@ -138,7 +138,7 @@ class TestFormulaVerification:
     """Tests to verify the formula is correctly implemented"""
 
     def test_formula_equivalence_basic(self):
-        """Verify formula: balance = (shares × currentPrice) - (((shares × currentPrice) - (shares × purchasePrice)) × 0.2)"""
+        """Verify balance formula with tax at 20% applied to gain."""
         shares = 1000
         current_price = 5000
         purchase_price = 4000
@@ -150,9 +150,7 @@ class TestFormulaVerification:
         ) / 100
 
         # Our implementation
-        calculated_result = calculate_deferred_shares_balance(
-            shares, current_price, purchase_price
-        )
+        calculated_result = calculate_deferred_shares_balance(shares, current_price, purchase_price)
 
         assert abs(direct_result - calculated_result) < 0.0001
 
@@ -169,9 +167,7 @@ class TestFormulaVerification:
         ) / 100
 
         # Our implementation
-        calculated_result = calculate_deferred_shares_balance(
-            shares, current_price, purchase_price
-        )
+        calculated_result = calculate_deferred_shares_balance(shares, current_price, purchase_price)
 
         assert abs(direct_result - calculated_result) < 0.0001
 
@@ -185,8 +181,6 @@ class TestFormulaVerification:
         simplified_result = shares * (0.8 * current_price + 0.2 * purchase_price) / 100
 
         # Our implementation
-        calculated_result = calculate_deferred_shares_balance(
-            shares, current_price, purchase_price
-        )
+        calculated_result = calculate_deferred_shares_balance(shares, current_price, purchase_price)
 
         assert abs(simplified_result - calculated_result) < 0.0001

@@ -48,9 +48,7 @@ class DeferredCashBalanceService:
             today = date.today()
             existing_attr = await self.repo.get_attribute(account_id, user_id, attr_type_id)
             if existing_attr and existing_attr.updated_at.date() == today:
-                logger.debug(
-                    "[DeferredCashBalanceService] Already saved today: %s", account_id
-                )
+                logger.debug("[DeferredCashBalanceService] Already saved today: %s", account_id)
                 return False
 
             await self.repo.set_attribute(account_id, user_id, attr_type_id, balance_str)

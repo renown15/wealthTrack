@@ -26,15 +26,9 @@ class InstitutionSecurityCredentials(Base):
     type_id: Mapped[int] = mapped_column(
         "typeid", Integer, ForeignKey("ReferenceData.id"), nullable=False
     )
-    key_encrypted: Mapped[Optional[str]] = mapped_column(
-        "key", String(1000), nullable=True
-    )
-    value_encrypted: Mapped[Optional[str]] = mapped_column(
-        "value", String(2000), nullable=True
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
-    )
+    key_encrypted: Mapped[Optional[str]] = mapped_column("key", String(1000), nullable=True)
+    value_encrypted: Mapped[Optional[str]] = mapped_column("value", String(2000), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )

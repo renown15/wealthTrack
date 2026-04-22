@@ -37,9 +37,7 @@ class TaxReturnRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def list_for_period(
-        self, user_id: int, tax_period_id: int
-    ) -> list[TaxReturn]:
+    async def list_for_period(self, user_id: int, tax_period_id: int) -> list[TaxReturn]:
         """Get all tax returns for a period."""
         stmt = select(TaxReturn).where(
             TaxReturn.user_id == user_id,
@@ -69,7 +67,9 @@ class TaxReturnRepository:
             await self.session.refresh(existing)
             return existing
 
-        return await self._create(user_id, account_id, tax_period_id, income, capital_gain, tax_taken_off, now)
+        return await self._create(
+            user_id, account_id, tax_period_id, income, capital_gain, tax_taken_off, now
+        )
 
     async def get_or_create(
         self,
@@ -84,7 +84,15 @@ class TaxReturnRepository:
         existing = await self.get_for_account_period(user_id, account_id, tax_period_id)
         if existing:
             return existing
-        return await self._create(user_id, account_id, tax_period_id, income, capital_gain, tax_taken_off, datetime.utcnow())
+        return await self._create(
+            user_id,
+            account_id,
+            tax_period_id,
+            income,
+            capital_gain,
+            tax_taken_off,
+            datetime.utcnow(),
+        )
 
     async def _create(
         self,

@@ -1,12 +1,27 @@
 /**
  * Composable for managing eligible accounts, tax returns, and documents in a period.
  */
-import { ref, computed } from 'vue';
+import { ref, computed, type Ref, type ComputedRef } from 'vue';
 import type { EligibleAccount, TaxDocument, TaxReturnUpsertRequest } from '@models/TaxModels';
 import { apiService } from '@services/ApiService';
 import { useToast } from '@composables/useToast';
 
-export function useTaxHub() {
+export function useTaxHub(): {
+  accounts: ComputedRef<EligibleAccount[]>;
+  inScope: Ref<EligibleAccount[]>;
+  eligible: Ref<EligibleAccount[]>;
+  accountGroupId: Ref<number | null>;
+  loading: Ref<boolean>;
+  error: Ref<string | null>;
+  loadAccounts: (periodId: number) => Promise<void>;
+  saveReturn: (periodId: number, accountId: number, data: TaxReturnUpsertRequest) => Promise<boolean>;
+  uploadDocument: (periodId: number, accountId: number, file: File) => Promise<TaxDocument | null>;
+  downloadDocument: (docId: number, filename: string) => Promise<void>;
+  fetchDocumentBlob: (docId: number) => Promise<Blob | null>;
+  deleteDocument: (periodId: number, accountId: number, docId: number) => Promise<void>;
+  moveToInScope: (accountId: number) => Promise<void>;
+  moveToEligible: (accountId: number) => Promise<void>;
+} {
   const inScope = ref<EligibleAccount[]>([]);
   const eligible = ref<EligibleAccount[]>([]);
   const accountGroupId = ref<number | null>(null);

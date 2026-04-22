@@ -15,7 +15,11 @@ from app.models.reference_data import ReferenceData
 from app.repositories.account_attribute_repository import AccountAttributeRepository
 from app.repositories.account_processor import AccountProcessor
 from app.repositories.institution_group_repository import InstitutionGroupRepository
-from app.repositories.portfolio_builders import build_attributes_dict, build_portfolio_item
+from app.repositories.portfolio_builders import (
+    build_attributes_dict,
+    build_portfolio_item,
+    fetch_target_prices,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -108,23 +112,17 @@ class PortfolioRepository:
         # 6. Institution group parents for all institutions (one IN query instead of N queries)
         institution_ids = [a.institution.id for a in accounts if a.institution]
         grp_repo = InstitutionGroupRepository(self.session)
-        parents_by_institution = await grp_repo.get_parents_for_children(
-            institution_ids, user_id
-        )
+        parents_by_institution = await grp_repo.get_parents_for_children(institution_ids, user_id)
 
         # 7. Event type labels for latest balances (one IN query instead of N queries)
-        balance_type_ids = list(
-            {b.type_id for b in balances_by_account.values() if b.type_id}
-        )
+        balance_type_ids = list({b.type_id for b in balances_by_account.values() if b.type_id})
         event_type_by_id: dict[int, str] = {}
         if balance_type_ids:
-            event_type_stmt = select(
-                ReferenceData.id, ReferenceData.reference_value
-            ).where(ReferenceData.id.in_(balance_type_ids))
+            event_type_stmt = select(ReferenceData.id, ReferenceData.reference_value).where(
+                ReferenceData.id.in_(balance_type_ids)
+            )
             event_type_result = await self.session.execute(event_type_stmt)
-            event_type_by_id = {
-                row.id: row.reference_value for row in event_type_result.all()
-            }
+            event_type_by_id = {row.id: row.reference_value for row in event_type_result.all()}
 
         # Document counts per account (one GROUP BY query)
         doc_count_stmt = (
@@ -136,8 +134,7 @@ class PortfolioRepository:
         doc_count_result = await self.session.execute(doc_count_stmt)
         doc_counts: dict[int, int] = {row.account_id: row.cnt for row in doc_count_result.all()}
 
-        tp_rows = (await self.session.execute(select(ReferenceData.reference_value).where(ReferenceData.class_key == "stock_target_ref_price"))).scalars().all()  # noqa: E501
-        target_prices_by_ticker: dict[str, str] = {r.split(":")[0].strip(): r.split(":")[1].strip() for r in tp_rows if ":" in r}  # noqa: E501
+        target_prices_by_ticker = await fetch_target_prices(self.session)
         # Pass 1: run type-specific processors (may write new Balance Update events)
         # Processors must run before we build portfolio items so fresh balances are available.
         account_computed: dict[int, tuple[str, dict[str, Any], int, int]] = {}
@@ -185,8 +182,7 @@ class PortfolioRepository:
 
         # Re-fetch balances so processors' newly-written Balance Updates are visible.
         balances_by_account = {
-            b.account_id: b
-            for b in (await self.session.execute(balance_stmt)).scalars().all()
+            b.account_id: b for b in (await self.session.execute(balance_stmt)).scalars().all()
         }
 
         # Pass 2: build portfolio items with fresh balances
@@ -209,9 +205,7 @@ class PortfolioRepository:
 
         return portfolio
 
-    async def get_account_current_balance(
-        self, account_id: int, user_id: int
-    ) -> str | None:
+    async def get_account_current_balance(self, account_id: int, user_id: int) -> str | None:
         """Get current balance for an account."""
         stmt = (
             select(AccountEvent.value)

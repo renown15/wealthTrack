@@ -176,6 +176,3 @@ async def test_delete_reference_data_not_found(client: AsyncClient) -> None:
     """DELETE /api/v1/reference-data/{id} returns 404 when entry doesn't exist."""
     response = await client.delete("/api/v1/reference-data/99999")
     assert response.status_code == 404
-
-
-

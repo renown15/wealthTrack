@@ -1,5 +1,4 @@
 """Tests for tax period linked account group behaviour."""
-from datetime import date
 
 import pytest
 from fastapi import status
@@ -42,7 +41,8 @@ async def test_create_period_group_name_matches(
         headers=authenticated_headers,
     )
     result = await db_session.execute(
-        __import__("sqlalchemy", fromlist=["select"]).select(AccountGroup)
+        __import__("sqlalchemy", fromlist=["select"])
+        .select(AccountGroup)
         .where(AccountGroup.user_id == user.id)
         .where(AccountGroup.name == "Tax Period: 2025/26")
     )

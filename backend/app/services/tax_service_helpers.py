@@ -116,12 +116,14 @@ def filter_eligible(
             reason = "sold_in_period"
         else:
             continue
-        eligible.append({
-            "account": row["account"],
-            "account_type": account_type,
-            "account_status": row.get("account_status"),
-            "interest_rate": attrs.get("Interest Rate"),
-            "eligibility_reason": reason,
-            "attrs": attrs,
-        })
+        eligible.append(
+            {
+                "account": row["account"],
+                "account_type": account_type,
+                "account_status": row.get("account_status"),
+                "interest_rate": attrs.get("Interest Rate"),
+                "eligibility_reason": reason,
+                "attrs": attrs,
+            }
+        )
     return eligible

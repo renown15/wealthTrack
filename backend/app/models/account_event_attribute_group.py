@@ -22,9 +22,7 @@ class AccountEventAttributeGroup(Base):
     type_id: Mapped[int] = mapped_column(
         "typeid", Integer, ForeignKey("ReferenceData.id"), nullable=False
     )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )

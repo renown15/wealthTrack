@@ -60,9 +60,7 @@ class AccountEventRepository:
         await self.session.refresh(event)
         return event
 
-    async def get_latest_balance_update(
-        self, account_id: int, user_id: int
-    ) -> Optional[str]:
+    async def get_latest_balance_update(self, account_id: int, user_id: int) -> Optional[str]:
         """Return the value of the most recent Balance Update event for an account, or None."""
         balance_update_type_stmt = select(ReferenceData.id).where(
             ReferenceData.class_key == "account_event_type",

@@ -331,7 +331,7 @@ start-test-db:
 		echo "✅ Test database already running on localhost:5434"; \
 	else \
 		echo "Starting test database on port 5434..."; \
-		docker-compose --env-file .env.test --profile test up -d db; \
+		docker compose --project-name wealthtrack-pr-check --env-file .env.test --profile test up -d db; \
 		RETRY=30; \
 		while [ $$RETRY -gt 0 ]; do \
 			if pg_isready -h localhost -p 5434 -U postgres >/dev/null 2>&1; then \
@@ -440,6 +440,20 @@ tail-frontend:
 		exit 1; \
 	fi
 
+lint: lint-backend lint-frontend
+	@echo "✅ Linting passed!"
+
+lint-backend:
+	@echo "Linting backend code..."
+	cd backend && ruff check app/ tests/ && pylint app/
+
+lint-frontend:
+	@echo "Linting frontend code..."
+	cd frontend && npm run lint
+
+lint-fix: lint-fix-backend lint-fix-frontend
+	@echo "✅ Lint fixed!"
+
 lint-fix-backend:
 	@echo "Auto-fixing backend linting issues..."
 	cd backend && ruff check app/ --fix
@@ -505,16 +519,15 @@ PR_TEST_DB_URL=postgresql+asyncpg://postgres:test_postgres_password@localhost:54
 pr-check:
 	@bash -c ' \
 		set -e; \
-		TEST_DB_CONTAINER=$$(grep "^DB_CONTAINER=" .env.test 2>/dev/null | cut -d= -f2); \
-		TEST_DB_CONTAINER=$${TEST_DB_CONTAINER:-wealthtrack-db-test}; \
-		trap "docker stop $$TEST_DB_CONTAINER 2>/dev/null || true; docker rm $$TEST_DB_CONTAINER 2>/dev/null || true; docker volume rm wealthtrack_wealthtrack_test_pgdata 2>/dev/null || true" EXIT; \
+		PR_PROJECT=wealthtrack-pr-check; \
+		trap "docker compose --project-name $$PR_PROJECT --env-file .env.test --profile test down --volumes 2>/dev/null || true" EXIT; \
 		echo ""; \
 		echo "╔════════════════════════════════════════════╗"; \
 		echo "║  PR CHECK - Isolated Test Environment      ║"; \
 		echo "╚════════════════════════════════════════════╝"; \
 		echo ""; \
 		echo "[1/6] Starting isolated test database (port 5434)..."; \
-		docker-compose --env-file .env.test --profile test up -d db; \
+		docker compose --project-name $$PR_PROJECT --env-file .env.test --profile test up -d db; \
 		RETRY=30; \
 		while [ $$RETRY -gt 0 ]; do \
 			if pg_isready -h localhost -p 5434 -U postgres >/dev/null 2>&1; then \

@@ -58,9 +58,7 @@ async def _savings_account(db: AsyncSession, user: UserProfile) -> Account:
     account = Account(user_id=user.id, name="My Savings", type_id=type_id, status_id=status_id)
     db.add(account)
     await db.flush()
-    attr = AccountAttribute(
-        user_id=user.id, account_id=account.id, type_id=ir_attr_id, value="2.0"
-    )
+    attr = AccountAttribute(user_id=user.id, account_id=account.id, type_id=ir_attr_id, value="2.0")
     db.add(attr)
     await db.flush()
     await db.refresh(account)
@@ -95,8 +93,10 @@ async def test_create_period_invalid_dates(
 
 @pytest.mark.asyncio
 async def test_list_periods_returns_created(
-    client: AsyncClient, authenticated_headers: dict,
-    db_session: AsyncSession, user: UserProfile,
+    client: AsyncClient,
+    authenticated_headers: dict,
+    db_session: AsyncSession,
+    user: UserProfile,
 ) -> None:
     await _create_period(db_session, user)
     await db_session.commit()
@@ -107,12 +107,16 @@ async def test_list_periods_returns_created(
 
 @pytest.mark.asyncio
 async def test_delete_period(
-    client: AsyncClient, authenticated_headers: dict,
-    db_session: AsyncSession, user: UserProfile,
+    client: AsyncClient,
+    authenticated_headers: dict,
+    db_session: AsyncSession,
+    user: UserProfile,
 ) -> None:
     period = await _create_period(db_session, user)
     await db_session.commit()
-    response = await client.delete(f"/api/v1/tax/periods/{period.id}", headers=authenticated_headers)
+    response = await client.delete(
+        f"/api/v1/tax/periods/{period.id}", headers=authenticated_headers
+    )
     assert response.status_code == status.HTTP_204_NO_CONTENT
     list_resp = await client.get("/api/v1/tax/periods", headers=authenticated_headers)
     assert list_resp.json() == []
@@ -126,8 +130,10 @@ async def test_delete_period_not_found(client: AsyncClient, authenticated_header
 
 @pytest.mark.asyncio
 async def test_get_eligible_accounts_empty(
-    client: AsyncClient, authenticated_headers: dict,
-    db_session: AsyncSession, user: UserProfile,
+    client: AsyncClient,
+    authenticated_headers: dict,
+    db_session: AsyncSession,
+    user: UserProfile,
 ) -> None:
     period = await _create_period(db_session, user)
     await db_session.commit()
@@ -135,13 +141,17 @@ async def test_get_eligible_accounts_empty(
         f"/api/v1/tax/periods/{period.id}/accounts", headers=authenticated_headers
     )
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == []
+    data = response.json()
+    assert data["inScope"] == []
+    assert data["eligible"] == []
 
 
 @pytest.mark.asyncio
 async def test_get_eligible_accounts_with_savings(
-    client: AsyncClient, authenticated_headers: dict,
-    db_session: AsyncSession, user: UserProfile,
+    client: AsyncClient,
+    authenticated_headers: dict,
+    db_session: AsyncSession,
+    user: UserProfile,
 ) -> None:
     await _savings_account(db_session, user)
     period = await _create_period(db_session, user)
@@ -151,5 +161,5 @@ async def test_get_eligible_accounts_with_savings(
     )
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
-    assert len(data) == 1
-    assert data[0]["eligibilityReason"] == "interest_bearing"
+    assert len(data["eligible"]) == 1
+    assert data["eligible"][0]["eligibilityReason"] == "interest_bearing"

@@ -94,3 +94,24 @@ def validate_attribute_field(field: str, value: str) -> None:
             float(value)
         except (ValueError, TypeError) as exc:
             raise ValueError(f"{field} must be a number, got: {value!r}") from exc
+
+
+# Snake-case shorthands for attribute fields used in account create/update/load.
+ATTRIBUTE_FIELDS: list[str] = [
+    "account_number",
+    "sort_code",
+    "roll_ref_number",
+    "interest_rate",
+    "fixed_bonus_rate",
+    "fixed_bonus_rate_end_date",
+    "release_date",
+    "number_of_shares",
+    "underlying",
+    "price",
+    "purchase_price",
+    "pension_monthly_payment",
+    "asset_class",
+    "encumbrance",
+    "unencumbered_balance",
+    "tax_year",
+]

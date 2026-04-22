@@ -65,9 +65,7 @@ async def test_delete_group_not_found(db_session: AsyncSession, user: UserProfil
     assert result is False
 
 
-async def test_add_member(
-    db_session: AsyncSession, user: UserProfile, account: Account
-):
+async def test_add_member(db_session: AsyncSession, user: UserProfile, account: Account):
     repo = AccountGroupRepository(db_session)
     group = await repo.create(user.id, "My Group")
     member = await repo.add_member(group.id, user.id, account.id)
@@ -75,9 +73,7 @@ async def test_add_member(
     assert member.account_id == account.id
 
 
-async def test_add_member_duplicate(
-    db_session: AsyncSession, user: UserProfile, account: Account
-):
+async def test_add_member_duplicate(db_session: AsyncSession, user: UserProfile, account: Account):
     repo = AccountGroupRepository(db_session)
     group = await repo.create(user.id, "My Group")
     await repo.add_member(group.id, user.id, account.id)
@@ -93,9 +89,7 @@ async def test_add_member_group_not_found(
     assert result is None
 
 
-async def test_remove_member(
-    db_session: AsyncSession, user: UserProfile, account: Account
-):
+async def test_remove_member(db_session: AsyncSession, user: UserProfile, account: Account):
     repo = AccountGroupRepository(db_session)
     group = await repo.create(user.id, "My Group")
     await repo.add_member(group.id, user.id, account.id)

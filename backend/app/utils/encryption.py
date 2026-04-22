@@ -17,9 +17,7 @@ def get_encryption_key() -> bytes:
 
     key_str = os.getenv("ENCRYPTION_KEY")
     if key_str:
-        _ENCRYPTION_KEY_CACHE = (
-            key_str.encode() if isinstance(key_str, str) else key_str
-        )
+        _ENCRYPTION_KEY_CACHE = key_str.encode() if isinstance(key_str, str) else key_str
         return _ENCRYPTION_KEY_CACHE
 
     # Use a default key for development/testing

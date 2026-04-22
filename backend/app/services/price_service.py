@@ -101,9 +101,7 @@ class PriceService:
                 params = {"ticker": symbol}
 
                 response = await self.client.get(
-                    self.API_NINJAS_URL,
-                    headers=headers,
-                    params=params
+                    self.API_NINJAS_URL, headers=headers, params=params
                 )
                 response.raise_for_status()
                 data = response.json()
@@ -122,7 +120,7 @@ class PriceService:
 
             except httpx.HTTPStatusError as e:
                 if e.response.status_code == 429 and attempt < self.MAX_RETRIES - 1:
-                    backoff = self.INITIAL_BACKOFF * (2 ** attempt)
+                    backoff = self.INITIAL_BACKOFF * (2**attempt)
                     msg = f"Limited: {symbol}, retry in {backoff} sec: {e}"
                     logger.warning(msg)
                     await asyncio.sleep(backoff)

@@ -37,7 +37,7 @@ export function usePortfolio(): PortfolioComposableReturn {
   const illiquid = computed(() => calculateIlliquid(state.items));
   const trustAssets = computed(() => calculateTrustAssets(state.items));
   const projectedAnnualYield = computed(() => calculateProjectedAnnualYield(state.items));
-  const lastPriceUpdate = computed(() => (state as any).lastPriceUpdateValue ?? null);
+  const lastPriceUpdate = computed(() => state.lastPriceUpdateValue ?? null);
 
   const loadPortfolio = async (): Promise<void> => {
     state.error = null;
@@ -47,7 +47,7 @@ export function usePortfolio(): PortfolioComposableReturn {
       try {
         const portfolioData = await apiService.getPortfolio();
         state.items = portfolioData.items || [];
-        (state as any).lastPriceUpdateValue = portfolioData.lastPriceUpdate || null;
+        state.lastPriceUpdateValue = portfolioData.lastPriceUpdate || null;
       } catch (error) {
         state.error = error instanceof Error ? error.message : 'Failed to load portfolio';
       } finally {

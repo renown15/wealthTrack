@@ -2,8 +2,10 @@
 
 from typing import Any
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.reference_data import ReferenceData
 from app.schemas.account import AccountResponse
 from app.schemas.institution import InstitutionResponse
 
@@ -28,6 +30,18 @@ _LABEL_TO_KEY: dict[str, str] = {
     "Unencumbered Balance": "unencumbered_balance",
     "Tax Year": "tax_year",
 }
+
+
+async def fetch_target_prices(session: AsyncSession) -> dict[str, str]:
+    """Fetch stock target reference prices keyed by ticker symbol."""
+    rows = (
+        await session.execute(
+            select(ReferenceData.reference_value).where(
+                ReferenceData.class_key == "stock_target_ref_price"
+            )
+        )
+    ).scalars().all()
+    return {r.split(":")[0].strip(): r.split(":")[1].strip() for r in rows if ":" in r}
 
 
 def build_attributes_dict(raw: dict[str, str]) -> dict[str, Any]:
@@ -103,9 +117,9 @@ async def build_portfolio_item(
 
     inst_data = None
     if account.institution:
-        inst_data = InstitutionResponse.model_validate(
-            account.institution
-        ).model_dump(by_alias=True)
+        inst_data = InstitutionResponse.model_validate(account.institution).model_dump(
+            by_alias=True
+        )
         parent = parents_by_institution.get(account.institution.id)
         if parent:
             inst_data["parentId"] = parent.parent_institution_id

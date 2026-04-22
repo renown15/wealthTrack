@@ -30,16 +30,12 @@ async def upsert_tax_return(
     period_repo = TaxPeriodRepository(session)
     period = await period_repo.get_by_id(period_id, current_user.id)
     if not period:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Tax period not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tax period not found")
 
     account_repo = AccountRepository(session)
     account = await account_repo.get_by_id(account_id, current_user.id)
     if not account:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account not found")
 
     return_repo = TaxReturnRepository(session)
     tax_return = await return_repo.upsert(

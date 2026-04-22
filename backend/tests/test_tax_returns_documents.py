@@ -32,9 +32,7 @@ async def _get_ref_id(db: AsyncSession, class_key: str, value: str) -> int:
     return ref.id
 
 
-async def _setup(
-    db: AsyncSession, user: UserProfile
-) -> tuple[Account, TaxPeriod]:
+async def _setup(db: AsyncSession, user: UserProfile) -> tuple[Account, TaxPeriod]:
     type_id = await _get_ref_id(db, "account_type", "Savings Account")
     status_id = await _get_ref_id(db, "account_status", "Active")
     ir_attr_id = await _get_ref_id(db, "account_attribute_type", "Interest Rate")
@@ -42,9 +40,7 @@ async def _setup(
     account = Account(user_id=user.id, name="Savings", type_id=type_id, status_id=status_id)
     db.add(account)
     await db.flush()
-    attr = AccountAttribute(
-        user_id=user.id, account_id=account.id, type_id=ir_attr_id, value="2.0"
-    )
+    attr = AccountAttribute(user_id=user.id, account_id=account.id, type_id=ir_attr_id, value="2.0")
     db.add(attr)
 
     now = datetime.utcnow()
@@ -63,15 +59,18 @@ async def _setup(
 
 @pytest.mark.asyncio
 async def test_upsert_tax_return(
-    client: AsyncClient, authenticated_headers: dict,
-    db_session: AsyncSession, user: UserProfile,
+    client: AsyncClient,
+    authenticated_headers: dict,
+    db_session: AsyncSession,
+    user: UserProfile,
 ) -> None:
     account, period = await _setup(db_session, user)
     await db_session.commit()
     payload = {"income": 150.00, "capitalGain": None, "taxTakenOff": 30.00}
     response = await client.put(
         f"/api/v1/tax/periods/{period.id}/accounts/{account.id}/return",
-        json=payload, headers=authenticated_headers,
+        json=payload,
+        headers=authenticated_headers,
     )
     assert response.status_code == status.HTTP_200_OK
     assert float(response.json()["income"]) == 150.0
@@ -80,22 +79,34 @@ async def test_upsert_tax_return(
 
 @pytest.mark.asyncio
 async def test_upsert_tax_return_updates_existing(
-    client: AsyncClient, authenticated_headers: dict,
-    db_session: AsyncSession, user: UserProfile,
+    client: AsyncClient,
+    authenticated_headers: dict,
+    db_session: AsyncSession,
+    user: UserProfile,
 ) -> None:
     account, period = await _setup(db_session, user)
     await db_session.commit()
     url = f"/api/v1/tax/periods/{period.id}/accounts/{account.id}/return"
-    await client.put(url, json={"income": 100.0, "capitalGain": None, "taxTakenOff": 20.0}, headers=authenticated_headers)
-    response = await client.put(url, json={"income": 200.0, "capitalGain": None, "taxTakenOff": 40.0}, headers=authenticated_headers)
+    await client.put(
+        url,
+        json={"income": 100.0, "capitalGain": None, "taxTakenOff": 20.0},
+        headers=authenticated_headers,
+    )
+    response = await client.put(
+        url,
+        json={"income": 200.0, "capitalGain": None, "taxTakenOff": 40.0},
+        headers=authenticated_headers,
+    )
     assert response.status_code == status.HTTP_200_OK
     assert float(response.json()["income"]) == 200.0
 
 
 @pytest.mark.asyncio
 async def test_upsert_tax_return_period_not_found(
-    client: AsyncClient, authenticated_headers: dict,
-    db_session: AsyncSession, user: UserProfile,
+    client: AsyncClient,
+    authenticated_headers: dict,
+    db_session: AsyncSession,
+    user: UserProfile,
 ) -> None:
     account, _ = await _setup(db_session, user)
     await db_session.commit()
@@ -109,8 +120,10 @@ async def test_upsert_tax_return_period_not_found(
 
 @pytest.mark.asyncio
 async def test_list_documents_empty(
-    client: AsyncClient, authenticated_headers: dict,
-    db_session: AsyncSession, user: UserProfile,
+    client: AsyncClient,
+    authenticated_headers: dict,
+    db_session: AsyncSession,
+    user: UserProfile,
 ) -> None:
     account, period = await _setup(db_session, user)
     await db_session.commit()
@@ -124,8 +137,10 @@ async def test_list_documents_empty(
 
 @pytest.mark.asyncio
 async def test_upload_and_list_document(
-    client: AsyncClient, authenticated_headers: dict,
-    db_session: AsyncSession, user: UserProfile,
+    client: AsyncClient,
+    authenticated_headers: dict,
+    db_session: AsyncSession,
+    user: UserProfile,
 ) -> None:
     account, period = await _setup(db_session, user)
     await db_session.commit()
@@ -133,7 +148,8 @@ async def test_upload_and_list_document(
     files = {"file": ("certificate.pdf", BytesIO(file_content), "application/pdf")}
     upload_resp = await client.post(
         f"/api/v1/tax/periods/{period.id}/accounts/{account.id}/documents",
-        files=files, headers=authenticated_headers,
+        files=files,
+        headers=authenticated_headers,
     )
     assert upload_resp.status_code == status.HTTP_201_CREATED
     doc_id = upload_resp.json()["id"]
@@ -148,8 +164,10 @@ async def test_upload_and_list_document(
 
 @pytest.mark.asyncio
 async def test_download_document(
-    client: AsyncClient, authenticated_headers: dict,
-    db_session: AsyncSession, user: UserProfile,
+    client: AsyncClient,
+    authenticated_headers: dict,
+    db_session: AsyncSession,
+    user: UserProfile,
 ) -> None:
     account, period = await _setup(db_session, user)
     await db_session.commit()
@@ -157,7 +175,8 @@ async def test_download_document(
     files = {"file": ("tax.pdf", BytesIO(file_content), "application/pdf")}
     upload_resp = await client.post(
         f"/api/v1/tax/periods/{period.id}/accounts/{account.id}/documents",
-        files=files, headers=authenticated_headers,
+        files=files,
+        headers=authenticated_headers,
     )
     doc_id = upload_resp.json()["id"]
     download_resp = await client.get(
@@ -169,15 +188,18 @@ async def test_download_document(
 
 @pytest.mark.asyncio
 async def test_delete_document(
-    client: AsyncClient, authenticated_headers: dict,
-    db_session: AsyncSession, user: UserProfile,
+    client: AsyncClient,
+    authenticated_headers: dict,
+    db_session: AsyncSession,
+    user: UserProfile,
 ) -> None:
     account, period = await _setup(db_session, user)
     await db_session.commit()
     files = {"file": ("doc.pdf", BytesIO(b"data"), "application/pdf")}
     upload_resp = await client.post(
         f"/api/v1/tax/periods/{period.id}/accounts/{account.id}/documents",
-        files=files, headers=authenticated_headers,
+        files=files,
+        headers=authenticated_headers,
     )
     doc_id = upload_resp.json()["id"]
     del_resp = await client.delete(f"/api/v1/tax/documents/{doc_id}", headers=authenticated_headers)
@@ -190,8 +212,6 @@ async def test_delete_document(
 
 
 @pytest.mark.asyncio
-async def test_delete_document_not_found(
-    client: AsyncClient, authenticated_headers: dict
-) -> None:
+async def test_delete_document_not_found(client: AsyncClient, authenticated_headers: dict) -> None:
     response = await client.delete("/api/v1/tax/documents/99999", headers=authenticated_headers)
     assert response.status_code == status.HTTP_404_NOT_FOUND

@@ -53,9 +53,7 @@ async def update_account_dates(
                 if type_id:
                     await attr_repo.delete_attribute(account_id, current_user.id, type_id)
             else:
-                await attr_repo.set_attribute_by_name(
-                    account_id, current_user.id, attr_name, value
-                )
+                await attr_repo.set_attribute_by_name(account_id, current_user.id, attr_name, value)
 
     dates = await attr_repo.get_dates_for_account(account_id, current_user.id)
     return {"accountId": account_id, **dates}

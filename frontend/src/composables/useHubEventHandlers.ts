@@ -17,7 +17,10 @@ export function useHubEventHandlers(
   currentAccountId: Ref<number>,
   accountType: Ref<string | undefined>,
   openEventsModal: (id: number, name: string, type?: string) => Promise<void>,
-) {
+): {
+  handleUpdateBalance: (accountId: number, value: string) => Promise<void>;
+  handleAddWin: (winAmount: string) => Promise<void>;
+} {
   const handleUpdateBalance = async (accountId: number, value: string): Promise<void> => {
     try {
       const grossValue = parseFloat(value);

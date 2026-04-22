@@ -27,9 +27,7 @@ class ReferenceData(Base):
     class_key: Mapped[str] = mapped_column("classkey", String(100), nullable=False, index=True)
     reference_value: Mapped[str] = mapped_column("referencevalue", String(255), nullable=False)
     sort_index: Mapped[int] = mapped_column("sortindex", Integer, default=0, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )

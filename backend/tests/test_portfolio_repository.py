@@ -10,6 +10,7 @@ from app.repositories.portfolio_repository import PortfolioRepository
 @pytest.mark.asyncio
 async def test_portfolio_repository_initialization():
     """Test PortfolioRepository can be initialized with a session."""
+
     # Create a mock-like object
     class MockSession:
         pass
@@ -23,6 +24,7 @@ async def test_portfolio_repository_initialization():
 @pytest.mark.asyncio
 async def test_get_user_portfolio_exists():
     """Test get_user_portfolio method exists."""
+
     class MockSession:
         pass
 
@@ -33,9 +35,9 @@ async def test_get_user_portfolio_exists():
 @pytest.mark.asyncio
 async def test_get_account_current_balance_exists():
     """Test get_account_current_balance method exists."""
+
     class MockSession:
         pass
 
     repo = PortfolioRepository(MockSession())
     assert callable(repo.get_account_current_balance)
-

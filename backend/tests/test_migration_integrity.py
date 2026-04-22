@@ -31,23 +31,28 @@ def migration_db_url():
     container = f"wealthtrack-migration-test-{uuid.uuid4().hex[:8]}"
     started = False
     try:
-        result = _run([
-            "docker", "run", "-d",
-            "--name", container,
-            "-e", f"POSTGRES_PASSWORD={_PASSWORD}",
-            "-e", f"POSTGRES_DB={_DB}",
-            "-p", f"{_PORT}:5432",
-            "postgres:15-alpine",
-        ])
-        assert result.returncode == 0, (
-            f"docker run failed: {result.stderr.strip()}"
+        result = _run(
+            [
+                "docker",
+                "run",
+                "-d",
+                "--name",
+                container,
+                "-e",
+                f"POSTGRES_PASSWORD={_PASSWORD}",
+                "-e",
+                f"POSTGRES_DB={_DB}",
+                "-p",
+                f"{_PORT}:5432",
+                "postgres:15-alpine",
+            ]
         )
+        assert result.returncode == 0, f"docker run failed: {result.stderr.strip()}"
         started = True
 
         # Poll until ready (up to 30 s)
         for _ in range(30):
-            ready = _run(["docker", "exec", container,
-                          "pg_isready", "-U", _USER])
+            ready = _run(["docker", "exec", container, "pg_isready", "-U", _USER])
             if ready.returncode == 0:
                 break
             time.sleep(1)
@@ -74,8 +79,7 @@ def test_upgrade_head_on_blank_db(migration_db_url: str) -> None:
         env=env,
     )
     assert result.returncode == 0, (
-        f"alembic upgrade head failed:\n"
-        f"stdout: {result.stdout}\nstderr: {result.stderr}"
+        f"alembic upgrade head failed:\n" f"stdout: {result.stdout}\nstderr: {result.stderr}"
     )
     assert "ERROR" not in result.stderr.upper() or "Running upgrade" in result.stderr
 
@@ -88,7 +92,9 @@ def test_current_matches_head_after_upgrade(migration_db_url: str) -> None:
     # Ensure fully upgraded first
     subprocess.run(
         ["alembic", "upgrade", "head"],
-        capture_output=True, cwd=str(_BACKEND_DIR), env=env,
+        capture_output=True,
+        cwd=str(_BACKEND_DIR),
+        env=env,
     )
 
     result = subprocess.run(
@@ -99,6 +105,6 @@ def test_current_matches_head_after_upgrade(migration_db_url: str) -> None:
         env=env,
     )
     assert result.returncode == 0
-    assert "(head)" in result.stdout, (
-        f"Expected '(head)' in alembic current output:\n{result.stdout}"
-    )
+    assert (
+        "(head)" in result.stdout
+    ), f"Expected '(head)' in alembic current output:\n{result.stdout}"

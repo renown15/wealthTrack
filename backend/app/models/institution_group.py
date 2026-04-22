@@ -24,9 +24,7 @@ class InstitutionGroup(Base):
     child_institution_id: Mapped[int] = mapped_column(
         "childinstitutionid", Integer, ForeignKey("Institution.id"), nullable=False, index=True
     )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )

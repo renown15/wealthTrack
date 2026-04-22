@@ -30,17 +30,13 @@ class AccountGroupMember(Base):
     account_id: Mapped[int] = mapped_column(
         "accountid", Integer, ForeignKey("Account.id"), nullable=False, index=True
     )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )
 
     # Relationships
-    account_group: Mapped["AccountGroup"] = relationship(
-        "AccountGroup", back_populates="members"
-    )
+    account_group: Mapped["AccountGroup"] = relationship("AccountGroup", back_populates="members")
     account: Mapped["Account"] = relationship("Account")
 
     def __repr__(self) -> str:

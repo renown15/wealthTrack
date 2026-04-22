@@ -11,6 +11,7 @@ export interface PortfolioState {
   itemsLoading: boolean;
   institutionsLoading: boolean;
   error: string | null;
+  lastPriceUpdateValue?: string | null;
 }
 
 export interface PortfolioComposableReturn {

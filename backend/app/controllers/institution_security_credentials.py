@@ -37,10 +37,7 @@ async def list_institution_credentials(
 ) -> list[InstitutionSecurityCredentialResponse]:
     service = InstitutionSecurityCredentialsService(session)
     items = await service.list_for_institution(institution_id, current_user.id)
-    return [
-        InstitutionSecurityCredentialResponse(**item)
-        for item in items
-    ]
+    return [InstitutionSecurityCredentialResponse(**item) for item in items]
 
 
 @router.post(

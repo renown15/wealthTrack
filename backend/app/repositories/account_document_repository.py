@@ -16,9 +16,7 @@ class AccountDocumentRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def list_for_account(
-        self, account_id: int, user_id: int
-    ) -> list[AccountDocument]:
+    async def list_for_account(self, account_id: int, user_id: int) -> list[AccountDocument]:
         """List documents for an account, ordered by creation date."""
         stmt = (
             select(AccountDocument)
@@ -31,9 +29,7 @@ class AccountDocumentRepository:
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def get_by_id(
-        self, doc_id: int, user_id: int
-    ) -> Optional[AccountDocument]:
+    async def get_by_id(self, doc_id: int, user_id: int) -> Optional[AccountDocument]:
         """Get a document by ID, scoped to the user."""
         stmt = select(AccountDocument).where(
             AccountDocument.id == doc_id,

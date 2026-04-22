@@ -1,6 +1,7 @@
 """Tests for EventGroupRepository."""
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from app.repositories.event_group_repository import EventGroupRepository
 
@@ -52,7 +53,10 @@ class TestCreateGroup:
         mock_group.id = 10
         session.refresh = AsyncMock(side_effect=lambda obj: None)
 
-        with patch("app.repositories.event_group_repository.AccountEventAttributeGroup", return_value=mock_group):
+        with patch(
+            "app.repositories.event_group_repository.AccountEventAttributeGroup",
+            return_value=mock_group,
+        ):
             group = await repo.create_group(1, "Share Sale")
 
         assert group.user_id == 1
@@ -159,9 +163,16 @@ class TestGetGroupsForAccount:
         at_result = MagicMock()
         at_result.one_or_none.return_value = (mock_attr, "Capital Gain")
 
-        session.execute = AsyncMock(side_effect=[
-            type_result, group_ids_result, groups_scalars, members_scalars, ev_result, at_result,
-        ])
+        session.execute = AsyncMock(
+            side_effect=[
+                type_result,
+                group_ids_result,
+                groups_scalars,
+                members_scalars,
+                ev_result,
+                at_result,
+            ]
+        )
 
         result = await repo.get_groups_for_account(1, 1, "Share Sale")
         assert len(result) == 1

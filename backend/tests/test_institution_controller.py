@@ -10,7 +10,10 @@ from app.models.user_profile import UserProfile
 
 @pytest.mark.asyncio
 async def test_get_all_institutions(
-    client: AsyncClient, authenticated_headers: dict[str, str], user: UserProfile, institution: Institution
+    client: AsyncClient,
+    authenticated_headers: dict[str, str],
+    user: UserProfile,
+    institution: Institution,
 ):
     """Test retrieving all institutions for a user."""
     response = await client.get(
@@ -149,9 +152,7 @@ async def test_delete_institution_not_found(
 
 
 @pytest.mark.asyncio
-async def test_institution_list_empty(
-    client: AsyncClient, authenticated_headers: dict[str, str]
-):
+async def test_institution_list_empty(client: AsyncClient, authenticated_headers: dict[str, str]):
     """Test retrieving institutions when none exist."""
     # This test verifies the list endpoint works with no institutions
     response = await client.get(

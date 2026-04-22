@@ -44,20 +44,14 @@ class AccountProcessor:
         price_service = await get_price_service()
         fresh_price = await price_service.fetch_price(underlying)
         if fresh_price:
-            await attr_repo.set_attribute_by_name(
-                account_id, user_id, "price", fresh_price
-            )
+            await attr_repo.set_attribute_by_name(account_id, user_id, "price", fresh_price)
             price = fresh_price
 
         if number_of_shares and price and purchase_price:
-            calc = calculate_deferred_shares_balance_safe(
-                number_of_shares, price, purchase_price
-            )
+            calc = calculate_deferred_shares_balance_safe(number_of_shares, price, purchase_price)
             if calc is not None:
                 service = DeferredSharesBalanceService(attr_repo)
-                await service.save_daily_balance(
-                    account_id, user_id, calc, price
-                )
+                await service.save_daily_balance(account_id, user_id, calc, price)
 
         return price
 
@@ -80,18 +74,14 @@ class AccountProcessor:
         price_service = await get_price_service()
         fresh_price = await price_service.fetch_price(underlying)
         if fresh_price:
-            await attr_repo.set_attribute_by_name(
-                account_id, user_id, "price", fresh_price
-            )
+            await attr_repo.set_attribute_by_name(account_id, user_id, "price", fresh_price)
             price = fresh_price
 
         if number_of_shares and price:
             calc = calculate_rsu_balance_safe(number_of_shares, price)
             if calc is not None:
                 service = RSUBalanceService(attr_repo)
-                await service.save_daily_balance(
-                    account_id, user_id, calc, price
-                )
+                await service.save_daily_balance(account_id, user_id, calc, price)
 
         return price
 
@@ -115,20 +105,14 @@ class AccountProcessor:
         price_service = await get_price_service()
         fresh_price = await price_service.fetch_price(underlying)
         if fresh_price:
-            await attr_repo.set_attribute_by_name(
-                account_id, user_id, "price", fresh_price
-            )
+            await attr_repo.set_attribute_by_name(account_id, user_id, "price", fresh_price)
             price = fresh_price
 
         if number_of_shares and price and purchase_price:
-            calc = calculate_deferred_shares_balance_safe(
-                number_of_shares, price, purchase_price
-            )
+            calc = calculate_deferred_shares_balance_safe(number_of_shares, price, purchase_price)
             if calc is not None:
                 service = SharesBalanceService(attr_repo)
-                await service.save_daily_balance(
-                    account_id, user_id, calc, price
-                )
+                await service.save_daily_balance(account_id, user_id, calc, price)
 
         return price
 
@@ -146,14 +130,10 @@ class AccountProcessor:
 
         try:
             balance_in_pence = int(float(balance.value) * 100)
-            calculated_balance = calculate_deferred_cash_balance_safe(
-                str(balance_in_pence)
-            )
+            calculated_balance = calculate_deferred_cash_balance_safe(str(balance_in_pence))
             if calculated_balance is not None:
                 service = DeferredCashBalanceService(attr_repo)
-                await service.save_daily_balance(
-                    account_id, user_id, calculated_balance
-                )
+                await service.save_daily_balance(account_id, user_id, calculated_balance)
         except (ValueError, TypeError) as e:
             msg = f"Cash calc failed: {account_id}, {e}"
             logger.warning(msg, exc_info=True)

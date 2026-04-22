@@ -13,7 +13,11 @@ from app.models.user_profile import UserProfile
 from app.services.tax_service import get_eligible_with_returns
 from app.services.tax_service_helpers import (
     parse_date as _parse_date,
+)
+from app.services.tax_service_helpers import (
     savings_eligible as _savings_eligible,
+)
+from app.services.tax_service_helpers import (
     shares_sold_eligible as _shares_sold_eligible,
 )
 
@@ -85,9 +89,7 @@ def test_shares_sold_not_eligible_no_closed_date():
 # ── Integration tests ────────────────────────────────────────────────────────
 
 
-async def _get_or_create_ref(
-    session: AsyncSession, class_key: str, value: str
-) -> int:
+async def _get_or_create_ref(session: AsyncSession, class_key: str, value: str) -> int:
     result = await session.execute(
         select(ReferenceData.id).where(
             ReferenceData.class_key == class_key,
@@ -125,9 +127,7 @@ async def test_get_eligible_with_returns_savings(
     db_session.add(account)
     await db_session.flush()
 
-    attr = AccountAttribute(
-        user_id=user.id, account_id=account.id, type_id=ir_attr_id, value="2.5"
-    )
+    attr = AccountAttribute(user_id=user.id, account_id=account.id, type_id=ir_attr_id, value="2.5")
     db_session.add(attr)
     await db_session.flush()
     await db_session.refresh(period)
@@ -135,9 +135,9 @@ async def test_get_eligible_with_returns_savings(
     results = await get_eligible_with_returns(
         db_session, user.id, period.id, period.start_date, period.end_date
     )
-    assert len(results) == 1
-    assert results[0]["eligibility_reason"] == "interest_bearing"
-    assert results[0]["interest_rate"] == "2.5"
+    assert len(results["eligible"]) == 1
+    assert results["eligible"][0]["eligibility_reason"] == "interest_bearing"
+    assert results["eligible"][0]["interest_rate"] == "2.5"
 
 
 @pytest.mark.asyncio
@@ -164,4 +164,5 @@ async def test_get_eligible_with_returns_no_eligible(
     results = await get_eligible_with_returns(
         db_session, user.id, period.id, period.start_date, period.end_date
     )
-    assert len(results) == 0
+    assert len(results["eligible"]) == 0
+    assert len(results["in_scope"]) == 0

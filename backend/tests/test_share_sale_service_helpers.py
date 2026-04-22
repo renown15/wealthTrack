@@ -1,5 +1,4 @@
 """Shared helpers for share sale service tests."""
-from decimal import Decimal
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
@@ -40,27 +39,39 @@ def make_session_and_repos(
     session = AsyncMock()
 
     account_repo = AsyncMock()
-    account_repo.get_by_id = AsyncMock(side_effect=lambda aid, uid: {
-        1: shares_account or make_account(1),
-        2: cash_account or make_account(2),
-        3: tax_account or make_account(3),
-    }.get(aid))
+    account_repo.get_by_id = AsyncMock(
+        side_effect=lambda aid, uid: {
+            1: shares_account or make_account(1),
+            2: cash_account or make_account(2),
+            3: tax_account or make_account(3),
+        }.get(aid)
+    )
 
     attr_repo = AsyncMock()
-    attr_repo.get_attribute_by_name = AsyncMock(side_effect=lambda aid, uid, name: {
-        "purchase_price": purchase_price,
-        "number_of_shares": number_of_shares,
-    }.get(name))
+    attr_repo.get_attribute_by_name = AsyncMock(
+        side_effect=lambda aid, uid, name: {
+            "purchase_price": purchase_price,
+            "number_of_shares": number_of_shares,
+        }.get(name)
+    )
     attr_repo.set_attribute_by_name = AsyncMock(return_value=MagicMock(id=99))
 
     event_repo = AsyncMock()
-    event_repo.get_event_type_id = AsyncMock(side_effect=lambda name: {
-        "Share Sale": 10, "Balance Update": 11, "Deposit": 12, "Capital Gains Tax": 13,
-    }.get(name))
+    event_repo.get_event_type_id = AsyncMock(
+        side_effect=lambda name: {
+            "Share Sale": 10,
+            "Balance Update": 11,
+            "Deposit": 12,
+            "Capital Gains Tax": 13,
+        }.get(name)
+    )
     event_repo.create_event = AsyncMock(side_effect=lambda *a, **kw: MagicMock(id=50))
-    event_repo.get_latest_balance_update = AsyncMock(side_effect=lambda aid, uid: {
-        2: latest_cash_balance, 3: latest_tax_balance,
-    }.get(aid, "0"))
+    event_repo.get_latest_balance_update = AsyncMock(
+        side_effect=lambda aid, uid: {
+            2: latest_cash_balance,
+            3: latest_tax_balance,
+        }.get(aid, "0")
+    )
 
     cgt_result = MagicMock()
     cgt_result.scalar_one_or_none.return_value = cgt_rate
@@ -74,9 +85,12 @@ def make_session_and_repos(
     return session, account_repo, attr_repo, event_repo, group_repo
 
 
-def patch_repos(monkeypatch: Any, account_repo: Any, attr_repo: Any, event_repo: Any, group_repo: Any) -> None:
+def patch_repos(
+    monkeypatch: Any, account_repo: Any, attr_repo: Any, event_repo: Any, group_repo: Any
+) -> None:
     """Monkeypatch all repository constructors in the share_sale_service module."""
     import app.services.share_sale_service as svc_mod
+
     monkeypatch.setattr(svc_mod, "AccountRepository", lambda s: account_repo)
     monkeypatch.setattr(svc_mod, "AccountAttributeRepository", lambda s: attr_repo)
     monkeypatch.setattr(svc_mod, "AccountEventRepository", lambda s: event_repo)

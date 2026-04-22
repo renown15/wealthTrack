@@ -13,7 +13,12 @@ class TestAttributeType:
     def test_all_members_have_value_type(self):
         for at in AttributeType:
             assert at.value_type in (
-                "string", "sort_code", "percentage", "number", "date", "asset_class_ref"
+                "string",
+                "sort_code",
+                "percentage",
+                "number",
+                "date",
+                "asset_class_ref",
             ), f"{at} has unexpected value_type {at.value_type}"
 
     def test_sort_code_value_type(self):
@@ -44,8 +49,13 @@ class TestAttributeType:
 
     def test_field_to_attr_type_has_all_typed_fields(self):
         typed_fields = [
-            "account_number", "sort_code", "interest_rate", "fixed_bonus_rate",
-            "encumbrance", "unencumbered_balance", "asset_class",
+            "account_number",
+            "sort_code",
+            "interest_rate",
+            "fixed_bonus_rate",
+            "encumbrance",
+            "unencumbered_balance",
+            "asset_class",
         ]
         for field in typed_fields:
             assert field in FIELD_TO_ATTR_TYPE, f"{field} missing from FIELD_TO_ATTR_TYPE"

@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 class RSUCalculation(TypedDict):
     """Result of RSU calculation with breakdown"""
+
     balance: float  # In pounds (after 47% tax)
     gross_amount: float  # In pounds (before tax)
     tax_taken: float  # In pounds (47% of balance)

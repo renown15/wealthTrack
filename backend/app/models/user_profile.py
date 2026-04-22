@@ -26,29 +26,21 @@ class UserProfile(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     first_name: Mapped[str] = mapped_column("firstname", String(100), nullable=False)
     last_name: Mapped[str] = mapped_column("surname", String(100), nullable=False)
-    email: Mapped[str] = mapped_column(
-        String(255), unique=True, index=True, nullable=False
-    )
-    profile: Mapped[Optional[dict[str, Any]]] = mapped_column(
-        JSON, nullable=True
-    )
+    email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    profile: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     type_id: Mapped[int] = mapped_column(
         "typeid", Integer, ForeignKey("ReferenceData.id"), nullable=False
     )
     password: Mapped[str] = mapped_column(String(255), nullable=False)
     is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
     is_verified: Mapped[bool] = mapped_column(default=False, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )
 
     # Relationship to ReferenceData for user type
-    user_type: Mapped["ReferenceData"] = relationship(
-        "ReferenceData", foreign_keys=[type_id]
-    )
+    user_type: Mapped["ReferenceData"] = relationship("ReferenceData", foreign_keys=[type_id])
 
     def __repr__(self) -> str:
         return (

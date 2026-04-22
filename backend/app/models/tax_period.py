@@ -27,12 +27,12 @@ class TaxPeriod(Base):
     start_date: Mapped[date] = mapped_column(Date, nullable=False)
     end_date: Mapped[date] = mapped_column(Date, nullable=False)
     account_group_id: Mapped[Optional[int]] = mapped_column(
-        Integer, ForeignKey("AccountGroup.accountgroupid", ondelete="SET NULL"),
-        nullable=True, index=True,
+        Integer,
+        ForeignKey("AccountGroup.accountgroupid", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
     )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )

@@ -5,6 +5,8 @@ import { ref } from 'vue';
 import type { Ref, ComputedRef } from 'vue';
 import type { EligibleAccount, TaxDocument, TaxPeriod, TaxReturnUpsertRequest } from '@models/TaxModels';
 import type { AccountFormData } from '@views/AccountHub/addAccountModalValidation';
+import type { Institution } from '@models/WealthTrackDataModels';
+import type { ReferenceDataItem } from '@models/ReferenceData';
 import { useQuickAddAccount } from '@composables/useQuickAddAccount';
 
 export function useTaxHubModals(
@@ -17,7 +19,35 @@ export function useTaxHubModals(
   fetchDocumentBlob: (docId: number) => Promise<Blob | null>,
   deleteDocument: (periodId: number, accountId: number, docId: number) => Promise<void>,
   moveToInScope: (accountId: number) => Promise<void>,
-) {
+): {
+  returnModalOpen: Ref<boolean>;
+  docsModalOpen: Ref<boolean>;
+  quickAddOpen: Ref<boolean>;
+  activeAccount: Ref<EligibleAccount | null>;
+  deleteConfirmOpen: Ref<boolean>;
+  deleteConfirmId: Ref<number>;
+  deleteConfirmName: Ref<string>;
+  quickAddInitialData: Ref<Partial<AccountFormData>>;
+  quickAddInstitutions: Ref<Institution[]>;
+  quickAddTypes: Ref<ReferenceDataItem[]>;
+  quickAddStatuses: Ref<ReferenceDataItem[]>;
+  quickAddInstitutionTypes: Ref<ReferenceDataItem[]>;
+  previewOpen: Ref<boolean>;
+  previewUrl: Ref<string | null>;
+  previewFilename: Ref<string>;
+  previewContentType: Ref<string | null>;
+  openReturnModal: (account: EligibleAccount) => void;
+  openDocumentsModal: (account: EligibleAccount) => void;
+  openDeleteConfirm: (periodId: number, periodName: string) => void;
+  handleSaveReturn: (data: TaxReturnUpsertRequest) => Promise<void>;
+  handleUpload: (file: File) => Promise<void>;
+  handleDownload: (docId: number, filename: string) => Promise<void>;
+  handleDeleteDoc: (docId: number) => Promise<void>;
+  handleOpenQuickAdd: () => Promise<void>;
+  handleQuickAdd: (data: AccountFormData) => Promise<void>;
+  handlePreview: (docId: number, filename: string, contentType: string | null) => Promise<void>;
+  closePreview: () => void;
+} {
   const returnModalOpen = ref(false);
   const docsModalOpen = ref(false);
   const quickAddOpen = ref(false);

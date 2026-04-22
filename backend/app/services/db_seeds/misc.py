@@ -14,9 +14,7 @@ MISC_ITEMS: list[ReferenceDataItem] = [
     # -----------------------------------------------------------------------
     # Analytics baseline date
     # -----------------------------------------------------------------------
-    ReferenceDataItem(
-        class_key="analytics_baseline_date", reference_value="", sort_index=0
-    ),
+    ReferenceDataItem(class_key="analytics_baseline_date", reference_value="", sort_index=0),
     # -----------------------------------------------------------------------
     # Deposit insurance limit (FSCS limit in GBP)
     # -----------------------------------------------------------------------

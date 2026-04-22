@@ -5,16 +5,8 @@ from app.repositories.account_attribute_repository import AccountAttributeReposi
 from app.repositories.account_event_repository import AccountEventRepository
 from app.schemas.account import AccountCreate, AccountResponse, AccountUpdate
 from app.services.account_event_service import AccountEventService
+from app.types.attribute_types import ATTRIBUTE_FIELDS
 from app.types.attribute_types import validate_attribute_field as _validate_field
-
-# Attribute names to load/save (snake_case shorthands)
-ATTRIBUTE_FIELDS = [
-    "account_number", "sort_code", "roll_ref_number", "interest_rate",
-    "fixed_bonus_rate", "fixed_bonus_rate_end_date", "release_date",
-    "number_of_shares", "underlying", "price", "purchase_price",
-    "pension_monthly_payment", "asset_class", "encumbrance", "unencumbered_balance",
-    "tax_year",
-]
 
 
 async def load_account_attributes(
@@ -98,22 +90,37 @@ async def update_account_attributes(
         _validate_field("encumbrance", str(new_encumbrance))
         if old_encumbrance is None:
             if session:
-                await _handle_encumbrance_set(attr_repo, account_id, user_id, new_encumbrance, session)
+                await _handle_encumbrance_set(
+                    attr_repo, account_id, user_id, new_encumbrance, session
+                )
             else:
-                await attr_repo.set_attribute_by_name(account_id, user_id, "encumbrance", new_encumbrance)
+                await attr_repo.set_attribute_by_name(
+                    account_id, user_id, "encumbrance", new_encumbrance
+                )
         else:
             new_gross = getattr(attribute_data, "new_gross_balance", None)
             if session:
                 await _handle_encumbrance_change(
-                    attr_repo, account_id, user_id, old_encumbrance, new_encumbrance, session, new_gross
+                    attr_repo,
+                    account_id,
+                    user_id,
+                    old_encumbrance,
+                    new_encumbrance,
+                    session,
+                    new_gross,
                 )
             else:
-                await attr_repo.set_attribute_by_name(account_id, user_id, "encumbrance", new_encumbrance)
+                await attr_repo.set_attribute_by_name(
+                    account_id, user_id, "encumbrance", new_encumbrance
+                )
 
 
 async def _handle_encumbrance_set(
     attr_repo: AccountAttributeRepository,
-    account_id: int, user_id: int, encumbrance: str, session: AsyncSession,
+    account_id: int,
+    user_id: int,
+    encumbrance: str,
+    session: AsyncSession,
 ) -> None:
     """Handle initial encumbrance SET: save unencumbered balance, create event."""
     try:
@@ -138,8 +145,12 @@ async def _handle_encumbrance_set(
 
 async def _handle_encumbrance_change(
     attr_repo: AccountAttributeRepository,
-    account_id: int, user_id: int, old_encumbrance: str,
-    new_encumbrance: str, session: AsyncSession, new_gross_balance: str | None = None,
+    account_id: int,
+    user_id: int,
+    old_encumbrance: str,
+    new_encumbrance: str,
+    session: AsyncSession,
+    new_gross_balance: str | None = None,
 ) -> None:
     """Handle encumbrance CHANGE: use stored (or supplied) unencumbered balance, create event."""
     try:
@@ -152,7 +163,9 @@ async def _handle_encumbrance_change(
                 account_id, user_id, "unencumbered_balance", str(original_balance)
             )
         else:
-            unencumbered = await attr_repo.get_attribute_by_name(account_id, user_id, "unencumbered_balance")
+            unencumbered = await attr_repo.get_attribute_by_name(
+                account_id, user_id, "unencumbered_balance"
+            )
             original_balance = float(unencumbered) if unencumbered else None  # type: ignore[assignment]
         if original_balance is not None:
             balance_update_type_id = await event_repo.get_event_type_id("Balance Update")
@@ -162,18 +175,24 @@ async def _handle_encumbrance_change(
                 )
         await attr_repo.set_attribute_by_name(account_id, user_id, "encumbrance", new_encumbrance)
     except (ValueError, TypeError) as e:
-        raise ValueError(f"Invalid encumbrance change: {old_encumbrance} -> {new_encumbrance}") from e
+        raise ValueError(
+            f"Invalid encumbrance change: {old_encumbrance} -> {new_encumbrance}"
+        ) from e
 
 
 async def _handle_encumbrance_remove(
     attr_repo: AccountAttributeRepository,
-    account_id: int, user_id: int, session: AsyncSession,
+    account_id: int,
+    user_id: int,
+    session: AsyncSession,
 ) -> None:
     """Handle encumbrance REMOVE: restore original balance, delete attributes."""
     try:
         event_repo = AccountEventRepository(session)
         event_service = AccountEventService(session)
-        unencumbered = await attr_repo.get_attribute_by_name(account_id, user_id, "unencumbered_balance")
+        unencumbered = await attr_repo.get_attribute_by_name(
+            account_id, user_id, "unencumbered_balance"
+        )
         if unencumbered:
             balance_update_type_id = await event_repo.get_event_type_id("Balance Update")
             if balance_update_type_id:

@@ -16,9 +16,7 @@ async def test_create_credential_invalid_institution(
     db_session: AsyncSession,
 ) -> None:
     """Test creating credential for non-existent institution."""
-    type_stmt = select(ReferenceData).where(
-        ReferenceData.class_key == "credential_type"
-    )
+    type_stmt = select(ReferenceData).where(ReferenceData.class_key == "credential_type")
     type_result = await db_session.execute(type_stmt)
     credential_type = type_result.scalars().first()
 
@@ -62,9 +60,7 @@ async def test_update_credential_not_found(
     institution: Institution,
 ) -> None:
     """Test updating non-existent credential."""
-    type_stmt = select(ReferenceData).where(
-        ReferenceData.class_key == "credential_type"
-    )
+    type_stmt = select(ReferenceData).where(ReferenceData.class_key == "credential_type")
     type_result = await db_session.execute(type_stmt)
     credential_type = type_result.scalars().first()
 

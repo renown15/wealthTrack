@@ -1,11 +1,20 @@
-import { ref } from 'vue';
+import { ref, type Ref } from 'vue';
 import type { Institution } from '@models/WealthTrackDataModels';
 import type { ReferenceDataItem } from '@models/ReferenceData';
 import type { AccountFormData } from '@views/AccountHub/addAccountModalValidation';
 import { apiService } from '@services/ApiService';
 import { useToast } from '@composables/useToast';
 
-export function useQuickAddAccount() {
+export function useQuickAddAccount(): {
+  institutions: Ref<Institution[]>;
+  accountTypes: Ref<ReferenceDataItem[]>;
+  accountStatuses: Ref<ReferenceDataItem[]>;
+  institutionTypes: Ref<ReferenceDataItem[]>;
+  saving: Ref<boolean>;
+  loadFormData: () => Promise<void>;
+  getClosedStatusId: () => number | null;
+  createClosedAccount: (data: AccountFormData) => Promise<number | null>;
+} {
   const institutions = ref<Institution[]>([]);
   const accountTypes = ref<ReferenceDataItem[]>([]);
   const accountStatuses = ref<ReferenceDataItem[]>([]);

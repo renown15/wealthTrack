@@ -19,7 +19,9 @@ def test_no_allowlist_entries():
     """Ensure no files are exempted from the 200-line constraint."""
     assert not TS_ALLOWLIST, f"TypeScript allowlist must be empty, found: {TS_ALLOWLIST}"
     assert not VUE_ALLOWLIST, f"Vue allowlist must be empty, found: {VUE_ALLOWLIST}"
-    assert not TS_TEST_ALLOWLIST, f"TypeScript test allowlist must be empty, found: {TS_TEST_ALLOWLIST}"
+    assert (
+        not TS_TEST_ALLOWLIST
+    ), f"TypeScript test allowlist must be empty, found: {TS_TEST_ALLOWLIST}"
 
 
 def test_python_files_under_200_lines():
@@ -33,9 +35,7 @@ def test_python_files_under_200_lines():
         if lines > max_lines:
             violations.append(f"{py_file.relative_to(app_dir.parent)}: {lines} lines")
 
-    assert not violations, (
-        f"Python files exceed {max_lines} line limit:\n" + "\n".join(violations)
-    )
+    assert not violations, f"Python files exceed {max_lines} line limit:\n" + "\n".join(violations)
 
 
 def test_python_test_files_under_200_lines():
@@ -52,8 +52,8 @@ def test_python_test_files_under_200_lines():
         if lines > max_lines:
             violations.append(f"{py_file.name}: {lines} lines")
 
-    assert not violations, (
-        f"Python test files exceed {max_lines} line limit:\n" + "\n".join(violations)
+    assert not violations, f"Python test files exceed {max_lines} line limit:\n" + "\n".join(
+        violations
     )
 
 
@@ -77,8 +77,8 @@ def test_typescript_files_under_200_lines():
             rel_path = ts_file.relative_to(src_dir.parent)
             violations.append(f"{rel_path}: {lines} lines")
 
-    assert not violations, (
-        f"TypeScript source files exceed {max_lines} line limit:\n" + "\n".join(violations)
+    assert not violations, f"TypeScript source files exceed {max_lines} line limit:\n" + "\n".join(
+        violations
     )
 
 
@@ -99,8 +99,8 @@ def test_vue_files_under_200_lines():
             rel_path = vue_file.relative_to(src_dir.parent)
             violations.append(f"{rel_path}: {lines} lines")
 
-    assert not violations, (
-        f"Vue component files exceed {max_lines} line limit:\n" + "\n".join(violations)
+    assert not violations, f"Vue component files exceed {max_lines} line limit:\n" + "\n".join(
+        violations
     )
 
 
@@ -120,6 +120,6 @@ def test_typescript_test_files_under_200_lines():
         if lines > max_lines:
             violations.append(f"{ts_file.name}: {lines} lines")
 
-    assert not violations, (
-        f"TypeScript test files exceed {max_lines} line limit:\n" + "\n".join(violations)
+    assert not violations, f"TypeScript test files exceed {max_lines} line limit:\n" + "\n".join(
+        violations
     )

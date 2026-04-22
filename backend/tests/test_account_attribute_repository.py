@@ -33,16 +33,12 @@ async def test_get_attribute_type_id_unknown(db_session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_set_and_get_attribute(
-    db_session: AsyncSession, user: UserProfile, account: Account
-):
+async def test_set_and_get_attribute(db_session: AsyncSession, user: UserProfile, account: Account):
     """Test setting and getting an attribute."""
     repo = AccountAttributeRepository(db_session)
 
     # Set attribute
-    attr = await repo.set_attribute_by_name(
-        account.id, user.id, "opened_date", "2024-01-15"
-    )
+    attr = await repo.set_attribute_by_name(account.id, user.id, "opened_date", "2024-01-15")
     assert attr is not None
     assert attr.value == "2024-01-15"
 
@@ -52,9 +48,7 @@ async def test_set_and_get_attribute(
 
 
 @pytest.mark.asyncio
-async def test_set_attribute_upsert(
-    db_session: AsyncSession, user: UserProfile, account: Account
-):
+async def test_set_attribute_upsert(db_session: AsyncSession, user: UserProfile, account: Account):
     """Test updating an existing attribute."""
     repo = AccountAttributeRepository(db_session)
 
@@ -62,9 +56,7 @@ async def test_set_attribute_upsert(
     await repo.set_attribute_by_name(account.id, user.id, "opened_date", "2024-01-01")
 
     # Update value
-    attr = await repo.set_attribute_by_name(
-        account.id, user.id, "opened_date", "2024-06-15"
-    )
+    attr = await repo.set_attribute_by_name(account.id, user.id, "opened_date", "2024-06-15")
     assert attr.value == "2024-06-15"
 
     # Verify only one attribute exists
@@ -73,9 +65,7 @@ async def test_set_attribute_upsert(
 
 
 @pytest.mark.asyncio
-async def test_delete_attribute(
-    db_session: AsyncSession, user: UserProfile, account: Account
-):
+async def test_delete_attribute(db_session: AsyncSession, user: UserProfile, account: Account):
     """Test deleting an attribute."""
     repo = AccountAttributeRepository(db_session)
 
@@ -111,9 +101,7 @@ async def test_delete_nonexistent_attribute(
 
 
 @pytest.mark.asyncio
-async def test_get_dates_for_account(
-    db_session: AsyncSession, user: UserProfile, account: Account
-):
+async def test_get_dates_for_account(db_session: AsyncSession, user: UserProfile, account: Account):
     """Test getting both dates for an account."""
     repo = AccountAttributeRepository(db_session)
 
@@ -140,9 +128,7 @@ async def test_get_dates_for_account_empty(
 
 
 @pytest.mark.asyncio
-async def test_get_all_attributes(
-    db_session: AsyncSession, user: UserProfile, account: Account
-):
+async def test_get_all_attributes(db_session: AsyncSession, user: UserProfile, account: Account):
     """Test getting all attributes for an account."""
     repo = AccountAttributeRepository(db_session)
 
@@ -176,7 +162,5 @@ async def test_set_attribute_by_name_invalid_type(
     """Test setting attribute with invalid type returns None."""
     repo = AccountAttributeRepository(db_session)
 
-    result = await repo.set_attribute_by_name(
-        account.id, user.id, "invalid_type", "some_value"
-    )
+    result = await repo.set_attribute_by_name(account.id, user.id, "invalid_type", "some_value")
     assert result is None

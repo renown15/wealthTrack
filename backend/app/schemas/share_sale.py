@@ -91,9 +91,7 @@ class ShareSaleSummary(BaseSchema):
             return None
 
         # Identify cash vs tax Balance Update by finding the Deposit and Liability account IDs
-        deposit_account_id = next(
-            (e.account_id for e in events if e.event_type == "Deposit"), None
-        )
+        deposit_account_id = next((e.account_id for e in events if e.event_type == "Deposit"), None)
         liability_account_id = next(
             (e.account_id for e in events if e.event_type == "Capital Gains Tax"), None
         )

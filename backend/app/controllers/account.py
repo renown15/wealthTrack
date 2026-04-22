@@ -57,9 +57,7 @@ async def list_accounts(
     responses = []
     for account in accounts:
         response = AccountResponse.from_orm(account)
-        await load_account_attributes(
-            attr_repo, account.id, current_user.id, response
-        )
+        await load_account_attributes(attr_repo, account.id, current_user.id, response)
         responses.append(response)
 
     return responses
@@ -118,9 +116,7 @@ async def create_account(
 
     # Save banking details and interest rate if provided
     attr_repo = AccountAttributeRepository(session)
-    await save_account_attributes(
-        attr_repo, account.id, current_user.id, account_data, session
-    )
+    await save_account_attributes(attr_repo, account.id, current_user.id, account_data, session)
 
     await session.commit()
 

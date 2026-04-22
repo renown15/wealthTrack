@@ -70,8 +70,10 @@ class TestSaveAccountAttributes:
         session = AsyncMock()
         attr_repo = _make_attr_repo()
         events = [{"value": "10000"}]
-        with patch("app.controllers.account_attributes_handler.AccountEventRepository", return_value=_make_event_repo(events)), \
-             patch("app.controllers.account_attributes_handler.AccountEventService") as mock_svc:
+        with patch(
+            "app.controllers.account_attributes_handler.AccountEventRepository",
+            return_value=_make_event_repo(events),
+        ), patch("app.controllers.account_attributes_handler.AccountEventService") as mock_svc:
             mock_svc.return_value.log_event = AsyncMock()
             data = AccountCreate(institution_id=1, name="Test", encumbrance="2000")
             await save_account_attributes(attr_repo, 1, 1, data, session)
@@ -92,8 +94,10 @@ class TestUpdateAccountAttributes:
     async def test_remove_encumbrance_triggers_restore(self):
         session = AsyncMock()
         attr_repo = _make_attr_repo(get_attribute_by_name=AsyncMock(return_value="2000"))
-        with patch("app.controllers.account_attributes_handler.AccountEventRepository", return_value=_make_event_repo()), \
-             patch("app.controllers.account_attributes_handler.AccountEventService") as mock_svc:
+        with patch(
+            "app.controllers.account_attributes_handler.AccountEventRepository",
+            return_value=_make_event_repo(),
+        ), patch("app.controllers.account_attributes_handler.AccountEventService") as mock_svc:
             mock_svc.return_value.log_event = AsyncMock()
             attr_repo.get_attribute_by_name = AsyncMock(side_effect=["2000", "10000"])
             data = AccountUpdate(encumbrance=None)
@@ -105,8 +109,10 @@ class TestUpdateAccountAttributes:
         session = AsyncMock()
         attr_repo = _make_attr_repo()
         attr_repo.get_attribute_by_name = AsyncMock(return_value=None)
-        with patch("app.controllers.account_attributes_handler.AccountEventRepository", return_value=_make_event_repo([{"value": "10000"}])), \
-             patch("app.controllers.account_attributes_handler.AccountEventService") as mock_svc:
+        with patch(
+            "app.controllers.account_attributes_handler.AccountEventRepository",
+            return_value=_make_event_repo([{"value": "10000"}]),
+        ), patch("app.controllers.account_attributes_handler.AccountEventService") as mock_svc:
             mock_svc.return_value.log_event = AsyncMock()
             data = AccountUpdate(encumbrance="3000")
             await update_account_attributes(attr_repo, 1, 1, data, session)
@@ -117,8 +123,10 @@ class TestUpdateAccountAttributes:
         session = AsyncMock()
         attr_repo = _make_attr_repo()
         attr_repo.get_attribute_by_name = AsyncMock(return_value="1000")
-        with patch("app.controllers.account_attributes_handler.AccountEventRepository", return_value=_make_event_repo()), \
-             patch("app.controllers.account_attributes_handler.AccountEventService") as mock_svc:
+        with patch(
+            "app.controllers.account_attributes_handler.AccountEventRepository",
+            return_value=_make_event_repo(),
+        ), patch("app.controllers.account_attributes_handler.AccountEventService") as mock_svc:
             mock_svc.return_value.log_event = AsyncMock()
             data = AccountUpdate(encumbrance="2000", new_gross_balance="12000")
             await update_account_attributes(attr_repo, 1, 1, data, session)
@@ -146,6 +154,7 @@ class TestSharesBalanceServiceInit:
         from unittest.mock import AsyncMock
 
         from app.services.shares_balance_service import SharesBalanceService
+
         mock_session = AsyncMock()
         mock_repo = AsyncMock()
         mock_repo.session = mock_session

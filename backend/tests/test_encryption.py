@@ -13,6 +13,7 @@ class TestEncryption:
         """Test getting default encryption key."""
         # Clear cache to ensure default is returned
         import app.utils.encryption as enc_module
+
         enc_module._ENCRYPTION_KEY_CACHE = None
 
         key = get_encryption_key()
@@ -22,6 +23,7 @@ class TestEncryption:
     def test_get_encryption_key_cached(self):
         """Test that key is cached after first call."""
         import app.utils.encryption as enc_module
+
         enc_module._ENCRYPTION_KEY_CACHE = None
 
         key1 = get_encryption_key()
@@ -32,6 +34,7 @@ class TestEncryption:
     def test_get_encryption_key_from_env_string(self):
         """Test getting encryption key from environment as string."""
         import app.utils.encryption as enc_module
+
         enc_module._ENCRYPTION_KEY_CACHE = None
 
         key = get_encryption_key()
@@ -42,6 +45,7 @@ class TestEncryption:
     def test_get_encryption_key_empty_env(self):
         """Test that empty env var falls back to default."""
         import app.utils.encryption as enc_module
+
         enc_module._ENCRYPTION_KEY_CACHE = None
 
         # getenv returns empty string but that's falsy

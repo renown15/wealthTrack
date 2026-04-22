@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 class DeferredCashCalculation(TypedDict):
     """Result of deferred cash calculation with breakdown"""
+
     balance: float  # In pounds (after 47% discount)
     gross_amount: float  # In pounds (before discount)
     tax_discount: float  # In pounds (47% of balance)

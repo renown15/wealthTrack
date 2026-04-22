@@ -41,9 +41,7 @@ async def list_account_events(
     # Fetch events
     event_repo = AccountEventRepository(session)
     events = await event_repo.list_events(account_id, current_user.id)
-    event_responses = [
-        AccountEventResponse(**event, source="event") for event in events
-    ]
+    event_responses = [AccountEventResponse(**event, source="event") for event in events]
 
     # Fetch attributes and convert to event-like format
     attr_repo = AccountAttributeRepository(session)

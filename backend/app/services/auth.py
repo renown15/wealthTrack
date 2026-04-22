@@ -61,9 +61,9 @@ def create_access_token(data: dict[str, str], expires_delta: Optional[timedelta]
         expire = datetime.utcnow() + timedelta(minutes=settings.access_token_expire_minutes)
 
     to_encode.update({"exp": expire})
-    encoded_jwt: str = cast(str, jwt.encode(
-        to_encode, settings.secret_key, algorithm=settings.algorithm
-    ))
+    encoded_jwt: str = cast(
+        str, jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
+    )
     return encoded_jwt
 
 
@@ -78,9 +78,9 @@ def decode_access_token(token: str) -> Optional[dict[str, Any]]:
         Decoded token data or None if invalid
     """
     try:
-        payload: dict[str, Any] = cast(dict[str, Any], jwt.decode(
-            token, settings.secret_key, algorithms=[settings.algorithm]
-        ))
+        payload: dict[str, Any] = cast(
+            dict[str, Any], jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+        )
         return payload
     except JWTError:
         return None

@@ -32,9 +32,7 @@ async def test_get_portfolio_unauthorized(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_get_portfolio_empty(
-    client, authenticated_headers: dict
-):
+async def test_get_portfolio_empty(client, authenticated_headers: dict):
     """Test retrieving portfolio with no accounts."""
     response = await client.get(
         "/api/v1/portfolio",

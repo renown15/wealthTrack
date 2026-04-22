@@ -112,9 +112,12 @@ async def test_authenticate_user_wrong_password(db_session: AsyncSession) -> Non
 async def test_authenticate_nonexistent_user(db_session: AsyncSession) -> None:
     """Test authentication with nonexistent user."""
     user_service = UserService(db_session)
-    authenticated_user = await user_service.authenticate_user("nonexistent@example.com", "TestPass123")
+    authenticated_user = await user_service.authenticate_user(
+        "nonexistent@example.com", "TestPass123"
+    )
 
     assert authenticated_user is None
+
 
 @pytest.mark.asyncio
 async def test_get_user_by_id(db_session: AsyncSession) -> None:

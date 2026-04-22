@@ -16,9 +16,7 @@ class TaxDocumentRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def list_for_return(
-        self, tax_return_id: int, user_id: int
-    ) -> list[TaxDocument]:
+    async def list_for_return(self, tax_return_id: int, user_id: int) -> list[TaxDocument]:
         """List documents for a tax return, ordered by creation date."""
         stmt = (
             select(TaxDocument)
@@ -31,9 +29,7 @@ class TaxDocumentRepository:
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def get_by_id(
-        self, doc_id: int, user_id: int
-    ) -> Optional[TaxDocument]:
+    async def get_by_id(self, doc_id: int, user_id: int) -> Optional[TaxDocument]:
         """Get a document by ID, scoped to the user."""
         stmt = select(TaxDocument).where(
             TaxDocument.id == doc_id,

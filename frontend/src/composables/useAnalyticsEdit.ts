@@ -1,4 +1,4 @@
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, type Ref } from 'vue';
 import { apiService } from '@/services/ApiService';
 import type { Account, Institution, AccountUpdateRequest } from '@/models/WealthTrackDataModels';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
@@ -27,7 +27,17 @@ export interface AnalyticsEditSavePayload {
   encumbrance?: string;
 }
 
-export function useAnalyticsEdit(onSaved?: () => Promise<void> | void) {
+export function useAnalyticsEdit(onSaved?: () => Promise<void> | void): {
+  editingAccount: Ref<Account | null>;
+  editModalOpen: Ref<boolean>;
+  editModalError: Ref<string | null>;
+  institutions: Ref<Institution[]>;
+  accountTypes: Ref<ReferenceDataItem[]>;
+  accountStatuses: Ref<ReferenceDataItem[]>;
+  openEdit: (accountId: number) => Promise<void>;
+  handleSave: (payload: AnalyticsEditSavePayload) => Promise<void>;
+  closeEdit: () => void;
+} {
   const editingAccount = ref<Account | null>(null);
   const editModalOpen = ref(false);
   const editModalError = ref<string | null>(null);

@@ -47,7 +47,10 @@ async def create_tax_period(
 
     period_repo = TaxPeriodRepository(session)
     period = await period_repo.create(
-        current_user.id, data.name, data.start_date, data.end_date,
+        current_user.id,
+        data.name,
+        data.start_date,
+        data.end_date,
         account_group_id=group.id,
     )
     await session.commit()
@@ -111,7 +114,11 @@ async def get_eligible_accounts(
         await session.commit()
 
     result = await get_eligible_with_returns(
-        session, current_user.id, period_id, period.start_date, period.end_date,
+        session,
+        current_user.id,
+        period_id,
+        period.start_date,
+        period.end_date,
         group_id=period.account_group_id,
     )
 

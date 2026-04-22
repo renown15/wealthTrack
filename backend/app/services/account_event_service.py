@@ -15,9 +15,7 @@ class AccountEventService:
         self.session = session
         self.account_repository = AccountRepository(session)
 
-    async def log_event(
-        self, user_id: int, account_id: int, type_id: int, value: str
-    ) -> bool:
+    async def log_event(self, user_id: int, account_id: int, type_id: int, value: str) -> bool:
         """Log a new account event (balance update). Returns True if successful."""
         # Verify account belongs to user
         account = await self.account_repository.get_by_id(account_id, user_id)

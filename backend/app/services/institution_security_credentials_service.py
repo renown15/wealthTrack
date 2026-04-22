@@ -24,9 +24,7 @@ class InstitutionSecurityCredentialsService:
         self.repository = InstitutionSecurityCredentialsRepository(session)
         self.institution_repository = InstitutionRepository(session)
 
-    async def list_for_institution(
-        self, institution_id: int, user_id: int
-    ) -> List[Dict[str, Any]]:
+    async def list_for_institution(self, institution_id: int, user_id: int) -> List[Dict[str, Any]]:
         rows = await self.repository.list_for_institution(institution_id, user_id)
         return [self._to_payload(credential, type_label) for credential, type_label in rows]
 

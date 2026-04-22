@@ -39,9 +39,7 @@ class AccountRepository:
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def get_by_institution(
-        self, user_id: int, institution_id: int
-    ) -> list[Account]:
+    async def get_by_institution(self, user_id: int, institution_id: int) -> list[Account]:
         """Get accounts for user filtered by institution."""
         stmt = (
             select(Account)

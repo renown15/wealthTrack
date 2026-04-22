@@ -81,16 +81,22 @@ async def _enrich_items(
                 tax_taken_off = total_tax
 
         tax_return = await return_repo.get_or_create(
-            user_id, account.id, tax_period_id,
-            income=None, capital_gain=capital_gain, tax_taken_off=tax_taken_off,
+            user_id,
+            account.id,
+            tax_period_id,
+            income=None,
+            capital_gain=capital_gain,
+            tax_taken_off=tax_taken_off,
         )
         documents = await doc_repo.list_for_return(tax_return.id, user_id) if tax_return else []
-        enriched.append({
-            **item,
-            "tax_return": tax_return,
-            "documents": documents,
-            "event_count": event_counts.get(account.id, 0),
-        })
+        enriched.append(
+            {
+                **item,
+                "tax_return": tax_return,
+                "documents": documents,
+                "event_count": event_counts.get(account.id, 0),
+            }
+        )
 
     return enriched
 

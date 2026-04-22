@@ -11,7 +11,10 @@ max-line-length=100
 disable=
     missing-docstring,           # Too strict for all functions/classes
     too-many-arguments,          # Conflicts with function design
+    too-many-positional-arguments, # Conflicts with function design
     too-many-locals,             # Conflicts with function design
+    too-many-statements,         # Conflicts with function design
+    too-many-nested-blocks,      # Conflicts with function design
     too-few-public-methods,      # False positives with dataclasses
     duplicate-code,              # Too many false positives
     line-too-long,               # Ruff handles this (E501)
@@ -35,4 +38,4 @@ max-attributes=10
 max-branches=15
 
 [LOGGING]
-logging-format-style=new
+logging-format-style=old

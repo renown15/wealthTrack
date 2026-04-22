@@ -15,11 +15,8 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 from app.config import settings
-
-logger = logging.getLogger(__name__)
 from app.controllers.account import router as account_router
 from app.controllers.account_documents import router as account_documents_router
-from app.controllers.share_sale import router as share_sale_router
 from app.controllers.account_group import router as account_group_router
 from app.controllers.analytics import router as analytics_router
 from app.controllers.auth import router as auth_router
@@ -29,9 +26,12 @@ from app.controllers.institution_security_credentials import (
 )
 from app.controllers.portfolio import router as portfolio_router
 from app.controllers.reference_data import router as reference_data_router
+from app.controllers.share_sale import router as share_sale_router
 from app.controllers.tax import router as tax_router
 from app.database import async_session_maker, engine
 from app.services.type_validator import validate_types_against_db
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -40,10 +40,6 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     Application lifespan context manager.
     Handles startup and shutdown events.
     """
-    # Clear debug log on startup
-    with open("/tmp/share_sale_debug.log", "w") as f:
-        f.write("[APP STARTUP] WealthTrack API started\n")
-    
     # Database tables and reference data are created and managed by Alembic migrations
     async with async_session_maker() as session:
         await validate_types_against_db(session)
@@ -51,29 +47,6 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
 
     # Shutdown: Close database connections
     await engine.dispose()
-
-
-class RequestLoggingMiddleware(BaseHTTPMiddleware):
-    """
-    Middleware to log raw HTTP request bodies for debugging.
-    Specifically targets /share-sale endpoint for detailed inspection.
-    """
-
-    async def dispatch(
-        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
-    ) -> Response:
-        """Log request body before passing to handlers."""
-        if "/documents" in request.url.path and request.method == "POST":
-            try:
-                content_type = request.headers.get("content-type", "")
-                debug_msg = f"[DOC UPLOAD] {request.method} {request.url.path}\nContent-Type: {content_type}\n---\n"
-                with open("/tmp/share_sale_debug.log", "a") as f:
-                    f.write(debug_msg)
-            except Exception as e:
-                with open("/tmp/share_sale_debug.log", "a") as f:
-                    f.write(f"[ERROR] {e}\n")
-        
-        return await call_next(request)
 
 
 class SnakeToCamelCaseMiddleware(BaseHTTPMiddleware):
@@ -133,8 +106,8 @@ class SnakeToCamelCaseMiddleware(BaseHTTPMiddleware):
                 headers=headers,
                 media_type=response.media_type,
             )
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            # If not valid JSON, return original response unchanged
+        except (json.JSONDecodeError, UnicodeDecodeError, TypeError):
+            # If not valid JSON or not serializable, return original response unchanged
             return Response(
                 content=body,
                 status_code=response.status_code,
@@ -152,21 +125,29 @@ app = FastAPI(
 )
 
 
-# Add custom exception handler for validation errors
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
-    """Handler for validation errors — log details to file."""
-    try:
-        content_type = request.headers.get("content-type", "")
-        msg = f"[VALIDATION ERROR] {request.method} {request.url.path}\nContent-Type: {content_type}\nErrors: {exc.errors()}\n---\n"
-        with open("/tmp/share_sale_debug.log", "a") as f:
-            f.write(msg)
-    except Exception as log_err:
-        logger.error("Could not log validation error: %s", log_err)
-    return JSONResponse(status_code=422, content={"detail": exc.errors()})
+def _serializable_errors(errors: list) -> list:
+    """Convert Pydantic v2 errors to JSON-serializable form (ctx may contain exceptions)."""
+    result = []
+    for error in errors:
+        item = dict(error)
+        if "ctx" in item and isinstance(item["ctx"], dict):
+            item["ctx"] = {
+                k: str(v) if isinstance(v, Exception) else v
+                for k, v in item["ctx"].items()
+            }
+        result.append(item)
+    return result
 
-# Add request logging middleware FIRST (to see raw requests)
-app.add_middleware(RequestLoggingMiddleware)
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
+    """Return validation errors as JSON."""
+    errors = _serializable_errors(exc.errors())
+    logger.warning("Validation error %s %s: %s", request.method, request.url.path, errors)
+    return JSONResponse(status_code=422, content={"detail": errors})
+
 
 # Add snake_to_camelCase middleware BEFORE CORS (so CORS still applies)
 app.add_middleware(SnakeToCamelCaseMiddleware)
@@ -177,14 +158,16 @@ allow_origins = [
 ]
 # Add additional allowed origins for development/testing
 if settings.environment in ("development", "test"):
-    allow_origins.extend([
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "http://localhost:8080",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:3001",
-        "http://127.0.0.1:8080",
-    ])
+    allow_origins.extend(
+        [
+            "http://localhost:3000",
+            "http://localhost:3001",
+            "http://localhost:8080",
+            "http://127.0.0.1:3000",
+            "http://127.0.0.1:3001",
+            "http://127.0.0.1:8080",
+        ]
+    )
 
 app.add_middleware(
     CORSMiddleware,

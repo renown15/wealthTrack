@@ -1,6 +1,7 @@
 """Tests for SharesBalanceService."""
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from app.repositories.account_attribute_repository import AccountAttributeRepository
 from app.services.shares_balance_service import SharesBalanceService

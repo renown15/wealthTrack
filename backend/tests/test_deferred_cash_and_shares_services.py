@@ -49,6 +49,7 @@ class TestDeferredCashBalanceService:
     async def test_save_already_saved_today(self):
         """Test balance already saved today returns False."""
         from datetime import date
+
         mock_session = AsyncMock()
         mock_repo = AsyncMock(spec=AccountAttributeRepository)
         mock_repo.session = mock_session
@@ -67,6 +68,7 @@ class TestDeferredCashBalanceService:
     async def test_save_with_stale_existing_attribute(self):
         """Test save proceeds when existing attribute is from a previous day."""
         from datetime import date, timedelta
+
         mock_session = AsyncMock()
         mock_repo = AsyncMock(spec=AccountAttributeRepository)
         mock_repo.session = mock_session

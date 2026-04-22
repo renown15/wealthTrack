@@ -60,13 +60,18 @@ class DeferredSharesBalanceService:
             today_start = datetime.combine(today, datetime.min.time())
 
             # Check if balance event already exists for today
-            balance_event_stmt = select(AccountEvent).where(
-                and_(
-                    AccountEvent.account_id == account_id,
-                    AccountEvent.user_id == user_id,
-                    AccountEvent.created_at >= today_start,
+            balance_event_stmt = (
+                select(AccountEvent)
+                .where(
+                    and_(
+                        AccountEvent.account_id == account_id,
+                        AccountEvent.user_id == user_id,
+                        AccountEvent.created_at >= today_start,
+                    )
                 )
-            ).order_by(AccountEvent.created_at.desc()).limit(1)
+                .order_by(AccountEvent.created_at.desc())
+                .limit(1)
+            )
             balance_event_result = await self.session.execute(balance_event_stmt)
             existing_event = balance_event_result.scalar_one_or_none()
 

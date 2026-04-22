@@ -1,14 +1,19 @@
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, type Ref } from 'vue';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 import { apiService } from '@/services/ApiService';
 
-export function useHubReferenceData() {
+export function useHubReferenceData(): {
+  accountTypes: Ref<ReferenceDataItem[]>;
+  accountStatuses: Ref<ReferenceDataItem[]>;
+  institutionTypes: Ref<ReferenceDataItem[]>;
+  credentialTypes: Ref<ReferenceDataItem[]>;
+  lifeExpectancy: Ref<number>;
+  annuityRate: Ref<number>;
+} {
   const accountTypes = ref<ReferenceDataItem[]>([]);
   const accountStatuses = ref<ReferenceDataItem[]>([]);
   const institutionTypes = ref<ReferenceDataItem[]>([]);
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  const credentialTypes = ref<any[]>([]);
-  /* eslint-enable @typescript-eslint/no-explicit-any */
+  const credentialTypes = ref<ReferenceDataItem[]>([]);
   const lifeExpectancy = ref(36);
   const annuityRate = ref(0.075);
 

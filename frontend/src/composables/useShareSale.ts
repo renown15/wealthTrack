@@ -1,10 +1,27 @@
-import { ref } from 'vue';
+import { ref, type Ref } from 'vue';
 import { apiService } from '@services/ApiService';
 import { debug } from '@utils/debug';
 import type { ShareSaleResponse, ShareSaleSummary } from '@models/ShareSaleModels';
 import type { PortfolioItem } from '@models/WealthTrackDataModels';
 
-export function useShareSale() {
+export function useShareSale(): {
+  submitting: Ref<boolean>;
+  error: Ref<string | null>;
+  result: Ref<ShareSaleResponse | null>;
+  history: Ref<ShareSaleSummary[]>;
+  historyLoading: Ref<boolean>;
+  getCashAccounts: (items: PortfolioItem[]) => PortfolioItem[];
+  getTaxAccounts: (items: PortfolioItem[]) => PortfolioItem[];
+  loadHistory: (accountId: number) => Promise<void>;
+  submitSale: (payload: {
+    sharesAccountId: number;
+    cashAccountId: number;
+    taxLiabilityAccountId: number;
+    sharesSold: string;
+    salePricePerShare: string;
+  }) => Promise<boolean>;
+  reset: () => void;
+} {
   const submitting = ref(false);
   const error = ref<string | null>(null);
   const result = ref<ShareSaleResponse | null>(null);

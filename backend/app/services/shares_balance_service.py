@@ -47,21 +47,24 @@ class SharesBalanceService:
             attr_type_id = await self.repo.get_attribute_type_id("shares_balance")
 
             if not attr_type_id:
-                logger.warning(
-                    "[SharesBalanceService] 'Shares Balance' attribute type not found"
-                )
+                logger.warning("[SharesBalanceService] 'Shares Balance' attribute type not found")
                 return False
 
             today = date.today()
             today_start = datetime.combine(today, datetime.min.time())
 
-            balance_event_stmt = select(AccountEvent).where(
-                and_(
-                    AccountEvent.account_id == account_id,
-                    AccountEvent.user_id == user_id,
-                    AccountEvent.created_at >= today_start,
+            balance_event_stmt = (
+                select(AccountEvent)
+                .where(
+                    and_(
+                        AccountEvent.account_id == account_id,
+                        AccountEvent.user_id == user_id,
+                        AccountEvent.created_at >= today_start,
+                    )
                 )
-            ).order_by(AccountEvent.created_at.desc()).limit(1)
+                .order_by(AccountEvent.created_at.desc())
+                .limit(1)
+            )
             balance_event_result = await self.session.execute(balance_event_stmt)
             existing_event = balance_event_result.scalar_one_or_none()
 
@@ -80,9 +83,7 @@ class SharesBalanceService:
             event_type_id = event_type_result.scalar_one_or_none()
 
             if not event_type_id:
-                logger.warning(
-                    "[SharesBalanceService] 'Balance Update' event type not found"
-                )
+                logger.warning("[SharesBalanceService] 'Balance Update' event type not found")
                 return False
 
             balance_event = AccountEvent(  # type: ignore[call-arg]

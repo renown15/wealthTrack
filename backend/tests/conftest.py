@@ -65,8 +65,12 @@ async def db_session(test_engine: AsyncEngine) -> AsyncGenerator[AsyncSession, N
             ReferenceData(class_key="user_type", reference_value="User", sort_index=1),
             ReferenceData(class_key="user_type", reference_value="SuperUser", sort_index=2),
             # Account types
-            ReferenceData(class_key="account_type", reference_value="Checking Account", sort_index=1),
-            ReferenceData(class_key="account_type", reference_value="Savings Account", sort_index=2),
+            ReferenceData(
+                class_key="account_type", reference_value="Checking Account", sort_index=1
+            ),
+            ReferenceData(
+                class_key="account_type", reference_value="Savings Account", sort_index=2
+            ),
             ReferenceData(class_key="account_type", reference_value="Stocks ISA", sort_index=3),
             ReferenceData(class_key="account_type", reference_value="SIPP", sort_index=4),
             ReferenceData(class_key="account_type", reference_value="Credit Card", sort_index=5),
@@ -78,27 +82,42 @@ async def db_session(test_engine: AsyncEngine) -> AsyncGenerator[AsyncSession, N
             ReferenceData(class_key="event_type", reference_value="Balance Update", sort_index=1),
             ReferenceData(class_key="event_type", reference_value="Transaction", sort_index=2),
             # Account event types
-            ReferenceData(class_key="account_event_type", reference_value="Balance Update", sort_index=1),
+            ReferenceData(
+                class_key="account_event_type", reference_value="Balance Update", sort_index=1
+            ),
             ReferenceData(class_key="account_event_type", reference_value="Interest", sort_index=2),
             ReferenceData(class_key="account_event_type", reference_value="Dividend", sort_index=3),
             ReferenceData(class_key="account_event_type", reference_value="Deposit", sort_index=4),
-            ReferenceData(class_key="account_event_type", reference_value="Withdrawal", sort_index=5),
+            ReferenceData(
+                class_key="account_event_type", reference_value="Withdrawal", sort_index=5
+            ),
             # Credential types
             ReferenceData(class_key="credential_type", reference_value="Username", sort_index=1),
             ReferenceData(class_key="credential_type", reference_value="Password", sort_index=2),
-            ReferenceData(class_key="credential_type", reference_value="Security Question", sort_index=3),
-            ReferenceData(class_key="credential_type", reference_value="Mother's Maiden Name", sort_index=4),
+            ReferenceData(
+                class_key="credential_type", reference_value="Security Question", sort_index=3
+            ),
+            ReferenceData(
+                class_key="credential_type", reference_value="Mother's Maiden Name", sort_index=4
+            ),
             ReferenceData(class_key="credential_type", reference_value="Phone PIN", sort_index=5),
             # Account attribute types
-            ReferenceData(class_key="account_attribute_type", reference_value="Account Opened Date", sort_index=1),
-            ReferenceData(class_key="account_attribute_type", reference_value="Account Closed Date", sort_index=2),
+            ReferenceData(
+                class_key="account_attribute_type",
+                reference_value="Account Opened Date",
+                sort_index=1,
+            ),
+            ReferenceData(
+                class_key="account_attribute_type",
+                reference_value="Account Closed Date",
+                sort_index=2,
+            ),
         ]
         for ref in ref_data_entries:
             session.add(ref)
         await session.commit()
 
         yield session
-
 
 
 @pytest.fixture(scope="function")
@@ -110,9 +129,7 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
 
     app.dependency_overrides[get_db] = override_get_db
 
-    async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac
 
     app.dependency_overrides.clear()
@@ -126,19 +143,14 @@ async def user(db_session: AsyncSession) -> UserProfile:
 
     result = await db_session.execute(
         select(ReferenceData).where(
-            ReferenceData.class_key == "user_type",
-            ReferenceData.reference_value == "User"
+            ReferenceData.class_key == "user_type", ReferenceData.reference_value == "User"
         )
     )
     user_type_ref = result.scalar_one_or_none()
 
     if not user_type_ref:
         # If not found (shouldn't happen), create one
-        user_type_ref = ReferenceData(
-            class_key="user_type",
-            reference_value="User",
-            sort_index=1
-        )
+        user_type_ref = ReferenceData(class_key="user_type", reference_value="User", sort_index=1)
         db_session.add(user_type_ref)
         await db_session.flush()
         await db_session.refresh(user_type_ref)
@@ -172,9 +184,7 @@ async def institution(db_session: AsyncSession, user: UserProfile) -> Institutio
 
 
 @pytest.fixture(scope="function")
-async def account(
-    db_session: AsyncSession, user: UserProfile, institution: Institution
-) -> Account:
+async def account(db_session: AsyncSession, user: UserProfile, institution: Institution) -> Account:
     """Create a test account."""
     acc = Account(
         user_id=user.id,

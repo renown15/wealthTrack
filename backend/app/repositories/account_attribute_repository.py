@@ -52,13 +52,18 @@ class AccountAttributeRepository:
         self.session = session
 
     async def get_attribute_type_id(self, attribute_type: str) -> int | None:
-        """Look up the reference data ID for an attribute type (full label or snake_case shorthand)."""
+        """Look up the reference data ID for an attribute type."""
         lookup_value = _SHORTHAND_MAP.get(attribute_type.lower(), attribute_type)
 
-        stmt = select(ReferenceData.id).where(
-            ReferenceData.class_key == "account_attribute_type",
-            ReferenceData.reference_value == lookup_value,
-        ).limit(1).order_by(ReferenceData.id)
+        stmt = (
+            select(ReferenceData.id)
+            .where(
+                ReferenceData.class_key == "account_attribute_type",
+                ReferenceData.reference_value == lookup_value,
+            )
+            .limit(1)
+            .order_by(ReferenceData.id)
+        )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
@@ -114,9 +119,7 @@ class AccountAttributeRepository:
             return None
         return await self.set_attribute(account_id, user_id, type_id, value)
 
-    async def delete_attribute(
-        self, account_id: int, user_id: int, type_id: int
-    ) -> bool:
+    async def delete_attribute(self, account_id: int, user_id: int, type_id: int) -> bool:
         """Delete an attribute."""
         existing = await self.get_attribute(account_id, user_id, type_id)
         if existing:
@@ -161,9 +164,7 @@ class AccountAttributeRepository:
             attrs[account_id][type_label] = value
         return attrs
 
-    async def get_all_attributes(
-        self, account_id: int, user_id: int
-    ) -> list[dict[str, Any]]:
+    async def get_all_attributes(self, account_id: int, user_id: int) -> list[dict[str, Any]]:
         """Get all attributes for an account with their type labels."""
         stmt = (
             select(AccountAttribute, ReferenceData.reference_value)
@@ -174,28 +175,38 @@ class AccountAttributeRepository:
         result = await self.session.execute(stmt)
         attributes: list[dict[str, Any]] = []
         for attr, type_label in result.all():
-            attributes.append({
-                "id": attr.id,
-                "account_id": attr.account_id,
-                "type_id": attr.type_id,
-                "type_label": type_label,
-                "value": attr.value,
-                "created_at": attr.created_at,
-                "updated_at": attr.updated_at,
-            })
+            attributes.append(
+                {
+                    "id": attr.id,
+                    "account_id": attr.account_id,
+                    "type_id": attr.type_id,
+                    "type_label": type_label,
+                    "value": attr.value,
+                    "created_at": attr.created_at,
+                    "updated_at": attr.updated_at,
+                }
+            )
         return attributes
 
-    async def get_dates_for_account(self, account_id: int, user_id: int) -> dict[str, Optional[str]]:
+    async def get_dates_for_account(
+        self, account_id: int, user_id: int
+    ) -> dict[str, Optional[str]]:
         """Get opened and closed dates for an account."""
         return {
             "openedAt": await self.get_attribute_by_name(account_id, user_id, "opened_date"),
             "closedAt": await self.get_attribute_by_name(account_id, user_id, "closed_date"),
         }
 
-    async def get_banking_details_for_account(self, account_id: int, user_id: int) -> dict[str, Optional[str]]:
+    async def get_banking_details_for_account(
+        self, account_id: int, user_id: int
+    ) -> dict[str, Optional[str]]:
         """Get banking details for an account."""
         return {
-            "accountNumber": await self.get_attribute_by_name(account_id, user_id, "account_number"),
+            "accountNumber": await self.get_attribute_by_name(
+                account_id, user_id, "account_number"
+            ),
             "sortCode": await self.get_attribute_by_name(account_id, user_id, "sort_code"),
-            "rollRefNumber": await self.get_attribute_by_name(account_id, user_id, "roll_ref_number"),
+            "rollRefNumber": await self.get_attribute_by_name(
+                account_id, user_id, "roll_ref_number"
+            ),
         }

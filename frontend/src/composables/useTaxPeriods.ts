@@ -1,12 +1,22 @@
 /**
  * Composable for managing tax periods (list, create, delete, selection).
  */
-import { ref } from 'vue';
+import { ref, type Ref } from 'vue';
 import type { TaxPeriod, TaxPeriodCreateRequest } from '@models/TaxModels';
 import { apiService } from '@services/ApiService';
 import { useToast } from '@composables/useToast';
 
-export function useTaxPeriods() {
+export function useTaxPeriods(): {
+  periods: Ref<TaxPeriod[]>;
+  selectedPeriodId: Ref<number | null>;
+  selectedPeriod: () => TaxPeriod | null;
+  loading: Ref<boolean>;
+  error: Ref<string | null>;
+  loadPeriods: () => Promise<void>;
+  createPeriod: (data: TaxPeriodCreateRequest) => Promise<TaxPeriod | null>;
+  deletePeriod: (periodId: number) => Promise<void>;
+  selectPeriod: (periodId: number) => void;
+} {
   const periods = ref<TaxPeriod[]>([]);
   const selectedPeriodId = ref<number | null>(null);
   const loading = ref(false);

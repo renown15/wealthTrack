@@ -29,9 +29,7 @@ class AccountDocument(Base):
     description: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     content_type: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     file_data: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )
@@ -39,4 +37,4 @@ class AccountDocument(Base):
     account: Mapped["Account"] = relationship("Account", foreign_keys=[account_id])
 
     def __repr__(self) -> str:
-        return f"<AccountDocument(id={self.id}, account_id={self.account_id}, filename={self.filename})>"
+        return f"<AccountDocument id={self.id} account={self.account_id} file={self.filename!r}>"

@@ -42,9 +42,7 @@ async def test_get_account_by_id(
 
 
 @pytest.mark.asyncio
-async def test_get_account_not_found(
-    client: AsyncClient, authenticated_headers: dict[str, str]
-):
+async def test_get_account_not_found(client: AsyncClient, authenticated_headers: dict[str, str]):
     """Test retrieving a non-existent account."""
     response = await client.get(
         "/api/v1/accounts/99999",
@@ -55,8 +53,10 @@ async def test_get_account_not_found(
 
 @pytest.mark.asyncio
 async def test_create_account(
-    client: AsyncClient, authenticated_headers: dict[str, str], user: UserProfile,
-    institution: Institution
+    client: AsyncClient,
+    authenticated_headers: dict[str, str],
+    user: UserProfile,
+    institution: Institution,
 ):
     """Test creating a new account."""
     payload = {
@@ -150,9 +150,7 @@ async def test_update_account_type_and_status(
 
 
 @pytest.mark.asyncio
-async def test_update_account_not_found(
-    client: AsyncClient, authenticated_headers: dict[str, str]
-):
+async def test_update_account_not_found(client: AsyncClient, authenticated_headers: dict[str, str]):
     """Test updating a non-existent account."""
     payload = {"name": "Updated Name"}
     response = await client.put(
@@ -184,9 +182,7 @@ async def test_delete_account(
 
 
 @pytest.mark.asyncio
-async def test_delete_account_not_found(
-    client: AsyncClient, authenticated_headers: dict[str, str]
-):
+async def test_delete_account_not_found(client: AsyncClient, authenticated_headers: dict[str, str]):
     """Test deleting a non-existent account."""
     response = await client.delete(
         "/api/v1/accounts/99999",
@@ -196,9 +192,7 @@ async def test_delete_account_not_found(
 
 
 @pytest.mark.asyncio
-async def test_account_list_empty(
-    client: AsyncClient, authenticated_headers: dict[str, str]
-):
+async def test_account_list_empty(client: AsyncClient, authenticated_headers: dict[str, str]):
     """Test retrieving accounts when none exist."""
     # This test verifies the list endpoint works with no accounts
     response = await client.get(
@@ -208,4 +202,3 @@ async def test_account_list_empty(
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert isinstance(data, list)
-

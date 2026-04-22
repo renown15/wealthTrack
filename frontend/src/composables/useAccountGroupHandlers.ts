@@ -17,7 +17,19 @@ export function useAccountGroupHandlers(
   updateGroup: UpdateGroupFn,
   deleteGroup: DeleteGroupFn,
   saveGroupMembers: SaveMembersFn,
-) {
+): {
+  accountGroupModalOpen: Ref<boolean>;
+  accountGroupModalType: Ref<'create' | 'edit'>;
+  editingGroupId: Ref<number>;
+  editingGroupName: Ref<string>;
+  editingGroupMemberIds: Ref<number[]>;
+  openCreateAccountGroupModal: () => void;
+  openEditAccountGroupModal: (groupId: number, groupName: string) => void;
+  closeAccountGroupModal: () => void;
+  handleAccountGroupSave: (data: { name: string; accountIds: number[]; groupId?: number }) => Promise<void>;
+  handleDeleteGroup: (groupId: number) => Promise<void>;
+  handleDeleteGroupFromModal: (groupId: number) => Promise<void>;
+} {
   const accountGroupModalOpen = ref(false);
   const accountGroupModalType = ref<'create' | 'edit'>('create');
   const editingGroupId = ref(0);
