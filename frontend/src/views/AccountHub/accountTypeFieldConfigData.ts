@@ -27,6 +27,26 @@ const encumbrance: Partial<FieldConfig> = { showEncumbrance: true };
 const assetClass: Partial<FieldConfig> = { showAssetClass: true };
 const shares: Partial<FieldConfig> = { showNumberOfShares: true, showUnderlying: true, showPrice: true };
 
+export const ACCOUNT_TYPE_ASSET_GROUP: Record<string, string> = {
+  'Current Account':                'cash',
+  'Savings Account':                'cash',
+  'Premium Bonds':                  'cash',
+  'Fixed / Bonus Rate Saver':       'cash',
+  'Fixed Rate ISA':                 'cash',
+  'Cash ISA':                       'cash',
+  'ISA':                            'cash',
+  'Trust Bank Account':             'cash',
+  'Stocks ISA':                     'equity',
+  'Trust Stocks Investment Account': 'equity',
+  'Shares':                         'shares',
+  'Deferred Shares':                'shares',
+  'RSU':                            'shares',
+  'Deferred DC Pension':            'pension',
+  'Deferred DB Pension':            'pension',
+  'Deferred Cash':                  'deferred-cash',
+  'Tax Liability':                  'tax-liability',
+};
+
 export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
   'Current Account':               { ...baseConfig, ...withInterest, ...banking, ...encumbrance },
   'Savings Account':               { ...baseConfig, ...withInterest, ...banking, ...encumbrance },

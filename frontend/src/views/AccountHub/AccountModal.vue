@@ -13,6 +13,7 @@
       :institutions="institutions"
       :account-types="accountTypes"
       :account-statuses="accountStatuses"
+      :transfer-accounts="props.transferAccounts"
     />
   </BaseResourceModal>
 </template>
@@ -53,6 +54,7 @@ interface Props {
   initialAssetClass?: string | null;
   initialEncumbrance?: string | null;
   initialTaxYear?: string | null;
+  transferAccounts?: { id: number; label: string }[];
   error?: string | null;
 }
 
@@ -61,6 +63,7 @@ interface SavePayload {
   institutionId: number;
   typeId: number;
   statusId: number;
+  transferToAccountId?: number;
   openedAt?: string;
   closedAt?: string;
   accountNumber?: string;
@@ -176,6 +179,7 @@ const handleSave = (): void => {
     assetClass: formData.value.assetClass || undefined,
     encumbrance: formData.value.encumbrance != null && formData.value.encumbrance !== '' ? String(formData.value.encumbrance) : undefined,
     taxYear: formData.value.taxYear || undefined,
+    transferToAccountId: formData.value.transferToAccountId ?? undefined,
   });
 };
 </script>

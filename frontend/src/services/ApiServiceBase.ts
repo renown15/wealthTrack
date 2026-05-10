@@ -112,6 +112,14 @@ export class ApiServiceBase {
     return accountCrudService.createAccountEvent(accountId, data);
   }
 
+  async recordDividend(
+    accountId: number,
+    amount: string,
+    paymentDate: string,
+  ): Promise<{ groupId: number; accountId: number; amount: string; paymentDate: string }> {
+    return accountCrudService.recordDividend(accountId, amount, paymentDate);
+  }
+
   async getInstitutions(): Promise<Institution[]> {
     return institutionCrudService.getInstitutions();
   }

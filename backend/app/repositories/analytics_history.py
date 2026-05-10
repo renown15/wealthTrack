@@ -30,11 +30,20 @@ async def get_portfolio_history(session: AsyncSession, user_id: int) -> dict[str
         )
         .scalar_subquery()
     )
+    closed_status_subq = (
+        select(ReferenceData.id)
+        .where(
+            ReferenceData.class_key == "account_status",
+            ReferenceData.reference_value == "Closed",
+        )
+        .scalar_subquery()
+    )
     stmt = (
         select(AccountEvent.account_id, AccountEvent.created_at, AccountEvent.value)
         .join(Account, Account.id == AccountEvent.account_id)
         .where(Account.user_id == user_id)
         .where(AccountEvent.type_id == balance_type_subq)
+        .where(Account.status_id != closed_status_subq)
         .order_by(AccountEvent.created_at)
     )
     result = await session.execute(stmt)

@@ -36,7 +36,7 @@ const mockAccount: EligibleAccount = {
   accountId: 5, accountName: 'Savings', accountType: 'Savings Account',
   institutionName: 'TestBank', interestRate: '2.0', accountStatus: 'Open',
   accountNumber: null, sortCode: null, rollRefNumber: null,
-  eligibilityReason: 'interest_bearing', eventCount: 0, taxReturn: null, documents: [],
+  eligibilityReason: 'interest_bearing', eventCount: 0, firstBalanceDate: null, taxReturn: null, documents: [],
 };
 
 const mockInScopeAccount: EligibleAccount = {

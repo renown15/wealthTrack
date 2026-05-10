@@ -49,6 +49,7 @@ export interface AccountFormData {
   assetClass: string;
   encumbrance: string;
   taxYear: string;
+  transferToAccountId: number | null;
 }
 
 export interface AccountFormProps {

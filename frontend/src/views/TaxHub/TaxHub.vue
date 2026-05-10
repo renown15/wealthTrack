@@ -24,6 +24,7 @@
         :eligible="eligible"
         :loading="accountsLoading"
         :error="accountsError"
+        :portfolio-item-map="portfolioItemMap"
         @edit-return="openReturnModal"
         @manage-documents="openDocumentsModal"
         @show-events="handleShowEvents"
@@ -100,6 +101,8 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
 import type { TaxPeriodCreateRequest } from '@models/TaxModels';
+import type { PortfolioItem } from '@models/WealthTrackDataModels';
+import { apiService } from '@services/ApiService';
 import { useTaxPeriods } from '@composables/useTaxPeriods';
 import { useTaxHub } from '@composables/useTaxHub';
 import { useEventsModal } from '@composables/useEventsModal';
@@ -145,10 +148,15 @@ const {
 );
 
 const addPeriodOpen = ref(false);
+const portfolioItemMap = ref<Record<number, PortfolioItem>>({});
 
 onMounted(async () => {
   await loadPeriods();
   if (selectedPeriodId.value !== null) await loadAccounts(selectedPeriodId.value);
+  try {
+    const result = await apiService.getPortfolio();
+    portfolioItemMap.value = Object.fromEntries((result.items ?? []).map((i: PortfolioItem) => [i.account.id, i]));
+  } catch { /* hover card is non-critical */ }
 });
 
 watch(selectedPeriodId, async (id) => {

@@ -93,23 +93,28 @@ class AccountProcessor:
         attrs: dict[str, str],
         _session: AsyncSession,
     ) -> str:
-        """Process Shares account and return updated price."""
+        """Process Shares account and return updated price.
+
+        Applies the same formula as deferred shares (20% CGT on unrealized gain).
+        If no purchase_price is set, defaults to current price so gain=0 and balance=gross value.
+        """
         number_of_shares = attrs["number_of_shares"]
         underlying = attrs["underlying"]
         price = attrs["price"]
         purchase_price = attrs["purchase_price"]
 
-        if not underlying:
-            return price
+        if underlying:
+            price_service = await get_price_service()
+            fresh_price = await price_service.fetch_price(underlying)
+            if fresh_price:
+                await attr_repo.set_attribute_by_name(account_id, user_id, "price", fresh_price)
+                price = fresh_price
 
-        price_service = await get_price_service()
-        fresh_price = await price_service.fetch_price(underlying)
-        if fresh_price:
-            await attr_repo.set_attribute_by_name(account_id, user_id, "price", fresh_price)
-            price = fresh_price
-
-        if number_of_shares and price and purchase_price:
-            calc = calculate_deferred_shares_balance_safe(number_of_shares, price, purchase_price)
+        if number_of_shares and price:
+            effective_purchase_price = purchase_price or price
+            calc = calculate_deferred_shares_balance_safe(
+                number_of_shares, price, effective_purchase_price
+            )
             if calc is not None:
                 service = SharesBalanceService(attr_repo)
                 await service.save_daily_balance(account_id, user_id, calc, price)

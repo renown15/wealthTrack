@@ -47,7 +47,7 @@ class AccountEventRepository:
         return result.scalar_one_or_none()
 
     async def create_event(
-        self, account_id: int, user_id: int, type_id: int, value: str
+        self, account_id: int, user_id: int, type_id: int, value: str,
     ) -> AccountEvent:
         """Create a new account event."""
         event = AccountEvent()

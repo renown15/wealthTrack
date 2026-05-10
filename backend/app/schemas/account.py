@@ -101,6 +101,12 @@ class AccountUpdate(BaseSchema):
     )
 
 
+class AccountTransferRequest(BaseSchema):
+    """Request body for the close-and-transfer operation."""
+
+    target_account_id: int = Field(..., description="Target account to receive the balance")
+
+
 class AccountResponse(BaseSchema):
     """Schema for account response."""
 

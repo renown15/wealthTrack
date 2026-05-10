@@ -28,6 +28,7 @@
             <th class="table-cell table-header text-left">Income</th>
             <th class="table-cell table-header text-left">Capital Gain</th>
             <th class="table-cell table-header text-left">Tax Taken Off</th>
+            <th class="table-cell table-header text-left">First Balance</th>
             <th class="table-cell table-header text-left">Events</th>
             <th class="table-cell table-header text-left">Docs</th>
             <th class="table-cell table-header text-left">Actions</th>
@@ -39,7 +40,7 @@
             @dragover.prevent
             @drop="onDropInScope"
           >
-            <td colspan="14" class="table-cell py-2">
+            <td colspan="15" class="table-cell py-2">
               <button
                 class="flex items-center gap-2 font-semibold text-indigo-700 bg-transparent border-none cursor-pointer hover:text-indigo-900"
                 @click="inScopeCollapsed = !inScopeCollapsed"
@@ -54,6 +55,7 @@
               v-for="account in inScope"
               :key="account.accountId"
               :account="account"
+              :portfolio-item="portfolioItemMap[account.accountId] ?? null"
               section="inScope"
               @edit-return="emit('editReturn', $event)"
               @manage-documents="emit('manageDocuments', $event)"
@@ -69,7 +71,7 @@
             @dragover.prevent
             @drop="onDropEligible"
           >
-            <td colspan="14" class="table-cell py-2">
+            <td colspan="15" class="table-cell py-2">
               <button
                 class="flex items-center gap-2 font-semibold text-gray-600 bg-transparent border-none cursor-pointer hover:text-gray-900"
                 @click="eligibleCollapsed = !eligibleCollapsed"
@@ -84,6 +86,7 @@
               v-for="account in eligible"
               :key="account.accountId"
               :account="account"
+              :portfolio-item="portfolioItemMap[account.accountId] ?? null"
               section="eligible"
               @edit-return="emit('editReturn', $event)"
               @manage-documents="emit('manageDocuments', $event)"
@@ -102,6 +105,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import type { EligibleAccount } from '@models/TaxModels';
+import type { PortfolioItem } from '@models/WealthTrackDataModels';
 import TaxHubTableRow from '@views/TaxHub/TaxHubTableRow.vue';
 import { Icons } from '@/constants/icons';
 
@@ -110,6 +114,7 @@ defineProps<{
   eligible: EligibleAccount[];
   loading: boolean;
   error: string | null;
+  portfolioItemMap: Record<number, PortfolioItem>;
 }>();
 
 const emit = defineEmits<{

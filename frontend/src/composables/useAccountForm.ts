@@ -41,6 +41,7 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     assetClass: props.value.initialAssetClass || '',
     encumbrance: props.value.initialEncumbrance || '',
     taxYear: props.value.initialTaxYear || '',
+    transferToAccountId: null,
   });
 
   const syncAccountType = (): void => {
@@ -91,6 +92,7 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     formData.value.assetClass = props.value.initialAssetClass || '';
     formData.value.encumbrance = props.value.initialEncumbrance || '';
     formData.value.taxYear = props.value.initialTaxYear || '';
+    formData.value.transferToAccountId = null;
     syncAccountType();
     syncAccountStatus();
   };
@@ -119,6 +121,13 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
   });
 
   watch(() => formData.value.taxYear, syncTaxLiabilityName);
+
+  watch(() => formData.value.statusId, (newId) => {
+    const statusName = props.value.accountStatuses.find(s => s.id === newId)?.referenceValue;
+    if (statusName === 'Closed' && !formData.value.closedAt) {
+      formData.value.closedAt = new Date().toISOString().slice(0, 10);
+    }
+  });
 
   return { formData, resetForm };
 }

@@ -5,6 +5,11 @@
 import type { Institution } from '@/models/WealthTrackDataModels';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 
+export interface TransferAccountOption {
+  id: number;
+  label: string;
+}
+
 export interface FormData {
   name: string;
   institutionId: number;
@@ -27,6 +32,7 @@ export interface FormData {
   assetClass?: string | null;
   encumbrance?: string | null;
   taxYear?: string | null;
+  transferToAccountId?: number | null;
 }
 
 export interface AccountFormFieldsProps {
@@ -37,5 +43,6 @@ export interface AccountFormFieldsProps {
   accountStatuses: ReferenceDataItem[];
   hideOpenedDate?: boolean;
   closedAccountMode?: boolean;
+  transferAccounts?: TransferAccountOption[];
 }
 

@@ -69,8 +69,11 @@
       </select>
     </div>
 
-    <div v-if="!getFieldConfig.isDeferredType" :class="isClosedStatus && !props.hideOpenedDate ? 'grid grid-cols-2 gap-4' : ''">
-      <div v-if="!props.hideOpenedDate" class="form-group">
+    <div
+      v-if="(!getFieldConfig.isDeferredType && !props.hideOpenedDate) || isClosedStatus || props.closedAccountMode"
+      :class="(!getFieldConfig.isDeferredType && !props.hideOpenedDate) && (isClosedStatus || props.closedAccountMode) ? 'grid grid-cols-2 gap-4' : ''"
+    >
+      <div v-if="!getFieldConfig.isDeferredType && !props.hideOpenedDate" class="form-group">
         <label for="openedAt" class="form-label">Opened Date</label>
         <input id="openedAt" v-model="formData.openedAt" type="date" class="form-input" />
       </div>
@@ -134,6 +137,13 @@
       <input id="fixedBonusRateEndDate" v-model="formData.fixedBonusRateEndDate" type="date" class="form-input" />
     </div>
 
+    <div v-if="props.type === 'edit' && !props.closedAccountMode && isClosedStatus && props.transferAccounts?.length" class="form-group">
+      <label class="form-label">Close and Transfer Balance To</label>
+      <select v-model="formData.transferToAccountId" class="form-select">
+        <option :value="null">— close without transfer —</option>
+        <option v-for="acc in props.transferAccounts" :key="acc.id" :value="acc.id">{{ acc.label }}</option>
+      </select>
+    </div>
     <AccountFormDeferredFields v-if="!props.closedAccountMode" :form-data="formData" :field-config="getFieldConfig" />
   </div>
 </template>

@@ -112,13 +112,9 @@ class AnalyticsRepository:
             # Negate Tax Liability accounts (they are liabilities, not assets)
             if account_type == "Tax Liability":
                 val = -val
-            total += val
+            is_closed = (account_status or "").lower() == "closed"
             inst = institution or "Unknown"
             ac = asset_class or "Unclassified"
-            by_type[account_type] = by_type.get(account_type, 0.0) + val
-            by_institution[inst] = by_institution.get(inst, 0.0) + val
-            by_asset_class[ac] = by_asset_class.get(ac, 0.0) + val
-            is_closed = (account_status or "").lower() == "closed"
             detail = {
                 "account_id": account_id,
                 "account_name": account_name,
@@ -130,8 +126,15 @@ class AnalyticsRepository:
             by_inst_accts.setdefault(inst, []).append(detail)
             by_ac_accts.setdefault(ac, []).append(detail)
             if "pension" not in account_type.lower():
-                by_asset_class_no_pension[ac] = by_asset_class_no_pension.get(ac, 0.0) + val
                 by_ac_no_pension_accts.setdefault(ac, []).append(detail)
+            if is_closed:
+                continue
+            total += val
+            by_type[account_type] = by_type.get(account_type, 0.0) + val
+            by_institution[inst] = by_institution.get(inst, 0.0) + val
+            by_asset_class[ac] = by_asset_class.get(ac, 0.0) + val
+            if "pension" not in account_type.lower():
+                by_asset_class_no_pension[ac] = by_asset_class_no_pension.get(ac, 0.0) + val
 
         def _sorted_accts(d: dict[str, list[dict[str, Any]]], k: str) -> list[dict[str, Any]]:
             return sorted(d.get(k, []), key=lambda x: -x["balance"])

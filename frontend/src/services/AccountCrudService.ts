@@ -103,6 +103,34 @@ class AccountCrudService extends BaseApiClient {
     }
   }
 
+  async recordDividend(
+    accountId: number,
+    amount: string,
+    paymentDate: string,
+  ): Promise<{ groupId: number; accountId: number; amount: string; paymentDate: string }> {
+    type DividendResponse = { groupId: number; accountId: number; amount: string; paymentDate: string };
+    try {
+      const response = await this.retryRequest(() =>
+        this.client.post(`/api/v1/accounts/${accountId}/dividends`, { amount, payment_date: paymentDate }),
+      );
+      return response.data as DividendResponse;
+    } catch (error) {
+      throw this.handleError(error, 'Failed to record dividend');
+    }
+  }
+
+  async closeAndTransfer(sourceAccountId: number, targetAccountId: number): Promise<void> {
+    try {
+      await this.retryRequest(() =>
+        this.client.post(`/api/v1/accounts/${sourceAccountId}/close-and-transfer`, {
+          target_account_id: targetAccountId,
+        }),
+      );
+    } catch (error) {
+      throw this.handleError(error, 'Failed to close and transfer account');
+    }
+  }
+
   async updateAccountDates(
     accountId: number,
     data: { opened_at?: string | null; closed_at?: string | null },

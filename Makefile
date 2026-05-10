@@ -1,7 +1,7 @@
 # WealthTrack Development Makefile
 # Provides convenient commands for common development tasks
 
-.PHONY: help setup dev backend-dev frontend-dev local-prod stop-dev stop-prod test lint type-check format clean docker-up docker-down build-frontend tail-backend tail-frontend pi-setup deploy-pi deploy-pi-code sync-db-to-pi deploy-windows dump-db
+.PHONY: help setup dev backend-dev frontend-dev local-prod stop-dev stop-prod test lint type-check format clean docker-up docker-down build-frontend tail-backend tail-frontend pi-setup deploy-pi deploy-pi-code sync-db-to-pi sync-db-from-pi deploy-windows dump-db
 
 help:
 	@echo "WealthTrack Development Commands"
@@ -54,6 +54,7 @@ help:
 	@echo "  make deploy-pi          - Deploy/update to Pi (rsync + build + migrate + seed)"
 	@echo "  make deploy-pi-code     - Deploy code only to Pi (no DB changes)"
 	@echo "  make sync-db-to-pi      - Dump local DB and restore to Pi"
+	@echo "  make sync-db-from-pi    - Dump Pi DB and restore to local dev"
 	@echo "  make deploy-windows     - Deploy/update to KATE-SURFACE (rsync + build + migrate + seed)"
 	@echo ""
 	@echo "Docker Environments (.env files):"
@@ -190,6 +191,30 @@ sync-db-to-pi:
 		rm /tmp/wealthtrack_dump.pgdump" && \
 	rm /tmp/wealthtrack_dump.pgdump && \
 	echo "✅ Database synced to Pi"
+
+sync-db-from-pi:
+	@if [ ! -f .env.dev ]; then echo "❌ .env.dev not found"; exit 1; fi
+	@if [ ! -f .env.pi ]; then echo "❌ .env.pi not found"; exit 1; fi
+	@printf "⚠️  This will OVERWRITE your local dev database with Pi data. Continue? [y/N] " && read ans && [ "$$ans" = "y" ] || { echo "Aborted."; exit 1; }
+	@echo "Dumping Pi database..." && \
+	ssh $(PI_USER)@$(PI_HOST) "cd ~/wealthTrack && docker compose --env-file .env.pi --profile prod exec -T db pg_dump -U wealthtrack -d wealthtrack -Fc > /tmp/wealthtrack_from_pi.pgdump" && \
+	echo "Downloading dump from Pi (this may take a moment)..." && \
+	scp $(PI_USER)@$(PI_HOST):/tmp/wealthtrack_from_pi.pgdump /tmp/wealthtrack_from_pi.pgdump && \
+	echo "Dump downloaded ($$(du -h /tmp/wealthtrack_from_pi.pgdump | cut -f1))" && \
+	echo "Dropping and recreating local dev database..." && \
+	. ./.env.dev && \
+	docker compose --env-file .env.dev exec -T db psql -U $$POSTGRES_USER -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='$$DB_NAME' AND pid <> pg_backend_pid()" && \
+	docker compose --env-file .env.dev exec -T db psql -U $$POSTGRES_USER -c "DROP DATABASE IF EXISTS $$DB_NAME" && \
+	docker compose --env-file .env.dev exec -T db psql -U $$POSTGRES_USER -c "CREATE DATABASE $$DB_NAME OWNER $$DB_USER" && \
+	echo "Copying dump into local container..." && \
+	docker cp /tmp/wealthtrack_from_pi.pgdump $$(docker compose --env-file .env.dev --profile dev ps -q db):/tmp/wealthtrack_from_pi.pgdump && \
+	echo "Restoring database locally..." && \
+	docker compose --env-file .env.dev exec -T db pg_restore --no-owner --no-privileges -U $$DB_USER -d $$DB_NAME /tmp/wealthtrack_from_pi.pgdump && \
+	echo "Cleaning up..." && \
+	docker compose --env-file .env.dev exec -T db rm /tmp/wealthtrack_from_pi.pgdump && \
+	ssh $(PI_USER)@$(PI_HOST) "rm /tmp/wealthtrack_from_pi.pgdump" && \
+	rm /tmp/wealthtrack_from_pi.pgdump && \
+	echo "✅ Pi database synced to local dev"
 
 WINDOWS_HOST ?= KATE-SURFACE.local
 WINDOWS_USER ?= user

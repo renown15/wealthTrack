@@ -8,6 +8,7 @@ import { debug } from '@/utils/debug';
 export interface AccountSavePayload {
   name: string;
   institutionId: number;
+  transferToAccountId?: number;
   typeId?: number;
   statusId?: number;
   openedAt?: string;
@@ -26,6 +27,7 @@ export interface AccountSavePayload {
   pensionMonthlyPayment?: string;
   assetClass?: string;
   encumbrance?: string;
+  taxYear?: string;
 }
 
 export interface UseAccountCrudHandlersReturn {
@@ -76,7 +78,8 @@ export function useAccountCrudHandlers(
           payload.purchasePrice,
           payload.pensionMonthlyPayment,
           payload.assetClass,
-          payload.encumbrance
+          payload.encumbrance,
+          payload.taxYear,
         );
       } else if (editingItem.value && 'id' in editingItem.value) {
         await updateAccount(
@@ -97,7 +100,8 @@ export function useAccountCrudHandlers(
           payload.purchasePrice,
           payload.pensionMonthlyPayment,
           payload.assetClass,
-          payload.encumbrance
+          payload.encumbrance,
+          payload.taxYear,
         );
         try {
           await accountCrudService.updateAccountDates(editingItem.value.id, {
@@ -107,6 +111,9 @@ export function useAccountCrudHandlers(
         } catch (datesError) {
           debug.error('[AccountCrudHandlers] Failed to update account dates:', datesError);
           // Continue - dates are optional
+        }
+        if (payload.transferToAccountId) {
+          await accountCrudService.closeAndTransfer(editingItem.value.id, payload.transferToAccountId);
         }
         await loadPortfolio();
       }

@@ -9,6 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased, selectinload
 
 from app.models.account import Account
+from app.models.account_event import AccountEvent
+from app.models.account_event_attribute_group_member import AccountEventAttributeGroupMember
 from app.models.reference_data import ReferenceData
 from app.repositories.account_attribute_repository import AccountAttributeRepository
 
@@ -96,15 +98,74 @@ async def fetch_accounts_with_attrs(
     ]
 
 
+async def get_dividend_totals(
+    session: AsyncSession,
+    user_id: int,
+    account_ids: list[int],
+    period_start: date,
+    period_end: date,
+) -> dict[int, float]:
+    """Sum Dividend amounts whose payment date falls in the period.
+
+    Finds 'Dividend Payment Date' events with value in [period_start, period_end],
+    walks the group to get the partner 'Dividend' amount event, and sums per account.
+    """
+    if not account_ids:
+        return {}
+    ref = await session.execute(
+        select(ReferenceData.id, ReferenceData.reference_value).where(
+            ReferenceData.class_key == "account_event_type",
+            ReferenceData.reference_value.in_(["Dividend", "Dividend Payment Date"]),
+        )
+    )
+    type_ids = {row.reference_value: row.id for row in ref.all()}
+    dividend_type_id = type_ids.get("Dividend")
+    date_type_id = type_ids.get("Dividend Payment Date")
+    if not dividend_type_id or not date_type_id:
+        return {}
+
+    date_ev = AccountEvent.__table__.alias("date_ev")
+    date_mbr = AccountEventAttributeGroupMember.__table__.alias("date_mbr")
+    div_mbr = AccountEventAttributeGroupMember.__table__.alias("div_mbr")
+    div_ev = AccountEvent.__table__.alias("div_ev")
+
+    stmt = (
+        select(div_ev.c.accountid, div_ev.c.value)
+        .select_from(date_ev)
+        .join(date_mbr, date_mbr.c.account_event_id == date_ev.c.id)
+        .join(div_mbr, div_mbr.c.groupid == date_mbr.c.groupid)
+        .join(div_ev, div_ev.c.id == div_mbr.c.account_event_id)
+        .where(date_ev.c.accountid.in_(account_ids))
+        .where(date_ev.c.userid == user_id)
+        .where(date_ev.c.typeid == date_type_id)
+        .where(date_ev.c.value >= period_start.isoformat())
+        .where(date_ev.c.value <= period_end.isoformat())
+        .where(div_ev.c.typeid == dividend_type_id)
+        .where(div_mbr.c.account_event_id != date_ev.c.id)
+    )
+    rows = await session.execute(stmt)
+    totals: dict[int, float] = {}
+    for row in rows.all():
+        try:
+            acct_id = row[0]
+            totals[acct_id] = totals.get(acct_id, 0.0) + float(row[1])
+        except (ValueError, TypeError):
+            pass
+    return totals
+
+
 def filter_eligible(
     rows: list[dict[str, Any]],
     period_start: date,
     period_end: date,
     accounts_with_sales: set[int] | None = None,
+    accounts_with_dividends: set[int] | None = None,
 ) -> list[dict[str, Any]]:
     """Filter rows to those eligible for the period."""
     if accounts_with_sales is None:
         accounts_with_sales = set()
+    if accounts_with_dividends is None:
+        accounts_with_dividends = set()
     eligible = []
     for row in rows:
         attrs: dict[str, str] = row["attrs"]
@@ -114,6 +175,8 @@ def filter_eligible(
             reason = "interest_bearing"
         elif shares_sold_eligible(account_type, account_id, accounts_with_sales):
             reason = "sold_in_period"
+        elif account_type == _SHARES_TYPE and account_id in accounts_with_dividends:
+            reason = "dividend_income"
         else:
             continue
         eligible.append(

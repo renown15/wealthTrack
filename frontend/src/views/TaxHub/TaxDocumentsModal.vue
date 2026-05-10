@@ -70,6 +70,7 @@ import { ref, computed } from 'vue';
 import type { EligibleAccount, TaxDocument } from '@models/TaxModels';
 import BaseModal from '@/components/BaseModal.vue';
 import { Icons } from '@/constants/icons';
+import { compressFile } from '@/utils/imageCompression';
 
 const props = defineProps<{
   open: boolean;
@@ -99,9 +100,10 @@ function handleFileChange(event: Event): void {
   selectedFile.value = input.files?.[0] ?? null;
 }
 
-function handleUpload(): void {
+async function handleUpload(): Promise<void> {
   if (selectedFile.value) {
-    emit('upload', selectedFile.value);
+    const compressed = await compressFile(selectedFile.value);
+    emit('upload', compressed);
     selectedFile.value = null;
     if (fileInput.value) fileInput.value.value = '';
   }

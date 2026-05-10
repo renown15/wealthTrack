@@ -21,11 +21,13 @@ vi.mock('@/composables/usePortfolio', () => ({
 vi.mock('@/services/AccountCrudService', () => ({
   accountCrudService: {
     updateAccountDates: vi.fn(),
+    closeAndTransfer: vi.fn(),
   },
 }));
 
 import { accountCrudService } from '@services/AccountCrudService';
 const mockDates = vi.mocked(accountCrudService.updateAccountDates);
+const mockTransfer = vi.mocked(accountCrudService.closeAndTransfer);
 
 const mockAccount = {
   id: 3, userId: 1, name: 'Savings', institutionId: 2, typeId: 1, statusId: 1,
@@ -47,6 +49,7 @@ describe('useAccountCrudHandlers', () => {
     mockDelete.mockResolvedValue(undefined);
     mockLoad.mockResolvedValue(undefined);
     mockDates.mockResolvedValue(undefined);
+    mockTransfer.mockResolvedValue(undefined);
     mockState.error = null;
   });
 
@@ -89,7 +92,7 @@ describe('useAccountCrudHandlers', () => {
       });
       expect(mockUpdate).toHaveBeenCalledWith(3, 'Updated', undefined, undefined,
         undefined, undefined, undefined, undefined, undefined, undefined,
-        undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+        undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
       expect(mockDates).toHaveBeenCalledWith(3, { opened_at: '2020-01-01', closed_at: null });
       expect(mockLoad).toHaveBeenCalled();
       expect(closeModal).toHaveBeenCalled();
@@ -106,6 +109,28 @@ describe('useAccountCrudHandlers', () => {
       await handleSave({ name: 'Updated', institutionId: 2 });
       expect(mockLoad).toHaveBeenCalled();
       expect(closeModal).toHaveBeenCalled();
+    });
+
+    it('calls closeAndTransfer when transferToAccountId is set', async () => {
+      const modalType = ref<'create' | 'edit'>('edit');
+      const editingItem = ref<typeof mockAccount | null>(mockAccount);
+      const closeModal = vi.fn();
+      const { handleSave } = useAccountCrudHandlers(
+        accountTypes, accountStatuses, modalType, editingItem, closeModal
+      );
+      await handleSave({ name: 'Savings', institutionId: 2, transferToAccountId: 7 });
+      expect(mockTransfer).toHaveBeenCalledWith(3, 7);
+      expect(mockLoad).toHaveBeenCalled();
+    });
+
+    it('does not call closeAndTransfer when transferToAccountId is absent', async () => {
+      const modalType = ref<'create' | 'edit'>('edit');
+      const editingItem = ref<typeof mockAccount | null>(mockAccount);
+      const { handleSave } = useAccountCrudHandlers(
+        accountTypes, accountStatuses, modalType, editingItem, vi.fn()
+      );
+      await handleSave({ name: 'Savings', institutionId: 2 });
+      expect(mockTransfer).not.toHaveBeenCalled();
     });
   });
 

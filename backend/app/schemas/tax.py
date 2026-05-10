@@ -91,6 +91,7 @@ class EligibleAccountResponse(BaseSchema):
     roll_ref_number: Optional[str] = None
     eligibility_reason: str  # "interest_bearing" | "sold_in_period" | "in_scope"
     event_count: int = 0
+    first_balance_date: Optional[date] = None
     tax_return: Optional[TaxReturnResponse] = None
     documents: list[TaxDocumentResponse] = Field(default_factory=list)
 

@@ -87,6 +87,7 @@ def _build_account_response(item: dict[str, Any]) -> EligibleAccountResponse:
         roll_ref_number=item.get("attrs", {}).get("Roll / Ref Number"),
         eligibility_reason=item["eligibility_reason"],
         event_count=item.get("event_count", 0),
+        first_balance_date=item.get("first_balance_date"),
         tax_return=(
             TaxReturnResponse.model_validate(item["tax_return"]) if item["tax_return"] else None
         ),
@@ -120,6 +121,7 @@ async def get_eligible_accounts(
         period.start_date,
         period.end_date,
         group_id=period.account_group_id,
+        period_name=period.name,
     )
 
     return TaxPeriodAccountsResponse(

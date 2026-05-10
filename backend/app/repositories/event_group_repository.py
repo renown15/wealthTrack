@@ -164,3 +164,37 @@ class EventGroupRepository:
             )
 
         return output
+
+    async def get_payment_dates_for_dividend_events(
+        self, dividend_event_ids: list[int]
+    ) -> dict[int, str]:
+        """Return {dividend_event_id: payment_date_string} for the given Dividend event IDs.
+
+        Joins through the group to find the partner "Dividend Payment Date" event value.
+        """
+        if not dividend_event_ids:
+            return {}
+
+        date_type_stmt = select(ReferenceData.id).where(
+            ReferenceData.class_key == "account_event_type",
+            ReferenceData.reference_value == "Dividend Payment Date",
+        )
+        date_type_id = (await self.session.execute(date_type_stmt)).scalar_one_or_none()
+        if not date_type_id:
+            return {}
+
+        m1 = AccountEventAttributeGroupMember.__table__.alias("m1")
+        m2 = AccountEventAttributeGroupMember.__table__.alias("m2")
+        ae = AccountEvent.__table__.alias("ae")
+        stmt = (
+            select(m1.c.account_event_id, ae.c.value)
+            .select_from(m1)
+            .join(m2, m2.c.groupid == m1.c.groupid)
+            .join(ae, ae.c.id == m2.c.account_event_id)
+            .join(ReferenceData, ReferenceData.id == ae.c.typeid)
+            .where(m1.c.account_event_id.in_(dividend_event_ids))
+            .where(m2.c.account_event_id != m1.c.account_event_id)
+            .where(ReferenceData.reference_value == "Dividend Payment Date")
+        )
+        result = await self.session.execute(stmt)
+        return {row[0]: row[1] for row in result.all() if row[0] and row[1]}

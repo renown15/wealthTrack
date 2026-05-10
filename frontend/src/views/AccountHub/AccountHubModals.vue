@@ -5,6 +5,12 @@
       :loading="eventsLoading" :error="eventsError" :account-type="accountType"
       @close="$emit('closeEvents')" @add-win="(w) => $emit('addWin', w)"
       @record-sale="$emit('recordSale')" @view-sales="$emit('viewSales')"
+      @record-dividend="dividendModalOpen = true"
+    />
+    <RecordDividendModal
+      :open="dividendModalOpen"
+      @close="dividendModalOpen = false"
+      @save="(a, d) => { dividendModalOpen = false; $emit('saveDividend', a, d); }"
     />
     <ShareSaleModal
       :open="shareSaleModalOpen"
@@ -39,7 +45,7 @@
       :initial-purchase-price="initialModalPurchasePrice"
       :initial-pension-monthly-payment="initialModalPensionMonthlyPayment"
       :initial-asset-class="initialModalAssetClass" :initial-encumbrance="initialModalEncumbrance"
-      :initial-tax-year="initialModalTaxYear" :error="accountError"
+      :initial-tax-year="initialModalTaxYear" :transfer-accounts="transferAccounts" :error="accountError"
       @close="$emit('closeAccount')" @save="(p) => $emit('saveAccount', p)"
     />
     <InstitutionModal
@@ -69,8 +75,10 @@
 import type { Account, Institution, PortfolioItem, AccountGroup, AccountEvent, InstitutionCredential } from '@/models/WealthTrackDataModels';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 import { useModalInitialValues } from '@/composables/useModalInitialValues';
-import { computed } from 'vue';
+import { ACCOUNT_TYPE_ASSET_GROUP } from '@views/AccountHub/accountTypeFieldConfigData';
+import { ref, computed } from 'vue';
 import AccountEventsModal from '@views/AccountHub/AccountEventsModal.vue';
+import RecordDividendModal from '@views/AccountHub/RecordDividendModal.vue';
 import ShareSaleModal from '@views/AccountHub/ShareSaleModal.vue';
 import AccountGroupModal from '@views/AccountHub/AccountGroupModal.vue';
 import AccountModal from '@views/AccountHub/AccountModal.vue';
@@ -124,6 +132,7 @@ defineEmits<{
   addWin: [amount: string];
   recordSale: [];
   viewSales: [];
+  saveDividend: [amount: string, paymentDate: string];
   closeShareSale: [];
   shareSold: [];
   closeAccountGroup: [];
@@ -142,7 +151,31 @@ defineEmits<{
   removeCredential: [id: number];
 }>();
 
+const dividendModalOpen = ref(false);
 const editingItemRef = computed(() => props.editingItem);
+
+const transferAccounts = computed<{ id: number; label: string }[]>(() => {
+  if (props.modalType !== 'edit' || !props.editingItem || !('typeId' in props.editingItem)) return [];
+  const editing = props.editingItem as Account;
+  const closedId = props.accountStatuses.find(s => s.referenceValue === 'Closed')?.id;
+  const editingTypeName = props.accountTypes.find(t => t.id === editing.typeId)?.referenceValue ?? '';
+  const editingGroup = ACCOUNT_TYPE_ASSET_GROUP[editingTypeName] ?? editingTypeName;
+  return props.items
+    .filter(i => {
+      const candidateTypeName = props.accountTypes.find(t => t.id === i.account.typeId)?.referenceValue ?? '';
+      const candidateGroup = ACCOUNT_TYPE_ASSET_GROUP[candidateTypeName] ?? candidateTypeName;
+      return candidateGroup === editingGroup && i.account.id !== editing.id && i.account.statusId !== closedId;
+    })
+    .map(i => {
+      const typeName = props.accountTypes.find(t => t.id === i.account.typeId)?.referenceValue ?? '';
+      const inst = i.institution?.name ?? '';
+      const ref = i.account.accountNumber || i.account.rollRefNumber || '';
+      const sc = i.account.sortCode ? ` ${i.account.sortCode}` : '';
+      const label = [inst, typeName, i.account.name, `${ref}${sc}`.trim()].filter(Boolean).join(' - ');
+      return { id: i.account.id, label };
+    });
+});
+
 const {
   initialModalName, initialModalInstitutionId, initialModalTypeId, initialModalStatusId,
   initialModalOpenedAt, initialModalClosedAt, initialModalAccountNumber, initialModalSortCode,

@@ -20,6 +20,7 @@ export function useHubEventHandlers(
 ): {
   handleUpdateBalance: (accountId: number, value: string) => Promise<void>;
   handleAddWin: (winAmount: string) => Promise<void>;
+  handleSaveDividend: (amount: string, paymentDate: string) => Promise<void>;
 } {
   const handleUpdateBalance = async (accountId: number, value: string): Promise<void> => {
     try {
@@ -49,5 +50,14 @@ export function useHubEventHandlers(
     } catch (error) { debug.error('[AccountHub] Failed to add win event:', error); }
   };
 
-  return { handleUpdateBalance, handleAddWin };
+  const handleSaveDividend = async (amount: string, paymentDate: string): Promise<void> => {
+    try {
+      await apiService.recordDividend(currentAccountId.value, amount, paymentDate);
+      await loadPortfolio();
+      const name = state.items.find((i) => i.account.id === currentAccountId.value)?.account.name ?? '';
+      await openEventsModal(currentAccountId.value, name, accountType.value);
+    } catch (error) { debug.error('[AccountHub] Failed to record dividend:', error); }
+  };
+
+  return { handleUpdateBalance, handleAddWin, handleSaveDividend };
 }

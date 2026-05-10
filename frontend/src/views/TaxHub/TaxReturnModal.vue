@@ -11,7 +11,7 @@
         <span v-if="account?.institutionName"> · {{ account.institutionName }}</span>
       </p>
 
-      <div v-if="showIncome" class="form-field">
+      <div class="form-field">
         <label class="form-label">Income (£)</label>
         <input
           v-model="form.income"
@@ -23,7 +23,7 @@
         />
       </div>
 
-      <div v-if="showCapitalGain" class="form-field">
+      <div class="form-field">
         <label class="form-label">Capital Gain (£)</label>
         <input
           v-model="form.capitalGain"
@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
+import { ref, watch } from 'vue';
 import type { EligibleAccount, TaxReturnUpsertRequest } from '@models/TaxModels';
 import BaseModal from '@/components/BaseModal.vue';
 
@@ -66,9 +66,6 @@ const emit = defineEmits<{
 }>();
 
 const form = ref({ income: '', capitalGain: '', taxTakenOff: '' });
-
-const showIncome = computed(() => props.account?.eligibilityReason === 'interest_bearing');
-const showCapitalGain = computed(() => props.account?.eligibilityReason === 'sold_in_period');
 
 watch(() => props.account, (acct) => {
   if (acct) {
@@ -85,8 +82,8 @@ function parseNum(val: string): number | null {
 
 function handleSave(): void {
   emit('save', {
-    income: showIncome.value ? parseNum(form.value.income) : null,
-    capitalGain: showCapitalGain.value ? parseNum(form.value.capitalGain) : null,
+    income: parseNum(form.value.income),
+    capitalGain: parseNum(form.value.capitalGain),
     taxTakenOff: parseNum(form.value.taxTakenOff),
   });
 }

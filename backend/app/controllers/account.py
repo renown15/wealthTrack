@@ -13,6 +13,7 @@ from app.controllers.account_attributes_handler import (
 )
 from app.controllers.account_dates import update_account_dates
 from app.controllers.account_events import create_account_event, list_account_events
+from app.controllers.account_transfer import close_and_transfer
 from app.controllers.dependencies import get_current_user
 from app.database import get_db
 from app.models.account import Account
@@ -42,6 +43,9 @@ router.add_api_route(
 
 # Register date handler
 router.add_api_route("/{account_id}/dates", update_account_dates, methods=["PUT"])
+router.add_api_route(
+    "/{account_id}/close-and-transfer", close_and_transfer, methods=["POST"], status_code=204
+)
 
 
 @router.get("", response_model=list[AccountResponse])

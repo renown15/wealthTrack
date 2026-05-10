@@ -71,6 +71,24 @@ class TaxReturnRepository:
             user_id, account_id, tax_period_id, income, capital_gain, tax_taken_off, now
         )
 
+    async def sync_income(
+        self,
+        user_id: int,
+        account_id: int,
+        tax_period_id: int,
+        income: Optional[float],
+    ) -> TaxReturn:
+        """Update only the income field on an existing record; create if absent."""
+        existing = await self.get_for_account_period(user_id, account_id, tax_period_id)
+        now = datetime.utcnow()
+        if existing:
+            existing.income = income
+            existing.updated_at = now
+            await self.session.flush()
+            await self.session.refresh(existing)
+            return existing
+        return await self._create(user_id, account_id, tax_period_id, income, None, None, now)
+
     async def get_or_create(
         self,
         user_id: int,

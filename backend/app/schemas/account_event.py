@@ -1,7 +1,7 @@
 """
 Schemas for account event responses.
 """
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 
 from app.schemas.base import BaseSchema
@@ -22,6 +22,7 @@ class AccountEventResponse(BaseSchema):
     user_id: int
     event_type: str
     value: Optional[str] = None
+    payment_date: Optional[date] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
     source: str = "event"  # "event" or "attribute"

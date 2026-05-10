@@ -22,10 +22,11 @@
             <button class="btn-primary" type="button" @click="showWinForm = true">Add Win</button>
           </div>
 
-          <!-- Record Sale / View Sales buttons for Shares accounts -->
+          <!-- Record Sale / View Sales / Record Dividend buttons for Shares accounts -->
           <div v-if="isShares" class="mb-4 flex gap-2">
             <button class="btn-primary" type="button" @click="emit('recordSale')">Record Sale</button>
             <button class="btn-modal-secondary" type="button" @click="emit('viewSales')">View Sales</button>
+            <button class="btn-modal-secondary" type="button" @click="emit('recordDividend')">Record Dividend</button>
           </div>
 
           <!-- Win input form -->
@@ -78,7 +79,7 @@
                   :key="`${event.source ?? 'event'}-${event.id}`"
                   class="event-row border-b border-border hover:bg-gray-50 transition"
                 >
-                  <td class="py-3 px-4 text-gray-600">{{ formatDate(event.createdAt) }}</td>
+                  <td class="py-3 px-4 text-gray-600">{{ formatDate(event.paymentDate ?? event.createdAt) }}</td>
                   <td class="py-3 px-4 text-text-dark">
                     <span
                       class="inline-block px-2 py-0.5 text-xs font-medium rounded mr-2"
@@ -125,6 +126,7 @@ const emit = defineEmits<{
   addWin: [value: string];
   recordSale: [];
   viewSales: [];
+  recordDividend: [];
 }>();
 
 const showWinForm = ref(false);
@@ -157,13 +159,12 @@ const cancelWin = (): void => {
 };
 
 const formatDate = (value: string): string => {
-  const date = new Date(value);
-  return date.toLocaleString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const [y, m, d] = value.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+  return new Date(value).toLocaleString('en-GB', {
+    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
   });
 };
 

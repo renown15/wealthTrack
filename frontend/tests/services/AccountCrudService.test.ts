@@ -70,4 +70,25 @@ describe('AccountCrudService', () => {
     await expect(accountCrudService.getAccountEvents(7)).resolves.toEqual(events);
     expect(clientStub.get).toHaveBeenCalledWith('/api/v1/accounts/7/events');
   });
+
+  it('posts close-and-transfer with target_account_id', async () => {
+    await accountCrudService.closeAndTransfer(3, 7);
+    expect(clientStub.post).toHaveBeenCalledWith(
+      '/api/v1/accounts/3/close-and-transfer',
+      { target_account_id: 7 }
+    );
+  });
+
+  it('updates account dates', async () => {
+    const result = { accountId: 5, openedAt: '2020-01-01', closedAt: null };
+    clientStub.put.mockResolvedValueOnce({ data: result });
+
+    await expect(
+      accountCrudService.updateAccountDates(5, { opened_at: '2020-01-01', closed_at: null })
+    ).resolves.toEqual(result);
+    expect(clientStub.put).toHaveBeenCalledWith(
+      '/api/v1/accounts/5/dates',
+      { opened_at: '2020-01-01', closed_at: null }
+    );
+  });
 });

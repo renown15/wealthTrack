@@ -66,6 +66,7 @@ export interface AccountEvent {
   userId: number;
   eventType: string;
   value: string;
+  paymentDate?: string | null;
   grossBalance?: string | null;
   encumbrance?: string | null;
   createdAt: string;
@@ -119,6 +120,7 @@ export interface AccountCreateRequest {
   pensionMonthlyPayment?: string;
   assetClass?: string;
   encumbrance?: string;
+  taxYear?: string;
 }
 
 export interface AccountUpdateRequest {
@@ -140,6 +142,7 @@ export interface AccountUpdateRequest {
   assetClass?: string;
   encumbrance?: string;
   newGrossBalance?: string;
+  taxYear?: string;
 }
 
 export interface InstitutionCreateRequest {

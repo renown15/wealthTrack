@@ -56,6 +56,9 @@ ACCOUNT_ITEMS: list[ReferenceDataItem] = [
     ReferenceDataItem(class_key="account_event_type", reference_value="Win", sort_index=4),
     ReferenceDataItem(class_key="account_event_type", reference_value="Share Sale", sort_index=8),
     ReferenceDataItem(class_key="account_event_type", reference_value="Liability", sort_index=9),
+    ReferenceDataItem(
+        class_key="account_event_type", reference_value="Dividend Payment Date", sort_index=11
+    ),
     # -----------------------------------------------------------------------
     # Account attribute types
     # -----------------------------------------------------------------------

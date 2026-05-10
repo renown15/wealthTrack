@@ -4,7 +4,10 @@
     draggable="true"
     @dragstart="emit('dragStart', account.accountId)"
   >
-    <td class="table-cell font-semibold">{{ account.accountName }}</td>
+    <td class="table-cell font-semibold cursor-default" @mouseenter="onNameEnter" @mouseleave="onNameLeave">
+      {{ account.accountName }}
+      <AccountHoverCard v-if="portfolioItem" :item="portfolioItem" :anchor-rect="hoverRect" :visible="hovered" />
+    </td>
     <td class="table-cell">{{ account.institutionName ?? '—' }}</td>
     <td class="table-cell">{{ account.accountNumber ?? '—' }}</td>
     <td class="table-cell">{{ account.sortCode ?? '—' }}</td>
@@ -20,19 +23,10 @@
     <td class="table-cell">
       {{ account.eligibilityReason === 'interest_bearing' ? (account.interestRate ?? '—') : '—' }}
     </td>
-    <td class="table-cell">
-      <span v-if="account.eligibilityReason === 'interest_bearing'">
-        {{ formatCurrency(account.taxReturn?.income) }}
-      </span>
-      <span v-else class="text-muted">—</span>
-    </td>
-    <td class="table-cell">
-      <span v-if="account.eligibilityReason === 'sold_in_period'">
-        {{ formatCurrency(account.taxReturn?.capitalGain) }}
-      </span>
-      <span v-else class="text-muted">—</span>
-    </td>
+    <td class="table-cell">{{ formatCurrency(account.taxReturn?.income) }}</td>
+    <td class="table-cell">{{ formatCurrency(account.taxReturn?.capitalGain) }}</td>
     <td class="table-cell">{{ formatCurrency(account.taxReturn?.taxTakenOff) }}</td>
+    <td class="table-cell">{{ account.firstBalanceDate ?? 'No balance' }}</td>
     <td class="table-cell">
       <button
         class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold rounded bg-blue-100 text-blue-600 hover:bg-blue-200 border-none cursor-pointer"
@@ -71,11 +65,15 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import type { EligibleAccount } from '@models/TaxModels';
+import type { PortfolioItem } from '@models/WealthTrackDataModels';
 import { Icons } from '@/constants/icons';
+import AccountHoverCard from '@views/AccountHub/AccountHoverCard.vue';
 
 defineProps<{
   account: EligibleAccount;
+  portfolioItem: PortfolioItem | null;
   section: 'inScope' | 'eligible';
 }>();
 
@@ -87,6 +85,20 @@ const emit = defineEmits<{
   moveToInScope: [accountId: number];
   moveToEligible: [accountId: number];
 }>();
+
+const hovered = ref(false);
+const hoverRect = ref<DOMRect | null>(null);
+let showTimer: ReturnType<typeof setTimeout> | null = null;
+
+function onNameEnter(e: MouseEvent): void {
+  hoverRect.value = (e.currentTarget as HTMLElement).getBoundingClientRect();
+  showTimer = setTimeout(() => { hovered.value = true; }, 300);
+}
+
+function onNameLeave(): void {
+  if (showTimer) { clearTimeout(showTimer); showTimer = null; }
+  hovered.value = false;
+}
 
 function formatCurrency(val: number | null | undefined): string {
   if (val == null) return '—';

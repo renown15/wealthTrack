@@ -23,7 +23,7 @@ const mockDoc: TaxDocument = {
 const mockEligible: EligibleAccount = {
   accountId: 5, accountName: 'Savings', accountType: 'Savings Account',
   institutionName: 'TestBank', interestRate: '2.0',
-  eligibilityReason: 'interest_bearing', taxReturn: null, documents: [],
+  eligibilityReason: 'interest_bearing', firstBalanceDate: null, taxReturn: null, documents: [],
 };
 
 describe('TaxService', () => {

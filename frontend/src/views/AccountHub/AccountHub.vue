@@ -39,7 +39,7 @@
       </div>
       <div class="table-wrap">
         <PortfolioTable
-          :items="visibleItems" :groups="accountGroupsState.groups"
+          :items="visibleItems" :groups="portfolioGroups"
           :group-members="groupMembersMap" :account-types="accountTypes" :grouped="grouped"
           @edit-account="openEditAccountModal"
           @delete-account="(a) => openDeleteConfirm('account', a.id, a.name)"
@@ -79,7 +79,7 @@
     <AccountHubModals
       :editing-item="editingItem" :items="state.items" :institutions="state.institutions"
       :account-types="accountTypes" :account-statuses="accountStatuses" :institution-types="institutionTypes"
-      :available-groups="accountGroupsState.groups" :group-members-map="groupMembersMap"
+      :available-groups="portfolioGroups" :group-members-map="groupMembersMap"
       :group-api-error="accountGroupsState.error" :account-error="state.error"
       :modal-type="modalType" :account-modal-open="accountModalOpen" :institution-modal-open="institutionModalOpen"
       :delete-confirm-open="deleteConfirmOpen" :delete-confirm-name="deleteConfirmName"
@@ -92,7 +92,7 @@
       :credential-types="credentialTypes" :credentials="credentials" :credential-loading="credentialLoading"
       :credential-saving="credentialSaving" :credential-deleting-id="credentialDeletingId"
       :credential-error="credentialError" :editing-credential="editingCredential"
-      @close-events="closeEventsModal" @add-win="handleAddWin" @record-sale="openShareSaleModal" @view-sales="openShareSaleModalHistory"
+      @close-events="closeEventsModal" @add-win="handleAddWin" @record-sale="openShareSaleModal" @view-sales="openShareSaleModalHistory" @save-dividend="handleSaveDividend"
       @close-share-sale="closeShareSaleModal" @share-sold="handleShareSold"
       @close-account-group="closeAccountGroupModal"
       @save-account-group="handleAccountGroupSave" @delete-group-from-modal="handleDeleteGroupFromModal"
@@ -106,7 +106,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, toRef } from 'vue';
 import type { Account, Institution } from '@/models/WealthTrackDataModels';
 import { usePortfolio } from '@/composables/usePortfolio';
 import { useAccountGroups } from '@/composables/useAccountGroups';
@@ -117,7 +117,8 @@ import { useAccountCrudHandlers } from '@/composables/useAccountCrudHandlers';
 import { useInstitutionCrudHandlers } from '@/composables/useInstitutionCrudHandlers';
 import { useAccountGroupHandlers } from '@/composables/useAccountGroupHandlers';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
-import { calculatePensionValue, type PensionBreakdown } from '@composables/portfolioCalculations';
+import { useAccountHubStats } from '@/composables/useAccountHubStats';
+import type { PensionBreakdown } from '@composables/portfolioCalculations';
 import AccountHubStats from '@views/AccountHub/AccountHubStats.vue';
 import PortfolioTable from '@views/AccountHub/PortfolioTable.vue';
 import InstitutionsList from '@views/AccountHub/InstitutionsList.vue';
@@ -127,15 +128,15 @@ import { institutionCredentialsService } from '@/services/InstitutionCredentials
 import { exportAccountsToExcel, exportInstitutionsToExcel } from '@/utils/exportToExcel';
 import { useHubEventHandlers } from '@/composables/useHubEventHandlers';
 import { useHubReferenceData } from '@/composables/useHubReferenceData';
+import { usePortfolioGroups } from '@/composables/usePortfolioGroups';
 import { Icons } from '@/constants/icons';
 
-const { state, totalValue, cashAtHand, isaSavings, illiquid, trustAssets, projectedAnnualYield, lastPriceUpdate, loadPortfolio, clearError } = usePortfolio();
-const hideClosed = ref(true);
-const visibleItems = computed(() => hideClosed.value ? state.items.filter((i) => !i.account.closedAt) : state.items);
+const { state, lastPriceUpdate, loadPortfolio, clearError } = usePortfolio();
 const { state: accountGroupsState, loadGroups, createGroup, updateGroup, deleteGroup, saveGroupMembers } = useAccountGroups();
 const grouped = ref(true); const groupByParent = ref(true);
 const { accountTypes, accountStatuses, institutionTypes, credentialTypes, lifeExpectancy, annuityRate } = useHubReferenceData();
-const pensionBreakdown = computed<PensionBreakdown>(() => calculatePensionValue(state.items, lifeExpectancy.value, annuityRate.value));
+const { hideClosed, visibleItems, totalValue, cashAtHand, isaSavings, illiquid, trustAssets, projectedAnnualYield, pensionBreakdown } =
+  useAccountHubStats(toRef(() => state.items), accountStatuses, lifeExpectancy, annuityRate);
 onMounted(() => { void loadPortfolio(); void loadGroups(); });
 
 const {
@@ -159,7 +160,8 @@ const accountModalOpen = ref(false); const institutionModalOpen = ref(false);
 const modalType = ref<'create' | 'edit'>('create'); const editingItem = ref<Account | Institution | null>(null);
 const deleteConfirmOpen = ref(false); const deleteConfirmType = ref<'account' | 'institution'>('account');
 const deleteConfirmId = ref(0); const deleteConfirmName = ref('');
-const groupMembersMap = computed(() => accountGroupsState.groupMembers);
+const { portfolioGroups, portfolioGroupMembers: groupMembersMap } =
+  usePortfolioGroups(() => accountGroupsState.groups, () => accountGroupsState.groupMembers);
 const {
   accountGroupModalOpen, accountGroupModalType, editingGroupId, editingGroupName, editingGroupMemberIds,
   openCreateAccountGroupModal, openEditAccountGroupModal, closeAccountGroupModal,
@@ -192,7 +194,7 @@ const handleConfirmDelete = async (): Promise<void> => {
     await loadPortfolio();
   } catch (e) { state.error = e instanceof Error ? e.message : 'Failed to delete'; } finally { closeDeleteConfirm(); }
 };
-const { handleUpdateBalance, handleAddWin } = useHubEventHandlers(state, loadPortfolio, currentAccountId, accountType, openEventsModal);
+const { handleUpdateBalance, handleAddWin, handleSaveDividend } = useHubEventHandlers(state, loadPortfolio, currentAccountId, accountType, openEventsModal);
 const docsModalOpen = ref(false); const docsAccountId = ref(0); const docsAccountName = ref('');
 const openDocsModal = (id: number, name: string): void => { docsAccountId.value = id; docsAccountName.value = name; docsModalOpen.value = true; };
 </script>

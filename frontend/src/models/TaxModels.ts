@@ -60,8 +60,9 @@ export interface EligibleAccount {
   accountNumber: string | null;
   sortCode: string | null;
   rollRefNumber: string | null;
-  eligibilityReason: 'interest_bearing' | 'sold_in_period' | 'in_scope';
+  eligibilityReason: 'interest_bearing' | 'sold_in_period' | 'dividend_income' | 'in_scope' | 'tax_liability';
   eventCount: number;
+  firstBalanceDate: string | null;
   taxReturn: TaxReturn | null;
   documents: TaxDocument[];
 }
