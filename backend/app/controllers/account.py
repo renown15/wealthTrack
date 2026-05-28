@@ -20,7 +20,12 @@ from app.models.account import Account
 from app.models.user_profile import UserProfile
 from app.repositories.account_attribute_repository import AccountAttributeRepository
 from app.repositories.account_repository import AccountRepository
-from app.schemas.account import AccountCreate, AccountResponse, AccountUpdate
+from app.schemas.account import (
+    AccountCreate,
+    AccountOwnershipTransferRequest,
+    AccountResponse,
+    AccountUpdate,
+)
 from app.schemas.account_event import AccountEventResponse
 from app.services.account_service import AccountService
 
@@ -182,6 +187,23 @@ async def update_account(
     await load_account_attributes(attr_repo, account_id, current_user.id, response)
 
     return response
+
+
+@router.post("/{account_id}/transfer", status_code=status.HTTP_204_NO_CONTENT)
+async def transfer_account(
+    account_id: int,
+    body: AccountOwnershipTransferRequest,
+    session: AsyncSession = Depends(get_db),
+    current_user: UserProfile = Depends(get_current_user),
+) -> None:
+    """Transfer account ownership to a family member."""
+    try:
+        await AccountService(session).transfer(account_id, current_user.id, body.target_user_id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+    except PermissionError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+    await session.commit()
 
 
 @router.delete("/{account_id}", status_code=status.HTTP_204_NO_CONTENT)

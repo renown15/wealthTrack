@@ -54,7 +54,11 @@
       "Bash(python3 -c ' *)",
       "Bash(python -m ruff check backend/app/services/tax_service.py backend/app/controllers/tax_periods.py backend/app/models/tax_period.py backend/app/schemas/tax.py)",
       "Bash(make start-test-db *)",
-      "Bash(DATABASE_URL=postgresql+asyncpg://postgres:test_postgres_password@localhost:5434/wealthtrack python -m pytest tests/test_tax_period_group.py -v)"
+      "Bash(DATABASE_URL=postgresql+asyncpg://postgres:test_postgres_password@localhost:5434/wealthtrack python -m pytest tests/test_tax_period_group.py -v)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(make -C /Users/marklewis/dev/wealthTrack test-backend)",
+      "Bash(DATABASE_URL=\"postgresql+asyncpg://postgres:password@localhost:5434/wealthtrack_test\" python -m pytest tests/test_family_controller.py tests/test_family_service.py -v --no-cov)",
+      "Bash(DATABASE_URL=\"postgresql+asyncpg://postgres:test_postgres_password@localhost:5434/wealthtrack\" python -m pytest tests/test_family_controller.py tests/test_family_service.py -v --no-cov)"
     ]
   }
 }

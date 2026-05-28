@@ -42,7 +42,7 @@
         <span v-else class="text-gray-400">—</span>
       </td>
       <td class="table-cell"><!-- docs --></td>
-      <td class="table-cell text-right">
+      <td v-if="!props.readOnly" class="table-cell text-right">
         <div class="flex items-center justify-end gap-1">
           <button
             class="btn-icon edit inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200"
@@ -66,6 +66,7 @@
       :key="`member-${item.account.id}`"
       :item="item"
       :is-first="idx === 0"
+      :read-only="props.readOnly"
       :editing-balance-id="editingBalanceId"
       :editing-balance-value="editingBalanceValue"
       @save-balance="$emit('saveBalance', $event)"
@@ -107,6 +108,7 @@ const props = defineProps<{
   isExpanded: boolean;
   editingBalanceId: number | null;
   editingBalanceValue: string;
+  readOnly?: boolean;
 }>();
 
 defineEmits<{

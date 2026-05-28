@@ -3,8 +3,13 @@ import type { PortfolioItem } from '@/models/WealthTrackDataModels';
 import type { Institution } from '@/models/WealthTrackDataModels';
 import type { InstitutionCredential } from '@/models/InstitutionCredential';
 
-export function exportAccountsToExcel(accounts: PortfolioItem[], fileName: string = 'accounts.xlsx'): void {
-  const data = accounts.map((item) => ({
+export interface FamilyMemberSheet {
+  name: string;
+  items: PortfolioItem[];
+}
+
+function buildAccountSheet(items: PortfolioItem[]): XLSX.WorkSheet {
+  const data = items.map((item) => ({
     'Account Name': item.account?.name || '',
     'Institution': item.institution?.name || '',
     'Type': item.accountType || '',
@@ -22,58 +27,39 @@ export function exportAccountsToExcel(accounts: PortfolioItem[], fileName: strin
     'Shares': item.account?.numberOfShares || '',
     'Price': item.account?.price || '',
   }));
-
   const worksheet = XLSX.utils.json_to_sheet(data);
-  
   const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
-  
   for (let row = range.s.r + 1; row <= range.e.r; row++) {
-    // Format Balance and Encumbrance as GBP currency
     [3, 4].forEach((c) => {
-      const cellAddress = XLSX.utils.encode_cell({ r: row, c });
-      const cellData = worksheet[cellAddress] as Record<string, unknown> | undefined;
-      if (cellData && typeof cellData === 'object' && cellData.v !== '') {
-        cellData.z = '"£"#,##0.00';
-      }
+      const cell = worksheet[XLSX.utils.encode_cell({ r: row, c })] as Record<string, unknown> | undefined;
+      if (cell && typeof cell === 'object' && cell.v !== '') cell.z = '"£"#,##0.00';
     });
-
-    // Format date columns - these contain ISO date strings now
-    const dateColumnIndices = [10, 11, 12, 13]; // Fixed Rate End Date, Opened Date, Closed Date, Release Date
-    dateColumnIndices.forEach((col) => {
-      const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
-      const cellData = worksheet[cellAddress] as Record<string, unknown> | undefined;
-      if (cellData && typeof cellData === 'object' && cellData.v && cellData.v !== '') {
-        // Convert ISO string to Date object
-        cellData.t = 'd';
-        cellData.v = new Date(cellData.v as string);
-        cellData.z = 'yyyy-mm-dd';
+    [10, 11, 12, 13].forEach((c) => {
+      const cell = worksheet[XLSX.utils.encode_cell({ r: row, c })] as Record<string, unknown> | undefined;
+      if (cell && typeof cell === 'object' && cell.v && cell.v !== '') {
+        cell.t = 'd'; cell.v = new Date(cell.v as string); cell.z = 'yyyy-mm-dd';
       }
     });
   }
-  
-  const columnWidths = [
-    { wch: 25 },
-    { wch: 20 },
-    { wch: 20 },
-    { wch: 15 },
-    { wch: 30 },
-    { wch: 18 },
-    { wch: 12 },
-    { wch: 16 },
-    { wch: 12 },
-    { wch: 15 },
-    { wch: 16 },
-    { wch: 12 },
-    { wch: 12 },
-    { wch: 12 },
-    { wch: 10 },
-    { wch: 10 },
+  worksheet['!cols'] = [
+    { wch: 25 }, { wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 30 },
+    { wch: 18 }, { wch: 12 }, { wch: 16 }, { wch: 12 }, { wch: 15 },
+    { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 10 },
   ];
-  worksheet['!cols'] = columnWidths;
+  return worksheet;
+}
 
+export function exportAccountsToExcel(accounts: PortfolioItem[], fileName: string = 'accounts.xlsx'): void {
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Accounts');
+  XLSX.utils.book_append_sheet(workbook, buildAccountSheet(accounts), 'Accounts');
+  XLSX.writeFile(workbook, fileName);
+}
 
+export function exportFamilyToExcel(sheets: FamilyMemberSheet[], fileName: string = 'family-portfolio.xlsx'): void {
+  const workbook = XLSX.utils.book_new();
+  for (const sheet of sheets) {
+    XLSX.utils.book_append_sheet(workbook, buildAccountSheet(sheet.items), sheet.name.slice(0, 31));
+  }
   XLSX.writeFile(workbook, fileName);
 }
 
@@ -106,47 +92,27 @@ export async function exportInstitutionsToExcel(
       rows.push({ ...base, 'Credential Type': '', 'Key': '', 'Value': '' });
     } else {
       for (const cred of creds) {
-        rows.push({
-          ...base,
-          'Credential Type': cred.typeLabel,
-          'Key': cred.key ?? '',
-          'Value': cred.value ?? '',
-        });
+        rows.push({ ...base, 'Credential Type': cred.typeLabel, 'Key': cred.key ?? '', 'Value': cred.value ?? '' });
       }
     }
   }
 
   const worksheet = XLSX.utils.json_to_sheet(rows);
-  worksheet['!cols'] = [
-    { wch: 25 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 25 }, { wch: 30 },
-  ];
-
+  worksheet['!cols'] = [{ wch: 25 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 25 }, { wch: 30 }];
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Institutions');
   XLSX.writeFile(workbook, fileName);
 }
 
 function formatDateForExcel(dateString: string): string {
-  if (!dateString || dateString.trim() === '') {
-    return '';
-  }
-
+  if (!dateString || dateString.trim() === '') return '';
   let date = new Date(dateString);
-  
-  // If standard parsing fails, try DD/MM/YYYY format
   if (isNaN(date.getTime())) {
-    const ddmmyyyyMatch = dateString.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-    if (ddmmyyyyMatch) {
-      const day = parseInt(ddmmyyyyMatch[1], 10);
-      const month = parseInt(ddmmyyyyMatch[2], 10);
-      const year = parseInt(ddmmyyyyMatch[3], 10);
-      date = new Date(year, month - 1, day); // month is 0-indexed
-    }
+    const match = dateString.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (match) date = new Date(parseInt(match[3], 10), parseInt(match[2], 10) - 1, parseInt(match[1], 10));
   }
-  
   if (isNaN(date.getTime())) {
     throw new Error(`Invalid date format: "${dateString}". Expected ISO format (YYYY-MM-DD), DD/MM/YYYY, or valid JavaScript date string.`);
   }
-
   return date.toISOString().split('T')[0];
 }

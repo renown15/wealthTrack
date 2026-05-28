@@ -1,31 +1,48 @@
 <template>
   <BaseResourceModal
     :open="open"
-    :title="modalTitle"
-    :save-button-text="type === 'create' ? 'Create' : 'Save'"
+    :title="confirmingTransfer ? 'Confirm Ownership Transfer' : modalTitle"
+    :save-button-text="saveButtonText"
     @close="emitClose"
     @save="handleSave"
   >
     <div v-if="validationError || error" class="error-banner mb-4">{{ validationError || error }}</div>
-    <AccountFormFields
-      :form-data="formData"
-      :type="type"
-      :institutions="institutions"
-      :account-types="accountTypes"
-      :account-statuses="accountStatuses"
-      :transfer-accounts="props.transferAccounts"
-    />
+    <div v-if="confirmingTransfer" class="text-sm text-muted">
+      Transfer <strong>{{ formData.name }}</strong> from <strong>you</strong> to
+      <strong>{{ selectedOwnerName }}</strong>? All balance history, attributes, and documents will
+      move with it. This account will no longer appear in your portfolio.
+    </div>
+    <template v-else>
+      <div v-if="type === 'edit' && familyMembers.length > 0" class="form-group">
+        <label for="accountOwner" class="form-label">Account Owner</label>
+        <select id="accountOwner" v-model="selectedOwnerId" class="form-input">
+          <option :value="currentUserId">You</option>
+          <option v-for="m in familyMembers" :key="m.accountId" :value="m.accountId">{{ m.firstName }} {{ m.lastName }}</option>
+        </select>
+      </div>
+      <AccountFormFields
+        :form-data="formData"
+        :type="type"
+        :institutions="institutions"
+        :account-types="accountTypes"
+        :account-statuses="accountStatuses"
+        :transfer-accounts="props.transferAccounts"
+      />
+    </template>
   </BaseResourceModal>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRef } from 'vue';
+import { computed, ref, toRef, watch } from 'vue';
 import type { Institution } from '@/models/WealthTrackDataModels';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
+import type { FamilyMember } from '@models/family';
 import BaseResourceModal from '@/components/BaseResourceModal.vue';
 import AccountFormFields from '@views/AccountHub/AccountFormFields.vue';
-import { useAccountForm, type AccountFormProps, convertFromDateInputFormat } from '@/composables/useAccountForm';
-import { validatePenceField } from '@views/AccountHub/addAccountModalValidation';
+import { useAccountForm, type AccountFormProps } from '@/composables/useAccountForm';
+import { buildSavePayload, type SavePayload } from '@views/AccountHub/accountModalSave';
+import { apiService } from '@services/ApiService';
+import { authState } from '@/modules/auth';
 
 interface Props {
   open: boolean;
@@ -55,38 +72,15 @@ interface Props {
   initialEncumbrance?: string | null;
   initialTaxYear?: string | null;
   transferAccounts?: { id: number; label: string }[];
+  accountId?: number;
   error?: string | null;
-}
-
-interface SavePayload {
-  name: string;
-  institutionId: number;
-  typeId: number;
-  statusId: number;
-  transferToAccountId?: number;
-  openedAt?: string;
-  closedAt?: string;
-  accountNumber?: string;
-  sortCode?: string;
-  rollRefNumber?: string;
-  interestRate?: string;
-  fixedBonusRate?: string;
-  fixedBonusRateEndDate?: string;
-  releaseDate?: string;
-  numberOfShares?: string;
-  underlying?: string;
-  price?: string;
-  purchasePrice?: string;
-  pensionMonthlyPayment?: string;
-  assetClass?: string;
-  encumbrance?: string;
-  taxYear?: string;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<{
   close: [];
   save: [SavePayload];
+  transferred: [];
 }>();
 
 const formProps = computed<AccountFormProps>(() => ({
@@ -121,65 +115,57 @@ const formProps = computed<AccountFormProps>(() => ({
 
 const { formData } = useAccountForm(toRef(formProps));
 const validationError = ref('');
+const familyMembers = ref<FamilyMember[]>([]);
+const currentUserId = computed(() => authState.user?.id ?? 0);
+const selectedOwnerId = ref(0);
+const confirmingTransfer = ref(false);
 
-const modalTitle = computed(() => {
-  const verb = props.type === 'create' ? 'New' : 'Edit';
-  return `${verb} Account`;
+const modalTitle = computed(() => `${props.type === 'create' ? 'New' : 'Edit'} Account`);
+const saveButtonText = computed(() => {
+  if (confirmingTransfer.value) return 'Confirm Transfer';
+  return props.type === 'create' ? 'Create' : 'Save';
+});
+const selectedOwnerName = computed(() => {
+  const m = familyMembers.value.find(f => f.accountId === selectedOwnerId.value);
+  return m ? `${m.firstName} ${m.lastName}` : '';
 });
 
-const emitClose = (): void => emit('close');
+const emitClose = (): void => {
+  if (confirmingTransfer.value) { confirmingTransfer.value = false; return; }
+  emit('close');
+};
+
+watch(() => props.open, async (val: boolean) => {
+  if (!val || props.type !== 'edit') {
+    familyMembers.value = [];
+    selectedOwnerId.value = currentUserId.value;
+    confirmingTransfer.value = false;
+    return;
+  }
+  selectedOwnerId.value = currentUserId.value;
+  const fam = await apiService.getFamilies().then(f => f[0] ?? null).catch(() => null);
+  if (fam) familyMembers.value = fam.members.filter(m => m.accountId !== currentUserId.value);
+});
+
+const doTransfer = async (): Promise<void> => {
+  if (!props.accountId) return;
+  try {
+    await apiService.transferAccount(props.accountId, selectedOwnerId.value);
+    emit('transferred');
+    emit('close');
+  } catch (e) {
+    validationError.value = e instanceof Error ? e.message : 'Transfer failed';
+  } finally {
+    confirmingTransfer.value = false;
+  }
+};
 
 const handleSave = (): void => {
   validationError.value = '';
-
-  if (!formData.value.name) {
-    validationError.value = 'Please enter an account name';
-    return;
-  }
-  if (props.type === 'create' && !formData.value.institutionId) {
-    validationError.value = 'Please select an institution';
-    return;
-  }
-  if (!formData.value.typeId || !formData.value.statusId) {
-    validationError.value = 'Please select an account type and status';
-    return;
-  }
-
-  const selectedStatus = props.accountStatuses.find(s => s.id === formData.value.statusId);
-  if (selectedStatus?.referenceValue === 'Closed' && !formData.value.closedAt) {
-    validationError.value = 'Please set a Closed Date when marking an account as Closed';
-    return;
-  }
-
-  const priceErr = validatePenceField(formData.value.price, 'Price')
-    ?? validatePenceField(formData.value.purchasePrice, 'Purchase Price');
-  if (priceErr) {
-    validationError.value = priceErr;
-    return;
-  }
-  emit('save', {
-    name: formData.value.name,
-    institutionId: formData.value.institutionId,
-    typeId: formData.value.typeId,
-    statusId: formData.value.statusId,
-    openedAt: formData.value.openedAt ? convertFromDateInputFormat(formData.value.openedAt) : undefined,
-    closedAt: formData.value.closedAt ? convertFromDateInputFormat(formData.value.closedAt) : undefined,
-    accountNumber: formData.value.accountNumber || undefined,
-    sortCode: formData.value.sortCode || undefined,
-    rollRefNumber: formData.value.rollRefNumber || undefined,
-    interestRate: formData.value.interestRate != null && formData.value.interestRate !== '' ? String(formData.value.interestRate) : undefined,
-    fixedBonusRate: formData.value.fixedBonusRate != null && formData.value.fixedBonusRate !== '' ? String(formData.value.fixedBonusRate) : undefined,
-    fixedBonusRateEndDate: formData.value.fixedBonusRateEndDate ? convertFromDateInputFormat(formData.value.fixedBonusRateEndDate) : undefined,
-    releaseDate: formData.value.releaseDate ? convertFromDateInputFormat(formData.value.releaseDate) : undefined,
-    numberOfShares: formData.value.numberOfShares != null && formData.value.numberOfShares !== '' ? String(formData.value.numberOfShares) : undefined,
-    underlying: formData.value.underlying || undefined,
-    price: formData.value.price != null && formData.value.price !== '' ? String(formData.value.price) : undefined,
-    purchasePrice: formData.value.purchasePrice != null && formData.value.purchasePrice !== '' ? String(formData.value.purchasePrice) : undefined,
-    pensionMonthlyPayment: formData.value.pensionMonthlyPayment != null && formData.value.pensionMonthlyPayment !== '' ? String(formData.value.pensionMonthlyPayment) : undefined,
-    assetClass: formData.value.assetClass || undefined,
-    encumbrance: formData.value.encumbrance != null && formData.value.encumbrance !== '' ? String(formData.value.encumbrance) : undefined,
-    taxYear: formData.value.taxYear || undefined,
-    transferToAccountId: formData.value.transferToAccountId ?? undefined,
-  });
+  if (confirmingTransfer.value) { void doTransfer(); return; }
+  if (props.type === 'edit' && selectedOwnerId.value !== currentUserId.value) { confirmingTransfer.value = true; return; }
+  const { payload, error } = buildSavePayload(formData.value, props.type, props.accountStatuses);
+  if (!payload) { validationError.value = error; return; }
+  emit('save', payload);
 };
 </script>

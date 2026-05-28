@@ -1,6 +1,39 @@
 # WealthTrack Changelog
 
-## Version 1.0.0 (Latest - 2026-04-12)
+## Unreleased (2026-05-28)
+
+### 👨‍👩‍👧‍👦 Family Portfolio Sharing
+
+- Family groups: create a named family, add/remove members (other registered users)
+- Family Hub view: tabbed portfolio across all family members, including a combined "All" tab
+- Member tabs show each person's full portfolio with the same account grouping and stats as the main AccountHub
+- Ownership transfer: accounts can be transferred to another family member (preserves all events and attributes)
+- Family CRUD: rename and delete family via the Family settings view
+
+### 🎁 Gift / IHT Tracking
+
+- Record gifts against any account with donor name, date, and value
+- 7-year taper calculation for inheritance tax (IHT) exposure shown per account
+- Gift history visible in account event timeline
+- Gift summary per account shows total gifted and remaining taper exposure by donor
+- Supports share gifts (records share quantity alongside cash value)
+
+### 🗑️ Delete Gift
+
+- Delete any recorded gift from the account event timeline
+- Deletion reverses the balance: removes the gift event group and re-calculates the running balance
+- Confirmation dialog before deletion (modal overlay pattern)
+
+### 🧪 Test Coverage Improvements
+
+- New frontend tests: `useShareSaleModal`, `useHubEventHandlers`, `useTaxHubModals`, `useAnalyticsEdit`, `AccountDocumentService`
+- New backend tests: `test_family_service.py`, expanded `test_family_controller.py` (404/400 branches), expanded `test_portfolio_controller.py` (refresh-prices, Tax Liability path)
+- Backend coverage: ~81.7% | Frontend statements/lines: ~82.8%, functions: ~64.6%, branches: ~81.9%
+- Total test count: ~600 backend, ~1100 frontend across 114 files
+
+---
+
+## Version 1.0.0 (2026-04-12)
 
 ### 🎉 Tax Hub Feature Complete
 

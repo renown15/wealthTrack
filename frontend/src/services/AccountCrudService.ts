@@ -78,6 +78,16 @@ class AccountCrudService extends BaseApiClient {
     }
   }
 
+  async transferAccount(accountId: number, targetUserId: number): Promise<void> {
+    try {
+      await this.retryRequest(() =>
+        this.client.post(`/api/v1/accounts/${accountId}/transfer`, { targetUserId }),
+      );
+    } catch (error) {
+      throw this.handleError(error, 'Failed to transfer account');
+    }
+  }
+
   async getAccountEvents(accountId: number): Promise<AccountEvent[]> {
     try {
       const response = await this.retryRequest(() =>

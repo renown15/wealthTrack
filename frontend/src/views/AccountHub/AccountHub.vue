@@ -6,10 +6,10 @@
     <div v-if="state.error" class="hub-content-card p-6">
       <div class="error-banner"><span>{{ state.error }}</span><button class="btn-close" @click="clearError">×</button></div>
     </div>
-    <div v-if="state.itemsLoading" class="hub-content-card p-8 loading-state">
+    <div v-if="state.itemsLoading && activeMemberId === null" class="hub-content-card p-8 loading-state">
       <div class="flex flex-col items-center"><div class="spinner"></div><p class="mt-4 text-muted">Loading portfolio...</p></div>
     </div>
-    <div v-else-if="state.items.length === 0" class="hub-content-card p-8">
+    <div v-else-if="state.items.length === 0 && activeMemberId === null" class="hub-content-card p-8">
       <div class="text-center">
         <div class="empty-icon">📊</div><h2 class="empty-title">No accounts yet</h2>
         <p class="empty-text">Create your first account to get started</p>
@@ -17,60 +17,39 @@
       </div>
     </div>
     <div v-else class="hub-content-card p-3 sm:p-6">
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-        <h3 class="section-title">Portfolio</h3>
-        <div class="flex flex-wrap items-center gap-3">
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-medium text-gray-700">Hide Closed</span>
-            <button class="relative w-10 h-5 rounded-full transition-colors duration-200 border-none cursor-pointer" :class="hideClosed ? 'bg-blue-600' : 'bg-gray-300'" @click="hideClosed = !hideClosed" title="Toggle closed accounts">
-              <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200" :class="hideClosed ? 'translate-x-5' : 'translate-x-0'" />
-            </button>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-medium text-gray-700">Grouped</span>
-            <button class="relative w-10 h-5 rounded-full transition-colors duration-200 border-none cursor-pointer" :class="grouped ? 'bg-blue-600' : 'bg-gray-300'" @click="grouped = !grouped" title="Toggle grouping">
-              <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200" :class="grouped ? 'translate-x-5' : 'translate-x-0'" />
-            </button>
-          </div>
-          <button class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500 text-white border-none rounded text-xs font-medium cursor-pointer transition-colors hover:bg-blue-600" @click="exportToExcel" title="Export accounts to Excel">
-            <span>{{ Icons.download }}</span><span>Excel</span>
-          </button>
+      <FamilyMemberTabs v-if="otherMembers.length > 0" :members="otherMembers" :active-id="activeMemberId" @select="selectMember" />
+      <div v-if="isLoadingMember" class="py-8 text-center text-sm text-muted">Loading portfolio…</div>
+      <div v-else-if="memberError" class="error-banner mb-3"><span>{{ memberError }}</span></div>
+      <template v-else>
+        <PortfolioControls :hide-closed="hideClosed" :grouped="grouped" :refreshing="priceRefreshing" @toggle-hide-closed="hideClosed = !hideClosed" @toggle-grouped="grouped = !grouped" @export="handleExport" @refresh-prices="handleRefreshPrices" />
+        <div class="table-wrap">
+          <PortfolioTable
+            :items="visibleItems" :groups="portfolioGroups" :read-only="activeMemberId !== null"
+            :group-members="groupMembersMap" :account-types="accountTypes" :grouped="grouped"
+            @edit-account="(a) => activeMemberId === null && openEditAccountModal(a)"
+            @delete-account="(a) => activeMemberId === null && openDeleteConfirm('account', a.id, a.name)"
+            @show-events="(id, name, count, type) => activeMemberId === null && openEventsModal(id, name, type)"
+            @show-docs="(id, name) => activeMemberId === null && openDocsModal(id, name)"
+            @edit-group="(g) => activeMemberId === null && openEditAccountGroupModal(g)"
+            @delete-group="(g) => activeMemberId === null && handleDeleteGroup(g)"
+            @update-balance="(p) => activeMemberId === null && handleUpdateBalance(p)"
+          />
         </div>
-      </div>
-      <div class="table-wrap">
-        <PortfolioTable
-          :items="visibleItems" :groups="portfolioGroups"
-          :group-members="groupMembersMap" :account-types="accountTypes" :grouped="grouped"
-          @edit-account="openEditAccountModal"
-          @delete-account="(a) => openDeleteConfirm('account', a.id, a.name)"
-          @show-events="(id, name, count, type) => openEventsModal(id, name, type)"
-          @show-docs="openDocsModal"
-          @edit-group="openEditAccountGroupModal" @delete-group="handleDeleteGroup"
-          @update-balance="handleUpdateBalance"
+        <InstitutionsPanel
+          :institutions="institutionsToShow"
+          :portfolio-items="visibleItems"
+          :all-members="allMembers"
+          :group-by-parent="groupByParent"
+          :loading="activeMemberId === null && state.institutionsLoading"
+          :read-only="activeMemberId !== null"
+          :is-all-tab="activeMemberId === 'all'"
+          @toggle-group-by-parent="groupByParent = !groupByParent"
+          @export="exportInstitutions"
+          @edit-institution="openEditInstitutionModal"
+          @delete-institution="(id, name) => openDeleteConfirm('institution', id, name)"
+          @manage-credentials="openCredentialsModal"
         />
-      </div>
-    </div>
-    <div v-if="state.institutionsLoading || state.institutions.length > 0" class="hub-content-card p-3 sm:p-6">
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-        <h3 class="section-title">Institutions</h3>
-        <div class="flex flex-wrap items-center gap-3">
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-medium text-gray-700">Group by Parent</span>
-            <button class="relative w-10 h-5 rounded-full transition-colors duration-200 border-none cursor-pointer" :class="groupByParent ? 'bg-blue-600' : 'bg-gray-300'" @click="groupByParent = !groupByParent" title="Toggle grouping">
-              <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200" :class="groupByParent ? 'translate-x-5' : 'translate-x-0'" />
-            </button>
-          </div>
-          <button class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500 text-white border-none rounded text-xs font-medium cursor-pointer transition-colors hover:bg-blue-600" @click="exportInstitutions" title="Export institutions and credentials to Excel">
-            <span>{{ Icons.download }}</span><span>Excel</span>
-          </button>
-        </div>
-      </div>
-      <InstitutionsList
-        v-if="!state.institutionsLoading" :institutions="state.institutions" :portfolio-items="state.items" :group-by-parent="groupByParent"
-        @edit-institution="openEditInstitutionModal"
-        @delete-institution="(id, name) => openDeleteConfirm('institution', id, name)"
-        @manage-credentials="openCredentialsModal"
-      />
+      </template>
     </div>
     <AccountDocumentsModal
       :open="docsModalOpen" :account-id="docsAccountId" :account-name="docsAccountName"
@@ -92,11 +71,11 @@
       :credential-types="credentialTypes" :credentials="credentials" :credential-loading="credentialLoading"
       :credential-saving="credentialSaving" :credential-deleting-id="credentialDeletingId"
       :credential-error="credentialError" :editing-credential="editingCredential"
-      @close-events="closeEventsModal" @add-win="handleAddWin" @record-sale="openShareSaleModal" @view-sales="openShareSaleModalHistory" @save-dividend="handleSaveDividend"
-      @close-share-sale="closeShareSaleModal" @share-sold="handleShareSold"
+      @close-events="closeEventsModal" @add-win="handleAddWin" @record-sale="openShareSaleModal" @view-sales="openShareSaleModalHistory" @save-dividend="handleSaveDividend" @save-gift="handleSaveGift"
+      @close-share-sale="closeShareSaleModal" @share-sold="handleShareSold" @delete-gift="handleDeleteGift"
       @close-account-group="closeAccountGroupModal"
       @save-account-group="handleAccountGroupSave" @delete-group-from-modal="handleDeleteGroupFromModal"
-      @close-account="closeAccountModal" @save-account="handleAccountSave"
+      @close-account="closeAccountModal" @save-account="handleAccountSave" @account-transferred="loadPortfolio"
       @close-institution="closeInstitutionModal" @save-institution="handleInstitutionSave"
       @close-delete="closeDeleteConfirm" @confirm-delete="handleConfirmDelete"
       @close-credentials="closeCredentialsModal" @save-credential="handleCredentialSave"
@@ -106,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, toRef } from 'vue';
+import { ref, computed, onMounted, toRef } from 'vue';
 import type { Account, Institution } from '@/models/WealthTrackDataModels';
 import { usePortfolio } from '@/composables/usePortfolio';
 import { useAccountGroups } from '@/composables/useAccountGroups';
@@ -119,14 +98,20 @@ import { useAccountGroupHandlers } from '@/composables/useAccountGroupHandlers';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 import { useAccountHubStats } from '@/composables/useAccountHubStats';
 import type { PensionBreakdown } from '@composables/portfolioCalculations';
+import { useFamilyTabs } from '@composables/useFamilyTabs';
+import { authState } from '@/modules/auth';
 import AccountHubStats from '@views/AccountHub/AccountHubStats.vue';
 import PortfolioTable from '@views/AccountHub/PortfolioTable.vue';
-import InstitutionsList from '@views/AccountHub/InstitutionsList.vue';
+import PortfolioControls from '@views/AccountHub/PortfolioControls.vue';
+import FamilyMemberTabs from '@views/AccountHub/FamilyMemberTabs.vue';
+import InstitutionsPanel from '@views/AccountHub/InstitutionsPanel.vue';
 import AccountHubModals from '@views/AccountHub/AccountHubModals.vue';
 import AccountDocumentsModal from '@views/AccountHub/AccountDocumentsModal.vue';
+import { apiService } from '@/services/ApiService';
 import { institutionCredentialsService } from '@/services/InstitutionCredentialsService';
-import { exportAccountsToExcel, exportInstitutionsToExcel } from '@/utils/exportToExcel';
+import { exportAccountsToExcel, exportFamilyToExcel, exportInstitutionsToExcel } from '@/utils/exportToExcel';
 import { useHubEventHandlers } from '@/composables/useHubEventHandlers';
+import { useShareSaleModal } from '@/composables/useShareSaleModal';
 import { useHubReferenceData } from '@/composables/useHubReferenceData';
 import { usePortfolioGroups } from '@/composables/usePortfolioGroups';
 import { Icons } from '@/constants/icons';
@@ -135,9 +120,12 @@ const { state, lastPriceUpdate, loadPortfolio, clearError } = usePortfolio();
 const { state: accountGroupsState, loadGroups, createGroup, updateGroup, deleteGroup, saveGroupMembers } = useAccountGroups();
 const grouped = ref(true); const groupByParent = ref(true);
 const { accountTypes, accountStatuses, institutionTypes, credentialTypes, lifeExpectancy, annuityRate } = useHubReferenceData();
+const { otherMembers, allMembers, activeMemberId, tableItems, activeInstitutions, memberGroups, memberGroupMembersMap, isLoadingMember, memberError, loadFamilyTabs, selectMember } =
+  useFamilyTabs(() => authState.user?.id ?? 0, () => ({ firstName: authState.user?.firstName ?? '', lastName: authState.user?.lastName ?? '' }), toRef(() => state.items));
 const { hideClosed, visibleItems, totalValue, cashAtHand, isaSavings, illiquid, trustAssets, projectedAnnualYield, pensionBreakdown } =
-  useAccountHubStats(toRef(() => state.items), accountStatuses, lifeExpectancy, annuityRate);
-onMounted(() => { void loadPortfolio(); void loadGroups(); });
+  useAccountHubStats(tableItems, accountStatuses, lifeExpectancy, annuityRate);
+const institutionsToShow = computed<Institution[]>(() => activeInstitutions.value ?? state.institutions);
+onMounted(() => { void loadPortfolio(); void loadGroups(); void loadFamilyTabs(); });
 
 const {
   credentialModalOpen, credentialInstitution, credentials, credentialLoading, credentialSaving,
@@ -145,23 +133,18 @@ const {
   handleCredentialSave, handleCredentialEdit, cancelCredentialEdit, handleCredentialDelete,
 } = useCredentialsModal();
 const { eventsModalOpen, eventsTitle, eventsLoading, eventsError, events, accountType, currentAccountId, openEventsModal, closeEventsModal } = useEventsModal();
-const shareSaleModalOpen = ref(false);
-const shareSaleStartTab = ref<'record' | 'history'>('record');
-const openShareSaleModal = (): void => { shareSaleStartTab.value = 'record'; shareSaleModalOpen.value = true; };
-const openShareSaleModalHistory = (): void => { shareSaleStartTab.value = 'history'; shareSaleModalOpen.value = true; };
-const closeShareSaleModal = (): void => { shareSaleModalOpen.value = false; };
-const handleShareSold = async (): Promise<void> => {
-  closeShareSaleModal();
-  await loadPortfolio();
-  const accountName = state.items.find((i) => i.account.id === currentAccountId.value)?.account.name ?? 'Shares Account';
-  await openEventsModal(currentAccountId.value, accountName, 'Shares');
-};
+const { shareSaleModalOpen, shareSaleStartTab, openShareSaleModal, openShareSaleModalHistory, closeShareSaleModal, handleShareSold } =
+  useShareSaleModal(state, loadPortfolio, currentAccountId, openEventsModal);
 const accountModalOpen = ref(false); const institutionModalOpen = ref(false);
 const modalType = ref<'create' | 'edit'>('create'); const editingItem = ref<Account | Institution | null>(null);
 const deleteConfirmOpen = ref(false); const deleteConfirmType = ref<'account' | 'institution'>('account');
 const deleteConfirmId = ref(0); const deleteConfirmName = ref('');
-const { portfolioGroups, portfolioGroupMembers: groupMembersMap } =
+const { portfolioGroups: myGroups, portfolioGroupMembers: myGroupMap } =
   usePortfolioGroups(() => accountGroupsState.groups, () => accountGroupsState.groupMembers);
+const { portfolioGroups: memberPortfolioGroups, portfolioGroupMembers: memberPortfolioGroupMap } =
+  usePortfolioGroups(() => memberGroups.value, () => memberGroupMembersMap.value);
+const portfolioGroups = computed(() => activeMemberId.value === null ? myGroups.value : activeMemberId.value === 'all' ? [...myGroups.value, ...memberPortfolioGroups.value] : memberPortfolioGroups.value);
+const groupMembersMap = computed(() => activeMemberId.value === null ? myGroupMap.value : activeMemberId.value === 'all' ? new Map([...myGroupMap.value, ...memberPortfolioGroupMap.value]) : memberPortfolioGroupMap.value);
 const {
   accountGroupModalOpen, accountGroupModalType, editingGroupId, editingGroupName, editingGroupMemberIds,
   openCreateAccountGroupModal, openEditAccountGroupModal, closeAccountGroupModal,
@@ -175,8 +158,18 @@ const openEditInstitutionModal = (inst: Institution): void => { modalType.value 
 const closeInstitutionModal = (): void => { institutionModalOpen.value = false; editingItem.value = null; };
 const openDeleteConfirm = (type: 'account' | 'institution', id: number, name: string): void => { deleteConfirmType.value = type; deleteConfirmId.value = id; deleteConfirmName.value = name; deleteConfirmOpen.value = true; };
 const closeDeleteConfirm = (): void => { deleteConfirmOpen.value = false };
-const exportToExcel = (): void => { exportAccountsToExcel(state.items, `wealthtrack-accounts-${new Date().toISOString().split('T')[0]}.xlsx`); };
+const handleExport = (): void => {
+  const date = new Date().toISOString().split('T')[0];
+  if (activeMemberId.value === 'all') {
+    const sheets = allMembers.value.map((m) => ({ name: `${m.firstName} ${m.lastName}`, items: visibleItems.value.filter((i) => i.account.userId === m.accountId) }));
+    exportFamilyToExcel(sheets, `wealthtrack-family-${date}.xlsx`);
+  } else {
+    exportAccountsToExcel(visibleItems.value, `wealthtrack-accounts-${date}.xlsx`);
+  }
+};
 const exportInstitutions = (): void => { void exportInstitutionsToExcel(state.institutions, (id) => institutionCredentialsService.listCredentials(id), `wealthtrack-institutions-${new Date().toISOString().split('T')[0]}.xlsx`); };
+const priceRefreshing = ref(false);
+const handleRefreshPrices = async (): Promise<void> => { priceRefreshing.value = true; try { await apiService.refreshPrices(); await loadPortfolio(); } catch (e) { debug.error('[AccountHub] Price refresh failed:', e); } finally { priceRefreshing.value = false; } };
 const { handleSave: handleAccountCrudSave, handleDelete: handleAccountDelete } = useAccountCrudHandlers(accountTypes, accountStatuses, modalType, editingItem, closeAccountModal);
 const { handleSave: handleInstitutionCrudSave, handleDelete: handleInstitutionDelete } = useInstitutionCrudHandlers(modalType, editingItem, closeInstitutionModal);
 const handleAccountSave = async (payload: any): Promise<void> => {
@@ -194,7 +187,7 @@ const handleConfirmDelete = async (): Promise<void> => {
     await loadPortfolio();
   } catch (e) { state.error = e instanceof Error ? e.message : 'Failed to delete'; } finally { closeDeleteConfirm(); }
 };
-const { handleUpdateBalance, handleAddWin, handleSaveDividend } = useHubEventHandlers(state, loadPortfolio, currentAccountId, accountType, openEventsModal);
+const { handleUpdateBalance, handleAddWin, handleSaveDividend, handleSaveGift, handleDeleteGift } = useHubEventHandlers(state, loadPortfolio, currentAccountId, accountType, openEventsModal);
 const docsModalOpen = ref(false); const docsAccountId = ref(0); const docsAccountName = ref('');
 const openDocsModal = (id: number, name: string): void => { docsAccountId.value = id; docsAccountName.value = name; docsModalOpen.value = true; };
 </script>

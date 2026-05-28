@@ -21,6 +21,8 @@ const createMockPortfolio = () => {
     institutions: [] as Institution[],
     error: null as string | null,
     loading: false,
+    institutionsLoading: false,
+    itemsLoading: false,
   });
 
   return {
@@ -215,6 +217,7 @@ vi.mock('@/services/ApiService', () => ({
   apiService: {
     getAccountEvents: vi.fn(),
     getReferenceData: vi.fn().mockResolvedValue([]),
+    getFamilies: vi.fn().mockResolvedValue([]),
   },
 }));
 

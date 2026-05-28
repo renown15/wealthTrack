@@ -8,24 +8,24 @@
 
 | Metric | Threshold | Current |
 |--------|-----------|---------|
-| Overall | ≥ 80% | ~81% |
+| Overall | ≥ 80% | ~81.7% |
 
 Enforced via: `pytest --cov-fail-under=80`
 
-Test count: ~360 backend tests across all features
+Test count: ~600 backend tests across 47 test files
 
 ### Frontend Coverage
 
 | Metric | Threshold | Current |
 |--------|-----------|---------|
-| Statements | ≥ 70% | ~79% |
-| Branches | ≥ 70% | ~81% |
-| Functions | ≥ 55% | ~56% |
-| Lines | ≥ 70% | ~79% |
+| Statements | ≥ 70% | ~82.8% |
+| Branches | ≥ 70% | ~81.9% |
+| Functions | ≥ 55% | ~64.6% |
+| Lines | ≥ 70% | ~82.8% |
 
 Enforced via: `vitest --coverage` with v8 provider
 
-Test count: ~650 frontend tests (66 test files)
+Test count: ~1100 frontend tests across 114 test files
 
 ## Coverage Philosophy
 

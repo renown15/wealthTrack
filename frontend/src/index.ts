@@ -19,6 +19,9 @@ import { toastOptions } from '@/composables/useToast';
  * Initialize the application.
  */
 export async function initializeApp(): Promise<void> {
+  // Register expiry callback before init so the timer fires correctly on page reload
+  authModule.onExpiry(() => { authModule.clearToken(); void router.push({ name: 'login' }); });
+
   // Initialize auth from localStorage
   authModule.init();
 

@@ -3,7 +3,7 @@ Controller for portfolio/dashboard endpoints.
 """
 from typing import Any
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.controllers.dependencies import get_current_user
@@ -11,8 +11,18 @@ from app.database import get_db
 from app.models.user_profile import UserProfile
 from app.repositories.portfolio_repository import PortfolioRepository
 from app.schemas.portfolio import PortfolioResponse
+from app.services.price_service import clear_price_cache
 
 router = APIRouter(prefix="/portfolio", tags=["portfolio"])
+
+
+@router.post("/refresh-prices", status_code=status.HTTP_204_NO_CONTENT)
+async def refresh_prices(
+    _current_user: UserProfile = Depends(get_current_user),
+) -> Response:
+    """Clear the in-memory price cache so the next portfolio load fetches fresh prices."""
+    clear_price_cache()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("", response_model=PortfolioResponse)
@@ -47,15 +57,16 @@ async def get_user_portfolio(
         except (TypeError, ValueError):
             continue
 
-        # Track the latest price update across all accounts
-        account = item.get("account", {})
-        if account.get("updatedAt"):
-            if last_price_update is None or account.get("updatedAt") > last_price_update:
-                last_price_update = account.get("updatedAt")
+        # Track the most recent balance event timestamp across all accounts
+        balance = item.get("latestBalance") or {}
+        balance_ts = balance.get("createdAt")
+        if balance_ts:
+            if last_price_update is None or balance_ts > last_price_update:
+                last_price_update = balance_ts
 
     return {
         "items": items,
         "total_value": total_value,
         "account_count": len(items),
-        "last_price_update": last_price_update.isoformat() if last_price_update else None,
+        "last_price_update": last_price_update,
     }

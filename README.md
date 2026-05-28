@@ -16,6 +16,8 @@ WealthTrack solves this by giving you a single dashboard where you manually log 
 
 **Tax Hub** — Track share sales and view capital gains tax liabilities. View eligible accounts for a tax year, capital gains amounts, and taxes already paid. Prepare tax returns with share sale data.
 
+**Gift Tracker** — Record gifts for inheritance tax (IHT) taper exposure tracking. Each gift records the donor, date, and value, with the 7-year taper applied to calculate remaining exposure. Gifts can be deleted to reverse the balance.
+
 **Analytics** — Charts showing how your portfolio is split by account type, institution, and asset class, plus balance history trends over time.
 
 **Credential Vault** — Optionally store your login credentials for each institution, encrypted at rest. Useful for keeping all your financial logins in one secure place.
@@ -30,8 +32,6 @@ Anyone who wants a clear picture of their finances without giving a third party 
 - No transaction-level tracking — just balance snapshots over time
 - No budgeting or spending analysis
 - No mobile app — web only (responsive)
-
-Household sharing (multiple users sharing a combined view) is planned but not yet built.
 
 ---
 

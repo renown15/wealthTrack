@@ -20,6 +20,7 @@ const defaultProps = {
   trustAssets: 0,
   projectedAnnualYield: 0,
   pensionBreakdown: mockPensionBreakdown,
+  items: [],
 };
 
 describe('AccountHubStats', () => {

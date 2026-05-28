@@ -34,6 +34,7 @@ describe('AddAccountModal', () => {
         institutions: mockInstitutions,
         accountTypes: mockAccountTypes,
         accountStatuses: mockAccountStatuses,
+        institutionTypes: [],
       },
     });
 
@@ -49,6 +50,7 @@ describe('AddAccountModal', () => {
         institutions: mockInstitutions,
         accountTypes: mockAccountTypes,
         accountStatuses: mockAccountStatuses,
+        institutionTypes: [],
       },
     });
 
@@ -67,6 +69,7 @@ describe('AddAccountModal', () => {
         initialName: 'Existing Account',
         accountTypes: mockAccountTypes,
         accountStatuses: mockAccountStatuses,
+        institutionTypes: [],
       },
     });
 
@@ -82,6 +85,7 @@ describe('AddAccountModal', () => {
         institutions: mockInstitutions,
         accountTypes: mockAccountTypes,
         accountStatuses: mockAccountStatuses,
+        institutionTypes: [],
       },
     });
 
@@ -100,6 +104,7 @@ describe('AddAccountModal', () => {
         institutions: mockInstitutions,
         accountTypes: mockAccountTypes,
         accountStatuses: mockAccountStatuses,
+        institutionTypes: [],
       },
     });
 
@@ -134,6 +139,7 @@ describe('AddAccountModal', () => {
         institutions: mockInstitutions,
         accountTypes: mockAccountTypes,
         accountStatuses: mockAccountStatuses,
+        institutionTypes: [],
       },
     });
 

@@ -1,7 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import { ref } from 'vue';
 import AccountModal from '@views/AccountHub/AccountModal.vue';
+import { apiService } from '@/services/ApiService';
+
+vi.mock('@/services/ApiService', () => ({
+  apiService: {
+    getFamilies: vi.fn().mockResolvedValue([]),
+    transferAccount: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
+vi.mock('@/modules/auth', () => ({ authState: { user: { id: 1 } } }));
 
 const mockFormData = ref({
   name: '', institutionId: 0, typeId: 0, statusId: 0,
@@ -9,10 +19,12 @@ const mockFormData = ref({
   rollRefNumber: '', interestRate: '', fixedBonusRate: '',
   fixedBonusRateEndDate: '', releaseDate: '', numberOfShares: '',
   underlying: '', price: '', purchasePrice: '', pensionMonthlyPayment: '',
+  assetClass: '', encumbrance: '', taxYear: '',
 });
 
 vi.mock('@/composables/useAccountForm', () => ({
   useAccountForm: vi.fn(() => ({ formData: mockFormData })),
+  convertFromDateInputFormat: (s: string) => s,
 }));
 
 vi.mock('@views/AccountHub/AccountFormFields.vue', () => ({
@@ -34,12 +46,15 @@ const defaultProps = {
 describe('AccountModal', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(apiService.getFamilies).mockResolvedValue([]);
+    vi.mocked(apiService.transferAccount).mockResolvedValue(undefined);
     mockFormData.value = {
       name: '', institutionId: 0, typeId: 0, statusId: 0,
       openedAt: '', closedAt: '', accountNumber: '', sortCode: '',
       rollRefNumber: '', interestRate: '', fixedBonusRate: '',
       fixedBonusRateEndDate: '', releaseDate: '', numberOfShares: '',
       underlying: '', price: '', purchasePrice: '', pensionMonthlyPayment: '',
+      assetClass: '', encumbrance: '', taxYear: '',
     };
     vi.spyOn(console, 'log').mockImplementation(() => {});
   });
@@ -101,5 +116,67 @@ describe('AccountModal', () => {
   it('shows error message when error prop set', () => {
     const wrapper = mount(AccountModal, { props: { ...defaultProps, error: 'Something failed' } });
     expect(wrapper.text()).toContain('Something failed');
+  });
+
+  it('does not call getFamilies in create mode', async () => {
+    const wrapper = mount(AccountModal, { props: { ...defaultProps, open: false } });
+    await wrapper.setProps({ open: true });
+    await flushPromises();
+    expect(apiService.getFamilies).not.toHaveBeenCalled();
+  });
+
+  it('shows owner dropdown with family member after edit mode loads', async () => {
+    vi.mocked(apiService.getFamilies).mockResolvedValue([
+      { id: 1, name: 'Fam', members: [{ accountId: 2, firstName: 'Jane', lastName: 'Doe' }] },
+    ] as any);
+    const wrapper = mount(AccountModal, { props: { ...defaultProps, type: 'edit', open: false } });
+    await wrapper.setProps({ open: true });
+    await flushPromises();
+    const select = wrapper.find('select');
+    expect(select.exists()).toBe(true);
+    expect(select.text()).toContain('Jane Doe');
+  });
+
+  it('selecting different owner triggers inline confirmation then calls transferAccount', async () => {
+    vi.mocked(apiService.getFamilies).mockResolvedValue([
+      { id: 1, name: 'Fam', members: [{ accountId: 2, firstName: 'Jane', lastName: 'Doe' }] },
+    ] as any);
+    const wrapper = mount(AccountModal, {
+      props: { ...defaultProps, type: 'edit', open: false, accountId: 10 },
+    });
+    await wrapper.setProps({ open: true });
+    await flushPromises();
+    const selectEl = wrapper.find('select').element as HTMLSelectElement;
+    selectEl.options[1].selected = true;
+    await wrapper.find('select').trigger('change');
+    // First save → enters confirmation state
+    await wrapper.find('button.btn-primary').trigger('click');
+    expect(wrapper.text()).toContain('Confirm Ownership Transfer');
+    // Second save → confirms transfer
+    await wrapper.find('button.btn-primary').trigger('click');
+    await flushPromises();
+    expect(apiService.transferAccount).toHaveBeenCalledWith(10, 2);
+    expect(wrapper.emitted('transferred')).toBeTruthy();
+    expect(wrapper.emitted('close')).toBeTruthy();
+  });
+
+  it('cancel during confirmation returns to edit form without closing', async () => {
+    vi.mocked(apiService.getFamilies).mockResolvedValue([
+      { id: 1, name: 'Fam', members: [{ accountId: 2, firstName: 'Jane', lastName: 'Doe' }] },
+    ] as any);
+    const wrapper = mount(AccountModal, {
+      props: { ...defaultProps, type: 'edit', open: false, accountId: 10 },
+    });
+    await wrapper.setProps({ open: true });
+    await flushPromises();
+    const selectEl = wrapper.find('select').element as HTMLSelectElement;
+    selectEl.options[1].selected = true;
+    await wrapper.find('select').trigger('change');
+    await wrapper.find('button.btn-primary').trigger('click');
+    expect(wrapper.text()).toContain('Confirm Ownership Transfer');
+    // Cancel → back to edit, not closed
+    await wrapper.find('button.btn-modal-secondary').trigger('click');
+    expect(wrapper.emitted('close')).toBeFalsy();
+    expect(wrapper.text()).toContain('Edit Account');
   });
 });

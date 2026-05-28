@@ -32,6 +32,7 @@ vi.mock('@/services/ApiService', () => ({
   apiService: {
     getReferenceData: (...args: Parameters<typeof mockGetReferenceData>) => mockGetReferenceData(...args),
     getAccountEvents: (...args: Parameters<typeof mockGetAccountEvents>) => mockGetAccountEvents(...args),
+    getFamilies: vi.fn().mockResolvedValue([]),
   },
 }));
 vi.mock('@views/AccountHub/AccountHubStats.vue', () => ({
@@ -126,7 +127,7 @@ type AccountHubVm = {
   openDeleteConfirm: (type: 'account' | 'institution', id: number, name: string) => void;
   handleConfirmDelete: () => Promise<void>;
   closeDeleteConfirm: () => void;
-  openEventsModal: (accountId: number, accountName: string, eventCount: number) => Promise<void>;
+  openEventsModal: (accountId: number, accountName: string, accountType?: string) => Promise<void>;
   closeEventsModal: () => void;
 };
 
@@ -181,7 +182,7 @@ describe('AccountHub', () => {
     const { wrapper } = await mountAccountHub();
     const vm = getAccountHubVm(wrapper);
 
-    await vm.openEventsModal(10, 'Savings', 2);
+    await vm.openEventsModal(10, 'Savings');
     await flushPromises();
 
     expect(mockGetAccountEvents).toHaveBeenCalledWith(10);

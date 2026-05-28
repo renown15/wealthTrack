@@ -9,6 +9,12 @@ from pydantic import Field
 from app.schemas.base import BaseSchema
 
 
+class AccountOwnershipTransferRequest(BaseSchema):
+    """Schema for transferring account ownership to a family member."""
+
+    target_user_id: int = Field(..., description="UserProfile ID of the new owner")
+
+
 class AccountCreate(BaseSchema):
     """Schema for creating an account."""
 

@@ -8,6 +8,7 @@ from app.controllers.dependencies import get_current_user
 from app.database import get_db
 from app.models.institution import Institution
 from app.models.user_profile import UserProfile
+from app.repositories.family_repository import FamilyRepository
 from app.repositories.institution_group_repository import InstitutionGroupRepository
 from app.repositories.institution_repository import InstitutionRepository
 from app.schemas.institution import InstitutionCreate, InstitutionResponse, InstitutionUpdate
@@ -33,17 +34,20 @@ async def list_institutions(
     session: AsyncSession = Depends(get_db),
     current_user: UserProfile = Depends(get_current_user),
 ) -> list[InstitutionResponse]:
-    """List all institutions for the current user."""
+    """List institutions for the current user, plus family members' institutions."""
     repo = InstitutionRepository(session)
     group_repo = InstitutionGroupRepository(session)
-    institutions = await repo.get_by_user(current_user.id)
-
+    own = await repo.get_by_user(current_user.id)
+    member_ids = await FamilyRepository(session).get_member_ids_for_user(current_user.id)
+    family = await repo.get_by_user_ids(member_ids)
+    own_ids = {i.id for i in own}
+    all_institutions = list(own) + [i for i in family if i.id not in own_ids]
     responses = []
-    for inst in institutions:
+    for inst in all_institutions:
         response = InstitutionResponse.from_orm(inst)
-        await _enrich_institution_response(response, inst.id, current_user.id, group_repo)
+        if inst.user_id == current_user.id:
+            await _enrich_institution_response(response, inst.id, current_user.id, group_repo)
         responses.append(response)
-
     return responses
 
 

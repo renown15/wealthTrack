@@ -17,16 +17,15 @@
         </div>
 
         <div v-else>
-          <!-- Add Win button for Premium Bonds -->
-          <div v-if="isPremiumBonds && !showWinForm" class="mb-4">
-            <button class="btn-primary" type="button" @click="showWinForm = true">Add Win</button>
-          </div>
-
-          <!-- Record Sale / View Sales / Record Dividend buttons for Shares accounts -->
-          <div v-if="isShares" class="mb-4 flex gap-2">
-            <button class="btn-primary" type="button" @click="emit('recordSale')">Record Sale</button>
-            <button class="btn-modal-secondary" type="button" @click="emit('viewSales')">View Sales</button>
-            <button class="btn-modal-secondary" type="button" @click="emit('recordDividend')">Record Dividend</button>
+          <!-- Action buttons row -->
+          <div class="mb-4 flex gap-2 flex-wrap">
+            <template v-if="isShares">
+              <button class="btn-primary" type="button" @click="emit('recordSale')">Record Sale</button>
+              <button class="btn-modal-secondary" type="button" @click="emit('viewSales')">View Sales</button>
+              <button class="btn-modal-secondary" type="button" @click="emit('recordDividend')">Record Dividend</button>
+            </template>
+            <button v-if="isPremiumBonds && !showWinForm" class="btn-modal-secondary" type="button" @click="showWinForm = true">Add Win</button>
+            <button class="btn-modal-secondary" type="button" @click="emit('recordGift')">Record Gift</button>
           </div>
 
           <!-- Win input form -->
@@ -58,6 +57,22 @@
             </div>
           </div>
 
+          <div v-if="pendingDeleteEventId !== null" class="modal-overlay" @mousedown.self="cancelDeleteGift">
+            <div class="modal-content" @click.stop>
+              <header class="modal-header">
+                <h2 class="modal-title">Delete Gift</h2>
+                <button class="btn-close" type="button" @click="cancelDeleteGift">&times;</button>
+              </header>
+              <div class="modal-body">
+                <p class="text-text-dark">Delete this gift? This will reverse the balance addition.</p>
+              </div>
+              <footer class="modal-footer">
+                <button class="btn-modal-secondary" type="button" @click="cancelDeleteGift">Cancel</button>
+                <button class="btn-danger" type="button" @click="confirmDeleteGift">Yes, delete</button>
+              </footer>
+            </div>
+          </div>
+
           <div v-if="events.length === 0 && !showWinForm" class="empty-state">
             <p class="empty-icon">📭</p>
             <h3 class="empty-title">No activity yet</h3>
@@ -71,6 +86,7 @@
                   <th class="py-3 px-4 text-left font-semibold text-text-dark">Date</th>
                   <th class="py-3 px-4 text-left font-semibold text-text-dark">Type</th>
                   <th class="py-3 px-4 text-right font-semibold text-text-dark">Value</th>
+                  <th class="py-3 px-4"></th>
                 </tr>
               </thead>
               <tbody>
@@ -90,6 +106,14 @@
                     {{ event.eventType }}
                   </td>
                   <td class="py-3 px-4 text-right font-medium text-text-dark">{{ formatValue(event) }}</td>
+                  <td class="py-3 px-4 text-right">
+                    <button
+                      v-if="event.eventType === 'Gift'"
+                      class="text-gray-400 hover:text-red-600 transition font-bold leading-none"
+                      title="Delete gift"
+                      @click="pendingDeleteEventId = event.id"
+                    >&times;</button>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -127,18 +151,27 @@ const emit = defineEmits<{
   recordSale: [];
   viewSales: [];
   recordDividend: [];
+  recordGift: [];
+  deleteGift: [eventId: number];
 }>();
 
 const showWinForm = ref(false);
 const winAmount = ref('');
 const savingWin = ref(false);
+const pendingDeleteEventId = ref<number | null>(null);
+
+const confirmDeleteGift = (): void => {
+  if (pendingDeleteEventId.value === null) return;
+  emit('deleteGift', pendingDeleteEventId.value);
+  pendingDeleteEventId.value = null;
+};
+
+const cancelDeleteGift = (): void => { pendingDeleteEventId.value = null; };
 
 const isPremiumBonds = computed(() => props.accountType === 'Premium Bonds');
 const isShares = computed(() => props.accountType === 'Shares');
 
-const emitClose = (): void => {
-  emit('close');
-};
+const emitClose = (): void => { emit('close'); };
 
 const saveWin = async (): Promise<void> => {
   if (!winAmount.value) return;

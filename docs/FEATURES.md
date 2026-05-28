@@ -1,6 +1,6 @@
 # WealthTrack Features
 
-A comprehensive guide to all features available in WealthTrack v1 (Phase 6).
+A comprehensive guide to all features available in WealthTrack.
 
 ---
 
@@ -42,6 +42,8 @@ A comprehensive guide to all features available in WealthTrack v1 (Phase 6).
   - Fees
   - Tax events
   - Share sales
+  - Dividends
+  - Gifts
 
 **Account Documents**
 - Upload documents (statements, confirmations, tax documents)
@@ -65,6 +67,7 @@ A comprehensive guide to all features available in WealthTrack v1 (Phase 6).
 - Timestamp of the most recent stock price or balance update displayed in the summary panel
 - Relative time format (e.g., "2 hours ago", "3 days ago")
 - Click for exact timestamp details
+- Force-refresh button clears the price cache and re-fetches latest prices
 
 ---
 
@@ -111,6 +114,9 @@ A comprehensive guide to all features available in WealthTrack v1 (Phase 6).
 - View account documents
 - Record share sale (for Shares accounts)
 - View share sale history
+- Record dividend payment (for Shares accounts)
+- Record gift received / given (for gift/IHT tracking)
+- View gift history and IHT taper exposure
 
 ---
 
@@ -166,7 +172,59 @@ A comprehensive guide to all features available in WealthTrack v1 (Phase 6).
 
 ---
 
-## 4. Analytics
+## 4. Gift / IHT Tracking
+
+### Recording Gifts
+
+**Gift Entry**
+- Record a gift against any account
+- Fields: donor name, gift date, gift value (GBP), optional share quantity (for share gifts)
+- Automatically updates the account's running balance
+
+**IHT Taper Exposure**
+- 7-year taper calculation: gifts within 7 years of death may be subject to inheritance tax
+- Taper relief reduces the taxable portion as the gift ages
+- Exposure shown per donor and in aggregate per account
+
+**Gift History**
+- Full list of gifts per account in the event timeline
+- Each gift shows donor, date, and value
+- Internal events (Gift Date, Gift Donor) hidden from timeline — only the Gift amount is shown
+
+### Managing Gifts
+
+**Delete Gift**
+- Delete any recorded gift from the account timeline
+- Deletion reverses the balance contribution of the gift
+- Confirmation dialog required before deletion
+
+---
+
+## 5. Family Portfolio
+
+### Family Groups
+
+**Family Management**
+- Create a named family group (e.g., "The Lewis Family")
+- Add other registered WealthTrack users as family members
+- Remove members or rename the family at any time
+- Delete the family (removes membership, not accounts)
+
+**Member Portfolios**
+- Family Hub view: tabbed interface showing each family member's portfolio
+- "All" tab shows combined portfolio across all members
+- Each member tab shows the same portfolio view as their own AccountHub
+
+### Ownership Transfer
+
+**Transfer Accounts Between Members**
+- Transfer an account from one family member to another
+- Preserves all events, attributes, and document history
+- Useful when tracking joint finances or gifts of assets
+
+---
+
+## 6. Analytics
 
 ### Portfolio Breakdown Charts
 
@@ -200,7 +258,7 @@ A comprehensive guide to all features available in WealthTrack v1 (Phase 6).
 
 ---
 
-## 5. Credential Vault
+## 7. Credential Vault
 
 ### Secure Storage
 
@@ -231,7 +289,7 @@ A comprehensive guide to all features available in WealthTrack v1 (Phase 6).
 
 ---
 
-## 6. Reference Data Administration
+## 8. Reference Data Administration
 
 ### Editable Lookup Values
 
@@ -262,7 +320,7 @@ A comprehensive guide to all features available in WealthTrack v1 (Phase 6).
 
 ---
 
-## 7. Data Management
+## 9. Data Management
 
 ### Account Import/Export
 
@@ -287,7 +345,7 @@ A comprehensive guide to all features available in WealthTrack v1 (Phase 6).
 
 ---
 
-## 8. User Interface & UX
+## 10. User Interface & UX
 
 ### Responsive Design
 
@@ -300,7 +358,7 @@ A comprehensive guide to all features available in WealthTrack v1 (Phase 6).
 
 **Top Navigation Bar**
 - Logo and app title
-- Links to Account Hub, Analytics, Tax Hub, Credential Vault, Reference Data Admin
+- Links to Account Hub, Family Hub, Analytics, Tax Hub, Credential Vault, Reference Data Admin
 - User profile/logout
 
 ### Form Validation
@@ -321,7 +379,7 @@ A comprehensive guide to all features available in WealthTrack v1 (Phase 6).
 
 ---
 
-## 9. Future Features
+## 11. Future Features
 
 - **Budget Planning** — set and track budget goals
 - **Spending Analysis** — transaction-level tracking and categorization
@@ -332,7 +390,7 @@ A comprehensive guide to all features available in WealthTrack v1 (Phase 6).
 
 ---
 
-## 10. API Endpoints
+## 12. API Endpoints
 
 All endpoints are RESTful with JSON request/response bodies.
 
@@ -340,9 +398,6 @@ All endpoints are RESTful with JSON request/response bodies.
 - `POST /api/v1/auth/register` — create new user
 - `POST /api/v1/auth/login` — obtain JWT token
 - `GET /api/v1/auth/profile` — get current user profile
-
-### Portfolio
-- `GET /api/v1/portfolio` — get all accounts and portfolio totals
 
 ### Accounts
 - `GET /api/v1/accounts` — list all accounts
@@ -372,6 +427,25 @@ All endpoints are RESTful with JSON request/response bodies.
 - `GET /api/v1/tax/returns/{year}` — get tax return for year
 - `POST /api/v1/tax/returns/{year}` — create/update tax return
 - `GET /api/v1/tax/returns/{year}/share-sales` — list share sales for year
+
+### Gifts
+- `POST /api/v1/accounts/{id}/gifts` — record a gift against an account
+- `GET /api/v1/accounts/{id}/gifts` — list gifts for an account with IHT taper
+- `DELETE /api/v1/accounts/{id}/gifts/{event_id}` — delete a gift (reverses balance)
+
+### Family
+- `GET /api/v1/family` — get the current user's family group
+- `POST /api/v1/family` — create a new family group
+- `PATCH /api/v1/family/{id}` — rename a family
+- `DELETE /api/v1/family/{id}` — delete a family group
+- `POST /api/v1/family/{id}/members` — add a member to the family
+- `DELETE /api/v1/family/{id}/members/{user_id}` — remove a member
+- `GET /api/v1/family/{id}/members/{user_id}/portfolio` — get a member's portfolio
+- `POST /api/v1/accounts/{id}/transfer` — transfer account ownership to another family member
+
+### Portfolio
+- `GET /api/v1/portfolio` — get all accounts and portfolio totals
+- `POST /api/v1/portfolio/refresh-prices` — clear price cache and force refresh
 
 ### Reference Data
 - `GET /api/v1/reference-data` — get all lookup values

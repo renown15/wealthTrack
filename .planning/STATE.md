@@ -11,7 +11,7 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 
 Phase: 6 of 6 complete — v1 feature complete
 Status: Active development — ongoing feature additions and quality improvements
-Last activity: 2026-04-12 — Tax Hub feature complete, share sales with capital gains, stock price tracking
+Last activity: 2026-05-28 — Family portfolio sharing, Gift/IHT tracking, delete gift, test coverage improvements
 
 ## Progress
 
@@ -85,11 +85,22 @@ Requirements: ~26/26 complete
   - Negation logic applied in both portfolio controller and analytics repository
   - All portfolio calculations now consistent across views
 
+## Recent Changes (since 2026-04-19)
+
+- **[2026-04-19] Phase 7 (Household Sharing) removed from scope** — docs updated
+- **[2026-05-28] Family portfolio sharing** — Family groups, member tabs, Family Hub view, ownership transfer, family CRUD (migration 045)
+- **[2026-05-28] Gift / IHT tracking** — Record gifts with donor/date/value, 7-year taper calculation, gift summary, share gifts (migration 046)
+- **[2026-05-28] Delete gift** — Reverse gift event group + balance; confirmation modal overlay
+- **[2026-05-28] UI improvements** — Encumbrances stat card, force share price refresh button, JWT session expiry redirect
+- **[2026-05-28] Test coverage improvements** — New: useShareSaleModal, useHubEventHandlers, useTaxHubModals, useAnalyticsEdit, AccountDocumentService, test_family_service, expanded family/portfolio controller tests
+- Migrations now at 046 (up from 040)
+- Backend: ~600 tests | Frontend: ~1100 tests across 114 files
+- Coverage: backend ~81.7%, frontend stmts/lines ~82.8%, functions ~64.6%, branches ~81.9%
+
 ## Session Continuity
 
-Last session: 2026-04-19
-Completed: Phase 7 (Household Sharing) removed from scope — docs updated across all planning files
-Status: All `make pr-check` steps passing (81.0% backend coverage, 79.8% frontend statements/lines)
+Last session: 2026-05-28
+Status: All `make pr-check` steps passing
 
 ---
-*State updated: 2026-04-19*
+*State updated: 2026-05-28*

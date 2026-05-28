@@ -16,19 +16,30 @@
         <router-link to="/analytics" class="nav-btn" :class="{ active: isRoute('analytics') }">Analytics</router-link>
         <router-link to="/tax" class="nav-btn" :class="{ active: isRoute('tax') }">Tax Hub</router-link>
         <router-link to="/reference-data" class="nav-btn hidden md:inline-flex" :class="{ active: isRoute('reference-data') }">Reference Data</router-link>
+        <button class="nav-btn" @click="familyModalOpen = true">Family</button>
         <button class="nav-btn" @click="logout">Logout</button>
       </nav>
     </div>
   </header>
+
+  <ManageFamilyModal
+    v-if="isAuth"
+    :open="familyModalOpen"
+    :current-user-id="currentUserId"
+    @close="familyModalOpen = false"
+  />
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { authState, authModule } from '@/modules/auth';
+import ManageFamilyModal from '@views/Family/ManageFamilyModal.vue';
 
 const router = useRouter();
 const route = useRoute();
+
+const familyModalOpen = ref(false);
 
 const isAuth = computed(() => authState.isAuthenticated && authState.token !== null);
 const envLabel = computed(() => {
@@ -40,6 +51,7 @@ const userName = computed(() => {
   const user = authState.user;
   return user ? `${user.firstName} ${user.lastName}`.trim() : '';
 });
+const currentUserId = computed(() => authState.user?.id ?? 0);
 
 function isRoute(name: string): boolean {
   return route.name === name;

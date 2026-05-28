@@ -5,6 +5,7 @@ import type { Ref } from 'vue';
 import type { PortfolioItem } from '@/models/WealthTrackDataModels';
 import { apiService } from '@/services/ApiService';
 import { debug } from '@/utils/debug';
+import type { RecordGiftRequest } from '@/models/gift';
 
 interface PortfolioState {
   items: PortfolioItem[];
@@ -21,6 +22,8 @@ export function useHubEventHandlers(
   handleUpdateBalance: (accountId: number, value: string) => Promise<void>;
   handleAddWin: (winAmount: string) => Promise<void>;
   handleSaveDividend: (amount: string, paymentDate: string) => Promise<void>;
+  handleSaveGift: (donor: string, giftDate: string, giftValueGbp: string, numShares: string | null) => Promise<void>;
+  handleDeleteGift: (eventId: number) => Promise<void>;
 } {
   const handleUpdateBalance = async (accountId: number, value: string): Promise<void> => {
     try {
@@ -59,5 +62,24 @@ export function useHubEventHandlers(
     } catch (error) { debug.error('[AccountHub] Failed to record dividend:', error); }
   };
 
-  return { handleUpdateBalance, handleAddWin, handleSaveDividend };
+  const handleSaveGift = async (donor: string, giftDate: string, giftValueGbp: string, numShares: string | null): Promise<void> => {
+    try {
+      const data: RecordGiftRequest = { donor, giftDate, giftValueGbp, numShares };
+      await apiService.recordGift(currentAccountId.value, data);
+      await loadPortfolio();
+      const name = state.items.find((i) => i.account.id === currentAccountId.value)?.account.name ?? '';
+      await openEventsModal(currentAccountId.value, name, accountType.value);
+    } catch (error) { debug.error('[AccountHub] Failed to record gift:', error); }
+  };
+
+  const handleDeleteGift = async (eventId: number): Promise<void> => {
+    try {
+      await apiService.deleteGiftByEventId(eventId);
+      await loadPortfolio();
+      const name = state.items.find((i) => i.account.id === currentAccountId.value)?.account.name ?? '';
+      await openEventsModal(currentAccountId.value, name, accountType.value);
+    } catch (error) { debug.error('[AccountHub] Failed to delete gift:', error); }
+  };
+
+  return { handleUpdateBalance, handleAddWin, handleSaveDividend, handleSaveGift, handleDeleteGift };
 }

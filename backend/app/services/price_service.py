@@ -165,6 +165,11 @@ _default_cache = SimplePriceCache()
 _default_client: list[Optional[httpx.AsyncClient]] = [None]  # Use list to avoid global
 
 
+def clear_price_cache() -> None:
+    """Clear the shared in-memory price cache, forcing fresh API fetches next load."""
+    _default_cache.clear()
+
+
 async def get_price_service() -> PriceService:
     """Factory function to create PriceService with default configuration."""
     if _default_client[0] is None:

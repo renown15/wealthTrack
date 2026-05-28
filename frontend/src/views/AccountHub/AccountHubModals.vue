@@ -6,6 +6,13 @@
       @close="$emit('closeEvents')" @add-win="(w) => $emit('addWin', w)"
       @record-sale="$emit('recordSale')" @view-sales="$emit('viewSales')"
       @record-dividend="dividendModalOpen = true"
+      @record-gift="giftModalOpen = true"
+      @delete-gift="(id) => $emit('deleteGift', id)"
+    />
+    <GiftModal
+      :open="giftModalOpen" :account-type="accountType"
+      @close="giftModalOpen = false"
+      @save="(donor, date, val, shares) => { giftModalOpen = false; $emit('saveGift', donor, date, val, shares); }"
     />
     <RecordDividendModal
       :open="dividendModalOpen"
@@ -45,8 +52,8 @@
       :initial-purchase-price="initialModalPurchasePrice"
       :initial-pension-monthly-payment="initialModalPensionMonthlyPayment"
       :initial-asset-class="initialModalAssetClass" :initial-encumbrance="initialModalEncumbrance"
-      :initial-tax-year="initialModalTaxYear" :transfer-accounts="transferAccounts" :error="accountError"
-      @close="$emit('closeAccount')" @save="(p) => $emit('saveAccount', p)"
+      :initial-tax-year="initialModalTaxYear" :transfer-accounts="transferAccounts" :account-id="editingItem?.id" :error="accountError"
+      @close="$emit('closeAccount')" @save="(p) => $emit('saveAccount', p)" @transferred="$emit('accountTransferred')"
     />
     <InstitutionModal
       :open="institutionModalOpen" :type="modalType"
@@ -79,6 +86,7 @@ import { ACCOUNT_TYPE_ASSET_GROUP } from '@views/AccountHub/accountTypeFieldConf
 import { ref, computed } from 'vue';
 import AccountEventsModal from '@views/AccountHub/AccountEventsModal.vue';
 import RecordDividendModal from '@views/AccountHub/RecordDividendModal.vue';
+import GiftModal from '@views/AccountHub/GiftModal.vue';
 import ShareSaleModal from '@views/AccountHub/ShareSaleModal.vue';
 import AccountGroupModal from '@views/AccountHub/AccountGroupModal.vue';
 import AccountModal from '@views/AccountHub/AccountModal.vue';
@@ -133,6 +141,8 @@ defineEmits<{
   recordSale: [];
   viewSales: [];
   saveDividend: [amount: string, paymentDate: string];
+  saveGift: [donor: string, giftDate: string, giftValueGbp: string, numShares: string | null];
+  deleteGift: [eventId: number];
   closeShareSale: [];
   shareSold: [];
   closeAccountGroup: [];
@@ -140,6 +150,7 @@ defineEmits<{
   deleteGroupFromModal: [groupId: number];
   closeAccount: [];
   saveAccount: [payload: unknown];
+  accountTransferred: [];
   closeInstitution: [];
   saveInstitution: [payload: unknown];
   closeDelete: [];
@@ -152,6 +163,7 @@ defineEmits<{
 }>();
 
 const dividendModalOpen = ref(false);
+const giftModalOpen = ref(false);
 const editingItemRef = computed(() => props.editingItem);
 
 const transferAccounts = computed<{ id: number; label: string }[]>(() => {

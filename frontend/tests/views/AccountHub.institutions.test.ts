@@ -4,12 +4,22 @@ import { reactive, computed } from 'vue';
 import AccountHub from '@views/AccountHub/AccountHub.vue';
 import type { PortfolioItem, Institution } from '@/models/WealthTrackDataModels';
 
+vi.mock('@/services/ApiService', () => ({
+  apiService: {
+    getReferenceData: vi.fn().mockResolvedValue([]),
+    getAccountEvents: vi.fn().mockResolvedValue([]),
+    getFamilies: vi.fn().mockResolvedValue([]),
+  },
+}));
+
 const createMockPortfolio = () => {
   const state = reactive({
     items: [] as PortfolioItem[],
     institutions: [] as Institution[],
     error: null as string | null,
     loading: false,
+    institutionsLoading: false,
+    itemsLoading: false,
   });
 
   return {
@@ -84,9 +94,6 @@ describe('AccountHub - Institution interactions', () => {
     mockPortfolioInstance = createMockPortfolio();
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
 
   it('should handle edit-institution event', async () => {
     const testInstitution: Institution = { id: 1, userId: 1, name: 'Chase Bank', createdAt: '2024-01-01', updatedAt: '2024-01-01' };

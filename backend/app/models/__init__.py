@@ -6,6 +6,8 @@ from app.models.account_attribute import AccountAttribute
 from app.models.account_event import AccountEvent
 from app.models.account_group import AccountGroup
 from app.models.account_group_member import AccountGroupMember
+from app.models.family import Family
+from app.models.family_member_account import FamilyMemberAccount
 from app.models.institution import Institution
 from app.models.institution_group import InstitutionGroup
 from app.models.institution_security_credentials import InstitutionSecurityCredentials
@@ -26,6 +28,8 @@ __all__ = [
     "InstitutionSecurityCredentials",
     "AccountGroup",
     "AccountGroupMember",
+    "Family",
+    "FamilyMemberAccount",
     "TaxPeriod",
     "TaxReturn",
     "TaxDocument",

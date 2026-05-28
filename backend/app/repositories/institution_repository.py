@@ -35,3 +35,15 @@ class InstitutionRepository:
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
+
+    async def get_by_user_ids(self, user_ids: list[int]) -> list[Institution]:
+        """Get all institutions for a list of users."""
+        if not user_ids:
+            return []
+        stmt = (
+            select(Institution)
+            .where(Institution.user_id.in_(user_ids))
+            .order_by(Institution.created_at.desc())
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())

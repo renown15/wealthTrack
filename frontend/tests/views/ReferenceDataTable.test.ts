@@ -31,6 +31,8 @@ describe('ReferenceDataTable.vue', () => {
     const wrapper = mount(ReferenceDataTable, {
       props: {
         data: mockData,
+        sortKey: 'classKey' as const,
+        sortDirection: 'asc' as const,
       },
     });
 
@@ -42,6 +44,8 @@ describe('ReferenceDataTable.vue', () => {
     const wrapper = mount(ReferenceDataTable, {
       props: {
         data: mockData,
+        sortKey: 'classKey' as const,
+        sortDirection: 'asc' as const,
       },
     });
 
@@ -54,6 +58,8 @@ describe('ReferenceDataTable.vue', () => {
     const wrapper = mount(ReferenceDataTable, {
       props: {
         data: mockData,
+        sortKey: 'classKey' as const,
+        sortDirection: 'asc' as const,
       },
     });
 
@@ -70,6 +76,8 @@ describe('ReferenceDataTable.vue', () => {
     const wrapper = mount(ReferenceDataTable, {
       props: {
         data: mockData,
+        sortKey: 'classKey' as const,
+        sortDirection: 'asc' as const,
       },
     });
 
@@ -88,6 +96,8 @@ describe('ReferenceDataTable.vue', () => {
     const wrapper = mount(ReferenceDataTable, {
       props: {
         data: mockData,
+        sortKey: 'classKey' as const,
+        sortDirection: 'asc' as const,
       },
     });
 
@@ -105,6 +115,8 @@ describe('ReferenceDataTable.vue', () => {
     const wrapper = mount(ReferenceDataTable, {
       props: {
         data: mockData,
+        sortKey: 'classKey' as const,
+        sortDirection: 'asc' as const,
       },
     });
 
@@ -118,6 +130,8 @@ describe('ReferenceDataTable.vue', () => {
     const wrapper = mount(ReferenceDataTable, {
       props: {
         data: [],
+        sortKey: 'classKey' as const,
+        sortDirection: 'asc' as const,
       },
     });
 
@@ -130,6 +144,8 @@ describe('ReferenceDataTable.vue', () => {
     const wrapper = mount(ReferenceDataTable, {
       props: {
         data: mockData,
+        sortKey: 'classKey' as const,
+        sortDirection: 'asc' as const,
       },
     });
 

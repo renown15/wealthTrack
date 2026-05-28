@@ -18,6 +18,14 @@ class PortfolioFetchService extends BaseApiClient {
       throw this.handleError(error, 'Failed to fetch portfolio');
     }
   }
+
+  async refreshPrices(): Promise<void> {
+    try {
+      await this.client.post('/api/v1/portfolio/refresh-prices');
+    } catch (error) {
+      throw this.handleError(error, 'Failed to refresh prices');
+    }
+  }
 }
 
 export const portfolioFetchService = new PortfolioFetchService();

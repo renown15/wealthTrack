@@ -5,7 +5,7 @@
 A personal wealth management app: one place to see all your accounts and balances across financial institutions, with encrypted credential storage and tax tracking.
 
 **Status:** v1 complete — all 6 phases shipped, including Tax Hub.
-**Last Updated:** 2026-05-10 — Phase 7 (Household Sharing) removed from scope.
+**Last Updated:** 2026-05-28 — Gift/IHT tracking, family portfolio sharing, and test coverage improvements added.
 
 ## Tech Stack
 
@@ -29,8 +29,8 @@ wealthTrack/
 │   │   ├── repositories/   # DB queries (SQLAlchemy)
 │   │   ├── models/         # SQLAlchemy ORM models
 │   │   └── schemas/        # Pydantic request/response schemas
-│   ├── alembic/            # DB migrations (~44 versions)
-│   └── tests/              # ~519 backend tests
+│   ├── alembic/            # DB migrations (~46 versions)
+│   └── tests/              # ~600 backend tests
 ├── frontend/
 │   ├── src/
 │   │   ├── composables/    # Vue 3 composition API business logic
@@ -38,7 +38,7 @@ wealthTrack/
 │   │   ├── services/       # API client services
 │   │   ├── models/         # TypeScript data models
 │   │   └── utils/          # Shared utilities (debug.ts etc.)
-│   └── tests/              # ~1033 frontend tests across 101 files
+│   └── tests/              # ~1100 frontend tests across 114 files
 │       └── e2e/            # 5 Playwright E2E specs (run separately via make test-e2e)
 ├── scripts/                # setup-dev.sh, dev.sh, seed-db.py, e2e-teardown.sh
 ├── .env.dev.example        # Template for local dev config
@@ -153,6 +153,14 @@ Controllers validate HTTP context only. Services own business rules. Repositorie
 The matching Tax Liability account is found by: querying `TaxPeriod` whose date range covers the payment date → matching `Account.name.contains(period.name)` for a Tax Liability type account.
 
 **Share Sales** (`POST /accounts/{id}/share-sale`): Creates a "Share Sale" group containing events (Share Sale, Balance Updates, Deposit, Capital Gains Tax) and attributes (sale price, purchase price, capital gain, CGT rate).
+
+**Gifts** (`POST /accounts/{id}/gifts`): Creates a "Gift" group for IHT taper exposure tracking, containing:
+- `Gift` event — the gift value in GBP
+- `Gift Date` event — ISO date string stored as the event value
+- `Gift Donor` event — donor name stored as the event value
+- `Balance Update` event — running total on the receiving account
+
+`Gift Date`, `Gift Donor`, and `Gift Shares` are internal event types (excluded from the account timeline via `_GIFT_INTERNAL_TYPES` in `gift_service.py`). Deleting a gift reverses the balance by deleting the entire group and its events.
 
 **DB column naming with table aliases** — SQLAlchemy's `__table__.alias()` exposes DB column names, not Python attribute names. Always use DB names in raw alias queries:
 ```python

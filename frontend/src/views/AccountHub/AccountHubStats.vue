@@ -54,6 +54,14 @@
         <p class="stat-value">{{ formatCurrency(trustAssets) }}</p>
       </article>
 
+      <article class="stat-card" :title="getEncumbranceTooltip()">
+        <p class="stat-label">
+          Encumbrances
+          <span class="info-icon" style="cursor: pointer;">{{ Icons.info }}</span>
+        </p>
+        <p class="stat-value">{{ formatCurrency(totalEncumbrances()) }}</p>
+      </article>
+
       <article class="stat-card" :title="getPensionTooltip()">
         <p class="stat-label">
           Pension Value
@@ -111,6 +119,14 @@ const formatCurrency = (value: number): string => {
   }).format(value);
 };
 
+const totalEncumbrances = (): number =>
+  (props.items ?? []).reduce((s, i) => s + (i.account.encumbrance ? parseFloat(i.account.encumbrance) : 0), 0);
+
+const getEncumbranceTooltip = (): string => {
+  const enc = (props.items ?? []).filter(i => parseFloat(i.account.encumbrance ?? '0') > 0);
+  return enc.length ? [...enc.map(i => `${i.account.name}: ${formatCurrency(parseFloat(i.account.encumbrance!))}`), '─────────────────', `Total: ${formatCurrency(totalEncumbrances())}`].join('\n') : 'No encumbrances';
+};
+
 const buildBreakdownTooltip = (types: string[]): string => {
   const totals: Record<string, number> = {};
   for (const item of (props.items ?? [])) {
@@ -129,10 +145,6 @@ const buildBreakdownTooltip = (types: string[]): string => {
 };
 
 const getTotalValueTooltip = (): string => {
-  const totalEncumbrance = (props.items ?? []).reduce((sum, item) => {
-    const enc = item.account.encumbrance ? parseFloat(item.account.encumbrance) : 0;
-    return sum + (isNaN(enc) ? 0 : enc);
-  }, 0);
   const lines = [
     `Cash at Hand: ${formatCurrency(props.cashAtHand)}`,
     `ISA Savings: ${formatCurrency(props.isaSavings)}`,
@@ -140,8 +152,8 @@ const getTotalValueTooltip = (): string => {
     `Trust Assets: ${formatCurrency(props.trustAssets)}`,
     `Pension Value: ${formatCurrency(props.pensionBreakdown.total)}`,
   ];
-  if (totalEncumbrance > 0) {
-    lines.push(``, `Encumbrances: ${formatCurrency(totalEncumbrance)}`);
+  if (totalEncumbrances() > 0) {
+    lines.push(``, `Encumbrances: ${formatCurrency(totalEncumbrances())}`);
   }
   lines.push(``, `Total: ${formatCurrency(props.totalValue)}`);
   return lines.join('\n');
@@ -210,17 +222,9 @@ const formatLastPriceUpdate = (timestamp: string | null | undefined): string => 
   }
 };
 
-const emitCreateAccount = (): void => {
-  emit('createAccount');
-};
-
-const emitCreateInstitution = (): void => {
-  emit('createInstitution');
-};
-
-const emitCreateAccountGroup = (): void => {
-  emit('createAccountGroup');
-};
+const emitCreateAccount = (): void => emit('createAccount');
+const emitCreateInstitution = (): void => emit('createInstitution');
+const emitCreateAccountGroup = (): void => emit('createAccountGroup');
 </script>
 
 <!-- Uses UnoCSS utilities via shortcuts -->

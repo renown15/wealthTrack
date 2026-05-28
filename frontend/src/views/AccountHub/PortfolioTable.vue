@@ -32,7 +32,7 @@
               Events <span class="sort-icon">{{ sortIcon('events') }}</span>
             </th>
             <th class="table-cell table-header text-left">Docs</th>
-            <th class="table-cell table-header text-right">Actions</th>
+            <th v-if="!readOnly" class="table-cell table-header text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -44,6 +44,7 @@
               :items="row.items"
               :summary="row.summary"
               :is-expanded="expandedGroups.has(row.groupId)"
+              :read-only="readOnly"
               :editing-balance-id="editingBalanceId"
               v-model:editingBalanceValue="editingBalanceValue"
               @toggle-group="toggleGroup"
@@ -60,6 +61,7 @@
             <PortfolioTableAccountRow
               v-else
               :item="row.item"
+              :read-only="readOnly"
               :editing-balance-id="editingBalanceId"
               v-model:editingBalanceValue="editingBalanceValue"
               @save-balance="saveBalance"
@@ -94,6 +96,7 @@ interface Props {
   groupMembers: Map<number, number[]>;
   accountTypes: ReferenceDataItem[];
   grouped?: boolean;
+  readOnly?: boolean;
 }
 
 interface Emits {
@@ -131,7 +134,12 @@ const toggleGroup = (groupId: number) => {
 
 const toggleSort = (col: SortCol) => {
   if (sortCol.value === col) {
-    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
+    if (sortDir.value === 'asc') {
+      sortDir.value = 'desc';
+    } else {
+      sortCol.value = null;
+      sortDir.value = 'asc';
+    }
   } else {
     sortCol.value = col;
     sortDir.value = 'asc';
@@ -161,8 +169,18 @@ const ungroupedAccountIds = computed(() => {
 
 
 const sortedRows = computed((): TableRow[] => {
-  let rows: TableRow[];
-  if (props.grouped !== false) {
+  const col = sortCol.value;
+  const dir = sortDir.value === 'asc' ? 1 : -1;
+  const sort = (rows: TableRow[]) => {
+    if (!col) return rows;
+    return [...rows].sort((a, b) => {
+      const av = getSortVal(a, col);
+      const bv = getSortVal(b, col);
+      if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * dir;
+      return String(av).localeCompare(String(bv)) * dir;
+    });
+  };
+  if (props.grouped !== false && !col) {
     const groupRows: GroupRow[] = props.groups
       .map(group => {
         const memberIds = props.groupMembers.get(group.id) || [];
@@ -173,19 +191,9 @@ const sortedRows = computed((): TableRow[] => {
     const accountRows: AccountRow[] = props.items
       .filter(item => !ungroupedAccountIds.value.has(item.account.id))
       .map(item => ({ kind: 'account' as const, item }));
-    rows = [...groupRows, ...accountRows];
-  } else {
-    rows = props.items.map(item => ({ kind: 'account' as const, item }));
+    return [...groupRows, ...accountRows];
   }
-  if (!sortCol.value) return rows;
-  const col = sortCol.value;
-  const dir = sortDir.value === 'asc' ? 1 : -1;
-  return [...rows].sort((a, b) => {
-    const av = getSortVal(a, col);
-    const bv = getSortVal(b, col);
-    if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * dir;
-    return String(av).localeCompare(String(bv)) * dir;
-  });
+  return sort(props.items.map(item => ({ kind: 'account' as const, item })));
 });
 
 const saveBalance = (accountId: number) => {

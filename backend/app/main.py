@@ -19,6 +19,8 @@ from app.controllers.account_group import router as account_group_router
 from app.controllers.analytics import router as analytics_router
 from app.controllers.auth import router as auth_router
 from app.controllers.dividends import router as dividends_router
+from app.controllers.family import router as family_router
+from app.controllers.gifts import router as gifts_router
 from app.controllers.institution import router as institution_router
 from app.controllers.institution_security_credentials import (
     router as institution_credentials_router,
@@ -104,6 +106,8 @@ app.include_router(tax_router, prefix=settings.api_v1_prefix)
 app.include_router(account_documents_router, prefix=settings.api_v1_prefix)
 app.include_router(share_sale_router, prefix=settings.api_v1_prefix)
 app.include_router(dividends_router, prefix=settings.api_v1_prefix)
+app.include_router(gifts_router, prefix=settings.api_v1_prefix)
+app.include_router(family_router, prefix=settings.api_v1_prefix)
 
 
 @app.get("/")

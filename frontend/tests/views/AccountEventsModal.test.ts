@@ -45,6 +45,30 @@ describe('AccountEventsModal', () => {
     await wrapper.get('.btn-close').trigger('click');
     expect(wrapper.emitted('close')).toHaveLength(1);
   });
+
+  it('shows delete button only for Gift events', async () => {
+    const events = [
+      { ...sampleEvents[0], id: 1, eventType: 'Gift', source: 'event' },
+      { ...sampleEvents[0], id: 2, eventType: 'Balance Update', source: 'event' },
+    ] as never;
+    const wrapper = mount(AccountEventsModal, {
+      props: { open: true, title: 'Events', events, loading: false },
+    });
+    const rows = wrapper.findAll('tbody tr');
+    expect(rows[0].find('button[title="Delete gift"]').exists()).toBe(true);
+    expect(rows[1].find('button[title="Delete gift"]').exists()).toBe(false);
+  });
+
+  it('shows confirm banner and emits deleteGift on confirm', async () => {
+    const events = [{ ...sampleEvents[0], id: 5, eventType: 'Gift', source: 'event' }] as never;
+    const wrapper = mount(AccountEventsModal, {
+      props: { open: true, title: 'Events', events, loading: false },
+    });
+    await wrapper.find('button[title="Delete gift"]').trigger('click');
+    expect(wrapper.text()).toContain('Delete this gift?');
+    await wrapper.find('button.btn-danger').trigger('click');
+    expect(wrapper.emitted('deleteGift')?.[0]).toEqual([5]);
+  });
 });
 
 

@@ -25,6 +25,8 @@ import { analyticsService } from '@services/AnalyticsService';
 import { taxService } from '@services/TaxService';
 import { accountDocumentService } from '@services/AccountDocumentService';
 import { shareSaleService } from '@services/ShareSaleService';
+import { familyService } from '@services/FamilyService';
+import { giftService } from '@services/GiftService';
 
 export class ApiServiceBase {
   public client: AxiosInstance;
@@ -55,6 +57,8 @@ export class ApiServiceBase {
     taxService['client'] = this.client;
     accountDocumentService['client'] = this.client;
     shareSaleService['client'] = this.client;
+    familyService['client'] = this.client;
+    giftService['client'] = this.client;
     /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any */
   }
 
@@ -72,6 +76,10 @@ export class ApiServiceBase {
 
   async getPortfolio(): Promise<Portfolio> {
     return portfolioFetchService.getPortfolio();
+  }
+
+  async refreshPrices(): Promise<void> {
+    return portfolioFetchService.refreshPrices();
   }
 
   async getAccounts(): Promise<Account[]> {
@@ -92,6 +100,10 @@ export class ApiServiceBase {
 
   async deleteAccount(accountId: number): Promise<void> {
     return accountCrudService.deleteAccount(accountId);
+  }
+
+  async transferAccount(accountId: number, targetUserId: number): Promise<void> {
+    return accountCrudService.transferAccount(accountId, targetUserId);
   }
 
   async updateAccountDates(

@@ -14,6 +14,8 @@
       <div class="error-banner"><span>{{ periodsError }}</span></div>
     </div>
 
+    <GiftsSummary />
+
     <div v-if="selectedPeriodId !== null" class="hub-content-card p-6">
       <div class="flex items-center justify-between mb-6">
         <h3 class="section-title">Eligible Accounts</h3>
@@ -116,6 +118,7 @@ import AddAccountModal from '@views/AccountHub/AddAccountModal.vue';
 import DeleteConfirmModal from '@views/AccountHub/DeleteConfirmModal.vue';
 import AccountEventsModal from '@views/AccountHub/AccountEventsModal.vue';
 import DocumentPreviewModal from '@views/TaxHub/DocumentPreviewModal.vue';
+import GiftsSummary from '@views/TaxHub/GiftsSummary.vue';
 import type { EligibleAccount } from '@models/TaxModels';
 
 const {

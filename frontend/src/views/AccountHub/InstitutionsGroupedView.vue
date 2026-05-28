@@ -8,7 +8,7 @@
         <td class="px-4 py-2 text-sm text-right font-semibold text-gray-900">{{ formatCurrency(group.totalBalance) }}</td>
         <td v-if="group.parentType === 'Bank' || group.parentType === 'Building Society'" class="px-4 py-2 text-sm text-right font-semibold" :class="getCapacityColor(group.totalBalance)">{{ formatCurrency(getCapacity(group.totalBalance)) }}</td>
         <td v-else class="px-4 py-2 text-sm text-right font-semibold text-gray-400">—</td>
-        <td class="px-4 py-2 text-sm"></td>
+        <td v-if="!readOnly" class="px-4 py-2 text-sm"></td>
       </tr>
 
       <!-- Child Institutions -->
@@ -25,23 +25,11 @@
           {{ formatCurrency(getInstitutionBalance(institution.id)) }}
         </td>
         <td class="px-4 py-2 text-sm text-right text-gray-400">—</td>
-        <td class="px-4 py-2 text-sm text-right">
+        <td v-if="!readOnly" class="px-4 py-2 text-sm text-right">
           <div class="flex items-center justify-end gap-2">
-            <button
-              class="btn-icon edit inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200"
-              @click="$emit('editInstitution', institution)"
-              title="Edit"
-            >{{ Icons.edit }}</button>
-            <button
-              class="btn-icon delete inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-red-100 text-red-600 hover:bg-red-200"
-              @click="$emit('deleteInstitution', institution.id, institution.name)"
-              title="Delete"
-            >{{ Icons.delete }}</button>
-            <button
-              class="inline-flex items-center justify-center px-2 py-1.5 text-xs font-medium rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200"
-              type="button"
-              @click="$emit('manageCredentials', institution)"
-            >Creds</button>
+            <button class="btn-icon edit inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200" @click="$emit('editInstitution', institution)" title="Edit">{{ Icons.edit }}</button>
+            <button class="btn-icon delete inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-red-100 text-red-600 hover:bg-red-200" @click="$emit('deleteInstitution', institution.id, institution.name)" title="Delete">{{ Icons.delete }}</button>
+            <button class="inline-flex items-center justify-center px-2 py-1.5 text-xs font-medium rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200" type="button" @click="$emit('manageCredentials', institution)">Creds</button>
           </div>
         </td>
       </tr>
@@ -51,32 +39,16 @@
     <template v-else>
       <tr v-for="institution in group.institutions" :key="`parent-${institution.id}`" class="border-b border-gray-100 hover:bg-gray-50">
         <td class="px-4 py-2 text-sm font-medium text-gray-900">{{ institution.name }}</td>
-        <td class="px-4 py-2 text-sm text-right font-semibold text-gray-900">
-          {{ formatCurrency(getInstitutionBalance(institution.id)) }}
-        </td>
+        <td class="px-4 py-2 text-sm text-right font-semibold text-gray-900">{{ formatCurrency(getInstitutionBalance(institution.id)) }}</td>
         <td v-if="institution.institutionType === 'Bank' || institution.institutionType === 'Building Society'" class="px-4 py-2 text-sm text-right font-semibold" :class="getCapacityColor(getInstitutionBalance(institution.id))">
           {{ formatCurrency(getCapacity(getInstitutionBalance(institution.id))) }}
         </td>
-        <td v-else class="px-4 py-2 text-sm text-right font-semibold text-gray-400">
-          —
-        </td>
-        <td class="px-4 py-2 text-sm text-right">
+        <td v-else class="px-4 py-2 text-sm text-right font-semibold text-gray-400">—</td>
+        <td v-if="!readOnly" class="px-4 py-2 text-sm text-right">
           <div class="flex items-center justify-end gap-2">
-            <button
-              class="btn-icon edit inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200"
-              @click="$emit('editInstitution', institution)"
-              title="Edit"
-            >{{ Icons.edit }}</button>
-            <button
-              class="btn-icon delete inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-red-100 text-red-600 hover:bg-red-200"
-              @click="$emit('deleteInstitution', institution.id, institution.name)"
-              title="Delete"
-            >{{ Icons.delete }}</button>
-            <button
-              class="inline-flex items-center justify-center px-2 py-1.5 text-xs font-medium rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200"
-              type="button"
-              @click="$emit('manageCredentials', institution)"
-            >Creds</button>
+            <button class="btn-icon edit inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200" @click="$emit('editInstitution', institution)" title="Edit">{{ Icons.edit }}</button>
+            <button class="btn-icon delete inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-red-100 text-red-600 hover:bg-red-200" @click="$emit('deleteInstitution', institution.id, institution.name)" title="Delete">{{ Icons.delete }}</button>
+            <button class="inline-flex items-center justify-center px-2 py-1.5 text-xs font-medium rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200" type="button" @click="$emit('manageCredentials', institution)">Creds</button>
           </div>
         </td>
       </tr>
@@ -103,6 +75,7 @@ defineProps<{
   getCapacityColor: (balance: number) => string;
   formatCurrency: (value: number) => string;
   hasChildren: (parentId: number) => boolean;
+  readOnly?: boolean;
 }>();
 
 defineEmits<{

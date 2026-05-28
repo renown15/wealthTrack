@@ -17,6 +17,7 @@
           class="balance-input form-input py-1 px-2 w-28 text-sm"
           @keydown.enter.prevent="$emit('saveBalance', item.account.id)"
           @keydown.escape="$emit('cancelEdit')"
+          @blur="$emit('cancelEdit')"
         />
       </div>
       <button
@@ -57,7 +58,7 @@
         @click="$emit('showDocs', item)"
       >{{ item.docCount ?? 0 }}</button>
     </td>
-    <td class="table-cell">
+    <td v-if="!readOnly" class="table-cell">
       <div class="actions-col">
         <button
           class="btn-icon edit inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200"
@@ -102,6 +103,7 @@ defineProps<{
   isFirst: boolean;
   editingBalanceId: number | null;
   editingBalanceValue: string;
+  readOnly?: boolean;
 }>();
 
 defineEmits<{
