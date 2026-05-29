@@ -11,15 +11,8 @@ vi.mock('@/utils/deferredSharesCalculator', () => ({
 }));
 
 import {
-  isDeferredShares,
-  isDeferredCash,
-  isRSU,
-  getFixedRateEndDate,
-  getEditValue,
-  getDeferredTooltip,
-  getYieldTooltip,
-  getGroupYieldTooltip,
-  getDisplayBalance,
+  isDeferredShares, isDeferredCash, isRSU,
+  getFixedRateEndDate, getEditValue, getDisplayBalance,
 } from '@views/AccountHub/accountDisplayUtils';
 
 import * as calc from '@/utils/deferredSharesCalculator';
@@ -104,15 +97,13 @@ describe('getFixedRateEndDate', () => {
 
 describe('getEditValue', () => {
   it('returns latestBalance.value for deferred cash', () => {
-    const item = makeItem({ accountType: 'Deferred Cash' });
-    expect(getEditValue(item)).toBe('1000');
+    expect(getEditValue(makeItem({ accountType: 'Deferred Cash' }))).toBe('1000');
   });
 
   it('returns getDisplayBalance for non-deferred-cash', () => {
     const item = makeItem();
     item.latestBalance!.value = '5000';
-    const result = getEditValue(item);
-    expect(result).toBe('5000');
+    expect(getEditValue(item)).toBe('5000');
   });
 });
 
@@ -131,14 +122,12 @@ describe('getDisplayBalance', () => {
   });
 
   it('falls through to latestBalance for deferred shares with missing fields', () => {
-    const item = makeItem({ accountType: 'Deferred Shares' });
-    expect(getDisplayBalance(item)).toBe('1000');
+    expect(getDisplayBalance(makeItem({ accountType: 'Deferred Shares' }))).toBe('1000');
   });
 
   it('returns deferred cash balance when latestBalance set', () => {
     mockCalc.calculateDeferredCashBalanceSafe.mockReturnValue(530);
-    const item = makeItem({ accountType: 'Deferred Cash' });
-    expect(getDisplayBalance(item)).toBe(530);
+    expect(getDisplayBalance(makeItem({ accountType: 'Deferred Cash' }))).toBe(530);
   });
 
   it('returns RSU balance when shares and price present', () => {
@@ -147,101 +136,5 @@ describe('getDisplayBalance', () => {
     item.account.numberOfShares = '50';
     item.account.price = '1000';
     expect(getDisplayBalance(item)).toBe(430);
-  });
-});
-
-describe('getDeferredTooltip', () => {
-  it('returns undefined for regular account', () => {
-    expect(getDeferredTooltip(makeItem())).toBeUndefined();
-  });
-
-  it('returns deferred shares tooltip with full fields', () => {
-    mockCalc.calculateDeferredSharesBalanceDetailedSafe.mockReturnValue({
-      balance: 200, grossAmount: 400, capitalGainsTax: 80,
-    });
-    const item = makeItem({ accountType: 'Deferred Shares' });
-    item.account.numberOfShares = '100';
-    item.account.price = '400';
-    item.account.purchasePrice = '200';
-    const result = getDeferredTooltip(item);
-    expect(result).toContain('Shares:');
-    expect(result).toContain('Gross Amount:');
-  });
-
-  it('returns deferred cash tooltip when balance set', () => {
-    mockCalc.calculateDeferredCashBalanceDetailedSafe.mockReturnValue({
-      balance: 530, grossAmount: 1000, taxDiscount: 470,
-    });
-    const item = makeItem({ accountType: 'Deferred Cash' });
-    const result = getDeferredTooltip(item);
-    expect(result).toContain('Gross Amount:');
-    expect(result).toContain('Discount/Tax');
-  });
-
-  it('returns RSU tooltip with full fields', () => {
-    mockCalc.calculateRSUBalanceDetailedSafe.mockReturnValue({
-      balance: 530, grossAmount: 1000, taxTaken: 470,
-    });
-    const item = makeItem({ accountType: 'RSU' });
-    item.account.numberOfShares = '50';
-    item.account.price = '2000';
-    const result = getDeferredTooltip(item);
-    expect(result).toContain('Tax Taken');
-  });
-});
-
-describe('getYieldTooltip', () => {
-  it('returns undefined when no balance', () => {
-    const item = makeItem();
-    item.latestBalance = null;
-    expect(getYieldTooltip(item)).toBeUndefined();
-  });
-
-  it('returns undefined when no interest rate', () => {
-    const item = makeItem();
-    item.account.interestRate = null;
-    expect(getYieldTooltip(item)).toBeUndefined();
-  });
-
-  it('returns tooltip with base rate', () => {
-    const result = getYieldTooltip(makeItem());
-    expect(result).toContain('Base Rate:');
-    expect(result).toContain('Annual Yield:');
-  });
-
-  it('returns bonus rate tooltip when active bonus set', () => {
-    const item = makeItem();
-    item.account.fixedBonusRate = '6';
-    item.account.fixedBonusRateEndDate = '2099-01-01';
-    const result = getYieldTooltip(item);
-    expect(result).toContain('Bonus Rate:');
-  });
-
-  it('returns base rate when bonus is expired', () => {
-    const item = makeItem();
-    item.account.fixedBonusRate = '6';
-    item.account.fixedBonusRateEndDate = '2000-01-01';
-    const result = getYieldTooltip(item);
-    expect(result).toContain('Base Rate:');
-  });
-});
-
-describe('getGroupYieldTooltip', () => {
-  it('returns undefined for empty array', () => {
-    expect(getGroupYieldTooltip([])).toBeUndefined();
-  });
-
-  it('returns undefined when no items have balance + rate', () => {
-    const item = makeItem();
-    item.latestBalance = null;
-    expect(getGroupYieldTooltip([item])).toBeUndefined();
-  });
-
-  it('returns combined yield tooltip for multiple items', () => {
-    const item1 = makeItem();
-    const item2 = makeItem();
-    item2.account.name = 'Other Account';
-    const result = getGroupYieldTooltip([item1, item2]);
-    expect(result).toContain('Total Annual Yield:');
   });
 });

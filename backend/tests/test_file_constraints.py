@@ -113,12 +113,14 @@ def test_typescript_test_files_under_200_lines():
     if not tests_dir.exists():
         return  # Frontend may not be present in all environments
 
-    for ts_file in tests_dir.glob("*.test.ts"):
+    for ts_file in tests_dir.rglob("*.test.ts"):
+        if "e2e" in ts_file.parts:
+            continue
         if ts_file.name in TS_TEST_ALLOWLIST:
             continue
         lines = count_lines(ts_file)
         if lines > max_lines:
-            violations.append(f"{ts_file.name}: {lines} lines")
+            violations.append(f"{ts_file.relative_to(tests_dir.parent)}: {lines} lines")
 
     assert not violations, f"TypeScript test files exceed {max_lines} line limit:\n" + "\n".join(
         violations

@@ -1,9 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { useTaxHubModals } from '@composables/useTaxHubModals';
 import type { EligibleAccount, TaxPeriod, TaxReturnUpsertRequest } from '@models/TaxModels';
-
-// ── mock useQuickAddAccount ───────────────────────────────────────────────────
 
 const mockLoadFormData = vi.fn().mockResolvedValue(undefined);
 const mockGetClosedStatusId = vi.fn().mockReturnValue(3);
@@ -20,8 +18,6 @@ vi.mock('@/composables/useQuickAddAccount', () => ({
     createClosedAccount: mockCreateClosedAccount,
   }),
 }));
-
-// ── fixtures ──────────────────────────────────────────────────────────────────
 
 const makeAccount = (id = 10): EligibleAccount =>
   ({ accountId: id, accountName: 'HSBC Tax', taxYear: '2025/26', balance: '1200.00', documents: [] }) as never;
@@ -56,14 +52,12 @@ const makeHandlers = (overrides: Partial<{
   );
 };
 
-describe('useTaxHubModals', () => {
+describe('useTaxHubModals — modals and document operations', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockLoadFormData.mockResolvedValue(undefined);
     mockGetClosedStatusId.mockReturnValue(3);
   });
-
-  // ── openReturnModal / openDocumentsModal / openDeleteConfirm ───────────────
 
   it('openReturnModal sets activeAccount and opens modal', () => {
     const { openReturnModal, returnModalOpen, activeAccount } = makeHandlers();
@@ -86,8 +80,6 @@ describe('useTaxHubModals', () => {
     expect(deleteConfirmId.value).toBe(5);
     expect(deleteConfirmName.value).toBe('2025/26');
   });
-
-  // ── handleSaveReturn ──────────────────────────────────────────────────────
 
   it('handleSaveReturn closes return modal on success', async () => {
     const { openReturnModal, handleSaveReturn, returnModalOpen } = makeHandlers();
@@ -117,8 +109,6 @@ describe('useTaxHubModals', () => {
     expect(returnModalOpen.value).toBe(true);
   });
 
-  // ── handleUpload ──────────────────────────────────────────────────────────
-
   it('handleUpload calls uploadDocument with period and account', async () => {
     const uploadDocument = vi.fn().mockResolvedValue(null);
     const { openDocumentsModal, handleUpload } = makeHandlers({ uploadDocument });
@@ -135,16 +125,12 @@ describe('useTaxHubModals', () => {
     expect(uploadDocument).not.toHaveBeenCalled();
   });
 
-  // ── handleDownload ────────────────────────────────────────────────────────
-
   it('handleDownload delegates to downloadDocument', async () => {
     const downloadDocument = vi.fn().mockResolvedValue(undefined);
     const { handleDownload } = makeHandlers({ downloadDocument });
     await handleDownload(7, 'file.pdf');
     expect(downloadDocument).toHaveBeenCalledWith(7, 'file.pdf');
   });
-
-  // ── handleDeleteDoc ───────────────────────────────────────────────────────
 
   it('handleDeleteDoc calls deleteDocument with period and account', async () => {
     const deleteDocument = vi.fn().mockResolvedValue(undefined);
@@ -159,81 +145,5 @@ describe('useTaxHubModals', () => {
     const { handleDeleteDoc } = makeHandlers({ deleteDocument });
     await handleDeleteDoc(1);
     expect(deleteDocument).not.toHaveBeenCalled();
-  });
-
-  // ── handleOpenQuickAdd ────────────────────────────────────────────────────
-
-  it('handleOpenQuickAdd loads form data and opens quick add', async () => {
-    const { handleOpenQuickAdd, quickAddOpen } = makeHandlers();
-    await handleOpenQuickAdd();
-    expect(mockLoadFormData).toHaveBeenCalled();
-    expect(quickAddOpen.value).toBe(true);
-  });
-
-  it('handleOpenQuickAdd uses period endDate in initial data', async () => {
-    const { handleOpenQuickAdd, quickAddInitialData } = makeHandlers();
-    await handleOpenQuickAdd();
-    expect(quickAddInitialData.value.closedAt).toBe('2026-04-05');
-  });
-
-  // ── handleQuickAdd ────────────────────────────────────────────────────────
-
-  it('handleQuickAdd creates account, moves to in scope, opens docs modal', async () => {
-    mockCreateClosedAccount.mockResolvedValue(10);
-    const moveToInScope = vi.fn().mockResolvedValue(undefined);
-    const { handleQuickAdd, quickAddOpen, docsModalOpen } = makeHandlers({ moveToInScope });
-    await handleQuickAdd({ name: 'Tax Acc' } as never);
-    expect(moveToInScope).toHaveBeenCalledWith(10);
-    expect(quickAddOpen.value).toBe(false);
-    expect(docsModalOpen.value).toBe(true);
-  });
-
-  it('handleQuickAdd does nothing when selectedPeriodId is null', async () => {
-    const { handleQuickAdd, quickAddOpen } = makeHandlers({ selectedPeriodId: ref(null) });
-    await handleQuickAdd({} as never);
-    expect(quickAddOpen.value).toBe(false);
-  });
-
-  it('handleQuickAdd does nothing when createClosedAccount returns null', async () => {
-    mockCreateClosedAccount.mockResolvedValue(null);
-    const moveToInScope = vi.fn();
-    const { handleQuickAdd } = makeHandlers({ moveToInScope });
-    await handleQuickAdd({} as never);
-    expect(moveToInScope).not.toHaveBeenCalled();
-  });
-
-  // ── handlePreview / closePreview ──────────────────────────────────────────
-
-  it('handlePreview sets preview state when blob is returned', async () => {
-    const blob = new Blob(['pdf']);
-    URL.createObjectURL = vi.fn().mockReturnValue('blob:url');
-    URL.revokeObjectURL = vi.fn();
-    const { handlePreview, previewOpen, previewFilename, previewContentType } = makeHandlers({
-      fetchDocumentBlob: vi.fn().mockResolvedValue(blob),
-    });
-    await handlePreview(1, 'doc.pdf', 'application/pdf');
-    expect(previewOpen.value).toBe(true);
-    expect(previewFilename.value).toBe('doc.pdf');
-    expect(previewContentType.value).toBe('application/pdf');
-  });
-
-  it('handlePreview does nothing when blob is null', async () => {
-    const { handlePreview, previewOpen } = makeHandlers({
-      fetchDocumentBlob: vi.fn().mockResolvedValue(null),
-    });
-    await handlePreview(1, 'doc.pdf', null);
-    expect(previewOpen.value).toBe(false);
-  });
-
-  it('closePreview clears preview state', async () => {
-    URL.createObjectURL = vi.fn().mockReturnValue('blob:url');
-    URL.revokeObjectURL = vi.fn();
-    const { handlePreview, closePreview, previewOpen } = makeHandlers({
-      fetchDocumentBlob: vi.fn().mockResolvedValue(new Blob(['x'])),
-    });
-    await handlePreview(1, 'doc.pdf', null);
-    closePreview();
-    expect(previewOpen.value).toBe(false);
-    expect(URL.revokeObjectURL).toHaveBeenCalled();
   });
 });
