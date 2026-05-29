@@ -69,21 +69,26 @@ async def build_gift_summary(
     if not all([gift_value, gift_date_str, donor, account_id]):
         return None
 
+    assert gift_value is not None
+    assert gift_date_str is not None
+    assert donor is not None
+    assert account_id is not None
+
     account = await session.get(Account, account_id)
     account_name = account.name if account else str(account_id)
-    gift_date = date.fromisoformat(gift_date_str)  # type: ignore[arg-type]
+    gift_date = date.fromisoformat(gift_date_str)
     years = (date.today() - gift_date).days / 365.25
     rate = calculate_iht_taper_rate(gift_date)
-    exposure = (Decimal(gift_value) * rate).quantize(  # type: ignore[arg-type]
+    exposure = (Decimal(gift_value) * rate).quantize(
         Decimal("0.01"), rounding=ROUND_HALF_UP
     )
     return GiftSummary(
         group_id=group.id,
-        account_id=account_id,  # type: ignore[arg-type]
+        account_id=account_id,
         account_name=account_name,
-        donor=donor,  # type: ignore[arg-type]
+        donor=donor,
         gift_date=gift_date,
-        gift_value_gbp=gift_value,  # type: ignore[arg-type]
+        gift_value_gbp=gift_value,
         num_shares=num_shares,
         years_elapsed=round(years, 2),
         iht_rate=str(rate),

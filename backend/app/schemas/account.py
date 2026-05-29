@@ -2,11 +2,32 @@
 Schemas for account request/response validation.
 """
 from datetime import datetime
+from decimal import Decimal, InvalidOperation
 from typing import Optional
 
-from pydantic import Field
+from pydantic import Field, field_validator
 
 from app.schemas.base import BaseSchema
+
+_NUMERIC_FIELDS = (
+    "interest_rate",
+    "fixed_bonus_rate",
+    "number_of_shares",
+    "price",
+    "purchase_price",
+    "pension_monthly_payment",
+    "encumbrance",
+)
+
+
+def _check_numeric(v: object) -> object:
+    if v is None or v == "":
+        return v
+    try:
+        Decimal(str(v))
+    except InvalidOperation as exc:
+        raise ValueError("must be a valid number") from exc
+    return v
 
 
 class AccountOwnershipTransferRequest(BaseSchema):
@@ -58,6 +79,11 @@ class AccountCreate(BaseSchema):
         None, max_length=10, description="Tax year (e.g. 2024/25) for Tax Liability accounts"
     )
 
+    @field_validator(*_NUMERIC_FIELDS, mode="before")
+    @classmethod
+    def validate_numeric_strings(cls, v: object) -> object:
+        return _check_numeric(v)
+
 
 class AccountUpdate(BaseSchema):
     """Schema for updating an account."""
@@ -105,6 +131,11 @@ class AccountUpdate(BaseSchema):
     tax_year: Optional[str] = Field(
         None, max_length=10, description="Tax year for Tax Liability accounts"
     )
+
+    @field_validator(*_NUMERIC_FIELDS, mode="before")
+    @classmethod
+    def validate_numeric_strings(cls, v: object) -> object:
+        return _check_numeric(v)
 
 
 class AccountTransferRequest(BaseSchema):

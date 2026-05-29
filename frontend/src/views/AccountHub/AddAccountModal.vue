@@ -52,13 +52,7 @@ import type { ReferenceDataItem } from '@/models/ReferenceData';
 import BaseModal from '@/components/BaseModal.vue';
 import AccountFormFields from '@views/AccountHub/AccountFormFields.vue';
 import InstitutionFormFields from '@views/AccountHub/InstitutionFormFields.vue';
-import { validateAccountForm, validateInstitutionForm, type AccountFormData } from '@views/AccountHub/addAccountModalValidation';
-
-interface InstitutionFormData {
-  name: string;
-  parentId?: number;
-  institutionType?: string | null;
-}
+import { validateAccountForm, validateInstitutionForm, type AccountFormData, type InstitutionFormData } from '@views/AccountHub/addAccountModalValidation';
 
 interface Props {
   open: boolean;
@@ -145,7 +139,7 @@ const handleSave = (): void => {
   validationError.value = '';
 
   if (props.resourceType === 'institution') {
-    const error = validateInstitutionForm(institutionFormData.value as any);
+    const error = validateInstitutionForm(institutionFormData.value);
     if (error) {
       validationError.value = error;
       return;
