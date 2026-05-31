@@ -5,7 +5,7 @@
 A personal wealth management app: one place to see all your accounts and balances across financial institutions, with encrypted credential storage and tax tracking.
 
 **Status:** v1 complete — all 6 phases shipped, including Tax Hub.
-**Last Updated:** 2026-05-28 — Gift/IHT tracking, family portfolio sharing, and test coverage improvements added.
+**Last Updated:** 2026-05-31 — PR gate hardened: vue-tsc added (Vue template type checking), ESLint extended to .vue files, mypy extended to tests/. Balance update bug fixed.
 
 ## Tech Stack
 
@@ -16,7 +16,7 @@ A personal wealth management app: one place to see all your accounts and balance
 | Backend testing | pytest, pytest-asyncio |
 | Frontend testing | Vitest, happy-dom |
 | Backend quality | ruff, pylint, mypy |
-| Frontend quality | ESLint, tsc (strict) |
+| Frontend quality | ESLint (`.ts` + `.vue`), vue-tsc (Vue template type checking) |
 
 ## Project Structure
 
@@ -53,12 +53,16 @@ wealthTrack/
 Run this before every PR. It uses an isolated test database (port 5434) and runs 6 steps:
 1. Start test DB
 2. Migrations + seed
-3. Lint + type-check (backend and frontend)
+3. Lint + type-check:
+   - Backend: `ruff` + `pylint app/` + `mypy app/` (strict) + `mypy tests/` (relaxed — ORM constructor and mock-assignment false positives suppressed)
+   - Frontend: `eslint src --ext .ts,.vue` + `vue-tsc --noEmit --project tsconfig.app.json` (checks Vue templates, not just .ts files)
 4. Backend tests with ≥80% coverage
 5. Frontend tests with coverage thresholds
-6. Frontend production build
+6. Frontend production build (`vue-tsc` + `vite build`)
 
 All 6 must pass. **This is the only PR gate.**
+
+> **Why vue-tsc matters:** plain `tsc` skips Vue template expressions entirely. `vue-tsc` catches type errors in `@event-handler` argument counts, `:prop` type mismatches, and template-level bugs that unit tests don't exercise.
 
 ## Key Commands
 
@@ -80,8 +84,8 @@ make test-watch             # frontend watch mode
 make test-e2e               # Playwright E2E tests (spins up isolated containers)
 
 # Quality
-make lint                   # ruff + pylint + ESLint
-make type-check             # mypy + tsc
+make lint                   # ruff + pylint + ESLint (covers .ts + .vue)
+make type-check             # mypy (app/ + tests/) + vue-tsc
 make format                 # ruff + prettier
 make lint-fix               # auto-fix
 
@@ -214,6 +218,20 @@ Multi-root components (fragments) inside `<tbody>` must NOT use double-nested `<
 ### v-model on Props (Vue 3)
 
 `v-model` on component props is not allowed in Vue 3. Use `:value` + `@input="$emit('update:prop', ...)"` pattern instead.
+
+### Vue Event Handler Argument Count
+
+When a component emits multiple args, the parent handler **must** capture all of them. Capturing only the first silently drops the rest — vue-tsc will catch this, plain tsc will not.
+
+```html
+<!-- WRONG — emits (accountId, value) but only accountId is captured -->
+@update-balance="(p) => handleUpdateBalance(p)"
+
+<!-- CORRECT -->
+@update-balance="(id, val) => handleUpdateBalance(id, val)"
+```
+
+This caused a runtime bug where balance updates silently failed (value was `undefined` → `parseFloat(undefined)` → NaN).
 
 ## Config: `.env.dev` as Single Source of Truth
 
