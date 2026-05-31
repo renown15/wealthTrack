@@ -20,6 +20,7 @@ export interface AccountFormData {
   underlying?: string | null;
   price?: string | null;
   purchasePrice?: string | null;
+  encumbrance?: string | null;
 }
 
 export interface InstitutionFormData {

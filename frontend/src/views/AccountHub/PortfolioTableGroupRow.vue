@@ -92,8 +92,8 @@ interface GroupSummary {
   totalBalance: number;
   commonInstitution: string | null | undefined;
   commonAccountType: string | null | undefined;
-  commonInterestRate: string | number | null | undefined;
-  commonBonusRate: string | number | null | undefined;
+  commonInterestRate: string | null | undefined;
+  commonBonusRate: string | null | undefined;
   commonEndDate: string | null | undefined;
   commonBalanceUpdatedAt: string | undefined;
   totalEvents: number;
@@ -117,7 +117,7 @@ defineEmits<{
   deleteGroup: [groupId: number];
   saveBalance: [accountId: number];
   cancelEdit: [];
-  startEdit: [accountId: number, value: string];
+  startEdit: [accountId: number, value?: string | number | null];
   'update:editingBalanceValue': [value: string];
   showEvents: [item: PortfolioItem];
   showDocs: [item: PortfolioItem];

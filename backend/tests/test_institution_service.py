@@ -22,6 +22,7 @@ async def test_institution_service_update_success(
 
     # Verify update
     updated = await service.repository.get_by_id(institution.id, institution.user_id)
+    assert updated is not None
     assert updated.name == "Updated Name"
 
 

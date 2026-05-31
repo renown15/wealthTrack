@@ -147,6 +147,7 @@ class TestRecordDividend:
         _patch(monkeypatch, event_repo, group_repo)
         session = _make_session("2026/27", 112, 45)
         response = await record_dividend(1, 1, "123.45", date(2026, 5, 10), session)
+        assert response.tax_provision is not None
         assert Decimal(response.tax_provision) == Decimal("49.38")
 
     @pytest.mark.asyncio

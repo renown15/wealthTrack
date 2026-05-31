@@ -64,14 +64,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import AddReferenceDataModal from '@views/AddReferenceDataModal.vue';
 import DeleteReferenceDataModal from '@views/DeleteReferenceDataModal.vue';
 import ReferenceDataTable from '@views/ReferenceDataTable.vue';
 import { useReferenceDataCrud } from '@/composables/useReferenceDataCrud';
 import type { ReferenceDataItem, ReferenceDataPayload } from '@/models/ReferenceData';
 
-interface ExtendedReferenceDataItem extends ReferenceDataItem {updatedAt: string}
+interface ExtendedReferenceDataItem extends ReferenceDataItem {updatedAt?: string}
 
 // CRUD composable
 const { loading, error, data: referenceData, loadData, createItem, updateItem, deleteItem: deleteItemCrud } =
@@ -80,7 +80,7 @@ const { loading, error, data: referenceData, loadData, createItem, updateItem, d
 // Local UI state
 const addFormOpen = ref(false);
 const deleteConfirmOpen = ref(false);
-const deleteConfirmItem = ref<ExtendedReferenceDataItem | null>(null);
+const deleteConfirmItem = ref<ReferenceDataItem | null>(null);
 const formError = ref('');
 const isSubmittingNew = ref(false);
 const isDeleting = ref(false);

@@ -15,7 +15,7 @@ async def test_portfolio_repository_initialization():
     class MockSession:
         pass
 
-    repo = PortfolioRepository(MockSession())
+    repo = PortfolioRepository(MockSession())  # type: ignore[arg-type]
     assert repo is not None
     assert hasattr(repo, "get_user_portfolio")
     assert hasattr(repo, "get_account_current_balance")
@@ -28,7 +28,7 @@ async def test_get_user_portfolio_exists():
     class MockSession:
         pass
 
-    repo = PortfolioRepository(MockSession())
+    repo = PortfolioRepository(MockSession())  # type: ignore[arg-type]
     assert callable(repo.get_user_portfolio)
 
 
@@ -39,5 +39,5 @@ async def test_get_account_current_balance_exists():
     class MockSession:
         pass
 
-    repo = PortfolioRepository(MockSession())
+    repo = PortfolioRepository(MockSession())  # type: ignore[arg-type]
     assert callable(repo.get_account_current_balance)

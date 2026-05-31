@@ -13,7 +13,7 @@ async def test_account_repository_initialization():
     class MockSession:
         pass
 
-    repo = AccountRepository(MockSession())
+    repo = AccountRepository(MockSession())  # type: ignore[arg-type]
     assert repo is not None
     assert hasattr(repo, "get_by_id")
     assert hasattr(repo, "get_by_user")
@@ -27,7 +27,7 @@ async def test_get_by_id_is_callable():
     class MockSession:
         pass
 
-    repo = AccountRepository(MockSession())
+    repo = AccountRepository(MockSession())  # type: ignore[arg-type]
     assert callable(repo.get_by_id)
 
 
@@ -38,7 +38,7 @@ async def test_get_by_user_is_callable():
     class MockSession:
         pass
 
-    repo = AccountRepository(MockSession())
+    repo = AccountRepository(MockSession())  # type: ignore[arg-type]
     assert callable(repo.get_by_user)
 
 
@@ -49,5 +49,5 @@ async def test_get_by_institution_is_callable():
     class MockSession:
         pass
 
-    repo = AccountRepository(MockSession())
+    repo = AccountRepository(MockSession())  # type: ignore[arg-type]
     assert callable(repo.get_by_institution)

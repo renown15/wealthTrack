@@ -27,7 +27,7 @@ def get_encryption_key() -> bytes:
     return default_key
 
 
-def encrypt_value(plaintext: str) -> str:
+def encrypt_value(plaintext: str | None) -> str | None:
     """Encrypt a string value."""
     if not plaintext:
         return plaintext
@@ -38,7 +38,7 @@ def encrypt_value(plaintext: str) -> str:
     return b64encode(encrypted).decode()
 
 
-def decrypt_value(ciphertext: str) -> str:
+def decrypt_value(ciphertext: str | None) -> str | None:
     """Decrypt an encrypted string value."""
     if not ciphertext:
         return ciphertext

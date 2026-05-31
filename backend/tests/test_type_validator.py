@@ -71,7 +71,7 @@ class TestValidateTypesAgainstDb:
     @pytest.mark.asyncio
     async def test_raises_when_multiple_attribute_types_missing(self):
         """RuntimeError lists all missing attribute types."""
-        attr_values = []  # none present
+        attr_values: list[str] = []  # none present
         event_values = [str(et) for et in EventType]
         session = _make_session(attr_values, event_values)
 

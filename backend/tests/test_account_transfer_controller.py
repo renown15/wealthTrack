@@ -19,7 +19,7 @@ async def _create_account(
         json={"name": name, "institutionId": institution.id, "typeId": 1, "statusId": 1},
     )
     assert resp.status_code == status.HTTP_201_CREATED
-    return resp.json()["id"]
+    return int(resp.json()["id"])
 
 
 @pytest.mark.asyncio

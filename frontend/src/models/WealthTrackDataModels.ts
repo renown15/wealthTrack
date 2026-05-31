@@ -42,8 +42,8 @@ export interface InstitutionCredential {
   institutionId: number;
   typeId: number;
   typeLabel: string;
-  key?: string;
-  value?: string;
+  key?: string | null;
+  value?: string | null;
   createdAt: string;
   updatedAt: string;
 }

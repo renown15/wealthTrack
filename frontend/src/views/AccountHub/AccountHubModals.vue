@@ -2,7 +2,7 @@
   <div>
     <AccountEventsModal
       :open="eventsModalOpen" :title="eventsTitle" :events="events"
-      :loading="eventsLoading" :error="eventsError" :account-type="accountType"
+      :loading="eventsLoading" :error="eventsError ?? undefined" :account-type="accountType"
       @close="$emit('closeEvents')" @add-win="(w) => $emit('addWin', w)"
       @record-sale="$emit('recordSale')" @view-sales="$emit('viewSales')"
       @record-dividend="dividendModalOpen = true"

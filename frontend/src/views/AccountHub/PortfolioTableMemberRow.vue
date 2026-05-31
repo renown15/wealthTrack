@@ -109,7 +109,7 @@ defineProps<{
 defineEmits<{
   saveBalance: [accountId: number];
   cancelEdit: [];
-  startEdit: [accountId: number, value: string];
+  startEdit: [accountId: number, value?: string | number | null];
   'update:editingBalanceValue': [value: string];
   showEvents: [item: PortfolioItem];
   showDocs: [item: PortfolioItem];

@@ -43,7 +43,7 @@ async def test_get_all_institutions(
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert isinstance(data, list)
-    assert len(data) > 0  # type: ignore[arg-type]
+    assert len(data) > 0
     assert data[0]["userId"] == user.id
 
 

@@ -493,10 +493,11 @@ type-check: type-check-backend type-check-frontend
 type-check-backend:
 	@echo "Type checking backend code..."
 	cd backend && mypy app/ --config-file mypy.ini
+	cd backend && mypy tests/ --config-file mypy.ini --disable-error-code call-arg --disable-error-code method-assign --follow-imports=silent
 
 type-check-frontend:
 	@echo "Type checking frontend code..."
-	cd frontend && npx tsc --noEmit --project tsconfig.src.json
+	cd frontend && npm run type-check
 
 # Build frontend for production - runs tsc type checking + vite build
 build-frontend:

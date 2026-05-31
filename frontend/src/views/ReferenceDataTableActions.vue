@@ -46,7 +46,7 @@ import type { ReferenceDataItem } from '@/models/ReferenceData';
 import { Icons } from '@/constants/icons';
 
 interface ExtendedReferenceDataItem extends ReferenceDataItem {
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 interface Props {

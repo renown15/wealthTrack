@@ -20,7 +20,7 @@
             <!-- Index row -->
             <div class="flex gap-1 mb-1">
               <div
-                v-for="(char, index) in credential.value"
+                v-for="(_, index) in credential.value"
                 :key="`${credential.id}-idx-${index}`"
                 class="w-8 text-center text-xs text-gray-500 font-bold"
               >

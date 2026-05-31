@@ -26,7 +26,7 @@ import type { ReferenceDataItem } from '@/models/ReferenceData';
 
 interface Props {
   open: boolean;
-  item: (ReferenceDataItem & { updatedAt: string }) | null;
+  item: ReferenceDataItem | null;
   isDeleting: boolean;
 }
 

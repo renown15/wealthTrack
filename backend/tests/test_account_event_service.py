@@ -13,7 +13,7 @@ async def test_account_event_service_initialization():
     class MockSession:
         pass
 
-    service = AccountEventService(MockSession())
+    service = AccountEventService(MockSession())  # type: ignore[arg-type]
     assert service is not None
     assert hasattr(service, "log_event")
 
@@ -25,5 +25,5 @@ async def test_log_event_is_callable():
     class MockSession:
         pass
 
-    service = AccountEventService(MockSession())
+    service = AccountEventService(MockSession())  # type: ignore[arg-type]
     assert callable(service.log_event)

@@ -30,7 +30,7 @@ TEST_DATABASE_URL = os.getenv(
 
 
 @pytest.fixture(scope="function")
-async def test_engine() -> AsyncEngine:
+async def test_engine() -> AsyncGenerator[AsyncEngine, None]:
     """Create test engine for each test - NullPool disables connection pooling."""
     engine = create_async_engine(
         TEST_DATABASE_URL,
@@ -129,7 +129,7 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
 
     app.dependency_overrides[get_db] = override_get_db
 
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:  # type: ignore[arg-type]
         yield ac
 
     app.dependency_overrides.clear()

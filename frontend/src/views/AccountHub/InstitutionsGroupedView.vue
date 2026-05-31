@@ -1,5 +1,5 @@
 <template>
-  <template v-for="(group, groupIdx) in groupedInstitutions" :key="`group-${group.parentId}`">
+  <template v-for="group in groupedInstitutions" :key="`group-${group.parentId}`">
     <!-- Group with children -->
     <template v-if="group.parentId && hasChildren(group.parentId)">
       <!-- Group Header Row -->

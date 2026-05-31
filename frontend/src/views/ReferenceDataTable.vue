@@ -101,7 +101,7 @@ import ReferenceDataTableActions from '@views/ReferenceDataTableActions.vue';
 import styles from '@views/ReferenceDataTable.module.css';
 
 interface ExtendedReferenceDataItem extends ReferenceDataItem {
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 const props = defineProps<{
@@ -199,8 +199,8 @@ const deleteItem = (id: number): void => {
   emit('delete', id);
 };
 
-const formatDate = (dateStr: string): string =>
-  new Date(dateStr).toLocaleDateString('en-US', {
+const formatDate = (dateStr: string | null | undefined): string =>
+  new Date(dateStr ?? '').toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',

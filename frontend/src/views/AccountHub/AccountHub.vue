@@ -28,11 +28,11 @@
             :group-members="groupMembersMap" :account-types="accountTypes" :grouped="grouped"
             @edit-account="(a) => activeMemberId === null && openEditAccountModal(a)"
             @delete-account="(a) => activeMemberId === null && openDeleteConfirm('account', a.id, a.name)"
-            @show-events="(id, name, count, type) => activeMemberId === null && openEventsModal(id, name, type)"
+            @show-events="(id, name, _count, type) => activeMemberId === null && openEventsModal(id, name, type)"
             @show-docs="(id, name) => activeMemberId === null && openDocsModal(id, name)"
-            @edit-group="(g) => activeMemberId === null && openEditAccountGroupModal(g)"
+            @edit-group="(id, name) => activeMemberId === null && openEditAccountGroupModal(id, name)"
             @delete-group="(g) => activeMemberId === null && handleDeleteGroup(g)"
-            @update-balance="(p) => activeMemberId === null && handleUpdateBalance(p)"
+            @update-balance="(id, val) => activeMemberId === null && handleUpdateBalance(id, val)"
           />
         </div>
         <InstitutionsPanel
@@ -78,26 +78,24 @@
       @close-account="closeAccountModal" @save-account="handleAccountSave" @account-transferred="loadPortfolio"
       @close-institution="closeInstitutionModal" @save-institution="handleInstitutionSave"
       @close-delete="closeDeleteConfirm" @confirm-delete="handleConfirmDelete"
-      @close-credentials="closeCredentialsModal" @save-credential="handleCredentialSave"
+      @close-credentials="closeCredentialsModal" @save-credential="(p) => handleCredentialSave(p as CredentialFormPayload)"
       @edit-credential="handleCredentialEdit" @cancel-credential-edit="cancelCredentialEdit" @remove-credential="handleCredentialDelete"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, toRef } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import type { Account, Institution } from '@/models/WealthTrackDataModels';
 import { usePortfolio } from '@/composables/usePortfolio';
 import { useAccountGroups } from '@/composables/useAccountGroups';
-import { useCredentialsModal } from '@/composables/useCredentialsModal';
+import { useCredentialsModal, type CredentialFormPayload } from '@/composables/useCredentialsModal';
 import { useEventsModal } from '@/composables/useEventsModal';
 import { debug } from '@/utils/debug';
 import { useAccountCrudHandlers } from '@/composables/useAccountCrudHandlers';
 import { useInstitutionCrudHandlers } from '@/composables/useInstitutionCrudHandlers';
 import { useAccountGroupHandlers } from '@/composables/useAccountGroupHandlers';
-import type { ReferenceDataItem } from '@/models/ReferenceData';
 import { useAccountHubStats } from '@/composables/useAccountHubStats';
-import type { PensionBreakdown } from '@composables/portfolioCalculations';
 import { useFamilyTabs } from '@composables/useFamilyTabs';
 import { authState } from '@/modules/auth';
 import AccountHubStats from '@views/AccountHub/AccountHubStats.vue';
@@ -114,14 +112,13 @@ import { useHubEventHandlers } from '@/composables/useHubEventHandlers';
 import { useShareSaleModal } from '@/composables/useShareSaleModal';
 import { useHubReferenceData } from '@/composables/useHubReferenceData';
 import { usePortfolioGroups } from '@/composables/usePortfolioGroups';
-import { Icons } from '@/constants/icons';
 
 const { state, lastPriceUpdate, loadPortfolio, clearError } = usePortfolio();
 const { state: accountGroupsState, loadGroups, createGroup, updateGroup, deleteGroup, saveGroupMembers } = useAccountGroups();
 const grouped = ref(true); const groupByParent = ref(true);
 const { accountTypes, accountStatuses, institutionTypes, credentialTypes, lifeExpectancy, annuityRate } = useHubReferenceData();
 const { otherMembers, allMembers, activeMemberId, tableItems, activeInstitutions, memberGroups, memberGroupMembersMap, isLoadingMember, memberError, loadFamilyTabs, selectMember } =
-  useFamilyTabs(() => authState.user?.id ?? 0, () => ({ firstName: authState.user?.firstName ?? '', lastName: authState.user?.lastName ?? '' }), toRef(() => state.items));
+  useFamilyTabs(() => authState.user?.id ?? 0, () => ({ firstName: authState.user?.firstName ?? '', lastName: authState.user?.lastName ?? '' }), computed(() => state.items));
 const { hideClosed, visibleItems, totalValue, cashAtHand, isaSavings, illiquid, trustAssets, projectedAnnualYield, pensionBreakdown } =
   useAccountHubStats(tableItems, accountStatuses, lifeExpectancy, annuityRate);
 const institutionsToShow = computed<Institution[]>(() => activeInstitutions.value ?? state.institutions);

@@ -57,6 +57,7 @@ async def test_set_attribute_upsert(db_session: AsyncSession, user: UserProfile,
 
     # Update value
     attr = await repo.set_attribute_by_name(account.id, user.id, "opened_date", "2024-06-15")
+    assert attr is not None
     assert attr.value == "2024-06-15"
 
     # Verify only one attribute exists

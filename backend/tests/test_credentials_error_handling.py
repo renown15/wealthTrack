@@ -19,6 +19,7 @@ async def test_create_credential_invalid_institution(
     type_stmt = select(ReferenceData).where(ReferenceData.class_key == "credential_type")
     type_result = await db_session.execute(type_stmt)
     credential_type = type_result.scalars().first()
+    assert credential_type is not None
 
     response = await client.post(
         "/api/v1/institutions/99999/credentials",
@@ -63,6 +64,7 @@ async def test_update_credential_not_found(
     type_stmt = select(ReferenceData).where(ReferenceData.class_key == "credential_type")
     type_result = await db_session.execute(type_stmt)
     credential_type = type_result.scalars().first()
+    assert credential_type is not None
 
     response = await client.put(
         f"/api/v1/institutions/{institution.id}/credentials/99999",

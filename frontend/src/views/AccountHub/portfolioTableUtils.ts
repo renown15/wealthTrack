@@ -46,8 +46,8 @@ export interface GroupSummary {
   totalBalance: number;
   commonInstitution: string | null | undefined;
   commonAccountType: string | null | undefined;
-  commonInterestRate: string | number | null | undefined;
-  commonBonusRate: string | number | null | undefined;
+  commonInterestRate: string | null | undefined;
+  commonBonusRate: string | null | undefined;
   commonEndDate: string | null | undefined;
   commonBalanceUpdatedAt: string | undefined;
   totalEvents: number;

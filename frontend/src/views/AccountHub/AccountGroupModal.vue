@@ -61,7 +61,8 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import type { PortfolioItem, AccountGroup, ReferenceDataItem } from '@/models/WealthTrackDataModels';
+import type { PortfolioItem, AccountGroup } from '@/models/WealthTrackDataModels';
+import type { ReferenceDataItem } from '@/models/ReferenceData';
 import BaseModal from '@/components/BaseModal.vue';
 import AccountGroupMemberList from '@views/AccountHub/AccountGroupMemberList.vue';
 

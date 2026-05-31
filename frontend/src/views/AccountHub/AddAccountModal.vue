@@ -14,7 +14,7 @@
         v-if="resourceType === 'institution'"
         :model-value="{
           name: institutionFormData.name,
-          parentId: institutionFormData.parentId,
+          parentId: institutionFormData.parentId ?? undefined,
           institutionType: institutionFormData.institutionType,
         }"
         :institutions="institutions"
