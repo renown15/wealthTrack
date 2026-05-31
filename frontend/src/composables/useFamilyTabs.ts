@@ -19,6 +19,8 @@ export interface FamilyTabsResult {
   memberError: ComputedRef<string | null>;
   loadFamilyTabs: () => Promise<void>;
   selectMember: (id: TabMode) => void;
+  familyId: ComputedRef<number | null>;
+  reloadMemberPortfolio: (memberId: number) => Promise<void>;
 }
 
 interface CurrentUser {
@@ -33,6 +35,7 @@ export function useFamilyTabs(
 ): FamilyTabsResult {
   const { state, loadFamily, otherMembers, loadMemberPortfolio, loadAllMemberPortfolios } =
     useFamilyHub(getCurrentUserId);
+  const familyId = computed<number | null>(() => state.family?.id ?? null);
   const activeMemberId = ref<TabMode>(null);
 
   const allMembers = computed<FamilyMember[]>(() => {
@@ -119,5 +122,7 @@ export function useFamilyTabs(
     memberError,
     loadFamilyTabs: loadFamily,
     selectMember,
+    familyId,
+    reloadMemberPortfolio: loadMemberPortfolio,
   };
 }

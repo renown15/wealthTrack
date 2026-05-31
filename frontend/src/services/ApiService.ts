@@ -170,6 +170,13 @@ class ApiService extends ApiServiceBase {
     return familyService.getMemberPortfolio(familyId, memberId);
   }
 
+  async createFamilyMemberEvent(
+    familyId: number, memberId: number, accountId: number,
+    data: { event_type: string; value: string },
+  ): Promise<void> {
+    return familyService.createMemberEvent(familyId, memberId, accountId, data);
+  }
+
   async recordGift(accountId: number, data: RecordGiftRequest): Promise<RecordGiftResponse> {
     return giftService.recordGift(accountId, data);
   }

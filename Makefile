@@ -138,6 +138,7 @@ deploy-pi:
 	@rsync -av --exclude='.git' --exclude='node_modules' --exclude='backend/venv' \
 		--exclude='__pycache__' --exclude='*.pyc' --exclude='.env.*' \
 		--exclude='htmlcov' --exclude='.pytest_cache' --exclude='.mypy_cache' \
+		--exclude='frontend/coverage' --exclude='frontend/dist' \
 		. $(PI_USER)@$(PI_HOST):$(PI_DIR)/
 	@echo "Copying .env.pi..."
 	@scp .env.pi $(PI_USER)@$(PI_HOST):$(PI_DIR)/.env.pi
@@ -158,6 +159,7 @@ deploy-pi-code:
 	@rsync -av --exclude='.git' --exclude='node_modules' --exclude='backend/venv' \
 		--exclude='__pycache__' --exclude='*.pyc' --exclude='.env.*' \
 		--exclude='htmlcov' --exclude='.pytest_cache' --exclude='.mypy_cache' \
+		--exclude='frontend/coverage' --exclude='frontend/dist' \
 		. $(PI_USER)@$(PI_HOST):$(PI_DIR)/
 	@echo "Copying .env.pi..."
 	@scp .env.pi $(PI_USER)@$(PI_HOST):$(PI_DIR)/.env.pi

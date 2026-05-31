@@ -78,6 +78,22 @@ class FamilyService extends BaseApiClient {
     }
   }
 
+  async createMemberEvent(
+    familyId: number, memberId: number, accountId: number,
+    data: { event_type: string; value: string },
+  ): Promise<void> {
+    try {
+      await this.retryRequest(() =>
+        this.client.post(
+          `/api/v1/families/${familyId}/members/${memberId}/accounts/${accountId}/events`,
+          data,
+        ),
+      );
+    } catch (error) {
+      throw this.handleError(error, 'Failed to update member balance');
+    }
+  }
+
   async getMemberPortfolio(familyId: number, memberId: number): Promise<Portfolio> {
     try {
       const response = await this.retryRequest(() =>

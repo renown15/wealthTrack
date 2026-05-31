@@ -32,7 +32,7 @@
             @show-docs="(id, name) => activeMemberId === null && openDocsModal(id, name)"
             @edit-group="(id, name) => activeMemberId === null && openEditAccountGroupModal(id, name)"
             @delete-group="(g) => activeMemberId === null && handleDeleteGroup(g)"
-            @update-balance="(id, val) => activeMemberId === null && handleUpdateBalance(id, val)"
+            @update-balance="handleBalanceUpdate"
           />
         </div>
         <InstitutionsPanel
@@ -117,7 +117,7 @@ const { state, lastPriceUpdate, loadPortfolio, clearError } = usePortfolio();
 const { state: accountGroupsState, loadGroups, createGroup, updateGroup, deleteGroup, saveGroupMembers } = useAccountGroups();
 const grouped = ref(true); const groupByParent = ref(true);
 const { accountTypes, accountStatuses, institutionTypes, credentialTypes, lifeExpectancy, annuityRate } = useHubReferenceData();
-const { otherMembers, allMembers, activeMemberId, tableItems, activeInstitutions, memberGroups, memberGroupMembersMap, isLoadingMember, memberError, loadFamilyTabs, selectMember } =
+const { otherMembers, allMembers, activeMemberId, tableItems, activeInstitutions, memberGroups, memberGroupMembersMap, isLoadingMember, memberError, loadFamilyTabs, selectMember, familyId, reloadMemberPortfolio } =
   useFamilyTabs(() => authState.user?.id ?? 0, () => ({ firstName: authState.user?.firstName ?? '', lastName: authState.user?.lastName ?? '' }), computed(() => state.items));
 const { hideClosed, visibleItems, totalValue, cashAtHand, isaSavings, illiquid, trustAssets, projectedAnnualYield, pensionBreakdown } =
   useAccountHubStats(tableItems, accountStatuses, lifeExpectancy, annuityRate);
@@ -185,6 +185,20 @@ const handleConfirmDelete = async (): Promise<void> => {
   } catch (e) { state.error = e instanceof Error ? e.message : 'Failed to delete'; } finally { closeDeleteConfirm(); }
 };
 const { handleUpdateBalance, handleAddWin, handleSaveDividend, handleSaveGift, handleDeleteGift } = useHubEventHandlers(state, loadPortfolio, currentAccountId, accountType, openEventsModal);
+
+const handleBalanceUpdate = async (accountId: number, value: string): Promise<void> => {
+  const memberId = activeMemberId.value;
+  if (memberId !== null && memberId !== 'all' && familyId.value !== null) {
+    const grossValue = parseFloat(value);
+    if (Number.isNaN(grossValue)) { state.error = 'Invalid balance value'; return; }
+    try {
+      await apiService.createFamilyMemberEvent(familyId.value, memberId, accountId, { event_type: 'Balance', value: grossValue.toString() });
+      await reloadMemberPortfolio(memberId);
+    } catch (e) { state.error = e instanceof Error ? e.message : 'Failed to update balance'; }
+  } else {
+    await handleUpdateBalance(accountId, value);
+  }
+};
 const docsModalOpen = ref(false); const docsAccountId = ref(0); const docsAccountName = ref('');
 const openDocsModal = (id: number, name: string): void => { docsAccountId.value = id; docsAccountName.value = name; docsModalOpen.value = true; };
 </script>
