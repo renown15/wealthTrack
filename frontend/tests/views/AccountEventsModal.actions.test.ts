@@ -126,7 +126,7 @@ describe('AccountEventsModal – additional function coverage', () => {
         props: { open: true, title: 'T', events: [], loading: false, accountType: 'Premium Bonds' },
       });
       await wrapper.findAll('button').find(b => b.text() === 'Add Win')!.trigger('click');
-      expect(wrapper.find('input[type="number"]').exists()).toBe(true);
+      expect(wrapper.find('input[type="text"]').exists()).toBe(true);
     });
 
     it('emits addWin with amount and hides form', async () => {
@@ -134,10 +134,10 @@ describe('AccountEventsModal – additional function coverage', () => {
         props: { open: true, title: 'T', events: [], loading: false, accountType: 'Premium Bonds' },
       });
       await wrapper.findAll('button').find(b => b.text() === 'Add Win')!.trigger('click');
-      await wrapper.find('input[type="number"]').setValue('250');
+      await wrapper.find('input[type="text"]').setValue('250');
       await wrapper.findAll('button').find(b => b.text() === 'Save')!.trigger('click');
       expect(wrapper.emitted('addWin')?.[0]).toEqual(['250']);
-      expect(wrapper.find('input[type="number"]').exists()).toBe(false);
+      expect(wrapper.find('input[type="text"]').exists()).toBe(false);
     });
 
     it('cancelWin hides form without emitting', async () => {
@@ -146,7 +146,7 @@ describe('AccountEventsModal – additional function coverage', () => {
       });
       await wrapper.findAll('button').find(b => b.text() === 'Add Win')!.trigger('click');
       await wrapper.findAll('button').find(b => b.text() === 'Cancel')!.trigger('click');
-      expect(wrapper.find('input[type="number"]').exists()).toBe(false);
+      expect(wrapper.find('input[type="text"]').exists()).toBe(false);
       expect(wrapper.emitted('addWin')).toBeUndefined();
     });
   });

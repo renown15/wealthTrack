@@ -14,6 +14,11 @@ vi.mock('@/services/ApiService', () => ({
 
 vi.mock('@/utils/debug', () => ({ debug: { error: vi.fn(), log: vi.fn() } }));
 
+const mockShowError = vi.fn();
+vi.mock('@/composables/useToast', () => ({
+  useToast: () => ({ showError: mockShowError }),
+}));
+
 import { apiService } from '@services/ApiService';
 const api = vi.mocked(apiService);
 
@@ -31,6 +36,7 @@ describe('useHubEventHandlers', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockShowError.mockReset();
     state = makeState();
     loadPortfolio = vi.fn().mockResolvedValue(undefined);
     openEventsModal = vi.fn().mockResolvedValue(undefined);
@@ -51,7 +57,7 @@ describe('useHubEventHandlers', () => {
     it('calls createAccountEvent when no encumbrance', async () => {
       const { handleUpdateBalance } = handlers();
       await handleUpdateBalance(1, '2000');
-      expect(api.createAccountEvent).toHaveBeenCalledWith(1, { event_type: 'Balance', value: '2000' });
+      expect(api.createAccountEvent).toHaveBeenCalledWith(1, { eventType: 'Balance', value: '2000' });
     });
 
     it('updates latestBalance optimistically when item found', async () => {
@@ -68,18 +74,18 @@ describe('useHubEventHandlers', () => {
       expect(loadPortfolio).toHaveBeenCalled();
     });
 
-    it('sets state.error on NaN input', async () => {
+    it('shows toast error on NaN input', async () => {
       const { handleUpdateBalance } = handlers();
       await handleUpdateBalance(1, 'abc');
-      expect(state.error).toBe('Invalid balance value');
+      expect(mockShowError).toHaveBeenCalledWith('Invalid balance value');
       expect(api.createAccountEvent).not.toHaveBeenCalled();
     });
 
-    it('sets state.error on API failure', async () => {
+    it('shows toast error on API failure', async () => {
       api.createAccountEvent.mockRejectedValue(new Error('Network error'));
       const { handleUpdateBalance } = handlers();
       await handleUpdateBalance(1, '500');
-      expect(state.error).toBe('Network error');
+      expect(mockShowError).toHaveBeenCalledWith('Network error');
     });
   });
 
@@ -89,7 +95,7 @@ describe('useHubEventHandlers', () => {
     it('creates win event, reloads, opens events modal', async () => {
       const { handleAddWin } = handlers();
       await handleAddWin('250');
-      expect(api.createAccountEvent).toHaveBeenCalledWith(1, { event_type: 'Win', value: '250' });
+      expect(api.createAccountEvent).toHaveBeenCalledWith(1, { eventType: 'Win', value: '250' });
       expect(loadPortfolio).toHaveBeenCalled();
       expect(openEventsModal).toHaveBeenCalledWith(1, 'Current', 'Current Account');
     });

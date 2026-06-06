@@ -8,6 +8,7 @@ import type {
   AccountGroup,
   AccountGroupCreateRequest,
   AccountGroupUpdateRequest,
+  AccountEventCreateRequest,
 } from '@models/WealthTrackDataModels';
 import type { ShareSaleRequest, ShareSaleResponse, ShareSaleSummary } from '@models/ShareSaleModels';
 import type { Family, UserSummary } from '@models/family';
@@ -172,7 +173,7 @@ class ApiService extends ApiServiceBase {
 
   async createFamilyMemberEvent(
     familyId: number, memberId: number, accountId: number,
-    data: { event_type: string; value: string },
+    data: AccountEventCreateRequest,
   ): Promise<void> {
     return familyService.createMemberEvent(familyId, memberId, accountId, data);
   }

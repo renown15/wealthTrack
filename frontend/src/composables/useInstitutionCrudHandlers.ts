@@ -2,6 +2,7 @@ import { type Ref } from 'vue';
 import { usePortfolio } from '@/composables/usePortfolio';
 import type { Account, Institution } from '@/models/WealthTrackDataModels';
 import { debug } from '@/utils/debug';
+import { useToast } from '@/composables/useToast';
 
 export interface InstitutionSavePayload {
   name: string;
@@ -23,7 +24,8 @@ export function useInstitutionCrudHandlers(
   editingItem: Ref<Account | Institution | null>,
   closeModal: () => void
 ): UseInstitutionCrudHandlersReturn {
-  const { state, createInstitution, updateInstitution, deleteInstitution } =
+  const { showError } = useToast();
+  const { createInstitution, updateInstitution, deleteInstitution } =
     usePortfolio();
 
   const handleSave = async (payload: InstitutionSavePayload): Promise<void> => {
@@ -40,8 +42,7 @@ export function useInstitutionCrudHandlers(
       }
       closeModal();
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
-      state.error = errorMessage;
+      showError(error instanceof Error ? error.message : 'An error occurred');
     }
   };
 

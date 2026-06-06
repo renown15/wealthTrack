@@ -46,6 +46,7 @@
     "@vue/test-utils": "^2.4.3",
     "eslint": "^8.56.0",
     "happy-dom": "^12.10.3",
+    "openapi-typescript": "^7.13.0",
     "pg": "^8.18.0",
     "typescript": "^5.3.3",
     "unocss": "^66.6.0",

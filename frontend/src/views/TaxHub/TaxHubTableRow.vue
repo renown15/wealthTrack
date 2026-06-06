@@ -34,7 +34,7 @@
         @click="emit('showEvents', account)"
       >{{ account.eventCount }}</button>
     </td>
-    <td class="table-cell"><span class="font-medium">{{ account.documents.length }}</span></td>
+    <td class="table-cell"><span class="font-medium">{{ (account.documents ?? []).length }}</span></td>
     <td class="table-cell">
       <div class="actions-col">
         <button

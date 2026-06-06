@@ -67,8 +67,10 @@ def test_typescript_files_under_200_lines():
         return  # Frontend may not be present in all environments
 
     for ts_file in src_dir.rglob("*.ts"):
-        # Skip type definition files
+        # Skip type definition files and machine-generated files
         if ts_file.suffix == ".d.ts":
+            continue
+        if ts_file.name.endswith(".gen.ts"):
             continue
         if ts_file.name in TS_ALLOWLIST:
             continue
@@ -124,4 +126,81 @@ def test_typescript_test_files_under_200_lines():
 
     assert not violations, f"TypeScript test files exceed {max_lines} line limit:\n" + "\n".join(
         violations
+    )
+
+
+def test_no_state_error_in_portfolio_consumers():
+    """Composables that call usePortfolio() must not assign to state.error.
+
+    usePortfolio() creates a NEW reactive instance on every call — it is not a
+    singleton. Any composable that calls usePortfolio() independently gets its
+    own state, which is invisible to the template (which watches a different
+    instance). Writing state.error there is silently dropped.
+
+    Rule: if a file calls usePortfolio(), it must not assign to state.error.
+    Use showError() from useToast() for action errors instead.
+
+    Excluded: usePortfolio.ts (owns the state), portfolioCrudHandlers.ts
+    (receives state as a parameter, does not call usePortfolio()).
+    """
+    import re
+
+    composables_dir = (
+        pathlib.Path(__file__).parent.parent.parent / "frontend" / "src" / "composables"
+    )
+    violations = []
+
+    if not composables_dir.exists():
+        return
+
+    allowed = {"usePortfolio.ts"}
+
+    for ts_file in composables_dir.rglob("*.ts"):
+        if ts_file.name in allowed:
+            continue
+        content = ts_file.read_text(encoding="utf-8")
+        if "usePortfolio()" not in content:
+            continue
+        for i, line in enumerate(content.splitlines(), 1):
+            if re.search(r"\bstate\.error\s*=", line):
+                violations.append(f"{ts_file.name}:{i}: {line.strip()}")
+
+    assert not violations, (
+        "Composables that call usePortfolio() must not write state.error — "
+        "each call creates a separate reactive instance invisible to the template. "
+        "Use showError() from useToast() for action errors:\n" + "\n".join(violations)
+    )
+
+
+def test_no_type_number_inputs():
+    """Ban type="number" on inputs not explicitly using v-model.number.
+
+    Vue's v-model on type="number" coerces values to JS numbers at runtime,
+    silently breaking string fields and causing 422s from the backend.
+    Use type="text" inputmode="decimal" instead.
+
+    Allowed: v-model.number (explicit opt-in to numeric coercion).
+    """
+    import re
+
+    src_dir = pathlib.Path(__file__).parent.parent.parent / "frontend" / "src"
+    violations = []
+
+    if not src_dir.exists():
+        return
+
+    for vue_file in src_dir.rglob("*.vue"):
+        content = vue_file.read_text(encoding="utf-8")
+        # Match each <input .../> block (may span multiple lines)
+        for match in re.finditer(r"<input\b[^>]*/?>", content, re.DOTALL):
+            element = match.group()
+            if 'type="number"' in element and "v-model.number" not in element:
+                line_num = content[: match.start()].count("\n") + 1
+                rel = vue_file.relative_to(src_dir.parent)
+                violations.append(f"{rel}:{line_num}")
+
+    assert not violations, (
+        'Use type="text" inputmode="decimal" instead of type="number" — '
+        "Vue v-model coerces to JS number, silently breaking string fields:\n"
+        + "\n".join(violations)
     )

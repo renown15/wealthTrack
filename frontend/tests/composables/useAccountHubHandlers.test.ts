@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ref } from 'vue';
 import { useAccountHubHandlers } from '@composables/useAccountHubHandlers';
 
-const mockState = { error: null as string | null };
 const mockCreate = vi.fn();
 const mockUpdate = vi.fn();
 const mockDelete = vi.fn();
@@ -21,7 +20,6 @@ const mockCloseDeleteConfirm = vi.fn();
 
 vi.mock('@/composables/usePortfolio', () => ({
   usePortfolio: () => ({
-    state: mockState,
     createAccount: mockCreate,
     updateAccount: mockUpdate,
     deleteAccount: mockDelete,
@@ -30,6 +28,11 @@ vi.mock('@/composables/usePortfolio', () => ({
     deleteInstitution: mockDeleteInst,
     loadPortfolio: mockLoad,
   }),
+}));
+
+const mockShowError = vi.fn();
+vi.mock('@/composables/useToast', () => ({
+  useToast: () => ({ showError: mockShowError }),
 }));
 
 vi.mock('@/composables/useAccountHubModals', () => ({
@@ -62,7 +65,6 @@ describe('useAccountHubHandlers', () => {
     mockDeleteInst.mockResolvedValue(undefined);
     mockLoad.mockResolvedValue(undefined);
     mockDates.mockResolvedValue(undefined);
-    mockState.error = null;
     mockModalResourceType.value = 'account';
     mockModalType.value = 'create';
     mockEditingItem.value = null;
@@ -82,12 +84,12 @@ describe('useAccountHubHandlers', () => {
       expect(mockCloseModal).toHaveBeenCalled();
     });
 
-    it('sets error when typeId/statusId unavailable', async () => {
+    it('shows toast error when typeId/statusId unavailable', async () => {
       mockModalResourceType.value = 'account';
       mockModalType.value = 'create';
       const { handleSave } = useAccountHubHandlers();
       await handleSave({ name: 'New', institutionId: 2 });
-      expect(mockState.error).toBe('Select valid type and status');
+      expect(mockShowError).toHaveBeenCalledWith('Select valid type and status');
     });
   });
 

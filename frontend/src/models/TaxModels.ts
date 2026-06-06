@@ -1,68 +1,18 @@
 /**
  * TypeScript models for the Tax Hub feature.
+ * Types sourced from generated API spec — run 'make generate-api-types' after backend schema changes.
  */
+import type { components } from '@/types/api.gen';
 
-export interface TaxPeriod {
-  id: number;
-  userId: number;
-  name: string;
-  startDate: string; // ISO date string
-  endDate: string;   // ISO date string
-  accountGroupId: number | null;
-  createdAt: string;
-  updatedAt: string;
-}
+export type TaxPeriod = components['schemas']['TaxPeriodResponse'];
+export type TaxPeriodCreateRequest = components['schemas']['TaxPeriodCreate'];
+export type TaxReturn = components['schemas']['TaxReturnResponse'];
+export type TaxReturnUpsertRequest = components['schemas']['TaxReturnUpsert'];
+export type TaxDocument = components['schemas']['TaxDocumentResponse'];
+export type TaxPeriodAccountsResponse = components['schemas']['TaxPeriodAccountsResponse'];
 
-export interface TaxPeriodCreateRequest {
-  name: string;
-  startDate: string;
-  endDate: string;
-}
-
-export interface TaxReturn {
-  id: number;
-  accountId: number;
-  taxPeriodId: number;
-  income: number | null;
-  capitalGain: number | null;
-  taxTakenOff: number | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface TaxReturnUpsertRequest {
-  income: number | null;
-  capitalGain: number | null;
-  taxTakenOff: number | null;
-}
-
-export interface TaxDocument {
-  id: number;
-  taxReturnId: number;
-  filename: string;
-  contentType: string | null;
-  createdAt: string;
-}
-
-export interface TaxPeriodAccountsResponse {
-  accountGroupId: number | null;
-  inScope: EligibleAccount[];
-  eligible: EligibleAccount[];
-}
-
-export interface EligibleAccount {
-  accountId: number;
-  accountName: string;
-  accountType: string;
-  institutionName: string | null;
-  interestRate: string | null;
-  accountStatus: string | null;
-  accountNumber: string | null;
-  sortCode: string | null;
-  rollRefNumber: string | null;
+// EligibleAccount — keeps the specific eligibilityReason union type for template safety.
+// The generated type uses 'string'; override here preserves exhaustive checks.
+export type EligibleAccount = Omit<components['schemas']['EligibleAccountResponse'], 'eligibilityReason'> & {
   eligibilityReason: 'interest_bearing' | 'sold_in_period' | 'dividend_income' | 'in_scope' | 'tax_liability';
-  eventCount: number;
-  firstBalanceDate: string | null;
-  taxReturn: TaxReturn | null;
-  documents: TaxDocument[];
-}
+};

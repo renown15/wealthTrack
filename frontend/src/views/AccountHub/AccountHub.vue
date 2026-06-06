@@ -192,7 +192,7 @@ const handleBalanceUpdate = async (accountId: number, value: string): Promise<vo
     const grossValue = parseFloat(value);
     if (Number.isNaN(grossValue)) { state.error = 'Invalid balance value'; return; }
     try {
-      await apiService.createFamilyMemberEvent(familyId.value, memberId, accountId, { event_type: 'Balance', value: grossValue.toString() });
+      await apiService.createFamilyMemberEvent(familyId.value, memberId, accountId, { eventType: 'Balance', value: grossValue.toString() });
       await reloadMemberPortfolio(memberId);
     } catch (e) { state.error = e instanceof Error ? e.message : 'Failed to update balance'; }
   } else {

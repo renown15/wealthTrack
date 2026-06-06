@@ -2,18 +2,21 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ref } from 'vue';
 import { useInstitutionCrudHandlers } from '@composables/useInstitutionCrudHandlers';
 
-const mockState = { error: null as string | null };
 const mockCreate = vi.fn();
 const mockUpdate = vi.fn();
 const mockDelete = vi.fn();
 
 vi.mock('@/composables/usePortfolio', () => ({
   usePortfolio: () => ({
-    state: mockState,
     createInstitution: mockCreate,
     updateInstitution: mockUpdate,
     deleteInstitution: mockDelete,
   }),
+}));
+
+const mockShowError = vi.fn();
+vi.mock('@/composables/useToast', () => ({
+  useToast: () => ({ showError: mockShowError }),
 }));
 
 const mockInstitution = {
@@ -27,7 +30,6 @@ describe('useInstitutionCrudHandlers', () => {
     mockCreate.mockResolvedValue(undefined);
     mockUpdate.mockResolvedValue(undefined);
     mockDelete.mockResolvedValue(undefined);
-    mockState.error = null;
   });
 
   describe('handleSave', () => {
@@ -68,7 +70,7 @@ describe('useInstitutionCrudHandlers', () => {
       expect(closeModal).toHaveBeenCalled();
     });
 
-    it('sets state.error on thrown error', async () => {
+    it('shows toast error on thrown error', async () => {
       mockCreate.mockRejectedValue(new Error('Server error'));
       const modalType = ref<'create' | 'edit'>('create');
       const editingItem = ref(null);
@@ -77,7 +79,7 @@ describe('useInstitutionCrudHandlers', () => {
 
       await handleSave({ name: 'Fail' });
 
-      expect(mockState.error).toBe('Server error');
+      expect(mockShowError).toHaveBeenCalledWith('Server error');
     });
   });
 

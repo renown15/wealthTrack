@@ -8,7 +8,7 @@
     <div v-if="fieldConfig.showNumberOfShares && fieldConfig.showUnderlying" class="grid grid-cols-2 gap-4">
       <div class="form-group">
         <label for="numberOfShares" class="form-label">Number of Shares</label>
-        <input id="numberOfShares" v-model="formData.numberOfShares" type="number" min="1" step="1" class="form-input" placeholder="e.g., 1000" />
+        <input id="numberOfShares" v-model="formData.numberOfShares" type="text" inputmode="decimal" class="form-input" placeholder="e.g., 1000" />
       </div>
       <div class="form-group">
         <label for="underlying" class="form-label">Underlying</label>
@@ -18,28 +18,28 @@
 
     <div v-if="fieldConfig.showNumberOfShares && !fieldConfig.showUnderlying" class="form-group">
       <label for="numberOfShares" class="form-label">Number of Shares</label>
-      <input id="numberOfShares" v-model="formData.numberOfShares" type="number" min="1" step="1" class="form-input" placeholder="e.g., 1000" />
+      <input id="numberOfShares" v-model="formData.numberOfShares" type="text" inputmode="decimal" class="form-input" placeholder="e.g., 1000" />
     </div>
 
     <div v-if="fieldConfig.showPrice && fieldConfig.showPurchasePrice" class="grid grid-cols-2 gap-4">
       <div class="form-group">
         <label for="price" class="form-label">Price (pence)</label>
-        <input id="price" v-model="formData.price" type="number" min="1" step="1" class="form-input" placeholder="e.g., 5000" />
+        <input id="price" v-model="formData.price" type="text" inputmode="decimal" class="form-input" placeholder="e.g., 5000" />
       </div>
       <div class="form-group">
         <label for="purchasePrice" class="form-label">Purchase Price (pence)</label>
-        <input id="purchasePrice" v-model="formData.purchasePrice" type="number" min="1" step="1" class="form-input" placeholder="e.g., 1000" />
+        <input id="purchasePrice" v-model="formData.purchasePrice" type="text" inputmode="decimal" class="form-input" placeholder="e.g., 1000" />
       </div>
     </div>
 
     <div v-if="fieldConfig.showPrice && !fieldConfig.showPurchasePrice" class="form-group">
       <label for="price" class="form-label">Price (pence)</label>
-      <input id="price" v-model="formData.price" type="number" min="1" step="1" class="form-input" placeholder="e.g., 5000" />
+      <input id="price" v-model="formData.price" type="text" inputmode="decimal" class="form-input" placeholder="e.g., 5000" />
     </div>
 
     <div v-if="fieldConfig.showPensionMonthlyPayment" class="form-group">
       <label for="pensionMonthlyPayment" class="form-label">Pension Amount</label>
-      <input id="pensionMonthlyPayment" v-model="formData.pensionMonthlyPayment" type="number" min="0" step="0.01" class="form-input" placeholder="e.g., 500.00" />
+      <input id="pensionMonthlyPayment" v-model="formData.pensionMonthlyPayment" type="text" inputmode="decimal" class="form-input" placeholder="e.g., 500.00" />
     </div>
 
     <div v-if="fieldConfig.showEncumbrance" class="mt-2">
@@ -63,7 +63,7 @@
       </div>
       <div v-if="encumbranceEnabled" class="form-group mt-3">
         <label for="encumbrance" class="form-label">Encumbrance Amount (£)</label>
-        <input id="encumbrance" v-model="formData.encumbrance" type="number" min="0" step="0.01" class="form-input" placeholder="e.g., 5000.00" />
+        <input id="encumbrance" v-model="formData.encumbrance" type="text" inputmode="decimal" class="form-input" placeholder="e.g., 5000.00" />
       </div>
     </div>
   </div>

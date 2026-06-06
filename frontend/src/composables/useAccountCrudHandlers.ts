@@ -4,6 +4,7 @@ import { accountCrudService } from '@/services/AccountCrudService';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 import type { Account, Institution } from '@/models/WealthTrackDataModels';
 import { debug } from '@/utils/debug';
+import { useToast } from '@/composables/useToast';
 
 export interface AccountSavePayload {
   name: string;
@@ -48,8 +49,9 @@ export function useAccountCrudHandlers(
   editingItem: Ref<Account | Institution | null>,
   closeModal: () => void
 ): UseAccountCrudHandlersReturn {
-  const { state, createAccount, updateAccount, deleteAccount, loadPortfolio } =
+  const { createAccount, updateAccount, deleteAccount, loadPortfolio } =
     usePortfolio();
+  const { showError } = useToast();
 
   const handleSave = async (payload: AccountSavePayload): Promise<void> => {
     try {
@@ -57,7 +59,7 @@ export function useAccountCrudHandlers(
         const tId = payload.typeId ?? accountTypes.value[0]?.id;
         const sId = payload.statusId ?? accountStatuses.value[0]?.id;
         if (!tId || !sId) {
-          state.error = 'Select valid type and status';
+          showError('Select valid type and status');
           return;
         }
         await createAccount(
@@ -120,7 +122,7 @@ export function useAccountCrudHandlers(
       closeModal();
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred';
-      state.error = errorMessage;
+      showError(errorMessage);
     }
   };
 

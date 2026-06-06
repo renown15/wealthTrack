@@ -1,4 +1,5 @@
 /** WealthTrack core data models */
+import type { components } from '@/types/api.gen';
 export interface Account {
   id: number;
   userId: number;
@@ -101,74 +102,15 @@ export interface AccountGroupMember {
 
 export interface Portfolio { items: PortfolioItem[]; totalValue: number; accountCount: number; lastPriceUpdate?: string | null; groups?: AccountGroup[]; groupMembers?: Record<number, number[]>; }
 
-export interface AccountCreateRequest {
-  institutionId: number;
-  name: string;
-  typeId?: number;
-  statusId?: number;
-  accountNumber?: string;
-  sortCode?: string;
-  rollRefNumber?: string;
-  interestRate?: string;
-  fixedBonusRate?: string;
-  fixedBonusRateEndDate?: string;
-  releaseDate?: string;
-  numberOfShares?: string;
-  underlying?: string;
-  price?: string;
-  purchasePrice?: string;
-  pensionMonthlyPayment?: string;
-  assetClass?: string;
-  encumbrance?: string;
-  taxYear?: string;
-}
-
-export interface AccountUpdateRequest {
-  name?: string;
-  typeId?: number;
-  statusId?: number;
-  accountNumber?: string;
-  sortCode?: string;
-  rollRefNumber?: string;
-  interestRate?: string;
-  fixedBonusRate?: string;
-  fixedBonusRateEndDate?: string;
-  releaseDate?: string;
-  numberOfShares?: string;
-  underlying?: string;
-  price?: string;
-  purchasePrice?: string;
-  pensionMonthlyPayment?: string;
-  assetClass?: string;
-  encumbrance?: string;
-  newGrossBalance?: string;
-  taxYear?: string;
-}
-
-export interface InstitutionCreateRequest {
-  name: string;
-  parentId?: number | null;
-  institutionType?: string | null;
-}
-
-export interface InstitutionUpdateRequest {
-  name?: string;
-  parentId?: number | null;
-  institutionType?: string | null;
-}
-
-export interface AccountEventCreateRequest {
-  event_type: string;
-  value: string;
-}
-
-export interface AccountGroupCreateRequest {
-  name: string;
-}
-
-export interface AccountGroupUpdateRequest {
-  name: string;
-}
+// Request types — sourced from the generated API spec (frontend/src/types/api.gen.ts).
+// Run 'make generate-api-types' after changing backend schemas, then 'make pr-check'.
+export type AccountCreateRequest = components['schemas']['AccountCreate'];
+export type AccountUpdateRequest = components['schemas']['AccountUpdate'];
+export type InstitutionCreateRequest = components['schemas']['InstitutionCreate'];
+export type InstitutionUpdateRequest = components['schemas']['InstitutionUpdate'];
+export type AccountEventCreateRequest = components['schemas']['AccountEventCreate'];
+export type AccountGroupCreateRequest = components['schemas']['AccountGroupCreate'];
+export type AccountGroupUpdateRequest = components['schemas']['AccountGroupUpdate'];
 
 export interface AccountDetail {
   accountId: number;

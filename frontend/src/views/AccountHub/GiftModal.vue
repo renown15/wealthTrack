@@ -17,11 +17,11 @@
         </div>
         <div class="form-field">
           <label class="form-label">Gift Value (£)</label>
-          <input v-model="form.giftValueGbp" type="number" step="0.01" min="0" class="form-input" placeholder="0.00" />
+          <input v-model="form.giftValueGbp" type="text" inputmode="decimal" class="form-input" placeholder="0.00" />
         </div>
         <div v-if="isShares" class="form-field">
           <label class="form-label">Number of Shares</label>
-          <input v-model="form.numShares" type="number" step="0.0001" min="0" class="form-input" placeholder="0" />
+          <input v-model="form.numShares" type="text" inputmode="decimal" class="form-input" placeholder="0" />
         </div>
       </div>
 

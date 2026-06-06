@@ -33,7 +33,8 @@
             <div class="flex gap-2">
               <input
                 v-model="winAmount"
-                type="number"
+                type="text"
+                inputmode="decimal"
                 placeholder="Enter win amount (£)"
                 class="flex-1 px-3 py-2 border border-border rounded"
                 step="0.01"

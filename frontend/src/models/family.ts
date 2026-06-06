@@ -1,26 +1,9 @@
-/** Family wealth management data models */
+/**
+ * Family wealth management data models.
+ * Types sourced from generated API spec — run 'make generate-api-types' after backend schema changes.
+ */
+import type { components } from '@/types/api.gen';
 
-export interface FamilyMember {
-  id: number;
-  accountId: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-}
-
-export interface Family {
-  id: number;
-  name: string;
-  ownerId: number;
-  isOwner: boolean;
-  members: FamilyMember[];
-  createdAt: string;
-  updatedAt: string | null;
-}
-
-export interface UserSummary {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-}
+export type FamilyMember = components['schemas']['FamilyMemberResponse'];
+export type Family = components['schemas']['FamilyResponse'];
+export type UserSummary = components['schemas']['UserSummaryResponse'];

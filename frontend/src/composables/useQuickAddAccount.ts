@@ -40,6 +40,10 @@ export function useQuickAddAccount(): {
   }
 
   async function createClosedAccount(data: AccountFormData): Promise<number | null> {
+    if (!data.typeId || !data.statusId) {
+      showError('Select valid type and status');
+      return null;
+    }
     saving.value = true;
     try {
       const account = await apiService.createAccount({

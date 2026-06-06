@@ -3,6 +3,7 @@ import { usePortfolio } from '@/composables/usePortfolio';
 import { useAccountHubModals } from '@/composables/useAccountHubModals';
 import { accountCrudService } from '@/services/AccountCrudService';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
+import { useToast } from '@/composables/useToast';
 
 interface SavePayload {
   name: string;
@@ -29,8 +30,9 @@ export function useAccountHubHandlers(): {
   const accountTypes = ref<ReferenceDataItem[]>([]);
   const accountStatuses = ref<ReferenceDataItem[]>([]);
 
+  const { showError } = useToast();
+
   const {
-    state,
     createAccount,
     updateAccount,
     deleteAccount,
@@ -57,7 +59,7 @@ export function useAccountHubHandlers(): {
           const tId = payload.typeId ?? accountTypes.value[0]?.id;
           const sId = payload.statusId ?? accountStatuses.value[0]?.id;
           if (!tId || !sId) {
-            state.error = 'Select valid type and status';
+            showError('Select valid type and status');
             return;
           }
           await createAccount(
@@ -102,8 +104,7 @@ export function useAccountHubHandlers(): {
       }
       closeModal();
     } catch (error) {
-      state.error =
-        error instanceof Error ? error.message : 'An error occurred';
+      showError(error instanceof Error ? error.message : 'An error occurred');
     }
   };
 
@@ -115,8 +116,8 @@ export function useAccountHubHandlers(): {
         await deleteInstitution(deleteConfirmId.value);
       }
       closeDeleteConfirm();
-    } catch {
-      /* error set in state */
+    } catch (error) {
+      showError(error instanceof Error ? error.message : 'Failed to delete');
     }
   };
 

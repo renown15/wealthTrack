@@ -1,7 +1,7 @@
 # WealthTrack Development Makefile
 # Provides convenient commands for common development tasks
 
-.PHONY: help setup dev backend-dev frontend-dev local-prod stop-dev stop-prod test lint type-check format clean docker-up docker-down build-frontend tail-backend tail-frontend pi-setup deploy-pi deploy-pi-code sync-db-to-pi sync-db-from-pi deploy-windows dump-db
+.PHONY: help setup dev backend-dev frontend-dev local-prod stop-dev stop-prod test lint type-check format clean docker-up docker-down build-frontend tail-backend tail-frontend pi-setup deploy-pi deploy-pi-code sync-db-to-pi sync-db-from-pi deploy-windows dump-db check-pi-log-backend check-pi-log-frontend generate-api-types
 
 help:
 	@echo "WealthTrack Development Commands"
@@ -128,6 +128,12 @@ pi-setup:
 	else \
 		echo "Run 'make deploy-pi' to deploy."; \
 	fi
+
+check-pi-log-backend:
+	@ssh $(PI_USER)@$(PI_HOST) "cd $(PI_DIR) && docker compose --env-file .env.pi --profile prod logs --tail=100 -f backend"
+
+check-pi-log-frontend:
+	@ssh $(PI_USER)@$(PI_HOST) "cd $(PI_DIR) && docker compose --env-file .env.pi --profile prod logs --tail=100 -f frontend"
 
 deploy-pi:
 	@if [ ! -f .env.pi ]; then \
@@ -488,6 +494,10 @@ lint-fix-backend:
 lint-fix-frontend:
 	@echo "Auto-fixing frontend linting issues..."
 	cd frontend && npm run lint -- --fix
+
+generate-api-types:
+	@echo "Generating TypeScript types from backend OpenAPI spec..."
+	@python3 scripts/generate-api-types.py
 
 type-check: type-check-backend type-check-frontend
 	@echo "✅ Type checking passed!"

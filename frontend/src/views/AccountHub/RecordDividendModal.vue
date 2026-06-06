@@ -13,7 +13,7 @@
         </div>
         <div class="form-field">
           <label class="form-label">Amount (£)</label>
-          <input v-model="form.amount" type="number" step="0.01" min="0" class="form-input" placeholder="0.00" />
+          <input v-model="form.amount" type="text" inputmode="decimal" class="form-input" placeholder="0.00" />
         </div>
       </div>
 

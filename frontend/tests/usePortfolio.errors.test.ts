@@ -30,12 +30,9 @@ describe('usePortfolio', () => {
   describe('error handling', () => {
     it('should handle Error object in createAccount', async () => {
       const mockError = new Error('Network error');
-      const { state, createAccount } = usePortfolio();
+      const { createAccount } = usePortfolio();
       mockApiService.createAccount.mockRejectedValue(mockError);
-      try {
-        await createAccount(1, 'Test');
-      } catch {}
-      expect(state.error).toBe('Network error');
+      await expect(createAccount(1, 'Test')).rejects.toThrow('Network error');
     });
 
     it('should handle Error object in updateAccount catch', async () => {

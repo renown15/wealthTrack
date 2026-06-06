@@ -7,8 +7,8 @@ import { apiService } from '@/services/ApiService';
 export interface AccountCreatePayload {
   institutionId: number;
   name: string;
-  typeId?: number;
-  statusId?: number;
+  typeId: number;
+  statusId: number;
   accountNumber?: string;
   sortCode?: string;
   rollRefNumber?: string;

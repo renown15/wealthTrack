@@ -42,35 +42,30 @@ export function createPortfolioCrudHandlers(
     encumbrance?: string,
     taxYear?: string,
   ): Promise<void> => {
-    try {
-      state.error = null;
-      const payload: AccountCreatePayload = {
-        institutionId,
-        name,
-        typeId,
-        statusId,
-        accountNumber,
-        sortCode,
-        rollRefNumber,
-        interestRate,
-        fixedBonusRate,
-        fixedBonusRateEndDate,
-        releaseDate,
-        numberOfShares,
-        underlying,
-        price,
-        purchasePrice,
-        pensionMonthlyPayment,
-        assetClass,
-        encumbrance,
-        taxYear,
-      };
-      await createAccountOp(payload);
-      await loadPortfolio();
-    } catch (error) {
-      state.error = error instanceof Error ? error.message : 'Failed to create account';
-      throw error;
-    }
+    state.error = null;
+    const payload: AccountCreatePayload = {
+      institutionId,
+      name,
+      typeId,
+      statusId,
+      accountNumber,
+      sortCode,
+      rollRefNumber,
+      interestRate,
+      fixedBonusRate,
+      fixedBonusRateEndDate,
+      releaseDate,
+      numberOfShares,
+      underlying,
+      price,
+      purchasePrice,
+      pensionMonthlyPayment,
+      assetClass,
+      encumbrance,
+      taxYear,
+    };
+    await createAccountOp(payload);
+    await loadPortfolio();
   };
 
   const updateAccount = async (
@@ -94,45 +89,35 @@ export function createPortfolioCrudHandlers(
     encumbrance?: string,
     taxYear?: string,
   ): Promise<void> => {
-    try {
-      state.error = null;
-      const payload: AccountUpdatePayload = {
-        name,
-        typeId,
-        statusId,
-        accountNumber,
-        sortCode,
-        rollRefNumber,
-        interestRate,
-        fixedBonusRate,
-        fixedBonusRateEndDate,
-        releaseDate,
-        numberOfShares,
-        underlying,
-        price,
-        purchasePrice,
-        pensionMonthlyPayment,
-        assetClass,
-        encumbrance,
-        taxYear,
-      };
-      await updateAccountOp(accountId, payload);
-      await loadPortfolio();
-    } catch (error) {
-      state.error = error instanceof Error ? error.message : 'Failed to update account';
-      throw error;
-    }
+    state.error = null;
+    const payload: AccountUpdatePayload = {
+      name,
+      typeId,
+      statusId,
+      accountNumber,
+      sortCode,
+      rollRefNumber,
+      interestRate,
+      fixedBonusRate,
+      fixedBonusRateEndDate,
+      releaseDate,
+      numberOfShares,
+      underlying,
+      price,
+      purchasePrice,
+      pensionMonthlyPayment,
+      assetClass,
+      encumbrance,
+      taxYear,
+    };
+    await updateAccountOp(accountId, payload);
+    await loadPortfolio();
   };
 
   const deleteAccount = async (accountId: number): Promise<void> => {
-    try {
-      state.error = null;
-      await deleteAccountOp(accountId);
-      await loadPortfolio();
-    } catch (error) {
-      state.error = error instanceof Error ? error.message : 'Failed to delete account';
-      throw error;
-    }
+    state.error = null;
+    await deleteAccountOp(accountId);
+    await loadPortfolio();
   };
 
   const createInstitution = async (
@@ -140,14 +125,9 @@ export function createPortfolioCrudHandlers(
     parentId: number | null = null,
     institutionType: string | null = null,
   ): Promise<void> => {
-    try {
-      state.error = null;
-      await createInstitutionOp(name, parentId, institutionType);
-      await loadPortfolio();
-    } catch (error) {
-      state.error = error instanceof Error ? error.message : 'Failed to create institution';
-      throw error;
-    }
+    state.error = null;
+    await createInstitutionOp(name, parentId, institutionType);
+    await loadPortfolio();
   };
 
   const updateInstitution = async (
@@ -156,25 +136,15 @@ export function createPortfolioCrudHandlers(
     parentId: number | null = null,
     institutionType: string | null = null,
   ): Promise<void> => {
-    try {
-      state.error = null;
-      await updateInstitutionOp(institutionId, name, parentId, institutionType);
-      await loadPortfolio();
-    } catch (error) {
-      state.error = error instanceof Error ? error.message : 'Failed to update institution';
-      throw error;
-    }
+    state.error = null;
+    await updateInstitutionOp(institutionId, name, parentId, institutionType);
+    await loadPortfolio();
   };
 
   const deleteInstitution = async (institutionId: number): Promise<void> => {
-    try {
-      state.error = null;
-      await deleteInstitutionOp(institutionId);
-      await loadPortfolio();
-    } catch (error) {
-      state.error = error instanceof Error ? error.message : 'Failed to delete institution';
-      throw error;
-    }
+    state.error = null;
+    await deleteInstitutionOp(institutionId);
+    await loadPortfolio();
   };
 
   const clearError = (): void => {

@@ -36,12 +36,12 @@
 
           <div class="form-group">
             <label class="form-label">Shares sold</label>
-            <input v-model="sharesSold" type="number" class="form-input" placeholder="e.g. 100" min="0" step="1" />
+            <input v-model="sharesSold" type="text" inputmode="decimal" class="form-input" placeholder="e.g. 100" />
           </div>
 
           <div class="form-group">
             <label class="form-label">Sale price per share (pence)</label>
-            <input v-model="salePricePerShare" type="number" class="form-input" placeholder="e.g. 15432" min="0" step="1" />
+            <input v-model="salePricePerShare" type="text" inputmode="decimal" class="form-input" placeholder="e.g. 15432" />
           </div>
 
           <div class="form-group">

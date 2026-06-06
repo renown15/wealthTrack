@@ -118,17 +118,17 @@
 
     <div v-if="!props.closedAccountMode && getFieldConfig.showInterestRate && !getFieldConfig.showFixedBonusRate" class="form-group">
       <label for="interestRate" class="form-label">Interest Rate (%)</label>
-      <input id="interestRate" v-model="formData.interestRate" type="number" min="0" max="100" step="0.01" class="form-input" placeholder="e.g., 2.5" />
+      <input id="interestRate" v-model="formData.interestRate" type="text" inputmode="decimal" class="form-input" placeholder="e.g., 2.5" />
     </div>
 
     <div v-if="!props.closedAccountMode && getFieldConfig.showInterestRate && getFieldConfig.showFixedBonusRate" class="grid grid-cols-2 gap-4">
       <div class="form-group">
         <label for="interestRate" class="form-label">Interest Rate (%)</label>
-        <input id="interestRate" v-model="formData.interestRate" type="number" min="0" max="100" step="0.01" class="form-input" placeholder="e.g., 2.5" />
+        <input id="interestRate" v-model="formData.interestRate" type="text" inputmode="decimal" class="form-input" placeholder="e.g., 2.5" />
       </div>
       <div class="form-group">
         <label for="fixedBonusRate" class="form-label">Fixed / Bonus Rate (%)</label>
-        <input id="fixedBonusRate" v-model="formData.fixedBonusRate" type="number" min="0" max="100" step="0.01" class="form-input" placeholder="e.g., 4.5" />
+        <input id="fixedBonusRate" v-model="formData.fixedBonusRate" type="text" inputmode="decimal" class="form-input" placeholder="e.g., 4.5" />
       </div>
     </div>
 

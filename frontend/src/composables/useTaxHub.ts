@@ -38,9 +38,9 @@ export function useTaxHub(): {
     error.value = null;
     try {
       const result = await apiService.getTaxEligibleAccounts(periodId);
-      inScope.value = result.inScope;
-      eligible.value = result.eligible;
-      accountGroupId.value = result.accountGroupId;
+      inScope.value = (result.inScope ?? []) as EligibleAccount[];
+      eligible.value = (result.eligible ?? []) as EligibleAccount[];
+      accountGroupId.value = result.accountGroupId ?? null;
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to load accounts';
     } finally {
@@ -77,7 +77,7 @@ export function useTaxHub(): {
   ): Promise<TaxDocument | null> {
     try {
       const doc = await apiService.uploadTaxDocument(periodId, accountId, file);
-      updateAccount(accountId, (a) => ({ ...a, documents: [...a.documents, doc] }));
+      updateAccount(accountId, (a) => ({ ...a, documents: [...(a.documents ?? []), doc] }));
       return doc;
     } catch (err) {
       showError(err instanceof Error ? err.message : 'Failed to upload document');
@@ -109,7 +109,7 @@ export function useTaxHub(): {
   async function deleteDocument(_periodId: number, accountId: number, docId: number): Promise<void> {
     try {
       await apiService.deleteTaxDocument(docId);
-      updateAccount(accountId, (a) => ({ ...a, documents: a.documents.filter((d) => d.id !== docId) }));
+      updateAccount(accountId, (a) => ({ ...a, documents: (a.documents ?? []).filter((d) => d.id !== docId) }));
     } catch (err) {
       showError(err instanceof Error ? err.message : 'Failed to delete document');
     }

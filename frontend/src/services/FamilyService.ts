@@ -1,6 +1,6 @@
 /** API client for family management endpoints */
 import type { Family, UserSummary } from '@models/family';
-import type { Portfolio } from '@models/WealthTrackDataModels';
+import type { AccountEventCreateRequest, Portfolio } from '@models/WealthTrackDataModels';
 import { BaseApiClient } from '@services/BaseApiClient';
 
 class FamilyService extends BaseApiClient {
@@ -80,7 +80,7 @@ class FamilyService extends BaseApiClient {
 
   async createMemberEvent(
     familyId: number, memberId: number, accountId: number,
-    data: { event_type: string; value: string },
+    data: AccountEventCreateRequest,
   ): Promise<void> {
     try {
       await this.retryRequest(() =>

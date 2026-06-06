@@ -29,7 +29,7 @@
                   <button
                     class="btn-icon inline-flex items-center justify-center w-7 h-7 text-xs rounded border-none cursor-pointer bg-gray-100 text-gray-600 hover:bg-gray-200"
                     title="View"
-                    @click="emit('preview', doc.id, doc.filename, doc.contentType)"
+                    @click="emit('preview', doc.id, doc.filename, doc.contentType ?? null)"
                   >{{ Icons.eye }}</button>
                   <button
                     class="btn-icon inline-flex items-center justify-center w-7 h-7 text-xs rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200"

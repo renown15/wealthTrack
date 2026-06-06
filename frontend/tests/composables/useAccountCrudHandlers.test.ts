@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ref } from 'vue';
 import { useAccountCrudHandlers } from '@composables/useAccountCrudHandlers';
 
-const mockState = { error: null as string | null };
 const mockCreate = vi.fn();
 const mockUpdate = vi.fn();
 const mockDelete = vi.fn();
@@ -10,12 +9,16 @@ const mockLoad = vi.fn();
 
 vi.mock('@/composables/usePortfolio', () => ({
   usePortfolio: () => ({
-    state: mockState,
     createAccount: mockCreate,
     updateAccount: mockUpdate,
     deleteAccount: mockDelete,
     loadPortfolio: mockLoad,
   }),
+}));
+
+const mockShowError = vi.fn();
+vi.mock('@/composables/useToast', () => ({
+  useToast: () => ({ showError: mockShowError }),
 }));
 
 vi.mock('@/services/AccountCrudService', () => ({
@@ -50,7 +53,6 @@ describe('useAccountCrudHandlers', () => {
     mockLoad.mockResolvedValue(undefined);
     mockDates.mockResolvedValue(undefined);
     mockTransfer.mockResolvedValue(undefined);
-    mockState.error = null;
   });
 
   describe('handleSave — create path', () => {
@@ -66,7 +68,7 @@ describe('useAccountCrudHandlers', () => {
       expect(closeModal).toHaveBeenCalled();
     });
 
-    it('sets error when typeId/statusId missing and no defaults', async () => {
+    it('shows toast error when typeId/statusId missing and no defaults', async () => {
       const modalType = ref<'create' | 'edit'>('create');
       const editingItem = ref(null);
       const closeModal = vi.fn();
@@ -74,7 +76,7 @@ describe('useAccountCrudHandlers', () => {
         ref([]), ref([]), modalType, editingItem, closeModal
       );
       await handleSave({ name: 'New', institutionId: 2 });
-      expect(mockState.error).toBe('Select valid type and status');
+      expect(mockShowError).toHaveBeenCalledWith('Select valid type and status');
       expect(closeModal).not.toHaveBeenCalled();
     });
   });

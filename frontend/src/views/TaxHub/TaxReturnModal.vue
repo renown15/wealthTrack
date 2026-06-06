@@ -16,8 +16,8 @@
         <input
           v-model="form.income"
           class="form-input"
-          type="number"
-          step="0.01"
+          type="text"
+          inputmode="decimal"
           min="0"
           placeholder="0.00"
         />
@@ -28,8 +28,8 @@
         <input
           v-model="form.capitalGain"
           class="form-input"
-          type="number"
-          step="0.01"
+          type="text"
+          inputmode="decimal"
           placeholder="0.00"
         />
       </div>
@@ -39,8 +39,8 @@
         <input
           v-model="form.taxTakenOff"
           class="form-input"
-          type="number"
-          step="0.01"
+          type="text"
+          inputmode="decimal"
           min="0"
           placeholder="0.00"
         />
