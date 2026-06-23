@@ -43,7 +43,34 @@ describe('TaxService', () => {
     clientStub.get.mockResolvedValue({ data: [mockPeriod] });
     const result = await taxService.listPeriods();
     expect(result).toStrictEqual([mockPeriod]);
-    expect(clientStub.get).toHaveBeenCalledWith('/api/v1/tax/periods');
+    expect(clientStub.get).toHaveBeenCalledWith('/api/v1/tax/periods', { params: undefined });
+  });
+
+  it('listPeriods passes member_id when given', async () => {
+    clientStub.get.mockResolvedValue({ data: [mockPeriod] });
+    await taxService.listPeriods(7);
+    expect(clientStub.get).toHaveBeenCalledWith('/api/v1/tax/periods', { params: { member_id: 7 } });
+  });
+
+  it('downloadBriefingPack requests a PDF blob with period and member params', async () => {
+    const blob = new Blob(['%PDF-'], { type: 'application/pdf' });
+    clientStub.get.mockResolvedValue({ data: blob });
+    const result = await taxService.downloadBriefingPack(3, 7);
+    expect(result).toBe(blob);
+    expect(clientStub.get).toHaveBeenCalledWith('/api/v1/tax/briefing-pack', {
+      params: { period_id: 3, member_id: 7 },
+      responseType: 'blob',
+    });
+  });
+
+  it('downloadBriefingPack omits member_id when not given', async () => {
+    const blob = new Blob(['%PDF-'], { type: 'application/pdf' });
+    clientStub.get.mockResolvedValue({ data: blob });
+    await taxService.downloadBriefingPack(3);
+    expect(clientStub.get).toHaveBeenCalledWith('/api/v1/tax/briefing-pack', {
+      params: { period_id: 3 },
+      responseType: 'blob',
+    });
   });
 
   it('createPeriod posts and returns period', async () => {

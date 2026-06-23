@@ -14,7 +14,13 @@
       <div class="error-banner"><span>{{ periodsError }}</span></div>
     </div>
 
+    <div class="flex justify-end">
+      <button class="btn-primary" @click="briefingOpen = true">Export Briefing Pack</button>
+    </div>
+
     <GiftsSummary />
+
+    <BriefingPackModal :open="briefingOpen" @close="briefingOpen = false" />
 
     <div v-if="selectedPeriodId !== null" class="hub-content-card p-6">
       <div class="flex items-center justify-between mb-6">
@@ -119,6 +125,7 @@ import DeleteConfirmModal from '@views/AccountHub/DeleteConfirmModal.vue';
 import AccountEventsModal from '@views/AccountHub/AccountEventsModal.vue';
 import DocumentPreviewModal from '@views/TaxHub/DocumentPreviewModal.vue';
 import GiftsSummary from '@views/TaxHub/GiftsSummary.vue';
+import BriefingPackModal from '@views/TaxHub/BriefingPackModal.vue';
 import type { EligibleAccount } from '@models/TaxModels';
 
 const {
@@ -151,6 +158,7 @@ const {
 );
 
 const addPeriodOpen = ref(false);
+const briefingOpen = ref(false);
 const portfolioItemMap = ref<Record<number, PortfolioItem>>({});
 
 onMounted(async () => {

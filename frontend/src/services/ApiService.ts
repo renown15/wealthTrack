@@ -105,8 +105,12 @@ class ApiService extends ApiServiceBase {
     return shareSaleService.getHistory(accountId);
   }
 
-  async listTaxPeriods(): Promise<TaxPeriod[]> {
-    return taxService.listPeriods();
+  async listTaxPeriods(memberId?: number): Promise<TaxPeriod[]> {
+    return taxService.listPeriods(memberId);
+  }
+
+  async downloadTaxBriefingPack(periodId: number, memberId?: number): Promise<Blob> {
+    return taxService.downloadBriefingPack(periodId, memberId);
   }
 
   async createTaxPeriod(data: TaxPeriodCreateRequest): Promise<TaxPeriod> {

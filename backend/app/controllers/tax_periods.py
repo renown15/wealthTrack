@@ -10,6 +10,7 @@ from app.controllers.dependencies import get_current_user
 from app.database import get_db
 from app.models.user_profile import UserProfile
 from app.repositories.account_group_repository import AccountGroupRepository
+from app.repositories.family_repository import FamilyRepository
 from app.repositories.tax_period_repository import TaxPeriodRepository
 from app.schemas.tax import (
     EligibleAccountResponse,
@@ -26,12 +27,22 @@ router = APIRouter()
 
 @router.get("/periods", response_model=list[TaxPeriodResponse])
 async def list_tax_periods(
+    member_id: int | None = None,
     session: AsyncSession = Depends(get_db),
     current_user: UserProfile = Depends(get_current_user),
 ) -> list[TaxPeriodResponse]:
-    """List all tax periods for the current user."""
+    """List tax periods for the current user, or a family member when member_id is given."""
+    target_id = current_user.id
+    if member_id is not None and member_id != current_user.id:
+        member_ids = await FamilyRepository(session).get_member_ids_for_user(current_user.id)
+        if member_id not in member_ids:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You may not view this member's tax periods",
+            )
+        target_id = member_id
     repo = TaxPeriodRepository(session)
-    periods = await repo.list_for_user(current_user.id)
+    periods = await repo.list_for_user(target_id)
     return [TaxPeriodResponse.model_validate(p) for p in periods]
 
 

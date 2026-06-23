@@ -15,14 +15,29 @@ import { debug } from '@utils/debug';
 const BASE = '/api/v1/tax';
 
 class TaxService extends BaseApiClient {
-  async listPeriods(): Promise<TaxPeriod[]> {
+  async listPeriods(memberId?: number): Promise<TaxPeriod[]> {
     try {
+      const params = memberId !== undefined ? { member_id: memberId } : undefined;
       const response = await this.retryRequest(() =>
-        this.client.get<TaxPeriod[]>(`${BASE}/periods`),
+        this.client.get<TaxPeriod[]>(`${BASE}/periods`, { params }),
       );
       return response.data;
     } catch (error) {
       throw this.handleError(error, 'Failed to fetch tax periods');
+    }
+  }
+
+  async downloadBriefingPack(periodId: number, memberId?: number): Promise<Blob> {
+    try {
+      const params: Record<string, number> = { period_id: periodId };
+      if (memberId !== undefined) params.member_id = memberId;
+      const response = await this.client.get<Blob>(`${BASE}/briefing-pack`, {
+        params,
+        responseType: 'blob',
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error, 'Failed to generate briefing pack');
     }
   }
 
