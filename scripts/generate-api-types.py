@@ -34,17 +34,33 @@ def fetch_spec() -> dict:
         sys.exit(1)
 
 
+def _body_ref(schema: dict) -> str:
+    """
+    Return a Body_* component $ref from a requestBody schema, whether it is a
+    direct $ref or wrapped in an `allOf` (FastAPI wraps the ref in allOf with a
+    title when the body is optional, e.g. an endpoint whose only Form field has
+    a default).
+    """
+    ref = schema.get("$ref", "")
+    if not ref:
+        for sub in schema.get("allOf", []):
+            ref = sub.get("$ref", "")
+            if ref:
+                break
+    return ref
+
+
 def patch_spec(spec: dict) -> dict:
     """
-    FastAPI emits $ref pointers to Body_* schemas for file-upload endpoints
-    but never defines those schemas in components. openapi-typescript refuses
-    to generate with unresolvable $refs, so we inline the schemas here.
+    FastAPI emits $ref pointers to Body_* schemas for file-upload and Form
+    endpoints but never defines those schemas in components. openapi-typescript
+    refuses to generate with unresolvable $refs, so we inline the schemas here.
     """
     for _path, methods in spec.get("paths", {}).items():
         for _method, op in methods.items():
             content = op.get("requestBody", {}).get("content", {})
             for ct, body in content.items():
-                ref = body.get("schema", {}).get("$ref", "")
+                ref = _body_ref(body.get("schema", {}))
                 if ref.startswith("#/components/schemas/Body_"):
                     if "multipart" in ct:
                         body["schema"] = {

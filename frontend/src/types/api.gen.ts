@@ -573,7 +573,7 @@ export interface paths {
         };
         /**
          * List Tax Periods
-         * @description List all tax periods for the current user.
+         * @description List tax periods for the current user, or a family member when member_id is given.
          */
         get: operations["list_tax_periods_api_v1_tax_periods_get"];
         put?: never;
@@ -707,6 +707,26 @@ export interface paths {
          * @description Delete a tax document by ID.
          */
         delete: operations["delete_document_api_v1_tax_documents__doc_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tax/briefing-pack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Briefing Pack
+         * @description Generate and stream a tax briefing pack PDF for the selected member and period.
+         */
+        get: operations["get_briefing_pack_api_v1_tax_briefing_pack_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1018,6 +1038,122 @@ export interface paths {
          * @description Create a balance event for a family member's account.
          */
         post: operations["create_member_event_api_v1_families__family_id__members__member_id__accounts__account_id__events_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/scenarios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Scenarios
+         * @description List all scenarios visible to the current user (own + family members').
+         */
+        get: operations["list_scenarios_api_v1_scenarios_get"];
+        put?: never;
+        /**
+         * Create Scenario
+         * @description Create a new scenario owned by the current user.
+         */
+        post: operations["create_scenario_api_v1_scenarios_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/scenarios/{scenarioId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Scenario
+         * @description Get full scenario detail including groups and unassigned accounts.
+         */
+        get: operations["get_scenario_api_v1_scenarios__scenario_id__get"];
+        /**
+         * Rename Scenario
+         * @description Rename a scenario (owner only).
+         */
+        put: operations["rename_scenario_api_v1_scenarios__scenario_id__put"];
+        post?: never;
+        /**
+         * Delete Scenario
+         * @description Delete a scenario (owner only).
+         */
+        delete: operations["delete_scenario_api_v1_scenarios__scenario_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/scenarios/{scenarioId}/Groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Group
+         * @description Add a new group to a scenario (owner only).
+         */
+        post: operations["add_group_api_v1_scenarios__scenario_id__groups_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/scenarios/{scenarioId}/Groups/{LinkId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Rename Group
+         * @description Rename a group within a scenario (owner only).
+         */
+        put: operations["rename_group_api_v1_scenarios__scenario_id__groups__link_id__put"];
+        post?: never;
+        /**
+         * Delete Group
+         * @description Delete a group from a scenario (owner only).
+         */
+        delete: operations["delete_group_api_v1_scenarios__scenario_id__groups__link_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/scenarios/{scenarioId}/Assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Assign Account
+         * @description Assign (or unassign) an account within a scenario (owner only).
+         */
+        post: operations["assign_account_api_v1_scenarios__scenario_id__assignments_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1947,6 +2083,134 @@ export interface components {
             updatedAt: string;
         };
         /**
+         * ScenarioAccountAssign
+         * @description Assign an account to a group (null group_id = unassign).
+         */
+        ScenarioAccountAssign: {
+            /** Accountid */
+            accountId: number;
+            /** Groupid */
+            groupId?: number | null;
+        };
+        /**
+         * ScenarioAccountItem
+         * @description Minimal account info for the scenario view.
+         */
+        ScenarioAccountItem: {
+            /** Accountid */
+            accountId: number;
+            /** Name */
+            name: string;
+            /** Institutionname */
+            institutionName: string;
+            /** Accounttype */
+            accountType: string;
+            /** Balance */
+            balance?: string | null;
+            /**
+             * Ownerinitials
+             * @default
+             */
+            ownerInitials: string;
+            /**
+             * Ownername
+             * @default
+             */
+            ownerName: string;
+        };
+        /**
+         * ScenarioCreate
+         * @description Create a new risk scenario.
+         */
+        ScenarioCreate: {
+            /** Name */
+            name: string;
+        };
+        /**
+         * ScenarioDetailResponse
+         * @description Full scenario detail: groups with accounts, plus unassigned accounts.
+         */
+        ScenarioDetailResponse: {
+            /** Scenarioid */
+            scenarioId: number;
+            /** Name */
+            name: string;
+            /** Owneruserid */
+            ownerUserId: number;
+            /** Isowner */
+            isOwner: boolean;
+            /** Groups */
+            groups: components["schemas"]["ScenarioGroupResponse"][];
+            /** Unassigned */
+            unassigned: components["schemas"]["ScenarioAccountItem"][];
+        };
+        /**
+         * ScenarioGroupCreate
+         * @description Add a new group to a scenario.
+         */
+        ScenarioGroupCreate: {
+            /** Name */
+            name: string;
+        };
+        /**
+         * ScenarioGroupRename
+         * @description Rename a group within a scenario.
+         */
+        ScenarioGroupRename: {
+            /** Name */
+            name: string;
+        };
+        /**
+         * ScenarioGroupResponse
+         * @description A group within a scenario, with its assigned accounts.
+         */
+        ScenarioGroupResponse: {
+            /** Linkid */
+            linkId: number;
+            /** Groupid */
+            groupId: number;
+            /** Name */
+            name: string;
+            /** Sortorder */
+            sortOrder: number;
+            /** Accounts */
+            accounts: components["schemas"]["ScenarioAccountItem"][];
+        };
+        /**
+         * ScenarioListItem
+         * @description Summary of a scenario for list views.
+         */
+        ScenarioListItem: {
+            /** Scenarioid */
+            scenarioId: number;
+            /** Name */
+            name: string;
+            /** Owneruserid */
+            ownerUserId: number;
+            /** Isowner */
+            isOwner: boolean;
+            /** Groupcount */
+            groupCount: number;
+            /**
+             * Createdat
+             * Format: date-time
+             */
+            createdAt: string;
+            /**
+             * Updatedat
+             * Format: date-time
+             */
+            updatedAt: string;
+        };
+        /**
+         * ScenarioRename
+         * @description Rename an existing scenario.
+         */
+        ScenarioRename: {
+            /** Name */
+            name: string;
+        };
+        /**
          * ShareSaleRequest
          * @description Request schema for recording a share sale.
          */
@@ -2284,10 +2548,6 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
-            /** Input */
-            input?: unknown;
-            /** Context */
-            ctx?: Record<string, never>;
         };
     };
     responses: never;
@@ -2511,9 +2771,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": Record<string, never>;
                 };
             };
             /** @description Validation Error */
@@ -3454,7 +3712,9 @@ export interface operations {
     };
     list_tax_periods_api_v1_tax_periods_get: {
         parameters: {
-            query?: never;
+            query?: {
+                member_id?: number | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -3468,6 +3728,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TaxPeriodResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -3720,6 +3989,40 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_briefing_pack_api_v1_tax_briefing_pack_get: {
+        parameters: {
+            query: {
+                /** @description Tax period to generate the pack for */
+                period_id: number;
+                /** @description Family member; defaults to current user */
+                member_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
             };
             /** @description Validation Error */
             422: {
@@ -4314,9 +4617,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": Record<string, never>;
                 };
             };
             /** @description Validation Error */
@@ -4355,6 +4656,288 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["AccountEventResponse"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_scenarios_api_v1_scenarios_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioListItem"][];
+                };
+            };
+        };
+    };
+    create_scenario_api_v1_scenarios_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScenarioCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioListItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_scenario_api_v1_scenarios__scenario_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scenario_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rename_scenario_api_v1_scenarios__scenario_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scenario_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScenarioRename"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioListItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_scenario_api_v1_scenarios__scenario_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scenario_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_group_api_v1_scenarios__scenario_id__groups_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scenario_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScenarioGroupCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioGroupResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rename_group_api_v1_scenarios__scenario_id__groups__link_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scenario_id: number;
+                link_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScenarioGroupRename"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioGroupResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_group_api_v1_scenarios__scenario_id__groups__link_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scenario_id: number;
+                link_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    assign_account_api_v1_scenarios__scenario_id__assignments_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scenario_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScenarioAccountAssign"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {
