@@ -22,6 +22,7 @@ email-validator==2.1.0
 # PDF generation (tax briefing pack)
 reportlab==4.2.5
 Pillow==12.2.0
+pymupdf==1.27.2
 
 # Testing
 pytest==7.4.4

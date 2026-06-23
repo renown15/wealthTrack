@@ -15,7 +15,12 @@ from app.services.tax_briefing_format import (
     styled_table,
     to_float,
 )
-from app.services.tax_briefing_images import compress_document_image, is_image
+from app.services.tax_briefing_images import (
+    compress_document_image,
+    is_image,
+    is_pdf,
+    render_pdf_pages,
+)
 
 Styles = dict[str, Any]
 
@@ -135,6 +140,26 @@ def gifts_section(styles: Styles, gifts: list[GiftSummary]) -> list[Flowable]:
     return flow
 
 
+def _document_flowables(doc: Any, styles: Styles) -> list[Flowable]:
+    """Render one document: images and PDF pages embed as compressed images."""
+    flow: list[Flowable] = []
+    if is_image(doc.content_type, doc.filename):
+        image = compress_document_image(doc.file_data)
+        if image:
+            flow.extend([image, Spacer(1, 4 * mm)])
+    elif is_pdf(doc.content_type, doc.filename):
+        pages = render_pdf_pages(doc.file_data)
+        for page in pages:
+            flow.extend([page, Spacer(1, 4 * mm)])
+        if not pages:
+            flow.append(Paragraph("  (could not render PDF)", styles["small"]))
+    else:
+        flow.append(
+            Paragraph("  (unsupported document type — attached separately)", styles["small"])
+        )
+    return flow
+
+
 def documents_section(styles: Styles, items: list[dict[str, Any]]) -> list[Flowable]:
     """Supporting-document checklist; image documents are embedded (compressed)."""
     flow: list[Flowable] = [Paragraph("4. Supporting Documents", styles["h2"])]
@@ -148,15 +173,7 @@ def documents_section(styles: Styles, items: list[dict[str, Any]]) -> list[Flowa
         for doc in documents:
             label = f"• {doc.filename} ({doc.content_type or 'unknown type'})"
             flow.append(Paragraph(label, styles["small"]))
-            if is_image(doc.content_type, doc.filename):
-                image = compress_document_image(doc.file_data)
-                if image:
-                    flow.append(image)
-                    flow.append(Spacer(1, 4 * mm))
-            else:
-                flow.append(
-                    Paragraph("  (non-image document — attached separately)", styles["small"])
-                )
+            flow.extend(_document_flowables(doc, styles))
     if not any_docs:
         flow.append(Paragraph("No supporting documents uploaded.", styles["body"]))
     return flow

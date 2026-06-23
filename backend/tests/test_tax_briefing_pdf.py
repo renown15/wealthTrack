@@ -7,7 +7,12 @@ from PIL import Image as PILImage
 
 from app.schemas.gift import GiftSummary
 from app.services.tax_briefing_format import category_for, exclusion_reason, money, to_float
-from app.services.tax_briefing_images import compress_document_image, is_image
+from app.services.tax_briefing_images import (
+    compress_document_image,
+    is_image,
+    is_pdf,
+    render_pdf_pages,
+)
 from app.services.tax_briefing_pdf import BriefingData, build_pdf
 from app.services.tax_briefing_sections import build_portfolio_map
 
@@ -58,6 +63,22 @@ def test_compress_document_image_returns_image_for_png():
 
 def test_compress_document_image_rejects_non_image():
     assert compress_document_image(b"not an image") is None
+
+
+def test_is_pdf():
+    assert is_pdf("application/pdf", "x.pdf")
+    assert is_pdf(None, "statement.PDF")
+    assert not is_pdf("image/png", "x.png")
+
+
+def test_render_pdf_pages_renders_a_real_pdf():
+    pdf = build_pdf(BriefingData("X", "2025/26", [], [], [], []))
+    images = render_pdf_pages(pdf)
+    assert len(images) >= 1
+
+
+def test_render_pdf_pages_rejects_non_pdf():
+    assert render_pdf_pages(b"not a pdf") == []
 
 
 def test_build_portfolio_map_skips_missing_ids():
