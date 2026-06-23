@@ -50,57 +50,24 @@
       </div>
     </div>
 
-    <BaseModal :open="createOpen" title="New Scenario" size="small" @close="createOpen = false">
-      <template #default>
-        <div class="form-group">
-          <label class="form-label">Name</label>
-          <input v-model="createName" class="form-input" placeholder="e.g. Conservative" @keyup.enter="submitCreate" />
-        </div>
-      </template>
-      <template #footer>
-        <button class="btn-modal-secondary" @click="createOpen = false">Cancel</button>
-        <button class="btn-primary" :disabled="!createName.trim()" @click="submitCreate">Create</button>
-      </template>
-    </BaseModal>
-
-    <BaseModal :open="renameOpen" title="Rename Scenario" size="small" @close="renameOpen = false">
-      <template #default>
-        <div class="form-group">
-          <label class="form-label">Name</label>
-          <input v-model="renameName" class="form-input" @keyup.enter="submitRename" />
-        </div>
-      </template>
-      <template #footer>
-        <button class="btn-modal-secondary" @click="renameOpen = false">Cancel</button>
-        <button class="btn-primary" :disabled="!renameName.trim()" @click="submitRename">Save</button>
-      </template>
-    </BaseModal>
-
-    <BaseModal :open="addGroupOpen" title="Add Group" size="small" @close="addGroupOpen = false">
-      <template #default>
-        <div class="form-group">
-          <label class="form-label">Group Name</label>
-          <input v-model="groupName" class="form-input" placeholder="e.g. High Risk" @keyup.enter="submitAddGroup" />
-        </div>
-      </template>
-      <template #footer>
-        <button class="btn-modal-secondary" @click="addGroupOpen = false">Cancel</button>
-        <button class="btn-primary" :disabled="!groupName.trim()" @click="submitAddGroup">Add</button>
-      </template>
-    </BaseModal>
-
-    <BaseModal :open="renameGroupOpen" title="Rename Group" size="small" @close="renameGroupOpen = false">
-      <template #default>
-        <div class="form-group">
-          <label class="form-label">Group Name</label>
-          <input v-model="renameGroupName" class="form-input" @keyup.enter="submitRenameGroup" />
-        </div>
-      </template>
-      <template #footer>
-        <button class="btn-modal-secondary" @click="renameGroupOpen = false">Cancel</button>
-        <button class="btn-primary" :disabled="!renameGroupName.trim()" @click="submitRenameGroup">Save</button>
-      </template>
-    </BaseModal>
+    <TextPromptModal
+      v-model="createName" :open="createOpen" title="New Scenario" label="Name"
+      placeholder="e.g. Conservative" submit-label="Create"
+      @submit="submitCreate" @close="createOpen = false"
+    />
+    <TextPromptModal
+      v-model="renameName" :open="renameOpen" title="Rename Scenario" label="Name"
+      submit-label="Save" @submit="submitRename" @close="renameOpen = false"
+    />
+    <TextPromptModal
+      v-model="groupName" :open="addGroupOpen" title="Add Group" label="Group Name"
+      placeholder="e.g. High Risk" submit-label="Add"
+      @submit="submitAddGroup" @close="addGroupOpen = false"
+    />
+    <TextPromptModal
+      v-model="renameGroupName" :open="renameGroupOpen" title="Rename Group" label="Group Name"
+      submit-label="Save" @submit="submitRenameGroup" @close="renameGroupOpen = false"
+    />
   </div>
 </template>
 
@@ -109,10 +76,9 @@ import { ref, onMounted, nextTick } from 'vue';
 import { useScenario } from '@composables/useScenario';
 import { useScenarioBalances } from '@composables/useScenarioBalances';
 import { exportScenarioToExcel } from '@utils/exportToExcel';
-import { exportScenarioPdf } from '@utils/exportScenarioPdf';
 import type { ScenarioListItem } from '@models/scenario';
 import { Icons } from '@/constants/icons';
-import BaseModal from '@/components/BaseModal.vue';
+import TextPromptModal from '@/components/TextPromptModal.vue';
 import ScenarioStats from '@views/ScenarioHub/ScenarioStats.vue';
 import ScenarioGroupTable from '@views/ScenarioHub/ScenarioGroupTable.vue';
 
@@ -159,6 +125,8 @@ async function handleExportPdf(): Promise<void> {
   pdfExporting.value = true;
   await nextTick();
   const today = new Date().toISOString().split('T')[0];
+  // Lazy-loaded: jsPDF + html2canvas are heavy and only needed on export.
+  const { exportScenarioPdf } = await import('@utils/exportScenarioPdf');
   await exportScenarioPdf(exportRef.value, state.active.name, `scenario-${state.active.name}-${today}.pdf`);
   pdfExporting.value = false;
 }

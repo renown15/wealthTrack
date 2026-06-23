@@ -109,7 +109,7 @@ Check these first when debugging runtime errors.
    - Frontend statements/branches/lines: ≥70%
    - Frontend functions: ≥55%
 
-2. **File size limit** — max 200 lines per `.py` / `.ts` / `.js` file. Enforced by `backend/tests/test_file_constraints.py`. Split long files.
+2. **File size limit** — max 200 lines per `.py` / `.ts` / `.js` / `.vue` file (blank lines excluded). Enforced by `backend/tests/test_file_constraints.py`. Split long files.
 
 3. **No scoped CSS** — Vue components must not use `<style scoped>`. All styles via UnoCSS utilities/shortcuts. Enforced by `frontend/tests/no-scoped-styles.test.ts`.
 

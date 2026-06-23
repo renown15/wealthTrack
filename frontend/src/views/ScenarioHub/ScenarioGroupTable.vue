@@ -94,11 +94,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, defineAsyncComponent } from 'vue';
 import type { ScenarioAccountItem, ScenarioDetail, ScenarioGroup } from '@models/scenario';
 import { Icons } from '@/constants/icons';
+import { useScenarioCharts } from '@composables/useScenarioCharts';
 import ScenarioGroupRow from '@views/ScenarioHub/ScenarioGroupRow.vue';
-import ScenarioPieChart from '@views/ScenarioHub/ScenarioPieChart.vue';
+
+// Lazy-loaded: chart.js + vue-chartjs are only needed when balances render.
+const ScenarioPieChart = defineAsyncComponent(
+  () => import('@views/ScenarioHub/ScenarioPieChart.vue'),
+);
 
 const props = defineProps<{
   detail: ScenarioDetail;
@@ -139,51 +144,13 @@ function memberCounts(accounts: ScenarioAccountItem[]): { initials: string; coun
   return [...map.entries()].map(([initials, count]) => ({ initials, count }));
 }
 
-const unassignedBalance = computed(() => accountsBalance(props.detail.unassigned));
-
 const hasBalances = computed(() =>
   props.detail.groups.some(g => g.accounts.some(a => props.balanceMap[a.accountId] !== undefined))
   || props.detail.unassigned.some(a => props.balanceMap[a.accountId] !== undefined),
 );
 
-const memberLabel = (a: ScenarioAccountItem): string =>
-  a.ownerName ? `${a.ownerName} (${a.ownerInitials})` : a.ownerInitials;
-
-function buildBreakdown(
-  pairs: { key: string; label: string; value: number }[],
-): Record<string, { label: string; value: number }[]> {
-  const result: Record<string, { label: string; value: number }[]> = {};
-  for (const { key, label, value } of pairs) {
-    if (!result[key]) result[key] = [];
-    const existing = result[key].find(e => e.label === label);
-    if (existing) existing.value += value;
-    else result[key].push({ label, value });
-  }
-  return result;
-}
-
-const groupChartEntries = computed(() => {
-  const entries = props.detail.groups.map(g => ({ label: g.name, value: groupBalance(g) }));
-  if (unassignedBalance.value > 0) entries.push({ label: 'Unassigned', value: unassignedBalance.value });
-  return entries.filter(e => e.value > 0);
-});
-
-const groupBreakdown = computed(() => buildBreakdown([
-  ...props.detail.groups.flatMap(g => g.accounts.map(a => ({ key: g.name, label: memberLabel(a), value: props.balanceMap[a.accountId] ?? 0 }))),
-  ...props.detail.unassigned.map(a => ({ key: 'Unassigned', label: memberLabel(a), value: props.balanceMap[a.accountId] ?? 0 })),
-]));
-
-const memberChartEntries = computed(() => {
-  const map = new Map<string, number>();
-  const all = [...props.detail.unassigned, ...props.detail.groups.flatMap(g => g.accounts)];
-  for (const a of all) map.set(memberLabel(a), (map.get(memberLabel(a)) ?? 0) + (props.balanceMap[a.accountId] ?? 0));
-  return [...map.entries()].filter(([, v]) => v > 0).map(([label, value]) => ({ label, value }));
-});
-
-const memberBreakdown = computed(() => buildBreakdown([
-  ...props.detail.groups.flatMap(g => g.accounts.map(a => ({ key: memberLabel(a), label: g.name, value: props.balanceMap[a.accountId] ?? 0 }))),
-  ...props.detail.unassigned.map(a => ({ key: memberLabel(a), label: 'Unassigned', value: props.balanceMap[a.accountId] ?? 0 })),
-]));
+const { unassignedBalance, groupChartEntries, groupBreakdown, memberChartEntries, memberBreakdown } =
+  useScenarioCharts(() => props.detail, () => props.balanceMap);
 
 function onDragStart(accountId: number, fromGroupId: number | null): void {
   draggingAccountId.value = accountId; draggingFromGroup.value = fromGroupId;

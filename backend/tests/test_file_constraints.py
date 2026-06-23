@@ -1,6 +1,7 @@
 """
 Test file size constraints (max 200 lines per file).
-Enforces constraint across Python backend and TypeScript frontend code.
+Enforces constraint across Python backend and TypeScript/Vue frontend code
+(.py, .ts, and .vue files). Lines are counted excluding blank lines.
 """
 import pathlib
 

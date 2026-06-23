@@ -25,8 +25,8 @@ Applies to test files, source code, config, documentation — everything.
 
 ### 3. Maximum File Size
 
-No Python or TypeScript/JavaScript file may exceed 200 lines.
-Enforced by `backend/tests/test_file_constraints.py`.
+No Python, TypeScript/JavaScript, or Vue (`.vue`) file may exceed 200 lines
+(blank lines excluded). Enforced by `backend/tests/test_file_constraints.py`.
 Split long files into smaller modules.
 
 ### 4. No Scoped CSS Blocks
