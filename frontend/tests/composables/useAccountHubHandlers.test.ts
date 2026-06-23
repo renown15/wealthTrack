@@ -100,7 +100,7 @@ describe('useAccountHubHandlers', () => {
       mockEditingItem.value = { id: 5 };
       const { handleSave } = useAccountHubHandlers();
       await handleSave({ name: 'Updated', institutionId: 2 });
-      expect(mockUpdate).toHaveBeenCalledWith(5, 'Updated', undefined, undefined,
+      expect(mockUpdate).toHaveBeenCalledWith(5, 'Updated', 2, undefined, undefined,
         undefined, undefined, undefined, undefined, undefined, undefined);
       expect(mockDates).toHaveBeenCalled();
       expect(mockLoad).toHaveBeenCalled();

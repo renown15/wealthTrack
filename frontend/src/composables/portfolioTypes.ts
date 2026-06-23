@@ -51,6 +51,7 @@ export interface PortfolioComposableReturn {
   updateAccount: (
     accountId: number,
     name: string,
+    institutionId?: number,
     typeId?: number,
     statusId?: number,
     accountNumber?: string,

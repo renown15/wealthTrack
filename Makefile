@@ -1,7 +1,7 @@
 # WealthTrack Development Makefile
 # Provides convenient commands for common development tasks
 
-.PHONY: help setup dev backend-dev frontend-dev local-prod stop-dev stop-prod test lint type-check format clean docker-up docker-down build-frontend tail-backend tail-frontend pi-setup deploy-pi deploy-pi-code sync-db-to-pi sync-db-from-pi deploy-windows dump-db check-pi-log-backend check-pi-log-frontend generate-api-types
+.PHONY: help setup dev backend-dev frontend-dev local-prod stop-dev stop-prod test lint type-check format clean docker-up docker-down build-frontend tail-backend tail-frontend pi-setup deploy-pi deploy-pi-code migrate-pi sync-db-to-pi sync-db-from-pi deploy-windows dump-db check-pi-log-backend check-pi-log-frontend generate-api-types
 
 help:
 	@echo "WealthTrack Development Commands"
@@ -53,6 +53,7 @@ help:
 	@echo "  make pi-setup           - First-time Pi setup (SSH + rsync + env)"
 	@echo "  make deploy-pi          - Deploy/update to Pi (rsync + build + migrate + seed)"
 	@echo "  make deploy-pi-code     - Deploy code only to Pi (no DB changes)"
+	@echo "  make migrate-pi         - Run migrations on Pi only (no redeploy)"
 	@echo "  make sync-db-to-pi      - Dump local DB and restore to Pi"
 	@echo "  make sync-db-from-pi    - Dump Pi DB and restore to local dev"
 	@echo "  make deploy-windows     - Deploy/update to KATE-SURFACE (rsync + build + migrate + seed)"
@@ -533,6 +534,11 @@ format-frontend:
 migrate:
 	@echo "Running database migrations..."
 	@. .env.dev && cd backend && DATABASE_URL="postgresql+asyncpg://$${DB_USER}:$${DB_PASSWORD}@localhost:$${DB_PORT}/$${DB_NAME}" alembic upgrade head
+
+migrate-pi:
+	@echo "Running database migrations on Pi ($(PI_USER)@$(PI_HOST))..."
+	@ssh $(PI_USER)@$(PI_HOST) "cd $(PI_DIR) && docker compose --env-file .env.pi --profile prod exec -T backend alembic upgrade head"
+	@echo "✅ Pi migrations complete"
 
 migrate-create:
 	@echo "Creating new migration..."

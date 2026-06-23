@@ -78,6 +78,7 @@ export function useAccountHubHandlers(): {
           await updateAccount(
             editingItem.value.id,
             payload.name,
+            payload.institutionId,
             payload.typeId,
             payload.statusId,
             payload.accountNumber,

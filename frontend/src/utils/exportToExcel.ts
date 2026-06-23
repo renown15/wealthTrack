@@ -2,6 +2,8 @@ import * as XLSX from 'xlsx';
 import type { PortfolioItem } from '@/models/WealthTrackDataModels';
 import type { Institution } from '@/models/WealthTrackDataModels';
 import type { InstitutionCredential } from '@/models/InstitutionCredential';
+import type { ScenarioDetail, ScenarioAccountItem } from '@/models/scenario';
+import { getGrossBalance } from '@views/AccountHub/accountDisplayUtils';
 
 export interface FamilyMemberSheet {
   name: string;
@@ -102,6 +104,57 @@ export async function exportInstitutionsToExcel(
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Institutions');
   XLSX.writeFile(workbook, fileName);
+}
+
+export function exportScenarioToExcel(
+  scenarioName: string,
+  detail: ScenarioDetail,
+  portfolioItemsById: Record<number, PortfolioItem>,
+  balanceMap: Record<number, number>,
+  fileName?: string,
+): void {
+  const rows = [
+    ...detail.groups.flatMap(g => g.accounts.map(a => buildScenarioRow(g.name, a, portfolioItemsById[a.accountId], balanceMap[a.accountId] ?? 0))),
+    ...detail.unassigned.map(a => buildScenarioRow('Unassigned', a, portfolioItemsById[a.accountId], balanceMap[a.accountId] ?? 0)),
+  ];
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = [
+    { wch: 20 }, { wch: 20 }, { wch: 25 }, { wch: 20 }, { wch: 20 }, { wch: 15 },
+    { wch: 15 }, { wch: 20 }, { wch: 18 }, { wch: 12 }, { wch: 16 }, { wch: 12 },
+    { wch: 15 }, { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 10 },
+  ];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, scenarioName.slice(0, 31));
+  XLSX.writeFile(wb, fileName ?? `scenario-${scenarioName}-${new Date().toISOString().split('T')[0]}.xlsx`);
+}
+
+function buildScenarioRow(
+  group: string,
+  acc: ScenarioAccountItem,
+  item: PortfolioItem | undefined,
+  balance: number,
+): Record<string, unknown> {
+  return {
+    'Scenario Group': group,
+    'Owner': acc.ownerName || acc.ownerInitials,
+    'Account Name': acc.name,
+    'Institution': acc.institutionName,
+    'Type': acc.accountType,
+    'Balance': balance,
+    'Gross Balance': item ? (getGrossBalance(item) ?? '') : '',
+    'Encumbrance': item?.account?.encumbrance ? parseFloat(item.account.encumbrance) : '',
+    'Account Number': item?.account?.accountNumber ?? '',
+    'Sort Code': item?.account?.sortCode ?? '',
+    'Roll / Ref Number': item?.account?.rollRefNumber ?? '',
+    'Interest Rate': item?.account?.interestRate ?? '',
+    'Fixed Bonus Rate': item?.account?.fixedBonusRate ?? '',
+    'Fixed Rate End Date': item?.account?.fixedBonusRateEndDate ? formatDateForExcel(item.account.fixedBonusRateEndDate) : '',
+    'Opened Date': item?.account?.openedAt ? formatDateForExcel(item.account.openedAt) : '',
+    'Closed Date': item?.account?.closedAt ? formatDateForExcel(item.account.closedAt) : '',
+    'Release Date': item?.account?.releaseDate ? formatDateForExcel(item.account.releaseDate) : '',
+    'Shares': item?.account?.numberOfShares ?? '',
+    'Price': item?.account?.price ?? '',
+  };
 }
 
 function formatDateForExcel(dateString: string): string {

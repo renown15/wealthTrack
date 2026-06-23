@@ -29,7 +29,9 @@ import { shareSaleService } from '@services/ShareSaleService';
 import { taxService } from '@services/TaxService';
 import { familyService } from '@services/FamilyService';
 import { giftService } from '@services/GiftService';
+import { scenarioService } from '@services/ScenarioService';
 import { ApiServiceBase } from '@services/ApiServiceBase';
+import type { ScenarioDetail, ScenarioGroup, ScenarioListItem } from '@models/scenario';
 
 class ApiService extends ApiServiceBase {
   async listInstitutionCredentials(institutionId: number): Promise<InstitutionCredential[]> {
@@ -193,6 +195,16 @@ class ApiService extends ApiServiceBase {
   async deleteGiftByEventId(eventId: number): Promise<void> {
     return giftService.deleteGiftByEventId(eventId);
   }
+
+  async listScenarios(): Promise<ScenarioListItem[]> { return scenarioService.listScenarios(); }
+  async createScenario(name: string): Promise<ScenarioListItem> { return scenarioService.createScenario(name); }
+  async getScenario(id: number): Promise<ScenarioDetail> { return scenarioService.getScenario(id); }
+  async renameScenario(id: number, name: string): Promise<ScenarioListItem> { return scenarioService.renameScenario(id, name); }
+  async deleteScenario(id: number): Promise<void> { return scenarioService.deleteScenario(id); }
+  async addScenarioGroup(id: number, name: string): Promise<ScenarioGroup> { return scenarioService.addGroup(id, name); }
+  async renameScenarioGroup(id: number, linkId: number, name: string): Promise<ScenarioGroup> { return scenarioService.renameGroup(id, linkId, name); }
+  async deleteScenarioGroup(id: number, linkId: number): Promise<void> { return scenarioService.deleteGroup(id, linkId); }
+  async assignScenarioAccount(id: number, accountId: number, groupId: number | null): Promise<void> { return scenarioService.assignAccount(id, accountId, groupId); }
 }
 
 export const apiService = new ApiService();

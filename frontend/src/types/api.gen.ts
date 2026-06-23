@@ -1388,6 +1388,8 @@ export interface components {
         AccountUpdate: {
             /** Name */
             name?: string | null;
+            /** Institutionid */
+            institutionId?: number | null;
             /** Typeid */
             typeId?: number | null;
             /** Statusid */

@@ -5,8 +5,10 @@
 import type { PortfolioItem } from '@/models/WealthTrackDataModels';
 import {
   calculateDeferredSharesBalanceSafe,
+  calculateDeferredSharesBalanceDetailedSafe,
   calculateDeferredCashBalanceSafe,
   calculateRSUBalanceSafe,
+  calculateRSUBalanceDetailedSafe,
 } from '@/utils/deferredSharesCalculator';
 
 export { getDeferredTooltip, getGroupDeferredTooltip } from '@views/AccountHub/accountDeferredTooltips';
@@ -51,6 +53,23 @@ export function getEditValue(item: PortfolioItem): string | number | null | unde
     return item.latestBalance.grossBalance;
   }
   return getDisplayBalance(item);
+}
+
+export function getGrossBalance(item: PortfolioItem): number | null {
+  if (isDeferredShares(item) || isShares(item)) {
+    const calc = calculateDeferredSharesBalanceDetailedSafe(
+      item.account.numberOfShares, item.account.price, item.account.purchasePrice,
+    );
+    return calc?.grossAmount ?? null;
+  }
+  if (isRSU(item)) {
+    const calc = calculateRSUBalanceDetailedSafe(item.account.numberOfShares, item.account.price);
+    return calc?.grossAmount ?? null;
+  }
+  if (isDeferredCash(item) && item.latestBalance?.value) {
+    return parseFloat(String(item.latestBalance.value));
+  }
+  return null;
 }
 
 const _formatCurrency = (value: number): string =>
@@ -159,13 +178,11 @@ export function getDisplayBalance(item: PortfolioItem): string | number | null |
 
   if (isShares(item)) {
     if (item.account.numberOfShares && item.account.price && item.account.purchasePrice) {
-      const balance = calculateDeferredSharesBalanceSafe(
-        item.account.numberOfShares,
-        item.account.price,
-        item.account.purchasePrice
+      const calc = calculateDeferredSharesBalanceDetailedSafe(
+        item.account.numberOfShares, item.account.price, item.account.purchasePrice,
       );
-      if (balance !== null) {
-        return balance;
+      if (calc !== null) {
+        return calc.grossAmount - Math.max(0, calc.capitalGainsTax);
       }
     }
   }

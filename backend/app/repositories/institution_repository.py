@@ -6,6 +6,7 @@ from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.account import Account
 from app.models.institution import Institution
 
 
@@ -37,12 +38,18 @@ class InstitutionRepository:
         return list(result.scalars().all())
 
     async def get_by_user_ids(self, user_ids: list[int]) -> list[Institution]:
-        """Get all institutions for a list of users."""
+        """Get institutions for a list of users that have at least one account."""
         if not user_ids:
             return []
+        has_account = select(Account.institution_id).where(
+            Account.user_id.in_(user_ids)
+        )
         stmt = (
             select(Institution)
-            .where(Institution.user_id.in_(user_ids))
+            .where(
+                Institution.user_id.in_(user_ids),
+                Institution.id.in_(has_account),
+            )
             .order_by(Institution.created_at.desc())
         )
         result = await self.session.execute(stmt)

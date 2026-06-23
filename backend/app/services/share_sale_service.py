@@ -91,7 +91,8 @@ async def execute_share_sale(
     proceeds_pounds = (proceeds_pence / 100).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     gain_pence = (sale_price_pence - purchase_price_pence) * shares_sold
     gain_pounds = (gain_pence / 100).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-    cgt_pounds = (gain_pounds * cgt_rate / 100).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    taxable_gain = max(Decimal("0"), gain_pounds)
+    cgt_pounds = (taxable_gain * cgt_rate / 100).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     remaining_shares = current_shares - shares_sold
     shares_remaining_value = (remaining_shares * sale_price_pence / 100).quantize(
         Decimal("0.01"), rounding=ROUND_HALF_UP

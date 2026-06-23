@@ -34,11 +34,10 @@ function opt(v: string): string | undefined {
 
 export function buildSavePayload(
   fd: AccountFormData,
-  type: 'create' | 'edit',
   accountStatuses: ReferenceDataItem[],
 ): { payload: SavePayload | null; error: string } {
   if (!fd.name) return { payload: null, error: 'Please enter an account name' };
-  if (type === 'create' && !fd.institutionId) return { payload: null, error: 'Please select an institution' };
+  if (!fd.institutionId) return { payload: null, error: 'Please select an institution' };
   if (!fd.typeId || !fd.statusId) return { payload: null, error: 'Please select an account type and status' };
   const closed = accountStatuses.find(s => s.id === fd.statusId);
   if (closed?.referenceValue === 'Closed' && !fd.closedAt) {

@@ -27,6 +27,7 @@ export interface PortfolioCrudHandlers {
   updateAccount: (
     accountId: number,
     name: string,
+    institutionId?: number,
     typeId?: number,
     statusId?: number,
     accountNumber?: string,

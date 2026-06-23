@@ -1,6 +1,6 @@
 """Verify all Alembic migrations apply cleanly to a blank database.
 
-Uses a dedicated Docker container on port 5435 — completely isolated from
+Uses a dedicated Docker container on port 5437 — completely isolated from
 the dev DB (5433) and the regular test DB (5434). The container is created
 fresh and destroyed after the test, with no volumes or persistent state.
 """
@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 _BACKEND_DIR = Path(__file__).parent.parent
-_PORT = 5435
+_PORT = 5437
 _PASSWORD = "migtest_password"
 _DB = "wealthtrack"
 _USER = "postgres"

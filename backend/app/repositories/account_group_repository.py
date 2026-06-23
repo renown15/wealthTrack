@@ -9,6 +9,7 @@ from sqlalchemy.orm import selectinload
 
 from app.models.account_group import AccountGroup
 from app.models.account_group_member import AccountGroupMember
+from app.models.risk_scenario_account_group import RiskScenarioAccountGroup
 
 
 class AccountGroupRepository:
@@ -42,10 +43,14 @@ class AccountGroupRepository:
         return result.scalar_one_or_none()
 
     async def get_by_user(self, user_id: int) -> list[AccountGroup]:
-        """Get all account groups for a user."""
+        """Get account groups for a user, excluding groups owned by risk scenarios."""
+        scenario_group_ids = select(RiskScenarioAccountGroup.account_group_id)
         stmt = (
             select(AccountGroup)
-            .where(AccountGroup.user_id == user_id)
+            .where(
+                AccountGroup.user_id == user_id,
+                AccountGroup.id.not_in(scenario_group_ids),
+            )
             .options(selectinload(AccountGroup.members))
             .order_by(AccountGroup.created_at.desc())
         )

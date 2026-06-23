@@ -12,6 +12,8 @@ from app.models.institution import Institution
 from app.models.institution_group import InstitutionGroup
 from app.models.institution_security_credentials import InstitutionSecurityCredentials
 from app.models.reference_data import ReferenceData
+from app.models.risk_scenario import RiskScenario
+from app.models.risk_scenario_account_group import RiskScenarioAccountGroup
 from app.models.tax_document import TaxDocument
 from app.models.tax_period import TaxPeriod
 from app.models.tax_return import TaxReturn
@@ -33,4 +35,6 @@ __all__ = [
     "TaxPeriod",
     "TaxReturn",
     "TaxDocument",
+    "RiskScenario",
+    "RiskScenarioAccountGroup",
 ]

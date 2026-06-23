@@ -92,7 +92,7 @@ describe('useAccountCrudHandlers', () => {
       await handleSave({
         name: 'Updated', institutionId: 2, openedAt: '2020-01-01', closedAt: null
       });
-      expect(mockUpdate).toHaveBeenCalledWith(3, 'Updated', undefined, undefined,
+      expect(mockUpdate).toHaveBeenCalledWith(3, 'Updated', 2, undefined, undefined,
         undefined, undefined, undefined, undefined, undefined, undefined,
         undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
       expect(mockDates).toHaveBeenCalledWith(3, { opened_at: '2020-01-01', closed_at: null });

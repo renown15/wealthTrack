@@ -156,6 +156,8 @@ async def update_account(
     update_dict: dict[str, Any] = {}
     if account_data.name is not None:
         update_dict["name"] = account_data.name
+    if account_data.institution_id is not None:
+        update_dict["institution_id"] = account_data.institution_id
     if account_data.type_id is not None:
         update_dict["type_id"] = account_data.type_id
     if account_data.status_id is not None:

@@ -27,6 +27,7 @@ from app.controllers.institution_security_credentials import (
 )
 from app.controllers.portfolio import router as portfolio_router
 from app.controllers.reference_data import router as reference_data_router
+from app.controllers.risk_scenarios import router as risk_scenarios_router
 from app.controllers.share_sale import router as share_sale_router
 from app.controllers.tax import router as tax_router
 from app.database import async_session_maker, engine
@@ -108,6 +109,7 @@ app.include_router(share_sale_router, prefix=settings.api_v1_prefix)
 app.include_router(dividends_router, prefix=settings.api_v1_prefix)
 app.include_router(gifts_router, prefix=settings.api_v1_prefix)
 app.include_router(family_router, prefix=settings.api_v1_prefix)
+app.include_router(risk_scenarios_router, prefix=settings.api_v1_prefix)
 
 
 @app.get("/")

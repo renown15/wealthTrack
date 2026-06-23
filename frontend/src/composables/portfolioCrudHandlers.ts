@@ -71,6 +71,7 @@ export function createPortfolioCrudHandlers(
   const updateAccount = async (
     accountId: number,
     name: string,
+    institutionId?: number,
     typeId?: number,
     statusId?: number,
     accountNumber?: string,
@@ -92,6 +93,7 @@ export function createPortfolioCrudHandlers(
     state.error = null;
     const payload: AccountUpdatePayload = {
       name,
+      institutionId,
       typeId,
       statusId,
       accountNumber,

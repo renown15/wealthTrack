@@ -2,6 +2,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.account import Account
+from app.models.risk_scenario import RiskScenario
+from app.models.risk_scenario_account_group import RiskScenarioAccountGroup
 from app.models.user_profile import UserProfile
 from app.repositories.account_group_repository import AccountGroupRepository
 
@@ -87,6 +89,30 @@ async def test_add_member_group_not_found(
     repo = AccountGroupRepository(db_session)
     result = await repo.add_member(9999, user.id, account.id)
     assert result is None
+
+
+async def test_get_by_user_excludes_scenario_groups(
+    db_session: AsyncSession, user: UserProfile
+):
+    """Groups linked to a risk scenario must not appear in the account hub group list."""
+    repo = AccountGroupRepository(db_session)
+    regular = await repo.create(user.id, "Regular Group")
+    scenario_group = await repo.create(user.id, "Scenario Group")
+    scenario = RiskScenario()
+    scenario.user_id = user.id
+    scenario.name = "My Scenario"
+    db_session.add(scenario)
+    await db_session.flush()
+    link = RiskScenarioAccountGroup()
+    link.scenario_id = scenario.id
+    link.account_group_id = scenario_group.id
+    link.sort_order = 0
+    db_session.add(link)
+    await db_session.flush()
+    groups = await repo.get_by_user(user.id)
+    ids = [g.id for g in groups]
+    assert regular.id in ids
+    assert scenario_group.id not in ids
 
 
 async def test_remove_member(db_session: AsyncSession, user: UserProfile, account: Account):

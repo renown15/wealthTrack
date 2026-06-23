@@ -43,6 +43,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/scenarios',
+    name: 'scenarios',
+    component: () => import('@views/ScenarioHub/ScenarioHub.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/reference-data',
     name: 'reference-data',
     component: () => import('@views/ReferenceDataAdmin.vue'),

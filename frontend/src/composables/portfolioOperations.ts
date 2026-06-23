@@ -28,6 +28,7 @@ export interface AccountCreatePayload {
 
 export interface AccountUpdatePayload {
   name: string;
+  institutionId?: number;
   typeId?: number;
   statusId?: number;
   accountNumber?: string;

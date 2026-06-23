@@ -65,11 +65,12 @@ export function getDeferredTooltip(item: PortfolioItem): string | undefined {
         item.account.numberOfShares, item.account.price, item.account.purchasePrice
       );
       if (calc) {
+        const cgt = Math.max(0, calc.capitalGainsTax);
         const lines = [
           `Shares: ${formatNumber(item.account.numberOfShares)}`,
           `Price: ${formatCurrency(toPounds(item.account.price))}`,
           `Gross Amount: ${formatCurrency(calc.grossAmount)}`,
-          `Capital Gains Tax (20%): ${formatCurrency(calc.capitalGainsTax)}`,
+          `Capital Gains Tax (20%): ${formatCurrency(cgt)}`,
         ];
         appendTargetPriceLine(lines, item.account.numberOfShares, item.account.targetPrice, item.account.purchasePrice);
         return lines.join('\n');
@@ -145,7 +146,7 @@ export function getGroupDeferredTooltip(items: PortfolioItem[]): string | undefi
         if (calc) {
           totalShares += parseFloat(item.account.numberOfShares);
           totalGross += calc.grossAmount;
-          totalCGT += calc.capitalGainsTax;
+          totalCGT += isShares(item) ? Math.max(0, calc.capitalGainsTax) : calc.capitalGainsTax;
           hasData = true;
         }
       }

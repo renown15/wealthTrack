@@ -61,7 +61,7 @@
       </select>
     </div>
 
-    <div v-if="type === 'create'" class="form-group">
+    <div class="form-group">
       <label for="institution-select" class="form-label">Institution</label>
       <select v-model.number="formData.institutionId" id="institution-select" class="form-select">
         <option value="">Select Institution</option>

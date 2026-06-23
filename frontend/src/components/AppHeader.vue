@@ -15,6 +15,7 @@
         <router-link to="/dashboard" class="nav-btn" :class="{ active: isRoute('dashboard') }">Account Hub</router-link>
         <router-link to="/analytics" class="nav-btn" :class="{ active: isRoute('analytics') }">Analytics</router-link>
         <router-link to="/tax" class="nav-btn" :class="{ active: isRoute('tax') }">Tax Hub</router-link>
+        <router-link to="/scenarios" class="nav-btn" :class="{ active: isRoute('scenarios') }">Scenarios</router-link>
         <router-link to="/reference-data" class="nav-btn hidden md:inline-flex" :class="{ active: isRoute('reference-data') }">Reference Data</router-link>
         <button class="nav-btn" @click="familyModalOpen = true">Family</button>
         <button class="nav-btn" @click="logout">Logout</button>

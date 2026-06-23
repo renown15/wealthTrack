@@ -89,6 +89,7 @@ class AccountUpdate(BaseSchema):
     """Schema for updating an account."""
 
     name: Optional[str] = Field(None, min_length=1, max_length=255)
+    institution_id: Optional[int] = None
     type_id: Optional[int] = None
     status_id: Optional[int] = None
     account_number: Optional[str] = Field(None, max_length=255, description="Account number")

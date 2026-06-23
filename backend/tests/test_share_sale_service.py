@@ -172,3 +172,18 @@ class TestExecuteShareSaleSuccess:
         )
         # proceeds = 15000.00, existing cash = 200.00
         assert resp.cash_new_balance == "15200.00"
+
+    @pytest.mark.asyncio
+    async def test_cgt_floored_at_zero_on_capital_loss(self, monkeypatch):
+        # Sale price below purchase price → capital loss → CGT must be 0, not negative
+        session, account_repo, attr_repo, event_repo, group_repo = make_session_and_repos(
+            purchase_price="15000",
+            number_of_shares="100",
+            cgt_rate="24",
+        )
+        patch_repos(monkeypatch, account_repo, attr_repo, event_repo, group_repo)
+        resp = await execute_share_sale(
+            make_request(shares_sold="100", sale_price_per_share="10000"), 1, session
+        )
+        assert resp.capital_gain == "-5000.00"  # genuine loss recorded
+        assert resp.cgt == "0.00"               # CGT cannot be negative

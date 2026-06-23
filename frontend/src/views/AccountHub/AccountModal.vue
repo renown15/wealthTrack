@@ -164,7 +164,7 @@ const handleSave = (): void => {
   validationError.value = '';
   if (confirmingTransfer.value) { void doTransfer(); return; }
   if (props.type === 'edit' && selectedOwnerId.value !== currentUserId.value) { confirmingTransfer.value = true; return; }
-  const { payload, error } = buildSavePayload(formData.value, props.type, props.accountStatuses);
+  const { payload, error } = buildSavePayload(formData.value, props.accountStatuses);
   if (!payload) { validationError.value = error; return; }
   emit('save', payload);
 };

@@ -124,6 +124,8 @@ Services in `backend/app/services/` contain business logic.
 Controllers/handlers in `backend/app/controllers/` are thin wrappers.
 Repositories in `backend/app/repositories/` handle DB access.
 
+**Silent update failure pattern:** If a PUT returns 200 but the change doesn't persist, check the backend logs for a missing SQL UPDATE statement. The cause is almost always a service-layer field filter (an explicit allowlist or conditional block) that silently drops the field. Fix: add the field to the allowlist in the relevant service, not the controller or repository.
+
 ## Config: `.env.dev` as Single Source of Truth
 
 All dev config (ports, credentials) lives in `.env.dev`.
