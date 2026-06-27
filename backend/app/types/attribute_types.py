@@ -25,6 +25,8 @@ class AttributeType(StrEnum):
     ENCUMBRANCE = "Encumbrance"
     UNENCUMBERED_BALANCE = "Unencumbered Balance"
     TAX_YEAR = "Tax Year"
+    RENEWAL_DATE = "Renewal Date"
+    MONTHLY_COST = "Monthly Cost"
 
     @property
     def value_type(self) -> ValueType:
@@ -49,6 +51,8 @@ _VALUE_TYPES: dict[AttributeType, ValueType] = {
     AttributeType.ENCUMBRANCE: "number",
     AttributeType.UNENCUMBERED_BALANCE: "number",
     AttributeType.TAX_YEAR: "string",
+    AttributeType.RENEWAL_DATE: "date",
+    AttributeType.MONTHLY_COST: "number",
 }
 
 # Maps snake_case field shorthands → AttributeType (for validation lookups)
@@ -69,6 +73,8 @@ FIELD_TO_ATTR_TYPE: dict[str, AttributeType] = {
     "encumbrance": AttributeType.ENCUMBRANCE,
     "unencumbered_balance": AttributeType.UNENCUMBERED_BALANCE,
     "tax_year": AttributeType.TAX_YEAR,
+    "renewal_date": AttributeType.RENEWAL_DATE,
+    "monthly_cost": AttributeType.MONTHLY_COST,
 }
 
 _SORT_CODE_RE = re.compile(r"^\d{2}-\d{2}-\d{2}$")
@@ -114,4 +120,6 @@ ATTRIBUTE_FIELDS: list[str] = [
     "encumbrance",
     "unencumbered_balance",
     "tax_year",
+    "renewal_date",
+    "monthly_cost",
 ]

@@ -26,6 +26,7 @@ class TaxDocument(Base):
         "taxreturnid", Integer, ForeignKey("TaxReturn.id"), nullable=False, index=True
     )
     filename: Mapped[str] = mapped_column(String(500), nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     content_type: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     file_data: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

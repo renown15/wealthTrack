@@ -17,6 +17,7 @@ _NUMERIC_FIELDS = (
     "purchase_price",
     "pension_monthly_payment",
     "encumbrance",
+    "monthly_cost",
 )
 
 
@@ -78,6 +79,8 @@ class AccountCreate(BaseSchema):
     tax_year: Optional[str] = Field(
         None, max_length=10, description="Tax year (e.g. 2024/25) for Tax Liability accounts"
     )
+    renewal_date: Optional[str] = Field(None, max_length=255, description="Renewal date")
+    monthly_cost: Optional[str] = Field(None, max_length=255, description="Monthly cost")
 
     @field_validator(*_NUMERIC_FIELDS, mode="before")
     @classmethod
@@ -132,6 +135,8 @@ class AccountUpdate(BaseSchema):
     tax_year: Optional[str] = Field(
         None, max_length=10, description="Tax year for Tax Liability accounts"
     )
+    renewal_date: Optional[str] = Field(None, max_length=255, description="Renewal date")
+    monthly_cost: Optional[str] = Field(None, max_length=255, description="Monthly cost")
 
     @field_validator(*_NUMERIC_FIELDS, mode="before")
     @classmethod
@@ -170,6 +175,8 @@ class AccountResponse(BaseSchema):
     encumbrance: Optional[str] = None
     unencumbered_balance: Optional[str] = None
     tax_year: Optional[str] = None
+    renewal_date: Optional[str] = None
+    monthly_cost: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

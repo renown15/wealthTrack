@@ -19,7 +19,9 @@ from app.services.tax_liability_helpers import (
     get_share_sales_in_period,
     get_tax_liability_rows,
 )
+from app.services.tax_scope_helpers import OUT_OF_SCOPE, get_scope_maps
 from app.services.tax_service_helpers import (
+    TAX_FREE_TYPES,
     fetch_accounts_with_attrs,
     filter_eligible,
     get_dividend_totals,
@@ -36,6 +38,7 @@ async def _enrich_items(
     event_counts: dict[int, int],
     first_balance_dates: dict[int, Any] | None = None,
     dividend_totals: dict[int, float] | None = None,
+    scope_by_id: dict[int, str] | None = None,
 ) -> list[dict[str, Any]]:
     return_repo = TaxReturnRepository(session)
     doc_repo = TaxDocumentRepository(session)
@@ -81,11 +84,14 @@ async def _enrich_items(
                 user_id, account.id, tax_period_id,
                 income=income, capital_gain=capital_gain, tax_taken_off=tax_taken_off)
         documents = await doc_repo.list_for_return(tax_return.id, user_id) if tax_return else []
+        status_id = getattr(tax_return, "scope_status_id", None)
+        scope = (scope_by_id or {}).get(status_id) if status_id is not None else None
         enriched.append(
             {
                 **item,
                 "tax_return": tax_return,
                 "documents": documents,
+                "scope": scope,
                 "event_count": event_counts.get(account.id, 0),
                 "first_balance_date": (first_balance_dates or {}).get(account.id),
             }
@@ -135,6 +141,15 @@ async def get_eligible_with_returns(
 
     eligible_only_rows = [r for r in eligible_rows if r["account"].id not in group_member_ids]
 
+    eligible_and_scope_ids = {r["account"].id for r in eligible_rows} | group_member_ids
+    excluded_rows = [
+        r for r in rows
+        if r["account"].id not in eligible_and_scope_ids
+        and r["account_type"] != "Tax Liability"
+    ]
+    tax_free_rows = [r for r in excluded_rows if r["account_type"] in TAX_FREE_TYPES]
+    not_in_scope_rows = [r for r in excluded_rows if r["account_type"] not in TAX_FREE_TYPES]
+
     if period_name:
         tax_in_scope, tax_eligible = await get_tax_liability_rows(
             session, user_id, rows, period_name
@@ -142,7 +157,8 @@ async def get_eligible_with_returns(
         in_scope_rows.extend(tax_in_scope)
         eligible_only_rows.extend(tax_eligible)
 
-    all_ids = list({r["account"].id for r in in_scope_rows + eligible_only_rows})
+    all_rows = in_scope_rows + eligible_only_rows + tax_free_rows + not_in_scope_rows
+    all_ids = list({r["account"].id for r in all_rows})
     event_counts: dict[int, int] = {}
     first_balance_dates: dict[int, Any] = {}
     if all_ids:
@@ -156,13 +172,34 @@ async def get_eligible_with_returns(
             session, user_id, all_ids, period_start_dt, period_end_dt
         )
 
+    scope_by_id, _ = await get_scope_maps(session)
     in_scope = await _enrich_items(
         session, user_id, tax_period_id, in_scope_rows,
-        event_counts, first_balance_dates, dividend_totals,
+        event_counts, first_balance_dates, dividend_totals, scope_by_id,
     )
     eligible = await _enrich_items(
         session, user_id, tax_period_id, eligible_only_rows,
-        event_counts, first_balance_dates, dividend_totals,
+        event_counts, first_balance_dates, dividend_totals, scope_by_id,
     )
+    def _bare_items(rows_list: list[dict[str, Any]], reason: str) -> list[dict[str, Any]]:
+        return [
+            {**r, "eligibility_reason": reason, "scope": None,
+             "event_count": event_counts.get(r["account"].id, 0),
+             "first_balance_date": None, "tax_return": None, "documents": []}
+            for r in rows_list
+        ]
 
-    return {"in_scope": in_scope, "eligible": eligible}
+    # An eligible account manually marked out of scope drops to not-in-scope,
+    # keeping its tax_return so the note travels to the briefing extract.
+    overridden = [e for e in eligible if e.get("scope") == OUT_OF_SCOPE]
+    eligible = [e for e in eligible if e.get("scope") != OUT_OF_SCOPE]
+    for item in overridden:
+        item["eligibility_reason"] = "not_in_scope"
+
+    tax_free = _bare_items(tax_free_rows, "tax_free")
+    not_in_scope = overridden + _bare_items(not_in_scope_rows, "not_in_scope")
+
+    return {
+        "in_scope": in_scope, "eligible": eligible,
+        "tax_free": tax_free, "not_in_scope": not_in_scope,
+    }

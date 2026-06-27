@@ -2,7 +2,10 @@
   <tr class="table-row-hover" :class="{ 'bg-red-50': isFixedRateEndingWithin30Days(getFixedRateEndDate(item)) }">
     <td class="table-cell"></td>
     <td class="table-cell">{{ item.institution?.name || 'Unassigned' }}</td>
-    <td class="table-cell font-semibold">{{ item.account.name }}</td>
+    <td class="table-cell font-semibold cursor-default" @mouseenter="onNameEnter" @mouseleave="onNameLeave">
+      {{ item.account.name }}
+      <AccountHoverCard :item="item" :anchor-rect="hoverRect" :visible="hovered" :hide="['balance', 'rate']" />
+    </td>
     <td class="table-cell"><div class="truncate whitespace-nowrap overflow-hidden max-w-[11rem]" :title="item.accountType || 'Unknown'">{{ item.accountType || 'Unknown' }}</div></td>
     <td class="table-cell">
       <div v-if="editingBalanceId === item.account.id && !isDeferredShares(item) && !isRSU(item) && !isShares(item)" class="balance-edit">
@@ -24,21 +27,21 @@
         @click.stop="$emit('startEdit', item.account.id, getEditValue(item))"
       >
         <span class="font-semibold text-green-600">{{ formatCurrency(getDisplayBalance(item)) }}</span>
-        <span v-if="getEncumbranceTooltip(item)" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="getEncumbranceTooltip(item)">i</span>
-        <span v-else-if="isDeferredCash(item)" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="getDeferredTooltip(item)">i</span>
+        <InfoBadge v-if="getEncumbranceTooltip(item)" :text="getEncumbranceTooltip(item)!" />
+        <InfoBadge v-else-if="isDeferredCash(item) && getDeferredTooltip(item)" :text="getDeferredTooltip(item)!" />
         <span class="text-muted opacity-0 group-hover:opacity-100 transition-opacity">{{ Icons.edit }}</span>
       </button>
       <div v-else class="flex items-center gap-1">
         <div class="font-semibold text-green-600">{{ formatCurrency(getDisplayBalance(item)) }}</div>
-        <span v-if="getEncumbranceTooltip(item)" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="getEncumbranceTooltip(item)">i</span>
-        <span v-else-if="getDeferredTooltip(item)" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="getDeferredTooltip(item)">i</span>
+        <InfoBadge v-if="getEncumbranceTooltip(item)" :text="getEncumbranceTooltip(item)!" />
+        <InfoBadge v-else-if="getDeferredTooltip(item)" :text="getDeferredTooltip(item)!" />
       </div>
     </td>
     <td class="table-cell text-gray-600 whitespace-nowrap">{{ formatShortDate(item.latestBalance?.createdAt) }}</td>
     <td class="table-cell">
       <span class="flex items-center gap-1">
         <span>{{ formatInterestRate(item.account.fixedBonusRate, item.account.interestRate) }}</span>
-        <span v-if="getYieldTooltip(item)" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="getYieldTooltip(item)">i</span>
+        <InfoBadge v-if="getYieldTooltip(item)" :text="getYieldTooltip(item)!" />
       </span>
     </td>
     <td class="table-cell whitespace-nowrap">{{ formatDate(getFixedRateEndDate(item)) }}</td>
@@ -77,7 +80,10 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import type { Account, PortfolioItem } from '@/models/WealthTrackDataModels';
+import AccountHoverCard from '@views/AccountHub/AccountHoverCard.vue';
+import InfoBadge from '@views/AccountHub/InfoBadge.vue';
 import {
   isDeferredShares,
   isDeferredCash,
@@ -115,6 +121,20 @@ defineEmits<{
   editAccount: [account: Account];
   deleteAccount: [account: Account];
 }>();
+
+const hovered = ref(false);
+const hoverRect = ref<DOMRect | null>(null);
+let showTimer: ReturnType<typeof setTimeout> | null = null;
+
+function onNameEnter(e: MouseEvent): void {
+  hoverRect.value = (e.currentTarget as HTMLElement).getBoundingClientRect();
+  showTimer = setTimeout(() => { hovered.value = true; }, 300);
+}
+
+function onNameLeave(): void {
+  if (showTimer) { clearTimeout(showTimer); showTimer = null; }
+  hovered.value = false;
+}
 
 const isFixedRateEndingWithin30Days = (dateStr: string | null | undefined): boolean => {
   if (!dateStr) return false;

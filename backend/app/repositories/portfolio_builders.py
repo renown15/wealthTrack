@@ -29,6 +29,8 @@ _LABEL_TO_KEY: dict[str, str] = {
     "Encumbrance": "encumbrance",
     "Unencumbered Balance": "unencumbered_balance",
     "Tax Year": "tax_year",
+    "Renewal Date": "renewal_date",
+    "Monthly Cost": "monthly_cost",
 }
 
 

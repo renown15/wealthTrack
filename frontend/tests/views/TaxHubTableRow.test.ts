@@ -116,9 +116,69 @@ describe('TaxHubTableRow — section buttons', () => {
     expect(wrapper.emitted('moveToEligible')).toEqual([[1]]);
   });
 
-  it('emits editReturn when edit button clicked', async () => {
+  it('emits editReturn when edit tax return button clicked', async () => {
     const wrapper = row(makeAccount(), 'inScope');
     await wrapper.find('[title="Edit tax return"]').trigger('click');
     expect(wrapper.emitted('editReturn')).toBeTruthy();
+  });
+
+  it('emits editAccount when edit account button clicked', async () => {
+    const wrapper = row(makeAccount(), 'inScope');
+    await wrapper.find('[title="Edit account"]').trigger('click');
+    expect(wrapper.emitted('editAccount')).toBeTruthy();
+  });
+
+  it('hides edit tax return button for notInScope section', () => {
+    const wrapper = row(makeAccount(), 'notInScope');
+    expect(wrapper.find('[title="Edit tax return"]').exists()).toBe(false);
+  });
+
+  it('shows add-to-scope button for notInScope section', () => {
+    const wrapper = row(makeAccount(), 'notInScope');
+    expect(wrapper.find('[title="Add to scope"]').exists()).toBe(true);
+  });
+});
+
+describe('TaxHubTableRow — scope actions', () => {
+  const outOfScope = (note: string | null) => ({
+    taxReturn: {
+      id: 1, accountId: 1, taxPeriodId: 1, income: null, capitalGain: null,
+      taxTakenOff: null, scope: 'Out of Scope', note,
+      createdAt: '2025-01-01', updatedAt: '2025-01-01',
+    },
+  });
+
+  it('shows mark-out-of-scope button on eligible rows and emits', async () => {
+    const wrapper = row(makeAccount({ eligibilityReason: 'interest_bearing' }), 'eligible');
+    const btn = wrapper.find('[title="Mark out of scope"]');
+    expect(btn.exists()).toBe(true);
+    await btn.trigger('click');
+    expect(wrapper.emitted('markOutOfScope')).toBeTruthy();
+  });
+
+  it('shows the note and return button for an out-of-scope row', async () => {
+    const wrapper = row(makeAccount({ ...outOfScope('Below threshold') }), 'notInScope');
+    expect(wrapper.text()).toContain('Below threshold');
+    const btn = wrapper.find('[title="Return to eligible"]');
+    expect(btn.exists()).toBe(true);
+    await btn.trigger('click');
+    expect(wrapper.emitted('clearScope')).toBeTruthy();
+  });
+
+  it('hides the return button when no scope override is set', () => {
+    const wrapper = row(makeAccount(), 'notInScope');
+    expect(wrapper.find('[title="Return to eligible"]').exists()).toBe(false);
+  });
+});
+
+describe('TaxHubTableRow — interest rate display', () => {
+  it('shows interest rate for in-scope accounts (not just interest_bearing)', () => {
+    const wrapper = row(makeAccount({ eligibilityReason: 'in_scope', interestRate: '3.1' }), 'inScope');
+    expect(wrapper.findAll('td')[7].text()).toBe('3.1');
+  });
+
+  it('shows dash when the account has no interest rate', () => {
+    const wrapper = row(makeAccount({ interestRate: null }), 'inScope');
+    expect(wrapper.findAll('td')[7].text()).toBe('—');
   });
 });

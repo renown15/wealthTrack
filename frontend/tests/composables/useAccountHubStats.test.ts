@@ -142,3 +142,29 @@ describe('useAccountHubStats - institution name sorting', () => {
     expect(visibleItems.value[0].institution?.name).toBe('Barclays');
   });
 });
+
+describe('useAccountHubStats - filteredItems search', () => {
+  it('returns all visible items when search is empty', () => {
+    const items = ref([openAccount, makeItem(3, 100, OPEN_STATUS_ID, 'Savings Account', 'Monzo')]);
+    const { filteredItems } = useAccountHubStats(items, accountStatuses, ref(36), ref(0.075));
+    expect(filteredItems.value).toHaveLength(2);
+  });
+
+  it('filters by institution name', () => {
+    const items = ref([
+      makeItem(1, 100, OPEN_STATUS_ID, 'Savings Account', 'Barclays'),
+      makeItem(2, 100, OPEN_STATUS_ID, 'Savings Account', 'Monzo'),
+    ]);
+    const { filteredItems, searchText } = useAccountHubStats(items, accountStatuses, ref(36), ref(0.075));
+    searchText.value = 'monzo';
+    expect(filteredItems.value).toHaveLength(1);
+    expect(filteredItems.value[0].institution?.name).toBe('Monzo');
+  });
+
+  it('filters by account name and respects hideClosed', () => {
+    const items = ref([openAccount, closedAccount]);
+    const { filteredItems, searchText } = useAccountHubStats(items, accountStatuses, ref(36), ref(0.075));
+    searchText.value = 'Account 2'; // closed account, hidden by default
+    expect(filteredItems.value).toHaveLength(0);
+  });
+});

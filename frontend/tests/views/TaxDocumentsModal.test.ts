@@ -8,7 +8,7 @@ vi.mock('@/utils/imageCompression', () => ({
 }));
 
 const mockDoc = {
-  id: 1, taxReturnId: 10, filename: 'statement.pdf', contentType: 'application/pdf',
+  id: 1, taxReturnId: 10, filename: 'statement.pdf', description: 'My doc', contentType: 'application/pdf',
   createdAt: '2025-03-15T09:00:00Z',
 };
 
@@ -73,7 +73,7 @@ describe('TaxDocumentsModal', () => {
         props: { open: true, account: makeAccount({ documents: [doc] }) },
       });
       const rows = wrapper.findAll('tbody tr');
-      expect(rows[0].findAll('td')[1].text()).toBe('');
+      expect(rows[0].findAll('td')[2].text()).toBe('');
     });
   });
 
@@ -130,6 +130,52 @@ describe('TaxDocumentsModal', () => {
       });
       await wrapper.find('button[title="Delete"]').trigger('click');
       expect(wrapper.emitted('deleteDoc')?.[0]).toEqual([1]);
+    });
+  });
+
+  describe('description editing', () => {
+    it('shows description text in table', () => {
+      const wrapper = mount(TaxDocumentsModal, {
+        props: { open: true, account: makeAccount() },
+      });
+      expect(wrapper.text()).toContain('My doc');
+    });
+
+    it('shows — when description is null', () => {
+      const doc = { ...mockDoc, description: null };
+      const wrapper = mount(TaxDocumentsModal, {
+        props: { open: true, account: makeAccount({ documents: [doc] }) },
+      });
+      const rows = wrapper.findAll('tbody tr');
+      expect(rows[0].findAll('td')[1].text()).toContain('—');
+    });
+
+    it('shows edit input when edit description button clicked', async () => {
+      const wrapper = mount(TaxDocumentsModal, {
+        props: { open: true, account: makeAccount() },
+      });
+      await wrapper.find('button[title="Edit description"]').trigger('click');
+      expect(wrapper.find('input[type="text"]').exists()).toBe(true);
+    });
+
+    it('emits updateDescription when save clicked', async () => {
+      const wrapper = mount(TaxDocumentsModal, {
+        props: { open: true, account: makeAccount() },
+      });
+      await wrapper.find('button[title="Edit description"]').trigger('click');
+      const input = wrapper.find('td input[type="text"]');
+      await input.setValue('Updated desc');
+      await wrapper.find('button[title="Save"]').trigger('click');
+      expect(wrapper.emitted('updateDescription')?.[0]).toEqual([1, 'Updated desc']);
+    });
+
+    it('cancels edit when cancel button clicked', async () => {
+      const wrapper = mount(TaxDocumentsModal, {
+        props: { open: true, account: makeAccount() },
+      });
+      await wrapper.find('button[title="Edit description"]').trigger('click');
+      await wrapper.find('button[title="Cancel"]').trigger('click');
+      expect(wrapper.find('td input[type="text"]').exists()).toBe(false);
     });
   });
 

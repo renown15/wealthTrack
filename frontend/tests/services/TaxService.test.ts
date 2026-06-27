@@ -100,6 +100,16 @@ describe('TaxService', () => {
     expect(result).toStrictEqual(mockReturn);
   });
 
+  it('setScope puts scope + note to the scope endpoint', async () => {
+    clientStub.put.mockResolvedValue({ data: mockReturn });
+    const result = await taxService.setScope(1, 5, { scope: 'Out of Scope', note: 'reason' });
+    expect(result).toStrictEqual(mockReturn);
+    expect(clientStub.put).toHaveBeenCalledWith(
+      '/api/v1/tax/periods/1/accounts/5/scope',
+      { scope: 'Out of Scope', note: 'reason' },
+    );
+  });
+
   it('listDocuments returns docs', async () => {
     clientStub.get.mockResolvedValue({ data: [mockDoc] });
     const result = await taxService.listDocuments(1, 5);

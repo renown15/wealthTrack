@@ -17,7 +17,10 @@ const baseConfig: FieldConfig = {
   showAssetClass: true,
   showEncumbrance: false,
   showBankingDetails: false,
+  showPolicyNumber: false,
   showTaxYear: false,
+  showRenewalDate: false,
+  showMonthlyCost: false,
 };
 
 const withInterest: Partial<FieldConfig> = { showInterestRate: true };
@@ -26,6 +29,7 @@ const banking: Partial<FieldConfig> = { showBankingDetails: true };
 const encumbrance: Partial<FieldConfig> = { showEncumbrance: true };
 const assetClass: Partial<FieldConfig> = { showAssetClass: true };
 const shares: Partial<FieldConfig> = { showNumberOfShares: true, showUnderlying: true, showPrice: true };
+const outgoing: Partial<FieldConfig> = { isDeferredType: true, showRenewalDate: true, showMonthlyCost: true, showPolicyNumber: true, showAssetClass: false };
 
 export const ACCOUNT_TYPE_ASSET_GROUP: Record<string, string> = {
   'Current Account':                'cash',
@@ -45,6 +49,16 @@ export const ACCOUNT_TYPE_ASSET_GROUP: Record<string, string> = {
   'Deferred DB Pension':            'pension',
   'Deferred Cash':                  'deferred-cash',
   'Tax Liability':                  'tax-liability',
+  'Utility - Gas':                  'outgoing',
+  'Utility - Electric':             'outgoing',
+  'Utility - Water':                'outgoing',
+  'Utility - Broadband':            'outgoing',
+  'Insurance - Home':               'outgoing',
+  'Insurance - Car':                'outgoing',
+  'Insurance - Life':               'outgoing',
+  'Insurance - Health':             'outgoing',
+  'Insurance - Income Protection':  'outgoing',
+  'Subscription':                   'outgoing',
 };
 
 export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
@@ -65,5 +79,15 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
   'Trust Bank Account':            { ...baseConfig, ...withInterest, ...banking },
   'Trust Stocks Investment Account': { ...baseConfig, ...assetClass },
   'Tax Liability':                 { ...baseConfig, showAssetClass: false, showTaxYear: true },
+  'Utility - Gas':                 { ...baseConfig, ...outgoing },
+  'Utility - Electric':            { ...baseConfig, ...outgoing },
+  'Utility - Water':               { ...baseConfig, ...outgoing },
+  'Utility - Broadband':           { ...baseConfig, ...outgoing },
+  'Insurance - Home':              { ...baseConfig, ...outgoing },
+  'Insurance - Car':               { ...baseConfig, ...outgoing },
+  'Insurance - Life':              { ...baseConfig, ...outgoing },
+  'Insurance - Health':            { ...baseConfig, ...outgoing },
+  'Insurance - Income Protection': { ...baseConfig, ...outgoing },
+  'Subscription':                  { ...baseConfig, ...outgoing },
   'DEFAULT':                       { ...baseConfig, ...withInterest, ...banking },
 };

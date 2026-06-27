@@ -67,4 +67,15 @@ describe('PortfolioControls', () => {
     const toggle = wrapper.find('[title="Toggle grouping"]');
     expect(toggle.classes()).toContain('bg-blue-600');
   });
+
+  it('renders the search input with current value', () => {
+    const wrapper = mount(PortfolioControls, { props: { hideClosed: false, grouped: false, search: 'barclays' } });
+    expect((wrapper.find('input[type="search"]').element as HTMLInputElement).value).toBe('barclays');
+  });
+
+  it('emits update:search when typing', async () => {
+    const wrapper = mount(PortfolioControls, { props: { hideClosed: false, grouped: false, search: '' } });
+    await wrapper.find('input[type="search"]').setValue('monzo');
+    expect(wrapper.emitted('update:search')?.[0]).toStrictEqual(['monzo']);
+  });
 });

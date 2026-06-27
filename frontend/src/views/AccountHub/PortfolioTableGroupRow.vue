@@ -21,8 +21,8 @@
       <td class="table-cell font-semibold text-green-700">
         <span class="flex items-center gap-1">
           <span>{{ formatCurrency(summary?.totalBalance || 0) }}</span>
-          <span v-if="groupDeferredTooltip" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="groupDeferredTooltip">i</span>
-          <span v-if="groupEncumbranceTooltip" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="groupEncumbranceTooltip">i</span>
+          <InfoBadge v-if="groupDeferredTooltip" :text="groupDeferredTooltip" />
+          <InfoBadge v-if="groupEncumbranceTooltip" :text="groupEncumbranceTooltip" />
         </span>
       </td>
       <td class="table-cell whitespace-nowrap">{{ summary?.commonBalanceUpdatedAt ? formatShortDate(summary.commonBalanceUpdatedAt) : '—' }}</td>
@@ -31,7 +31,7 @@
           <span>{{ summary?.commonBonusRate !== null && summary?.commonInterestRate !== null
             ? formatInterestRate(summary?.commonBonusRate, summary?.commonInterestRate)
             : '—' }}</span>
-          <span v-if="groupYieldTooltip" class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded bg-blue-100 text-blue-600 cursor-pointer flex-shrink-0" :title="groupYieldTooltip">i</span>
+          <InfoBadge v-if="groupYieldTooltip" :text="groupYieldTooltip" />
         </span>
       </td>
       <td class="table-cell whitespace-nowrap">{{ summary?.commonEndDate ? formatDate(summary.commonEndDate) : '—' }}</td>
@@ -87,6 +87,7 @@ import { getGroupYieldTooltip, getGroupDeferredTooltip, getGroupEncumbranceToolt
 import { Icons } from '@/constants/icons';
 import { computed } from 'vue';
 import PortfolioTableMemberRow from '@views/AccountHub/PortfolioTableMemberRow.vue';
+import InfoBadge from '@views/AccountHub/InfoBadge.vue';
 
 interface GroupSummary {
   totalBalance: number;

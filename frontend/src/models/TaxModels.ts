@@ -10,9 +10,10 @@ export type TaxReturn = components['schemas']['TaxReturnResponse'];
 export type TaxReturnUpsertRequest = components['schemas']['TaxReturnUpsert'];
 export type TaxDocument = components['schemas']['TaxDocumentResponse'];
 export type TaxPeriodAccountsResponse = components['schemas']['TaxPeriodAccountsResponse'];
+export type TaxScopeUpdateRequest = components['schemas']['TaxScopeUpdate'];
 
 // EligibleAccount — keeps the specific eligibilityReason union type for template safety.
 // The generated type uses 'string'; override here preserves exhaustive checks.
 export type EligibleAccount = Omit<components['schemas']['EligibleAccountResponse'], 'eligibilityReason'> & {
-  eligibilityReason: 'interest_bearing' | 'sold_in_period' | 'dividend_income' | 'in_scope' | 'tax_liability';
+  eligibilityReason: 'interest_bearing' | 'sold_in_period' | 'dividend_income' | 'in_scope' | 'tax_liability' | 'tax_free' | 'not_in_scope';
 };

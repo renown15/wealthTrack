@@ -2,6 +2,13 @@
   <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
     <h3 class="section-title">Portfolio</h3>
     <div class="flex flex-wrap items-center gap-3">
+      <input
+        :value="search"
+        type="search"
+        placeholder="Search name, institution, acc no, sort code…"
+        class="px-3 py-1.5 border border-gray-300 rounded text-xs w-44 sm:w-72"
+        @input="$emit('update:search', ($event.target as HTMLInputElement).value)"
+      />
       <div class="flex items-center gap-2">
         <span class="text-xs font-medium text-gray-700">Hide Closed</span>
         <button class="relative w-10 h-5 rounded-full transition-colors duration-200 border-none cursor-pointer" :class="hideClosed ? 'bg-blue-600' : 'bg-gray-300'" @click="$emit('toggle-hide-closed')" title="Toggle closed accounts">
@@ -29,6 +36,6 @@
 
 <script setup lang="ts">
 import { Icons } from '@/constants/icons';
-defineProps<{ hideClosed: boolean; grouped: boolean; refreshing?: boolean }>();
-defineEmits<{ 'toggle-hide-closed': []; 'toggle-grouped': []; export: []; 'refresh-prices': [] }>();
+defineProps<{ hideClosed: boolean; grouped: boolean; refreshing?: boolean; search?: string }>();
+defineEmits<{ 'toggle-hide-closed': []; 'toggle-grouped': []; export: []; 'refresh-prices': []; 'update:search': [value: string] }>();
 </script>

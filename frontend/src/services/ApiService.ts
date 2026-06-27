@@ -20,6 +20,7 @@ import type {
   TaxPeriodCreateRequest,
   TaxReturn,
   TaxReturnUpsertRequest,
+  TaxScopeUpdateRequest,
   TaxDocument,
 } from '@models/TaxModels';
 import { institutionCredentialService } from '@services/InstitutionCredentialService';
@@ -133,8 +134,20 @@ class ApiService extends ApiServiceBase {
     return taxService.upsertReturn(periodId, accountId, data);
   }
 
-  async uploadTaxDocument(periodId: number, accountId: number, file: File): Promise<TaxDocument> {
-    return taxService.uploadDocument(periodId, accountId, file);
+  async setTaxScope(
+    periodId: number,
+    accountId: number,
+    data: TaxScopeUpdateRequest,
+  ): Promise<TaxReturn> {
+    return taxService.setScope(periodId, accountId, data);
+  }
+
+  async uploadTaxDocument(periodId: number, accountId: number, file: File, description?: string): Promise<TaxDocument> {
+    return taxService.uploadDocument(periodId, accountId, file, description);
+  }
+
+  async updateTaxDocumentDescription(docId: number, description: string | null): Promise<TaxDocument> {
+    return taxService.updateDescription(docId, description);
   }
 
   async downloadTaxDocument(docId: number): Promise<Blob> {

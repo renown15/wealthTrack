@@ -45,6 +45,7 @@ class TaxDocumentRepository:
         filename: str,
         content_type: Optional[str],
         file_data: bytes,
+        description: Optional[str] = None,
     ) -> TaxDocument:
         """Persist a new document."""
         now = datetime.utcnow()
@@ -52,11 +53,24 @@ class TaxDocumentRepository:
         doc.user_id = user_id
         doc.tax_return_id = tax_return_id
         doc.filename = filename
+        doc.description = description
         doc.content_type = content_type
         doc.file_data = file_data
         doc.created_at = now
         doc.updated_at = now
         self.session.add(doc)
+        await self.session.flush()
+        await self.session.refresh(doc)
+        return doc
+
+    async def update_description(
+        self, doc_id: int, user_id: int, description: Optional[str]
+    ) -> Optional[TaxDocument]:
+        """Update the description of a document."""
+        doc = await self.get_by_id(doc_id, user_id)
+        if not doc:
+            return None
+        doc.description = description
         await self.session.flush()
         await self.session.refresh(doc)
         return doc

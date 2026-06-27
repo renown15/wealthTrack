@@ -59,6 +59,23 @@ describe('TaxHubStats', () => {
     expect(wrapper.emitted('deletePeriod')?.[0]).toEqual([1, '2024/25']);
   });
 
+  it('emits exportBriefing when Export Briefing Pack clicked', async () => {
+    const wrapper = mount(TaxHubStats, { props: { periods: [mockPeriod], selectedPeriodId: null } });
+    const btn = wrapper.findAll('button').find((b) => b.text() === 'Export Briefing Pack');
+    await btn?.trigger('click');
+    expect(wrapper.emitted('exportBriefing')).toBeTruthy();
+  });
+
+  it('shows Add Closed Account only when a period is selected', async () => {
+    const none = mount(TaxHubStats, { props: { periods: [mockPeriod], selectedPeriodId: null } });
+    expect(none.findAll('button').some((b) => b.text() === '+ Add Closed Account')).toBe(false);
+    const selected = mount(TaxHubStats, { props: { periods: [mockPeriod], selectedPeriodId: 1 } });
+    const btn = selected.findAll('button').find((b) => b.text() === '+ Add Closed Account');
+    expect(btn).toBeTruthy();
+    await btn?.trigger('click');
+    expect(selected.emitted('openQuickAdd')).toBeTruthy();
+  });
+
   it('applies ring class to the selected period', () => {
     const wrapper = mount(TaxHubStats, { props: { periods: [mockPeriod], selectedPeriodId: 1 } });
     expect(wrapper.find('.ring-2').exists()).toBe(true);

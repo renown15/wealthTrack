@@ -8,6 +8,7 @@ import type {
   TaxPeriodCreateRequest,
   TaxReturn,
   TaxReturnUpsertRequest,
+  TaxScopeUpdateRequest,
 } from '@models/TaxModels';
 import { BaseApiClient } from '@services/BaseApiClient';
 import { debug } from '@utils/debug';
@@ -91,6 +92,24 @@ class TaxService extends BaseApiClient {
     }
   }
 
+  async setScope(
+    periodId: number,
+    accountId: number,
+    data: TaxScopeUpdateRequest,
+  ): Promise<TaxReturn> {
+    try {
+      const response = await this.retryRequest(() =>
+        this.client.put<TaxReturn>(
+          `${BASE}/periods/${periodId}/accounts/${accountId}/scope`,
+          data,
+        ),
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error, 'Failed to update scope');
+    }
+  }
+
   async listDocuments(periodId: number, accountId: number): Promise<TaxDocument[]> {
     try {
       const response = await this.retryRequest(() =>
@@ -104,10 +123,11 @@ class TaxService extends BaseApiClient {
     }
   }
 
-  async uploadDocument(periodId: number, accountId: number, file: File): Promise<TaxDocument> {
+  async uploadDocument(periodId: number, accountId: number, file: File, description?: string): Promise<TaxDocument> {
     try {
       const formData = new FormData();
       formData.append('file', file);
+      if (description) formData.append('description', description);
       debug.log('[TaxService] uploadDocument', { periodId, accountId, fileName: file.name, fileType: file.type, fileSize: file.size });
       const token = this.getAuthToken();
       const res = await fetch(
@@ -121,6 +141,17 @@ class TaxService extends BaseApiClient {
     } catch (error) {
       debug.error('[TaxService] uploadDocument error', error);
       throw this.handleError(error, 'Failed to upload document');
+    }
+  }
+
+  async updateDescription(docId: number, description: string | null): Promise<TaxDocument> {
+    try {
+      const formData = new FormData();
+      if (description !== null) formData.append('description', description);
+      const response = await this.client.patch<TaxDocument>(`${BASE}/documents/${docId}`, formData);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error, 'Failed to update description');
     }
   }
 

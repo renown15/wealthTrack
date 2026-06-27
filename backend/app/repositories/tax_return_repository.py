@@ -89,6 +89,31 @@ class TaxReturnRepository:
             return existing
         return await self._create(user_id, account_id, tax_period_id, income, None, None, now)
 
+    async def set_scope(
+        self,
+        user_id: int,
+        account_id: int,
+        tax_period_id: int,
+        scope_status_id: Optional[int],
+        note: Optional[str],
+    ) -> TaxReturn:
+        """Set only the scope override + note; create the row if absent. Leaves figures intact."""
+        existing = await self.get_for_account_period(user_id, account_id, tax_period_id)
+        now = datetime.utcnow()
+        if existing:
+            existing.scope_status_id = scope_status_id
+            existing.note = note
+            existing.updated_at = now
+            await self.session.flush()
+            await self.session.refresh(existing)
+            return existing
+        created = await self._create(user_id, account_id, tax_period_id, None, None, None, now)
+        created.scope_status_id = scope_status_id
+        created.note = note
+        await self.session.flush()
+        await self.session.refresh(created)
+        return created
+
     async def get_or_create(
         self,
         user_id: int,

@@ -49,6 +49,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/outgoings',
+    name: 'outgoings',
+    component: () => import('@views/OutgoingsHub/OutgoingsHub.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/reference-data',
     name: 'reference-data',
     component: () => import('@views/ReferenceDataAdmin.vue'),

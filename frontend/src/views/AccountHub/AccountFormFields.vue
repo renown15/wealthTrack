@@ -90,8 +90,8 @@
       </div>
     </div>
 
-    <div v-if="getFieldConfig.showBankingDetails || props.closedAccountMode" class="form-group">
-      <label for="accountNumber" class="form-label">Account Number</label>
+    <div v-if="getFieldConfig.showBankingDetails || getFieldConfig.showPolicyNumber || props.closedAccountMode" class="form-group">
+      <label for="accountNumber" class="form-label">{{ getFieldConfig.showPolicyNumber ? 'Policy / Account Number' : 'Account Number' }}</label>
       <input id="accountNumber" v-model="formData.accountNumber" type="text" class="form-input" placeholder="e.g., 12345678" />
     </div>
 
@@ -143,6 +143,16 @@
         <option :value="null">— close without transfer —</option>
         <option v-for="acc in props.transferAccounts" :key="acc.id" :value="acc.id">{{ acc.label }}</option>
       </select>
+    </div>
+    <div v-if="!props.closedAccountMode && (getFieldConfig.showRenewalDate || getFieldConfig.showMonthlyCost)" class="grid grid-cols-2 gap-4">
+      <div v-if="getFieldConfig.showRenewalDate" class="form-group">
+        <label for="renewalDate" class="form-label">Renewal Date</label>
+        <input id="renewalDate" v-model="formData.renewalDate" type="date" class="form-input" />
+      </div>
+      <div v-if="getFieldConfig.showMonthlyCost" class="form-group">
+        <label for="monthlyCost" class="form-label">Monthly Cost (£)</label>
+        <input id="monthlyCost" v-model="formData.monthlyCost" type="text" inputmode="decimal" class="form-input" placeholder="e.g., 45.99" />
+      </div>
     </div>
     <AccountFormDeferredFields v-if="!props.closedAccountMode" :form-data="formData" :field-config="getFieldConfig" />
   </div>

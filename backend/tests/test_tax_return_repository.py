@@ -107,3 +107,56 @@ class TestTaxReturnRepositoryUpsert:
         assert existing.income == 200.0
         assert existing.capital_gain == 500.0
         session.flush.assert_called_once()
+
+
+class TestTaxReturnRepositorySetScope:
+    @pytest.mark.asyncio
+    async def test_sets_scope_and_note_on_existing(self):
+        repo, session = _make_repo()
+        existing = MagicMock()
+        existing.income = 99.0
+        found = MagicMock()
+        found.scalar_one_or_none.return_value = existing
+        session.execute = AsyncMock(return_value=found)
+        session.flush = AsyncMock()
+        session.refresh = AsyncMock()
+
+        await repo.set_scope(
+            user_id=1, account_id=2, tax_period_id=3, scope_status_id=7, note="below threshold"
+        )
+        assert existing.scope_status_id == 7
+        assert existing.note == "below threshold"
+        assert existing.income == 99.0  # figures untouched
+        session.flush.assert_called()
+
+    @pytest.mark.asyncio
+    async def test_clears_scope_with_none(self):
+        repo, session = _make_repo()
+        existing = MagicMock()
+        found = MagicMock()
+        found.scalar_one_or_none.return_value = existing
+        session.execute = AsyncMock(return_value=found)
+        session.flush = AsyncMock()
+        session.refresh = AsyncMock()
+
+        await repo.set_scope(
+            user_id=1, account_id=2, tax_period_id=3, scope_status_id=None, note=None
+        )
+        assert existing.scope_status_id is None
+        assert existing.note is None
+
+    @pytest.mark.asyncio
+    async def test_creates_row_when_absent(self):
+        repo, session = _make_repo()
+        not_found = MagicMock()
+        not_found.scalar_one_or_none.return_value = None
+        session.execute = AsyncMock(return_value=not_found)
+        session.flush = AsyncMock()
+        session.refresh = AsyncMock()
+
+        result = await repo.set_scope(
+            user_id=1, account_id=2, tax_period_id=3, scope_status_id=7, note="n"
+        )
+        session.add.assert_called_once()
+        assert result.scope_status_id == 7
+        assert result.note == "n"

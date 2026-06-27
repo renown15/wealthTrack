@@ -18,6 +18,7 @@ from app.services.tax_briefing_sections import (
     build_portfolio_map,
     documents_section,
     gifts_section,
+    out_of_scope_section,
     tax_detail_section,
     wealth_section,
 )
@@ -33,6 +34,7 @@ class BriefingData:
     in_scope: list[dict[str, Any]]
     eligible: list[dict[str, Any]]
     gifts: list[GiftSummary]
+    out_of_scope: list[dict[str, Any]] = field(default_factory=list)
     generated_at: date = field(default_factory=date.today)
 
 
@@ -89,6 +91,10 @@ def build_pdf(data: BriefingData) -> bytes:
     story += wealth_section(styles, data.portfolio_items, data.in_scope, data.eligible, pmap)
     story.append(Spacer(1, 6 * mm))
     story += tax_detail_section(styles, data.in_scope)
+    out_of_scope = out_of_scope_section(styles, data.out_of_scope)
+    if out_of_scope:
+        story.append(Spacer(1, 6 * mm))
+        story += out_of_scope
     story.append(PageBreak())
     story += gifts_section(styles, data.gifts)
     story.append(PageBreak())

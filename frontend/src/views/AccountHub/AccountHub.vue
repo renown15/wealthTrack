@@ -21,10 +21,10 @@
       <div v-if="isLoadingMember" class="py-8 text-center text-sm text-muted">Loading portfolio…</div>
       <div v-else-if="memberError" class="error-banner mb-3"><span>{{ memberError }}</span></div>
       <template v-else>
-        <PortfolioControls :hide-closed="hideClosed" :grouped="grouped" :refreshing="priceRefreshing" @toggle-hide-closed="hideClosed = !hideClosed" @toggle-grouped="grouped = !grouped" @export="handleExport" @refresh-prices="handleRefreshPrices" />
+        <PortfolioControls :hide-closed="hideClosed" :grouped="grouped" :refreshing="priceRefreshing" :search="searchText" @update:search="searchText = $event" @toggle-hide-closed="hideClosed = !hideClosed" @toggle-grouped="grouped = !grouped" @export="handleExport" @refresh-prices="handleRefreshPrices" />
         <div class="table-wrap">
           <PortfolioTable
-            :items="visibleItems" :groups="portfolioGroups" :read-only="activeMemberId !== null"
+            :items="filteredItems" :groups="portfolioGroups" :read-only="activeMemberId !== null"
             :group-members="groupMembersMap" :account-types="accountTypes" :grouped="grouped"
             @edit-account="(a) => activeMemberId === null && openEditAccountModal(a)"
             @delete-account="(a) => activeMemberId === null && openDeleteConfirm('account', a.id, a.name)"
@@ -119,7 +119,7 @@ const grouped = ref(true); const groupByParent = ref(true);
 const { accountTypes, accountStatuses, institutionTypes, credentialTypes, lifeExpectancy, annuityRate } = useHubReferenceData();
 const { otherMembers, allMembers, activeMemberId, tableItems, activeInstitutions, memberGroups, memberGroupMembersMap, isLoadingMember, memberError, loadFamilyTabs, selectMember, familyId, reloadMemberPortfolio } =
   useFamilyTabs(() => authState.user?.id ?? 0, () => ({ firstName: authState.user?.firstName ?? '', lastName: authState.user?.lastName ?? '' }), computed(() => state.items));
-const { hideClosed, visibleItems, totalValue, cashAtHand, isaSavings, illiquid, trustAssets, projectedAnnualYield, pensionBreakdown } =
+const { hideClosed, searchText, visibleItems, filteredItems, totalValue, cashAtHand, isaSavings, illiquid, trustAssets, projectedAnnualYield, pensionBreakdown } =
   useAccountHubStats(tableItems, accountStatuses, lifeExpectancy, annuityRate);
 const institutionsToShow = computed<Institution[]>(() => activeInstitutions.value ?? state.institutions);
 onMounted(() => { void loadPortfolio(); void loadGroups(); void loadFamilyTabs(); });

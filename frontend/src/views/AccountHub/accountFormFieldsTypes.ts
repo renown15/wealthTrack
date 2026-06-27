@@ -32,6 +32,8 @@ export interface FormData {
   assetClass?: string | null;
   encumbrance?: string | null;
   taxYear?: string | null;
+  renewalDate?: string | null;
+  monthlyCost?: string | null;
   transferToAccountId?: number | null;
 }
 

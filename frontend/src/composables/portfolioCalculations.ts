@@ -49,6 +49,19 @@ export const TRUST_TYPES = [
   'Trust Stocks Investment Account',
 ];
 
+export const OUTGOING_TYPES = [
+  'Utility - Gas',
+  'Utility - Electric',
+  'Utility - Water',
+  'Utility - Broadband',
+  'Insurance - Home',
+  'Insurance - Car',
+  'Insurance - Life',
+  'Insurance - Health',
+  'Insurance - Income Protection',
+  'Subscription',
+];
+
 /**
  * Calculate total portfolio value from items
  */

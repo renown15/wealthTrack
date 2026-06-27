@@ -77,6 +77,7 @@ async def generate_briefing_pack(
     )
     gifts = await get_user_gifts(member_id, session)
 
+    out_of_scope = [i for i in tax_result["not_in_scope"] if i.get("scope")]
     data = BriefingData(
         member_name=member_name,
         period_name=period.name,
@@ -84,5 +85,6 @@ async def generate_briefing_pack(
         in_scope=tax_result["in_scope"],
         eligible=tax_result["eligible"],
         gifts=gifts,
+        out_of_scope=out_of_scope,
     )
     return build_pdf(data), _filename(member_name, period.name)

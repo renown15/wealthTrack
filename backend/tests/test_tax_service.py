@@ -36,8 +36,17 @@ def test_parse_date_none():
     assert _parse_date(None) is None
 
 
+def test_parse_date_dd_mm_yyyy():
+    assert _parse_date("06/06/2026") == date(2026, 6, 6)
+
+
 def test_parse_date_invalid():
     assert _parse_date("not-a-date") is None
+
+
+def test_savings_eligible_opened_after_period_end_dmy():
+    attrs = {"Interest Rate": "2.5", "Account Opened Date": "01/06/2025"}
+    assert not _savings_eligible("Savings Account", attrs, date(2024, 4, 6), date(2025, 4, 5))
 
 
 def test_savings_eligible_basic():

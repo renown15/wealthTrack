@@ -49,6 +49,8 @@ export interface AccountFormData {
   assetClass: string;
   encumbrance: string;
   taxYear: string;
+  renewalDate: string;
+  monthlyCost: string;
   transferToAccountId: number | null;
 }
 
@@ -77,6 +79,8 @@ export interface AccountFormProps {
   initialAssetClass?: string | null;
   initialEncumbrance?: string | null;
   initialTaxYear?: string | null;
+  initialRenewalDate?: string | null;
+  initialMonthlyCost?: string | null;
   accountTypes: ReferenceDataItem[];
   accountStatuses: ReferenceDataItem[];
   institutions?: Institution[];

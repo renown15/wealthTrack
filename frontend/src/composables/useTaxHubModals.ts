@@ -14,11 +14,13 @@ export function useTaxHubModals(
   periods: Ref<TaxPeriod[]>,
   accounts: ComputedRef<EligibleAccount[]> | Ref<EligibleAccount[]>,
   saveReturn: (periodId: number, accountId: number, data: TaxReturnUpsertRequest) => Promise<boolean>,
-  uploadDocument: (periodId: number, accountId: number, file: File) => Promise<TaxDocument | null>,
+  uploadDocument: (periodId: number, accountId: number, file: File, description?: string) => Promise<TaxDocument | null>,
+  updateDocumentDescription: (accountId: number, docId: number, description: string | null) => Promise<void>,
   downloadDocument: (docId: number, filename: string) => Promise<void>,
   fetchDocumentBlob: (docId: number) => Promise<Blob | null>,
   deleteDocument: (periodId: number, accountId: number, docId: number) => Promise<void>,
   moveToInScope: (accountId: number) => Promise<void>,
+  setScope: (accountId: number, scope: string | null, note: string | null) => Promise<void>,
 ): {
   returnModalOpen: Ref<boolean>;
   docsModalOpen: Ref<boolean>;
@@ -36,19 +38,26 @@ export function useTaxHubModals(
   previewUrl: Ref<string | null>;
   previewFilename: Ref<string>;
   previewContentType: Ref<string | null>;
+  scopeModalOpen: Ref<boolean>;
+  openScopeModal: (account: EligibleAccount) => void;
+  handleSaveScope: (note: string) => Promise<void>;
+  handleClearScope: (accountId: number) => Promise<void>;
   openReturnModal: (account: EligibleAccount) => void;
   openDocumentsModal: (account: EligibleAccount) => void;
   openDeleteConfirm: (periodId: number, periodName: string) => void;
   handleSaveReturn: (data: TaxReturnUpsertRequest) => Promise<void>;
-  handleUpload: (file: File) => Promise<void>;
+  handleUpload: (file: File, description?: string) => Promise<void>;
+  handleUpdateDescription: (docId: number, description: string | null) => Promise<void>;
   handleDownload: (docId: number, filename: string) => Promise<void>;
   handleDeleteDoc: (docId: number) => Promise<void>;
+  loadFormData: () => Promise<void>;
   handleOpenQuickAdd: () => Promise<void>;
   handleQuickAdd: (data: AccountFormData) => Promise<void>;
   handlePreview: (docId: number, filename: string, contentType: string | null) => Promise<void>;
   closePreview: () => void;
 } {
   const returnModalOpen = ref(false);
+  const scopeModalOpen = ref(false);
   const docsModalOpen = ref(false);
   const quickAddOpen = ref(false);
   const activeAccount = ref<EligibleAccount | null>(null);
@@ -81,6 +90,21 @@ export function useTaxHubModals(
     docsModalOpen.value = true;
   }
 
+  function openScopeModal(account: EligibleAccount): void {
+    activeAccount.value = account;
+    scopeModalOpen.value = true;
+  }
+
+  async function handleSaveScope(note: string): Promise<void> {
+    if (!activeAccount.value) return;
+    await setScope(activeAccount.value.accountId, 'Out of Scope', note || null);
+    scopeModalOpen.value = false;
+  }
+
+  async function handleClearScope(accountId: number): Promise<void> {
+    await setScope(accountId, null, null);
+  }
+
   function openDeleteConfirm(periodId: number, periodName: string): void {
     deleteConfirmId.value = periodId;
     deleteConfirmName.value = periodName;
@@ -97,9 +121,16 @@ export function useTaxHubModals(
     }
   }
 
-  async function handleUpload(file: File): Promise<void> {
+  async function handleUpload(file: File, description?: string): Promise<void> {
     if (!activeAccount.value || selectedPeriodId.value === null) return;
-    await uploadDocument(selectedPeriodId.value, activeAccount.value.accountId, file);
+    await uploadDocument(selectedPeriodId.value, activeAccount.value.accountId, file, description);
+    activeAccount.value =
+      accounts.value.find((a) => a.accountId === activeAccount.value?.accountId) ?? activeAccount.value;
+  }
+
+  async function handleUpdateDescription(docId: number, description: string | null): Promise<void> {
+    if (!activeAccount.value) return;
+    await updateDocumentDescription(activeAccount.value.accountId, docId, description);
     activeAccount.value =
       accounts.value.find((a) => a.accountId === activeAccount.value?.accountId) ?? activeAccount.value;
   }
@@ -160,8 +191,9 @@ export function useTaxHubModals(
     quickAddInitialData, quickAddInstitutions, quickAddTypes,
     quickAddStatuses, quickAddInstitutionTypes,
     previewOpen, previewUrl, previewFilename, previewContentType,
+    scopeModalOpen, openScopeModal, handleSaveScope, handleClearScope,
     openReturnModal, openDocumentsModal, openDeleteConfirm,
-    handleSaveReturn, handleUpload, handleDownload, handleDeleteDoc,
-    handleOpenQuickAdd, handleQuickAdd, handlePreview, closePreview,
+    handleSaveReturn, handleUpload, handleUpdateDescription, handleDownload, handleDeleteDoc,
+    loadFormData, handleOpenQuickAdd, handleQuickAdd, handlePreview, closePreview,
   };
 }

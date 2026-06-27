@@ -14,17 +14,24 @@ from app.models.account_event_attribute_group_member import AccountEventAttribut
 from app.models.reference_data import ReferenceData
 from app.repositories.account_attribute_repository import AccountAttributeRepository
 
-_ISA_TYPES: frozenset[str] = frozenset({"Cash ISA", "Fixed Rate ISA", "Stocks ISA"})
+ISA_TYPES: frozenset[str] = frozenset({"Cash ISA", "Fixed Rate ISA", "Stocks ISA"})
+PENSION_TYPES: frozenset[str] = frozenset({"Deferred DC Pension", "Deferred DB Pension", "SIPP"})
+TAX_FREE_TYPES: frozenset[str] = ISA_TYPES | PENSION_TYPES
+_ISA_TYPES = ISA_TYPES
 _SHARES_TYPE = "Shares"
 
 
 def parse_date(value: str | None) -> date | None:
-    """Parse an ISO-format date string stored in an account attribute."""
+    """Parse a date string stored in an account attribute (ISO YYYY-MM-DD or DD/MM/YYYY)."""
     if not value:
         return None
     try:
+        if '/' in value:
+            parts = value.split('/')
+            if len(parts) == 3:
+                return date(int(parts[2]), int(parts[1]), int(parts[0]))
         return date.fromisoformat(value[:10])
-    except ValueError:
+    except (ValueError, IndexError):
         return None
 
 

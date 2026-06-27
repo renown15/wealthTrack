@@ -648,6 +648,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tax/periods/{periodId}/Accounts/{AccountId}/Scope": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set Tax Scope
+         * @description Set or clear an account's scope override and note for a period.
+         */
+        put: operations["set_tax_scope_api_v1_tax_periods__period_id__accounts__account_id__scope_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tax/periods/{periodId}/Accounts/{AccountId}/Documents": {
         parameters: {
             query?: never;
@@ -709,7 +729,11 @@ export interface paths {
         delete: operations["delete_document_api_v1_tax_documents__doc_id__delete"];
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Update Document Description
+         * @description Update the description of a tax document.
+         */
+        patch: operations["update_document_description_api_v1_tax_documents__doc_id__patch"];
         trace?: never;
     };
     "/api/v1/tax/briefing-pack": {
@@ -1306,6 +1330,16 @@ export interface components {
              * @description Tax year (e.g. 2024/25) for Tax Liability accounts
              */
             taxYear?: string | null;
+            /**
+             * Renewaldate
+             * @description Renewal date
+             */
+            renewalDate?: string | null;
+            /**
+             * Monthlycost
+             * @description Monthly cost
+             */
+            monthlyCost?: string | null;
         };
         /**
          * AccountDatesUpdate
@@ -1498,6 +1532,10 @@ export interface components {
             unencumberedBalance?: string | null;
             /** Taxyear */
             taxYear?: string | null;
+            /** Renewaldate */
+            renewalDate?: string | null;
+            /** Monthlycost */
+            monthlyCost?: string | null;
             /**
              * Createdat
              * Format: date-time
@@ -1610,6 +1648,16 @@ export interface components {
              * @description Tax year for Tax Liability accounts
              */
             taxYear?: string | null;
+            /**
+             * Renewaldate
+             * @description Renewal date
+             */
+            renewalDate?: string | null;
+            /**
+             * Monthlycost
+             * @description Monthly cost
+             */
+            monthlyCost?: string | null;
         };
         /**
          * AddMemberRequest
@@ -1621,6 +1669,11 @@ export interface components {
         };
         /** Body_update_document_description_api_v1_accounts_documents__doc_id__patch */
         BodyUpdateDocumentDescriptionApiV1AccountsDocumentsDocIdPatch: {
+            /** Description */
+            description?: string | null;
+        };
+        /** Body_update_document_description_api_v1_tax_documents__doc_id__patch */
+        BodyUpdateDocumentDescriptionApiV1TaxDocumentsDocIdPatch: {
             /** Description */
             description?: string | null;
         };
@@ -1641,6 +1694,8 @@ export interface components {
              * Format: binary
              */
             file: string;
+            /** Description */
+            description?: string | null;
         };
         /**
          * BreakdownItem
@@ -2348,6 +2403,8 @@ export interface components {
             taxReturnId: number;
             /** Filename */
             filename: string;
+            /** Description */
+            description?: string | null;
             /** Contenttype */
             contentType?: string | null;
             /**
@@ -2367,6 +2424,10 @@ export interface components {
             inScope?: components["schemas"]["EligibleAccountResponse"][];
             /** Eligible */
             eligible?: components["schemas"]["EligibleAccountResponse"][];
+            /** Taxfree */
+            taxFree?: components["schemas"]["EligibleAccountResponse"][];
+            /** Notinscope */
+            notInScope?: components["schemas"]["EligibleAccountResponse"][];
         };
         /**
          * TaxPeriodCreate
@@ -2437,6 +2498,10 @@ export interface components {
             capitalGain?: number | null;
             /** Taxtakenoff */
             taxTakenOff?: number | null;
+            /** Scope */
+            scope?: string | null;
+            /** Note */
+            note?: string | null;
             /**
              * Createdat
              * Format: date-time
@@ -2459,6 +2524,16 @@ export interface components {
             capitalGain?: number | null;
             /** Taxtakenoff */
             taxTakenOff?: number | null;
+        };
+        /**
+         * TaxScopeUpdate
+         * @description Set or clear the scope override and note for an account in a period.
+         */
+        TaxScopeUpdate: {
+            /** Scope */
+            scope?: string | null;
+            /** Note */
+            note?: string | null;
         };
         /**
          * TokenResponse
@@ -2548,6 +2623,10 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
         };
     };
     responses: never;
@@ -2771,7 +2850,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             /** @description Validation Error */
@@ -3870,6 +3951,42 @@ export interface operations {
             };
         };
     };
+    set_tax_scope_api_v1_tax_periods__period_id__accounts__account_id__scope_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                period_id: number;
+                account_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaxScopeUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxReturnResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_documents_api_v1_tax_periods__period_id__accounts__account_id__documents_get: {
         parameters: {
             query?: never;
@@ -3989,6 +4106,43 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_document_description_api_v1_tax_documents__doc_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                doc_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/x-www-form-urlencoded": {
+                    description?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxDocumentResponse"];
+                };
             };
             /** @description Validation Error */
             422: {
@@ -4617,7 +4771,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             /** @description Validation Error */

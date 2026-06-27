@@ -83,6 +83,16 @@ async def delete_tax_period(
     await session.commit()
 
 
+def _tax_return_response(item: dict[str, Any]) -> TaxReturnResponse | None:
+    """Build the tax return response, resolving the scope override value."""
+    tax_return = item.get("tax_return")
+    if not tax_return:
+        return None
+    response = TaxReturnResponse.model_validate(tax_return)
+    response.scope = item.get("scope")
+    return response
+
+
 def _build_account_response(item: dict[str, Any]) -> EligibleAccountResponse:
     return EligibleAccountResponse(
         account_id=item["account"].id,
@@ -91,7 +101,7 @@ def _build_account_response(item: dict[str, Any]) -> EligibleAccountResponse:
         institution_name=(
             item["account"].institution.name if item["account"].institution else None
         ),
-        interest_rate=item.get("interest_rate"),
+        interest_rate=item.get("interest_rate") or item.get("attrs", {}).get("Interest Rate"),
         account_status=item.get("account_status"),
         account_number=item.get("attrs", {}).get("Account Number"),
         sort_code=item.get("attrs", {}).get("Sort Code"),
@@ -99,9 +109,7 @@ def _build_account_response(item: dict[str, Any]) -> EligibleAccountResponse:
         eligibility_reason=item["eligibility_reason"],
         event_count=item.get("event_count", 0),
         first_balance_date=item.get("first_balance_date"),
-        tax_return=(
-            TaxReturnResponse.model_validate(item["tax_return"]) if item["tax_return"] else None
-        ),
+        tax_return=_tax_return_response(item),
         documents=[TaxDocumentResponse.model_validate(d) for d in item["documents"]],
     )
 
@@ -139,4 +147,6 @@ async def get_eligible_accounts(
         account_group_id=period.account_group_id,
         in_scope=[_build_account_response(item) for item in result["in_scope"]],
         eligible=[_build_account_response(item) for item in result["eligible"]],
+        tax_free=[_build_account_response(item) for item in result["tax_free"]],
+        not_in_scope=[_build_account_response(item) for item in result["not_in_scope"]],
     )

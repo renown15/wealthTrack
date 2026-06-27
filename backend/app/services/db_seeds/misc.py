@@ -30,4 +30,9 @@ MISC_ITEMS: list[ReferenceDataItem] = [
     ReferenceDataItem(
         class_key="stock_target_ref_price", reference_value="HSBA.L:1400", sort_index=1
     ),
+    # -----------------------------------------------------------------------
+    # Tax scope status — explicit per-return scope override (NULL = derived).
+    # Add further values here (e.g. "Deferred", "Queried") with no migration.
+    # -----------------------------------------------------------------------
+    ReferenceDataItem(class_key="tax_scope_status", reference_value="Out of Scope", sort_index=1),
 ]

@@ -2,6 +2,7 @@ import { ref, computed } from 'vue';
 import type { Ref, ComputedRef } from 'vue';
 import type { PortfolioItem } from '@/models/WealthTrackDataModels';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
+import { matchesAccountSearch } from '@/utils/accountSearch';
 import {
   calculateTotalValue,
   calculateCashAtHand,
@@ -20,7 +21,9 @@ export function useAccountHubStats(
   annuityRate: Ref<number>,
 ): {
   hideClosed: Ref<boolean>;
+  searchText: Ref<string>;
   visibleItems: ComputedRef<PortfolioItem[]>;
+  filteredItems: ComputedRef<PortfolioItem[]>;
   totalValue: ComputedRef<number>;
   cashAtHand: ComputedRef<number>;
   isaSavings: ComputedRef<number>;
@@ -30,6 +33,7 @@ export function useAccountHubStats(
   pensionBreakdown: ComputedRef<PensionBreakdown>;
 } {
   const hideClosed = ref(true);
+  const searchText = ref('');
 
   const visibleItems = computed(() => {
     const closedId = accountStatuses.value.find(s => s.referenceValue === 'Closed')?.id;
@@ -45,6 +49,17 @@ export function useAccountHubStats(
       });
   });
 
+  const filteredItems = computed(() =>
+    visibleItems.value.filter((i) =>
+      matchesAccountSearch(searchText.value, {
+        institutionName: i.institution?.name,
+        accountName: i.account.name,
+        accountNumber: i.account.accountNumber,
+        sortCode: i.account.sortCode,
+      })
+    )
+  );
+
   const totalValue = computed(() => calculateTotalValue(visibleItems.value));
   const cashAtHand = computed(() => calculateCashAtHand(visibleItems.value));
   const isaSavings = computed(() => calculateIsaSavings(visibleItems.value));
@@ -57,7 +72,9 @@ export function useAccountHubStats(
 
   return {
     hideClosed,
+    searchText,
     visibleItems,
+    filteredItems,
     totalValue,
     cashAtHand,
     isaSavings,

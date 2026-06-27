@@ -4,7 +4,7 @@ TaxReturn model — per-account data for a given tax period.
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, UniqueConstraint
+from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -40,6 +40,10 @@ class TaxReturn(Base):
     income: Mapped[Optional[float]] = mapped_column(Numeric(15, 2), nullable=True)
     capital_gain: Mapped[Optional[float]] = mapped_column(Numeric(15, 2), nullable=True)
     tax_taken_off: Mapped[Optional[float]] = mapped_column(Numeric(15, 2), nullable=True)
+    scope_status_id: Mapped[Optional[int]] = mapped_column(
+        "scopestatusid", Integer, ForeignKey("ReferenceData.id"), nullable=True
+    )
+    note: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False

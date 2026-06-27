@@ -35,6 +35,7 @@ const makeHandlers = (overrides: Partial<{
   fetchDocumentBlob: (docId: number) => Promise<Blob | null>;
   deleteDocument: (...args: unknown[]) => Promise<void>;
   moveToInScope: (id: number) => Promise<void>;
+  setScope: (id: number, scope: string | null, note: string | null) => Promise<void>;
 }> = {}) => {
   const selectedPeriodId = overrides.selectedPeriodId ?? ref<number | null>(1);
   const periods = overrides.periods ?? ref<TaxPeriod[]>([makePeriod()]);
@@ -45,10 +46,12 @@ const makeHandlers = (overrides: Partial<{
   const fetchDocumentBlob = overrides.fetchDocumentBlob ?? vi.fn().mockResolvedValue(new Blob(['pdf']));
   const deleteDocument = overrides.deleteDocument ?? vi.fn().mockResolvedValue(undefined);
   const moveToInScope = overrides.moveToInScope ?? vi.fn().mockResolvedValue(undefined);
+  const updateDocumentDescription = vi.fn().mockResolvedValue(undefined);
+  const setScope = overrides.setScope ?? vi.fn().mockResolvedValue(undefined);
   return useTaxHubModals(
     selectedPeriodId, periods, accounts as never,
-    saveReturn, uploadDocument as never, downloadDocument,
-    fetchDocumentBlob, deleteDocument as never, moveToInScope,
+    saveReturn, uploadDocument as never, updateDocumentDescription as never, downloadDocument,
+    fetchDocumentBlob, deleteDocument as never, moveToInScope, setScope,
   );
 };
 
@@ -94,6 +97,29 @@ describe('useTaxHubModals — modals and document operations', () => {
     expect(handlers.returnModalOpen.value).toBe(false);
   });
 
+  it('openScopeModal sets activeAccount and opens scope modal', () => {
+    const { openScopeModal, scopeModalOpen, activeAccount } = makeHandlers();
+    openScopeModal(makeAccount(7));
+    expect(scopeModalOpen.value).toBe(true);
+    expect(activeAccount.value?.accountId).toBe(7);
+  });
+
+  it('handleSaveScope marks Out of Scope with note and closes', async () => {
+    const setScope = vi.fn().mockResolvedValue(undefined);
+    const { openScopeModal, handleSaveScope, scopeModalOpen } = makeHandlers({ setScope });
+    openScopeModal(makeAccount(7));
+    await handleSaveScope('reason');
+    expect(setScope).toHaveBeenCalledWith(7, 'Out of Scope', 'reason');
+    expect(scopeModalOpen.value).toBe(false);
+  });
+
+  it('handleClearScope clears with nulls', async () => {
+    const setScope = vi.fn().mockResolvedValue(undefined);
+    const { handleClearScope } = makeHandlers({ setScope });
+    await handleClearScope(7);
+    expect(setScope).toHaveBeenCalledWith(7, null, null);
+  });
+
   it('handleSaveReturn does nothing when selectedPeriodId is null', async () => {
     const handlers = makeHandlers({ selectedPeriodId: ref(null) });
     handlers.openReturnModal(makeAccount());
@@ -115,7 +141,7 @@ describe('useTaxHubModals — modals and document operations', () => {
     openDocumentsModal(makeAccount());
     const file = new File(['x'], 'doc.pdf');
     await handleUpload(file);
-    expect(uploadDocument).toHaveBeenCalledWith(1, 10, file);
+    expect(uploadDocument).toHaveBeenCalledWith(1, 10, file, undefined);
   });
 
   it('handleUpload does nothing when no activeAccount', async () => {

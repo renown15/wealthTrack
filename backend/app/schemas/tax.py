@@ -48,6 +48,14 @@ class TaxReturnUpsert(BaseSchema):
     tax_taken_off: Optional[float] = None
 
 
+class TaxScopeUpdate(BaseSchema):
+    """Set or clear the scope override and note for an account in a period."""
+
+    # tax_scope_status reference value (e.g. "Out of Scope"); None clears the override
+    scope: Optional[str] = None
+    note: Optional[str] = Field(default=None, max_length=500)
+
+
 class TaxReturnResponse(BaseSchema):
     """Tax return response."""
 
@@ -57,6 +65,8 @@ class TaxReturnResponse(BaseSchema):
     income: Optional[float] = None
     capital_gain: Optional[float] = None
     tax_taken_off: Optional[float] = None
+    scope: Optional[str] = None  # resolved tax_scope_status value; None = derived
+    note: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
@@ -70,6 +80,7 @@ class TaxDocumentResponse(BaseSchema):
     id: int
     tax_return_id: int
     filename: str
+    description: Optional[str] = None
     content_type: Optional[str] = None
     created_at: datetime
 
@@ -102,3 +113,5 @@ class TaxPeriodAccountsResponse(BaseSchema):
     account_group_id: Optional[int] = None
     in_scope: list[EligibleAccountResponse] = Field(default_factory=list)
     eligible: list[EligibleAccountResponse] = Field(default_factory=list)
+    tax_free: list[EligibleAccountResponse] = Field(default_factory=list)
+    not_in_scope: list[EligibleAccountResponse] = Field(default_factory=list)

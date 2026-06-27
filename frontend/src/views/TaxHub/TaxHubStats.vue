@@ -5,8 +5,14 @@
         <h2 class="header-title">Tax Hub</h2>
         <p class="header-subtitle">Manage tax returns and certificates for eligible accounts.</p>
       </div>
-      <div class="header-actions">
+      <div class="header-actions flex-wrap">
         <button class="btn-primary" @click="emit('addPeriod')">+ Add Tax Period</button>
+        <button
+          v-if="selectedPeriodId !== null"
+          class="btn-secondary"
+          @click="emit('openQuickAdd')"
+        >+ Add Closed Account</button>
+        <button class="btn-secondary" @click="emit('exportBriefing')">Export Briefing Pack</button>
       </div>
     </div>
 
@@ -19,13 +25,13 @@
         @click="emit('selectPeriod', period.id)"
         :title="`${formatDate(period.startDate)} – ${formatDate(period.endDate)}`"
       >
-        <p class="stat-label flex items-center justify-between">
-          <span>
+        <p class="stat-label flex items-center justify-between gap-1">
+          <span class="min-w-0 truncate">
             {{ period.name }}
             <span class="info-icon" style="cursor: pointer;">{{ Icons.info }}</span>
           </span>
           <button
-            class="btn-secondary text-xs ml-2"
+            class="btn-secondary flex-shrink-0 !px-2 !py-1 !tracking-normal text-[0.6rem]"
             @click.stop="emit('deletePeriod', period.id, period.name)"
           >REMOVE</button>
         </p>
@@ -52,6 +58,8 @@ defineProps<{
 
 const emit = defineEmits<{
   addPeriod: [];
+  openQuickAdd: [];
+  exportBriefing: [];
   selectPeriod: [periodId: number];
   deletePeriod: [periodId: number, periodName: string];
 }>();

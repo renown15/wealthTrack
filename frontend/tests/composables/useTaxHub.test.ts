@@ -12,6 +12,7 @@ vi.mock('@/services/ApiService', () => ({
     deleteTaxDocument: vi.fn(),
     addAccountToGroup: vi.fn(),
     removeAccountFromGroup: vi.fn(),
+    setTaxScope: vi.fn(),
   },
 }));
 
@@ -59,6 +60,7 @@ describe('useTaxHub', () => {
     mockApi.deleteTaxDocument.mockResolvedValue(undefined);
     mockApi.addAccountToGroup.mockResolvedValue(undefined);
     mockApi.removeAccountFromGroup.mockResolvedValue(undefined);
+    mockApi.setTaxScope.mockResolvedValue(mockReturn);
   });
 
   it('loadAccounts populates inScope and eligible', async () => {
@@ -146,5 +148,42 @@ describe('useTaxHub', () => {
     await moveToEligible(9);
     expect(mockApi.removeAccountFromGroup).toHaveBeenCalledWith(42, 9);
     expect(mockApi.getTaxEligibleAccounts).toHaveBeenCalledTimes(2);
+  });
+
+  it('setScope sends scope + note and reloads', async () => {
+    const { loadAccounts, setScope } = useTaxHub();
+    await loadAccounts(1);
+    await setScope(5, 'Out of Scope', 'Below threshold');
+    expect(mockApi.setTaxScope).toHaveBeenCalledWith(1, 5, { scope: 'Out of Scope', note: 'Below threshold' });
+    expect(mockApi.getTaxEligibleAccounts).toHaveBeenCalledTimes(2);
+  });
+
+  it('setScope clears with nulls', async () => {
+    const { loadAccounts, setScope } = useTaxHub();
+    await loadAccounts(1);
+    await setScope(5, null, null);
+    expect(mockApi.setTaxScope).toHaveBeenCalledWith(1, 5, { scope: null, note: null });
+  });
+
+  it('search filters sections by account name', async () => {
+    const { loadAccounts, search, filteredEligible, filteredInScope } = useTaxHub();
+    await loadAccounts(1);
+    search.value = 'savings';
+    expect(filteredEligible.value).toHaveLength(1);
+    expect(filteredInScope.value).toHaveLength(0);
+  });
+
+  it('search matches institution name across sections', async () => {
+    const { loadAccounts, search, filteredEligible, filteredInScope } = useTaxHub();
+    await loadAccounts(1);
+    search.value = 'testbank';
+    expect(filteredEligible.value).toHaveLength(1);
+    expect(filteredInScope.value).toHaveLength(1);
+  });
+
+  it('empty search returns all eligible', async () => {
+    const { loadAccounts, filteredEligible } = useTaxHub();
+    await loadAccounts(1);
+    expect(filteredEligible.value).toHaveLength(1);
   });
 });

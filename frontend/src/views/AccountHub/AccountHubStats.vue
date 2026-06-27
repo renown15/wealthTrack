@@ -14,74 +14,74 @@
     </div>
 
     <div class="stats-grid">
-      <article class="stat-card" :title="getTotalValueTooltip()">
+      <article class="stat-card">
         <p class="stat-label">
           Total Value
-          <span class="info-icon" style="cursor: pointer;">{{ Icons.info }}</span>
+          <InfoBadge subtle :text="getTotalValueTooltip()" />
         </p>
         <p class="stat-value">{{ formatCurrency(totalValue) }}</p>
       </article>
 
-      <article class="stat-card" :title="buildBreakdownTooltip(CASH_TYPES)">
+      <article class="stat-card">
         <p class="stat-label">
           Cash at Hand
-          <span class="info-icon" style="cursor: pointer;">{{ Icons.info }}</span>
+          <InfoBadge subtle :text="buildBreakdownTooltip(CASH_TYPES)" />
         </p>
         <p class="stat-value">{{ formatCurrency(cashAtHand) }}</p>
       </article>
 
-      <article class="stat-card" :title="buildBreakdownTooltip(ISA_TYPES)">
+      <article class="stat-card">
         <p class="stat-label">
           ISA Savings
-          <span class="info-icon" style="cursor: pointer;">{{ Icons.info }}</span>
+          <InfoBadge subtle :text="buildBreakdownTooltip(ISA_TYPES)" />
         </p>
         <p class="stat-value">{{ formatCurrency(isaSavings) }}</p>
       </article>
 
-      <article class="stat-card" :title="buildBreakdownTooltip(ILLIQUID_TYPES)">
+      <article class="stat-card">
         <p class="stat-label">
           Illiquid
-          <span class="info-icon" style="cursor: pointer;">{{ Icons.info }}</span>
+          <InfoBadge subtle :text="buildBreakdownTooltip(ILLIQUID_TYPES)" />
         </p>
         <p class="stat-value">{{ formatCurrency(illiquid) }}</p>
       </article>
 
-      <article class="stat-card" :title="buildBreakdownTooltip(TRUST_TYPES)">
+      <article class="stat-card">
         <p class="stat-label">
           Trust Assets
-          <span class="info-icon" style="cursor: pointer;">{{ Icons.info }}</span>
+          <InfoBadge subtle :text="buildBreakdownTooltip(TRUST_TYPES)" />
         </p>
         <p class="stat-value">{{ formatCurrency(trustAssets) }}</p>
       </article>
 
-      <article class="stat-card" :title="getEncumbranceTooltip()">
+      <article class="stat-card">
         <p class="stat-label">
           Encumbrances
-          <span class="info-icon" style="cursor: pointer;">{{ Icons.info }}</span>
+          <InfoBadge subtle :text="getEncumbranceTooltip()" />
         </p>
         <p class="stat-value">{{ formatCurrency(totalEncumbrances()) }}</p>
       </article>
 
-      <article class="stat-card" :title="getPensionTooltip()">
+      <article class="stat-card">
         <p class="stat-label">
           Pension Value
-          <span class="info-icon" style="cursor: pointer;">{{ Icons.info }}</span>
+          <InfoBadge subtle :text="getPensionTooltip()" />
         </p>
         <p class="stat-value">{{ formatCurrency(pensionBreakdown.total) }}</p>
       </article>
 
-      <article class="stat-card" title="Projected annual yield based on interest rates applied to current balances. Bonus rates are included while active.">
+      <article class="stat-card">
         <p class="stat-label">
           Projected Annual Yield
-          <span class="info-icon" style="cursor: pointer;">{{ Icons.info }}</span>
+          <InfoBadge subtle :text="getProjectedYieldTooltip()" />
         </p>
         <p class="stat-value">{{ formatCurrency(projectedAnnualYield) }}</p>
       </article>
 
-      <article class="stat-card" title="Timestamp of the most recent stock price or balance update across all accounts.">
+      <article class="stat-card">
         <p class="stat-label">
           Last Price Update
-          <span class="info-icon" style="cursor: pointer;">{{ Icons.info }}</span>
+          <InfoBadge subtle :text="getLastPriceUpdateTooltip()" />
         </p>
         <p class="stat-value text-sm">{{ formatLastPriceUpdate(lastPriceUpdate) }}</p>
       </article>
@@ -90,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-import { Icons } from '@/constants/icons';
+import InfoBadge from '@views/AccountHub/InfoBadge.vue';
 import type { PortfolioItem } from '@/models/WealthTrackDataModels';
 import { type PensionBreakdown, CASH_TYPES, ISA_TYPES, ILLIQUID_TYPES, TRUST_TYPES } from '@composables/portfolioCalculations';
 
@@ -124,7 +124,7 @@ const totalEncumbrances = (): number =>
 
 const getEncumbranceTooltip = (): string => {
   const enc = (props.items ?? []).filter(i => parseFloat(i.account.encumbrance ?? '0') > 0);
-  return enc.length ? [...enc.map(i => `${i.account.name}: ${formatCurrency(parseFloat(i.account.encumbrance!))}`), '─────────────────', `Total: ${formatCurrency(totalEncumbrances())}`].join('\n') : 'No encumbrances';
+  return enc.length ? [...enc.map(i => `${i.account.name}: ${formatCurrency(parseFloat(i.account.encumbrance!))}`), '─────────────────', `Total: ${formatCurrency(totalEncumbrances())}`].join('\n') : 'Status: No encumbrances';
 };
 
 const buildBreakdownTooltip = (types: string[]): string => {
@@ -136,7 +136,7 @@ const buildBreakdownTooltip = (types: string[]): string => {
     }
   }
   const entries = Object.entries(totals);
-  if (!entries.length) return '';
+  if (!entries.length) return 'Status: No accounts';
   const lines = entries.map(([t, v]) => `${t}: ${formatCurrency(v)}`);
   const total = entries.reduce((s, [, v]) => s + v, 0);
   lines.push(`─────────────────`);
@@ -153,45 +153,33 @@ const getTotalValueTooltip = (): string => {
     `Pension Value: ${formatCurrency(props.pensionBreakdown.total)}`,
   ];
   if (totalEncumbrances() > 0) {
-    lines.push(``, `Encumbrances: ${formatCurrency(totalEncumbrances())}`);
+    lines.push(`Encumbrances: ${formatCurrency(totalEncumbrances())}`);
   }
-  lines.push(``, `Total: ${formatCurrency(props.totalValue)}`);
+  lines.push(`─────────────────`, `Total: ${formatCurrency(props.totalValue)}`);
   return lines.join('\n');
 };
 
 const getPensionTooltip = (): string => {
   const { accounts, lifeExpectancy, annuityRate, dcTotal, dbTotal, total } = props.pensionBreakdown;
-
-  if (accounts.length === 0) return 'No pension accounts found.';
-
+  if (accounts.length === 0) return 'Status: No pension accounts';
   const lines: string[] = [];
-
   const dcAccounts = accounts.filter(a => a.type === 'DC');
   const dbAccounts = accounts.filter(a => a.type === 'DB');
-
   if (dcAccounts.length > 0) {
-    lines.push('DC Pensions (current balance):');
-    for (const a of dcAccounts) {
-      lines.push(`  ${a.name} (${a.institution}): ${formatCurrency(a.value)}`);
-    }
-    lines.push(`  DC Total: ${formatCurrency(dcTotal)}`);
-    lines.push('');
+    lines.push('DC Pensions: current balance');
+    for (const a of dcAccounts) lines.push(`${a.name} (${a.institution}): ${formatCurrency(a.value)}`);
+    lines.push(`DC Total: ${formatCurrency(dcTotal)}`);
+    if (dbAccounts.length > 0) lines.push('─────────────────');
   }
-
   if (dbAccounts.length > 0) {
     const ratePercent = (annuityRate * 100).toFixed(1);
-    lines.push('DB Pensions (capitalised value):');
-    lines.push(`  Formula: monthly × 12 × (1 − (1+r)⁻ⁿ) / r`);
-    lines.push(`  where r = ${ratePercent}% annuity rate, n = ${lifeExpectancy} yrs life expectancy`);
-    lines.push('');
-    for (const a of dbAccounts) {
-      lines.push(`  ${a.name} (${a.institution}): £${a.monthlyPayment?.toFixed(2)}/mo → ${formatCurrency(a.value)}`);
-    }
-    lines.push(`  DB Total: ${formatCurrency(dbTotal)}`);
-    lines.push('');
+    lines.push('DB Pensions: capitalised value');
+    lines.push(`Formula: monthly × 12 × (1 − (1+r)⁻ⁿ) / r`);
+    lines.push(`Rate / Life: ${ratePercent}% annuity, ${lifeExpectancy} yrs`);
+    for (const a of dbAccounts) lines.push(`${a.name} (${a.institution}): £${a.monthlyPayment?.toFixed(2)}/mo → ${formatCurrency(a.value)}`);
+    lines.push(`DB Total: ${formatCurrency(dbTotal)}`);
   }
-
-  lines.push(`Total Pension Value: ${formatCurrency(total)}`);
+  lines.push('─────────────────', `Total: ${formatCurrency(total)}`);
   return lines.join('\n');
 };
 
@@ -221,6 +209,12 @@ const formatLastPriceUpdate = (timestamp: string | null | undefined): string => 
     return timestamp;
   }
 };
+
+const getProjectedYieldTooltip = (): string =>
+  'Calculation: Interest rates × current balances\nBonus rates: Included while active';
+
+const getLastPriceUpdateTooltip = (): string =>
+  'Source: Most recent stock price or balance update\nScope: All accounts';
 
 const emitCreateAccount = (): void => emit('createAccount');
 const emitCreateInstitution = (): void => emit('createInstitution');

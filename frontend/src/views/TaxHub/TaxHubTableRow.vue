@@ -6,6 +6,11 @@
   >
     <td class="table-cell font-semibold cursor-default" @mouseenter="onNameEnter" @mouseleave="onNameLeave">
       {{ account.accountName }}
+      <div
+        v-if="account.taxReturn?.scope"
+        class="text-xs font-normal text-red-600 truncate max-w-[12rem]"
+        :title="account.taxReturn?.note ?? ''"
+      >{{ Icons.outOfScope }} {{ account.taxReturn?.note || 'Out of scope' }}</div>
       <AccountHoverCard v-if="portfolioItem" :item="portfolioItem" :anchor-rect="hoverRect" :visible="hovered" />
     </td>
     <td class="table-cell">{{ account.institutionName ?? '—' }}</td>
@@ -21,7 +26,7 @@
       >{{ account.accountStatus === 'Closed' ? 'C' : 'O' }}</span>
     </td>
     <td class="table-cell">
-      {{ account.eligibilityReason === 'interest_bearing' ? (account.interestRate ?? '—') : '—' }}
+      {{ account.interestRate ?? '—' }}
     </td>
     <td class="table-cell">{{ formatCurrency(account.taxReturn?.income) }}</td>
     <td class="table-cell">{{ formatCurrency(account.taxReturn?.capitalGain) }}</td>
@@ -34,25 +39,46 @@
         @click="emit('showEvents', account)"
       >{{ account.eventCount }}</button>
     </td>
-    <td class="table-cell"><span class="font-medium">{{ (account.documents ?? []).length }}</span></td>
+    <td class="table-cell">
+      <button
+        v-if="section !== 'notInScope'"
+        class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg border-none cursor-pointer bg-purple-100 text-purple-600 hover:bg-purple-200"
+        title="Documents"
+        @click="emit('manageDocuments', account)"
+      >{{ (account.documents ?? []).length }}</button>
+      <span v-else class="text-muted">—</span>
+    </td>
     <td class="table-cell">
       <div class="actions-col">
         <button
+          v-if="section !== 'notInScope'"
           class="btn-icon edit inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200"
           title="Edit tax return"
           @click="emit('editReturn', account)"
         >{{ Icons.edit }}</button>
         <button
-          class="btn-icon inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-green-100 text-green-600 hover:bg-green-200"
-          title="Manage documents"
-          @click="emit('manageDocuments', account)"
-        >{{ Icons.eye }}</button>
+          class="btn-icon inline-flex items-center justify-center w-8 h-8 text-lg leading-none rounded border-none cursor-pointer bg-gray-100 text-gray-600 hover:bg-gray-200"
+          title="Edit account"
+          @click="emit('editAccount', account)"
+        >{{ Icons.settings }}</button>
         <button
-          v-if="section === 'eligible'"
+          v-if="section === 'eligible' || section === 'notInScope'"
           class="btn-icon inline-flex items-center justify-center w-8 h-8 text-sm font-bold rounded border-none cursor-pointer bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
           title="Add to scope"
           @click="emit('moveToInScope', account.accountId)"
         >+</button>
+        <button
+          v-if="section === 'eligible'"
+          class="btn-icon inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-red-100 text-red-600 hover:bg-red-200"
+          title="Mark out of scope"
+          @click="emit('markOutOfScope', account)"
+        >{{ Icons.outOfScope }}</button>
+        <button
+          v-if="section === 'notInScope' && account.taxReturn?.scope"
+          class="btn-icon inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-amber-100 text-amber-700 hover:bg-amber-200"
+          title="Return to eligible"
+          @click="emit('clearScope', account.accountId)"
+        >{{ Icons.restore }}</button>
         <button
           v-if="section === 'inScope'"
           class="btn-icon inline-flex items-center justify-center w-8 h-8 text-sm font-bold rounded border-none cursor-pointer bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -74,16 +100,19 @@ import AccountHoverCard from '@views/AccountHub/AccountHoverCard.vue';
 defineProps<{
   account: EligibleAccount;
   portfolioItem: PortfolioItem | null;
-  section: 'inScope' | 'eligible';
+  section: 'inScope' | 'eligible' | 'notInScope';
 }>();
 
 const emit = defineEmits<{
   editReturn: [account: EligibleAccount];
+  editAccount: [account: EligibleAccount];
   manageDocuments: [account: EligibleAccount];
   showEvents: [account: EligibleAccount];
   dragStart: [accountId: number];
   moveToInScope: [accountId: number];
   moveToEligible: [accountId: number];
+  markOutOfScope: [account: EligibleAccount];
+  clearScope: [accountId: number];
 }>();
 
 const hovered = ref(false);

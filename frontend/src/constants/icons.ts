@@ -4,6 +4,7 @@
  */
 export const Icons = {
   edit: '✎',
+  settings: '⚙︎', // gear, forced text presentation (avoids emoji rendering)
   delete: '✕',
   save: '✓',
   cancel: '✕',
@@ -15,6 +16,8 @@ export const Icons = {
   download: '⬇',
   chevronDown: '▼',
   chevronRight: '▶',
+  outOfScope: '⊘',
+  restore: '↩︎', // return arrow, forced text presentation
 } as const;
 
 export type IconName = keyof typeof Icons;

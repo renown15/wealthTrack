@@ -45,10 +45,12 @@ const makeHandlers = (overrides: Partial<{
   const fetchDocumentBlob = overrides.fetchDocumentBlob ?? vi.fn().mockResolvedValue(new Blob(['pdf']));
   const deleteDocument = overrides.deleteDocument ?? vi.fn().mockResolvedValue(undefined);
   const moveToInScope = overrides.moveToInScope ?? vi.fn().mockResolvedValue(undefined);
+  const updateDocumentDescription = vi.fn().mockResolvedValue(undefined);
+  const setScope = vi.fn().mockResolvedValue(undefined);
   return useTaxHubModals(
     selectedPeriodId, periods, accounts as never,
-    saveReturn, uploadDocument as never, downloadDocument,
-    fetchDocumentBlob, deleteDocument as never, moveToInScope,
+    saveReturn, uploadDocument as never, updateDocumentDescription as never, downloadDocument,
+    fetchDocumentBlob, deleteDocument as never, moveToInScope, setScope,
   );
 };
 

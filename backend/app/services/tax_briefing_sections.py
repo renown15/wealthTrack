@@ -117,6 +117,23 @@ def tax_detail_section(
     return flow
 
 
+def out_of_scope_section(
+    styles: Styles, items: list[dict[str, Any]]
+) -> list[Flowable]:
+    """Accounts manually excluded from the return, each with its recorded reason."""
+    if not items:
+        return []
+    flow: list[Flowable] = [Paragraph("Accounts excluded from scope", styles["h3"])]
+    rows: list[list[Any]] = [["Account", "Type", "Reason"]]
+    for item in items:
+        note = getattr(item.get("tax_return"), "note", None) or "—"
+        rows.append(
+            [_cell(item["account"].name, styles), item["account_type"], _cell(note, styles)]
+        )
+    flow.append(styled_table(rows, [55 * mm, 35 * mm, 70 * mm]))
+    return flow
+
+
 def gifts_section(styles: Styles, gifts: list[GiftSummary]) -> list[Flowable]:
     """Gift register with current IHT taper rate and exposure."""
     flow: list[Flowable] = [Paragraph("3. Gifts & IHT Taper", styles["h2"])]

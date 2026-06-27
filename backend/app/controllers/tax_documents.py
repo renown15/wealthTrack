@@ -1,7 +1,7 @@
 """
 Controller handlers for tax document upload, download, and delete.
 """
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -67,6 +67,7 @@ async def upload_document(
     period_id: int,
     account_id: int,
     file: UploadFile = File(...),
+    description: str | None = Form(default=None),
     session: AsyncSession = Depends(get_db),
     current_user: UserProfile = Depends(get_current_user),
 ) -> TaxDocumentResponse:
@@ -89,6 +90,7 @@ async def upload_document(
         filename=file.filename or "document",
         content_type=file.content_type,
         file_data=content,
+        description=description or None,
     )
     await session.commit()
     return TaxDocumentResponse.model_validate(doc)
@@ -110,6 +112,22 @@ async def download_document(
         media_type=doc.content_type or "application/octet-stream",
         headers={"Content-Disposition": f'attachment; filename="{doc.filename}"'},
     )
+
+
+@router.patch("/documents/{doc_id}", response_model=TaxDocumentResponse)
+async def update_document_description(
+    doc_id: int,
+    description: str | None = Form(default=None),
+    session: AsyncSession = Depends(get_db),
+    current_user: UserProfile = Depends(get_current_user),
+) -> TaxDocumentResponse:
+    """Update the description of a tax document."""
+    doc_repo = TaxDocumentRepository(session)
+    doc = await doc_repo.update_description(doc_id, current_user.id, description)
+    if not doc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
+    await session.commit()
+    return TaxDocumentResponse.model_validate(doc)
 
 
 @router.delete("/documents/{doc_id}", status_code=status.HTTP_204_NO_CONTENT)

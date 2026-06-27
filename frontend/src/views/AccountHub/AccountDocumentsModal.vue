@@ -41,6 +41,10 @@
                   title="Download" @click="downloadDoc(doc)"
                 >{{ Icons.download }}</button>
                 <button
+                  class="btn-icon inline-flex items-center justify-center w-7 h-7 text-xs rounded border-none cursor-pointer bg-purple-100 text-purple-600 hover:bg-purple-200"
+                  title="Preview" @click="previewDoc(doc)"
+                >{{ Icons.eye }}</button>
+                <button
                   class="btn-icon inline-flex items-center justify-center w-7 h-7 text-xs rounded border-none cursor-pointer bg-gray-100 text-gray-500 hover:bg-gray-200"
                   title="Edit description" @click="startEdit(doc)"
                 >{{ Icons.edit }}</button>
@@ -73,6 +77,13 @@
       </button>
     </template>
   </BaseModal>
+  <DocumentPreviewModal
+    :open="previewOpen"
+    :url="previewUrl"
+    :filename="previewFilename"
+    :content-type="previewContentType"
+    @close="closePreview"
+  />
 </template>
 
 <script setup lang="ts">
@@ -82,10 +93,15 @@ import { accountDocumentService } from '@/services/AccountDocumentService';
 import { compressFile } from '@/utils/imageCompression';
 import { debug } from '@/utils/debug';
 import BaseModal from '@/components/BaseModal.vue';
+import DocumentPreviewModal from '@views/TaxHub/DocumentPreviewModal.vue';
 import { Icons } from '@/constants/icons';
 
 const editingDocId = ref<number | null>(null);
 const editingDescription = ref('');
+const previewOpen = ref(false);
+const previewUrl = ref<string | null>(null);
+const previewFilename = ref('');
+const previewContentType = ref<string | null>(null);
 
 const props = defineProps<{ open: boolean; accountId: number; accountName: string }>();
 const emit = defineEmits<{ close: []; uploaded: []; deleted: [] }>();
@@ -134,6 +150,24 @@ async function downloadDoc(doc: AccountDocument): Promise<void> {
     a.href = url; a.download = doc.filename; a.click();
     URL.revokeObjectURL(url);
   } catch (e) { error.value = e instanceof Error ? e.message : 'Download failed'; }
+}
+
+async function previewDoc(doc: AccountDocument): Promise<void> {
+  try {
+    const blob = await accountDocumentService.downloadDocument(doc.id);
+    if (previewUrl.value) URL.revokeObjectURL(previewUrl.value);
+    previewUrl.value = URL.createObjectURL(blob);
+    previewFilename.value = doc.filename;
+    previewContentType.value = doc.contentType ?? null;
+    previewOpen.value = true;
+  } catch (e) { error.value = e instanceof Error ? e.message : 'Preview failed'; }
+}
+
+function closePreview(): void {
+  previewOpen.value = false;
+  if (previewUrl.value) { URL.revokeObjectURL(previewUrl.value); previewUrl.value = null; }
+  previewFilename.value = '';
+  previewContentType.value = null;
 }
 
 function startEdit(doc: AccountDocument): void {

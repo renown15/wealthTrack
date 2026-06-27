@@ -10,9 +10,18 @@ from app.models.user_profile import UserProfile
 from app.repositories.account_repository import AccountRepository
 from app.repositories.tax_period_repository import TaxPeriodRepository
 from app.repositories.tax_return_repository import TaxReturnRepository
-from app.schemas.tax import TaxReturnResponse, TaxReturnUpsert
+from app.schemas.tax import TaxReturnResponse, TaxReturnUpsert, TaxScopeUpdate
+from app.services.tax_scope_helpers import get_scope_maps
 
 router = APIRouter()
+
+
+def _scope_response(tax_return: object, by_id: dict[int, str]) -> TaxReturnResponse:
+    """Build a TaxReturnResponse, resolving scope_status_id to its reference value."""
+    response = TaxReturnResponse.model_validate(tax_return)
+    status_id = getattr(tax_return, "scope_status_id", None)
+    response.scope = by_id.get(status_id) if status_id is not None else None
+    return response
 
 
 @router.put(
@@ -47,4 +56,41 @@ async def upsert_tax_return(
         tax_taken_off=data.tax_taken_off,
     )
     await session.commit()
-    return TaxReturnResponse.model_validate(tax_return)
+    by_id, _ = await get_scope_maps(session)
+    return _scope_response(tax_return, by_id)
+
+
+@router.put(
+    "/periods/{period_id}/accounts/{account_id}/scope",
+    response_model=TaxReturnResponse,
+)
+async def set_tax_scope(
+    period_id: int,
+    account_id: int,
+    data: TaxScopeUpdate,
+    session: AsyncSession = Depends(get_db),
+    current_user: UserProfile = Depends(get_current_user),
+) -> TaxReturnResponse:
+    """Set or clear an account's scope override and note for a period."""
+    period = await TaxPeriodRepository(session).get_by_id(period_id, current_user.id)
+    if not period:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tax period not found")
+    account = await AccountRepository(session).get_by_id(account_id, current_user.id)
+    if not account:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account not found")
+
+    by_id, by_value = await get_scope_maps(session)
+    scope_status_id: int | None = None
+    if data.scope is not None:
+        scope_status_id = by_value.get(data.scope)
+        if scope_status_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Unknown tax scope status: {data.scope}",
+            )
+
+    tax_return = await TaxReturnRepository(session).set_scope(
+        current_user.id, account_id, period_id, scope_status_id, data.note
+    )
+    await session.commit()
+    return _scope_response(tax_return, by_id)

@@ -40,6 +40,7 @@ const props = defineProps<{
   item: PortfolioItem;
   anchorRect: DOMRect | null;
   visible: boolean;
+  hide?: Array<'balance' | 'rate'>;
 }>();
 
 const CARD_W = 290;
@@ -60,11 +61,13 @@ const sections = computed((): Row[][] => {
   const a = props.item.account;
   const result: Row[][] = [];
 
-  const balanceRows: Row[] = [{ label: 'Balance', value: formatCurrency(getDisplayBalance(props.item)) }];
-  if (props.item.latestBalance?.createdAt) {
-    balanceRows.push({ label: 'As of', value: formatDate(props.item.latestBalance.createdAt) });
+  if (!props.hide?.includes('balance')) {
+    const balanceRows: Row[] = [{ label: 'Balance', value: formatCurrency(getDisplayBalance(props.item)) }];
+    if (props.item.latestBalance?.createdAt) {
+      balanceRows.push({ label: 'As of', value: formatDate(props.item.latestBalance.createdAt) });
+    }
+    result.push(balanceRows);
   }
-  result.push(balanceRows);
 
   const idRows: Row[] = [
     ...(a.accountNumber ? [{ label: 'Acc No.', value: a.accountNumber }] : []),
@@ -73,11 +76,13 @@ const sections = computed((): Row[][] => {
   ];
   if (idRows.length) result.push(idRows);
 
-  const rate = formatInterestRate(a.fixedBonusRate, a.interestRate);
-  if (rate !== '—') {
-    const rateRows: Row[] = [{ label: 'Rate', value: rate }];
-    if (a.fixedBonusRateEndDate) rateRows.push({ label: 'Ends', value: formatDate(a.fixedBonusRateEndDate) });
-    result.push(rateRows);
+  if (!props.hide?.includes('rate')) {
+    const rate = formatInterestRate(a.fixedBonusRate, a.interestRate);
+    if (rate !== '—') {
+      const rateRows: Row[] = [{ label: 'Rate', value: rate }];
+      if (a.fixedBonusRateEndDate) rateRows.push({ label: 'Ends', value: formatDate(a.fixedBonusRateEndDate) });
+      result.push(rateRows);
+    }
   }
 
   const dateRows: Row[] = [

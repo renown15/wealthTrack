@@ -5,25 +5,37 @@ import { ref, computed, type Ref, type ComputedRef } from 'vue';
 import type { EligibleAccount, TaxDocument, TaxReturnUpsertRequest } from '@models/TaxModels';
 import { apiService } from '@services/ApiService';
 import { useToast } from '@composables/useToast';
+import { matchesAccountSearch } from '@/utils/accountSearch';
 
 export function useTaxHub(): {
   accounts: ComputedRef<EligibleAccount[]>;
   inScope: Ref<EligibleAccount[]>;
   eligible: Ref<EligibleAccount[]>;
+  taxFree: Ref<EligibleAccount[]>;
+  notInScope: Ref<EligibleAccount[]>;
+  search: Ref<string>;
+  filteredInScope: ComputedRef<EligibleAccount[]>;
+  filteredEligible: ComputedRef<EligibleAccount[]>;
+  filteredTaxFree: ComputedRef<EligibleAccount[]>;
+  filteredNotInScope: ComputedRef<EligibleAccount[]>;
   accountGroupId: Ref<number | null>;
   loading: Ref<boolean>;
   error: Ref<string | null>;
   loadAccounts: (periodId: number) => Promise<void>;
   saveReturn: (periodId: number, accountId: number, data: TaxReturnUpsertRequest) => Promise<boolean>;
-  uploadDocument: (periodId: number, accountId: number, file: File) => Promise<TaxDocument | null>;
+  uploadDocument: (periodId: number, accountId: number, file: File, description?: string) => Promise<TaxDocument | null>;
+  updateDocumentDescription: (accountId: number, docId: number, description: string | null) => Promise<void>;
   downloadDocument: (docId: number, filename: string) => Promise<void>;
   fetchDocumentBlob: (docId: number) => Promise<Blob | null>;
   deleteDocument: (periodId: number, accountId: number, docId: number) => Promise<void>;
   moveToInScope: (accountId: number) => Promise<void>;
   moveToEligible: (accountId: number) => Promise<void>;
+  setScope: (accountId: number, scope: string | null, note: string | null) => Promise<void>;
 } {
   const inScope = ref<EligibleAccount[]>([]);
   const eligible = ref<EligibleAccount[]>([]);
+  const taxFree = ref<EligibleAccount[]>([]);
+  const notInScope = ref<EligibleAccount[]>([]);
   const accountGroupId = ref<number | null>(null);
   const currentPeriodId = ref<number | null>(null);
   const loading = ref(false);
@@ -31,6 +43,19 @@ export function useTaxHub(): {
   const { showError } = useToast();
 
   const accounts = computed(() => [...inScope.value, ...eligible.value]);
+
+  const search = ref('');
+  const matchAccount = (a: EligibleAccount): boolean =>
+    matchesAccountSearch(search.value, {
+      institutionName: a.institutionName,
+      accountName: a.accountName,
+      accountNumber: a.accountNumber,
+      sortCode: a.sortCode,
+    });
+  const filteredInScope = computed(() => inScope.value.filter(matchAccount));
+  const filteredEligible = computed(() => eligible.value.filter(matchAccount));
+  const filteredTaxFree = computed(() => taxFree.value.filter(matchAccount));
+  const filteredNotInScope = computed(() => notInScope.value.filter(matchAccount));
 
   async function loadAccounts(periodId: number): Promise<void> {
     currentPeriodId.value = periodId;
@@ -40,6 +65,8 @@ export function useTaxHub(): {
       const result = await apiService.getTaxEligibleAccounts(periodId);
       inScope.value = (result.inScope ?? []) as EligibleAccount[];
       eligible.value = (result.eligible ?? []) as EligibleAccount[];
+      taxFree.value = (result.taxFree ?? []) as EligibleAccount[];
+      notInScope.value = (result.notInScope ?? []) as EligibleAccount[];
       accountGroupId.value = result.accountGroupId ?? null;
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to load accounts';
@@ -74,14 +101,27 @@ export function useTaxHub(): {
     periodId: number,
     accountId: number,
     file: File,
+    description?: string,
   ): Promise<TaxDocument | null> {
     try {
-      const doc = await apiService.uploadTaxDocument(periodId, accountId, file);
+      const doc = await apiService.uploadTaxDocument(periodId, accountId, file, description);
       updateAccount(accountId, (a) => ({ ...a, documents: [...(a.documents ?? []), doc] }));
       return doc;
     } catch (err) {
       showError(err instanceof Error ? err.message : 'Failed to upload document');
       return null;
+    }
+  }
+
+  async function updateDocumentDescription(accountId: number, docId: number, description: string | null): Promise<void> {
+    try {
+      const updated = await apiService.updateTaxDocumentDescription(docId, description);
+      updateAccount(accountId, (a) => ({
+        ...a,
+        documents: (a.documents ?? []).map((d) => (d.id === docId ? updated : d)),
+      }));
+    } catch (err) {
+      showError(err instanceof Error ? err.message : 'Failed to update description');
     }
   }
 
@@ -135,20 +175,39 @@ export function useTaxHub(): {
     }
   }
 
+  async function setScope(accountId: number, scope: string | null, note: string | null): Promise<void> {
+    if (currentPeriodId.value === null) return;
+    try {
+      await apiService.setTaxScope(currentPeriodId.value, accountId, { scope, note });
+      await loadAccounts(currentPeriodId.value);
+    } catch (err) {
+      showError(err instanceof Error ? err.message : 'Failed to update scope');
+    }
+  }
+
   return {
     accounts,
     inScope,
     eligible,
+    taxFree,
+    notInScope,
+    search,
+    filteredInScope,
+    filteredEligible,
+    filteredTaxFree,
+    filteredNotInScope,
     accountGroupId,
     loading,
     error,
     loadAccounts,
     saveReturn,
     uploadDocument,
+    updateDocumentDescription,
     downloadDocument,
     fetchDocumentBlob,
     deleteDocument,
     moveToInScope,
     moveToEligible,
+    setScope,
   };
 }
