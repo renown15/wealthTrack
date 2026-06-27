@@ -50,6 +50,16 @@ class ShareSaleService extends BaseApiClient {
       throw this.handleError(error, 'Failed to load share sale history');
     }
   }
+
+  async deleteSale(groupId: number): Promise<void> {
+    try {
+      await this.retryRequest(() =>
+        this.client.delete(`/api/v1/accounts/share-sales/${groupId}`),
+      );
+    } catch (error) {
+      throw this.handleError(error, 'Failed to reverse share sale');
+    }
+  }
 }
 
 export const shareSaleService = new ShareSaleService();

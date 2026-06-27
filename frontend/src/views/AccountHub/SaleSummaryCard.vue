@@ -2,7 +2,19 @@
   <div class="border border-gray-200 rounded-lg overflow-hidden text-sm">
     <div class="bg-gray-50 px-4 py-2 flex justify-between items-center">
       <span class="font-semibold text-gray-700">Sale — {{ formatDate(sale.soldAt) }}</span>
-      <span v-if="sale.groupId" class="text-gray-400 text-xs">Group #{{ sale.groupId }}</span>
+      <div v-if="sale.groupId" class="flex items-center gap-2">
+        <span class="text-gray-400 text-xs">Group #{{ sale.groupId }}</span>
+        <button
+          v-if="!confirming"
+          class="text-xs text-red-600 hover:text-red-800 bg-transparent border-none cursor-pointer"
+          @click="confirming = true"
+        >Undo</button>
+        <template v-else>
+          <span class="text-xs text-gray-600">Undo this sale?</span>
+          <button class="text-xs font-semibold text-red-600 hover:text-red-800 bg-transparent border-none cursor-pointer" @click="confirmReverse">Yes</button>
+          <button class="text-xs text-gray-500 hover:text-gray-700 bg-transparent border-none cursor-pointer" @click="confirming = false">No</button>
+        </template>
+      </div>
     </div>
 
     <div class="grid grid-cols-2 gap-x-6 gap-y-1 px-4 py-3">
@@ -51,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import type { ShareSaleSummary, ShareSaleSummaryEvent } from '@/models/ShareSaleModels';
 import type { PortfolioItem } from '@/models/WealthTrackDataModels';
 
@@ -59,6 +71,13 @@ const props = defineProps<{
   sale: ShareSaleSummary;
   allItems: PortfolioItem[];
 }>();
+
+const emit = defineEmits<{ reverse: [groupId: number] }>();
+const confirming = ref(false);
+function confirmReverse(): void {
+  confirming.value = false;
+  emit('reverse', props.sale.groupId);
+}
 
 const depositEvent = computed(() =>
   props.sale.events.find((e: ShareSaleSummaryEvent) => e.eventType === 'Deposit')

@@ -72,7 +72,7 @@
       :credential-saving="credentialSaving" :credential-deleting-id="credentialDeletingId"
       :credential-error="credentialError" :editing-credential="editingCredential"
       @close-events="closeEventsModal" @add-win="handleAddWin" @record-sale="openShareSaleModal" @view-sales="openShareSaleModalHistory" @save-dividend="handleSaveDividend" @save-gift="handleSaveGift"
-      @close-share-sale="closeShareSaleModal" @share-sold="handleShareSold" @delete-gift="handleDeleteGift"
+      @close-share-sale="closeShareSaleModal" @share-sold="handleShareSold" @share-reversed="loadPortfolio" @delete-gift="handleDeleteGift"
       @close-account-group="closeAccountGroupModal"
       @save-account-group="handleAccountGroupSave" @delete-group-from-modal="handleDeleteGroupFromModal"
       @close-account="closeAccountModal" @save-account="handleAccountSave" @account-transferred="loadPortfolio"

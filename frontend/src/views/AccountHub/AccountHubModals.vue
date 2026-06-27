@@ -26,6 +26,7 @@
       :start-tab="shareSaleStartTab"
       @close="$emit('closeShareSale')"
       @sold="$emit('shareSold')"
+      @reversed="$emit('shareReversed')"
     />
     <AccountGroupModal
       :open="accountGroupModalOpen" :type="accountGroupModalType" :items="items"
@@ -145,6 +146,7 @@ defineEmits<{
   deleteGift: [eventId: number];
   closeShareSale: [];
   shareSold: [];
+  shareReversed: [];
   closeAccountGroup: [];
   saveAccountGroup: [data: { name: string; accountIds: number[]; groupId?: number }];
   deleteGroupFromModal: [groupId: number];

@@ -13,6 +13,7 @@ export function useShareSale(): {
   getCashAccounts: (items: PortfolioItem[]) => PortfolioItem[];
   getTaxAccounts: (items: PortfolioItem[]) => PortfolioItem[];
   loadHistory: (accountId: number) => Promise<void>;
+  deleteSale: (groupId: number, accountId: number) => Promise<boolean>;
   submitSale: (payload: {
     sharesAccountId: number;
     cashAccountId: number;
@@ -46,6 +47,19 @@ export function useShareSale(): {
       debug.error('[useShareSale] Failed to load history:', e);
     } finally {
       historyLoading.value = false;
+    }
+  }
+
+  async function deleteSale(groupId: number, accountId: number): Promise<boolean> {
+    error.value = null;
+    try {
+      await apiService.reverseShareSale(groupId);
+      await loadHistory(accountId);
+      return true;
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Failed to reverse sale';
+      debug.error('[useShareSale] Reverse failed:', e);
+      return false;
     }
   }
 
@@ -87,6 +101,6 @@ export function useShareSale(): {
 
   return {
     submitting, error, result, history, historyLoading,
-    getCashAccounts, getTaxAccounts, loadHistory, submitSale, reset,
+    getCashAccounts, getTaxAccounts, loadHistory, deleteSale, submitSale, reset,
   };
 }

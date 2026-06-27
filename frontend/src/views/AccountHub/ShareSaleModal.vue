@@ -76,6 +76,7 @@
             :key="sale.groupId"
             :sale="sale"
             :all-items="allItems"
+            @reverse="handleReverse"
           />
         </div>
       </div>
@@ -115,15 +116,15 @@ const props = defineProps<{
 const emit = defineEmits<{
   close: [];
   sold: [];
+  reversed: [];
 }>();
 
-const { submitting, error, result, history, historyLoading, getCashAccounts, getTaxAccounts, loadHistory, submitSale, reset } = useShareSale();
+const { submitting, error, result, history, historyLoading, getCashAccounts, getTaxAccounts, loadHistory, deleteSale, submitSale, reset } = useShareSale();
 
 const tab = ref<'record' | 'history'>('record');
 const sharesSold = ref('');
 const salePricePerShare = ref('');
-const cashAccountId = ref<number | ''>('');
-const taxAccountId = ref<number | ''>('');
+const cashAccountId = ref<number | ''>(''); const taxAccountId = ref<number | ''>('');
 
 const cashAccounts = computed(() => getCashAccounts(props.allItems));
 const taxAccounts = computed(() => getTaxAccounts(props.allItems));
@@ -170,6 +171,11 @@ async function switchToHistory(): Promise<void> {
   await loadHistory(props.sharesAccountId);
 }
 
+async function handleReverse(groupId: number): Promise<void> {
+  const ok = await deleteSale(groupId, props.sharesAccountId);
+  if (ok) emit('reversed');
+}
+
 watch(
   () => props.open,
   async (newOpen) => {
@@ -208,10 +214,8 @@ async function submit(): Promise<void> {
 
 function emitClose(): void {
   reset();
-  sharesSold.value = '';
-  salePricePerShare.value = '';
-  cashAccountId.value = '';
-  taxAccountId.value = '';
+  sharesSold.value = ''; salePricePerShare.value = '';
+  cashAccountId.value = ''; taxAccountId.value = '';
   tab.value = 'record';
   emit('close');
 }

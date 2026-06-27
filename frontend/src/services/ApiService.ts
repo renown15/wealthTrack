@@ -106,6 +106,10 @@ class ApiService extends ApiServiceBase {
     return shareSaleService.getHistory(accountId);
   }
 
+  async reverseShareSale(groupId: number): Promise<void> {
+    return shareSaleService.deleteSale(groupId);
+  }
+
   async listTaxPeriods(memberId?: number): Promise<TaxPeriod[]> {
     return taxService.listPeriods(memberId);
   }

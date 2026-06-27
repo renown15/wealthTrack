@@ -110,4 +110,20 @@ describe('SaleSummaryCard', () => {
     const wrapper = mount(SaleSummaryCard, { props: { sale: emptySale, allItems: [] } });
     expect(wrapper.text()).toContain('—');
   });
+
+  it('emits reverse with the group id after confirming Undo', async () => {
+    const wrapper = mount(SaleSummaryCard, { props: { sale: mockSale, allItems: [] } });
+    const undo = wrapper.findAll('button').find((b) => b.text() === 'Undo');
+    await undo?.trigger('click');
+    expect(wrapper.text()).toContain('Undo this sale?');
+    expect(wrapper.emitted('reverse')).toBeFalsy(); // not until confirmed
+    const yes = wrapper.findAll('button').find((b) => b.text() === 'Yes');
+    await yes?.trigger('click');
+    expect(wrapper.emitted('reverse')?.[0]).toStrictEqual([42]);
+  });
+
+  it('does not show Undo for an unsaved sale (groupId 0)', () => {
+    const wrapper = mount(SaleSummaryCard, { props: { sale: { ...mockSale, groupId: 0 }, allItems: [] } });
+    expect(wrapper.findAll('button').some((b) => b.text() === 'Undo')).toBe(false);
+  });
 });

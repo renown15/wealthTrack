@@ -5,6 +5,8 @@ import { apiService } from '@services/ApiService';
 vi.mock('@/services/ApiService', () => ({
   apiService: {
     recordShareSale: vi.fn(),
+    reverseShareSale: vi.fn(),
+    getShareSaleHistory: vi.fn(),
   },
 }));
 
@@ -78,6 +80,27 @@ describe('useShareSale', () => {
     it('returns empty array when no tax accounts', () => {
       const { getTaxAccounts } = useShareSale();
       expect(getTaxAccounts([])).toEqual([]);
+    });
+  });
+
+  describe('deleteSale', () => {
+    it('reverses the sale and reloads history, returning true', async () => {
+      mockApi.reverseShareSale.mockResolvedValue(undefined);
+      mockApi.getShareSaleHistory.mockResolvedValue([]);
+      const { deleteSale, history } = useShareSale();
+      const ok = await deleteSale(42, 6);
+      expect(ok).toBe(true);
+      expect(mockApi.reverseShareSale).toHaveBeenCalledWith(42);
+      expect(mockApi.getShareSaleHistory).toHaveBeenCalledWith(6);
+      expect(history.value).toEqual([]);
+    });
+
+    it('returns false and sets error on failure', async () => {
+      mockApi.reverseShareSale.mockRejectedValue(new Error('Reverse failed'));
+      const { deleteSale, error } = useShareSale();
+      const ok = await deleteSale(42, 6);
+      expect(ok).toBe(false);
+      expect(error.value).toBe('Reverse failed');
     });
   });
 

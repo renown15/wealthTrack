@@ -3,7 +3,7 @@ import { shareSaleService } from '@services/ShareSaleService';
 
 vi.mock('@utils/debug', () => ({ debug: { log: vi.fn(), error: vi.fn() } }));
 
-const clientStub = { post: vi.fn(), get: vi.fn() };
+const clientStub = { post: vi.fn(), get: vi.fn(), delete: vi.fn() };
 
 const mockRequest = {
   sharesAccountId: 1,
@@ -74,6 +74,19 @@ describe('ShareSaleService', () => {
     it('throws on error', async () => {
       clientStub.get.mockRejectedValue(new Error('Not found'));
       await expect(shareSaleService.getHistory(5)).rejects.toThrow();
+    });
+  });
+
+  describe('deleteSale', () => {
+    it('DELETEs the share-sale group by id', async () => {
+      clientStub.delete.mockResolvedValue({ data: null });
+      await shareSaleService.deleteSale(42);
+      expect(clientStub.delete).toHaveBeenCalledWith('/api/v1/accounts/share-sales/42');
+    });
+
+    it('throws on error', async () => {
+      clientStub.delete.mockRejectedValue(new Error('Server error'));
+      await expect(shareSaleService.deleteSale(42)).rejects.toThrow();
     });
   });
 });
