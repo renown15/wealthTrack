@@ -21,11 +21,13 @@ from app.services.tax_liability_helpers import (
 )
 from app.services.tax_scope_helpers import OUT_OF_SCOPE, get_scope_maps
 from app.services.tax_service_helpers import (
+    DIVIDEND_TAX_RATE,
     TAX_FREE_TYPES,
     fetch_accounts_with_attrs,
     filter_eligible,
     get_dividend_totals,
     group_sale_date,
+    optional_sum,
 )
 
 _SHARES_TYPE = "Shares"
@@ -81,25 +83,25 @@ async def _enrich_items(
         is_shares = item["account_type"] == _SHARES_TYPE
         income = (dividend_totals or {}).get(account.id) if is_shares else None
         capital_gain = None
-        tax_taken_off = None
+        tax_due = None
 
         if is_shares:
             groups = await group_repo.get_groups_for_account(account.id, user_id, "Share Sale")
-            capital_gain, _ = _share_sale_gain_tax(groups, period_start, period_end)
+            capital_gain, cgt = _share_sale_gain_tax(groups, period_start, period_end)
+            dividend_tax = round(income * DIVIDEND_TAX_RATE / 100, 2) if income else None
+            tax_due = optional_sum(cgt, dividend_tax)
 
-        tax_balance = item.get("_tax_balance")
-        if item["account_type"] == "Tax Liability" and tax_balance is not None:
-            # Tax Liability balance is estimated tax owed (provisions) -> tax_due, not withheld.
+        if item["account_type"] == "Tax Liability":
+            # Pot drives net wealth via its negated balance; tax shown per share account.
             tax_return = await return_repo.upsert(
-                user_id, account.id, tax_period_id, None, None, None, tax_balance)
+                user_id, account.id, tax_period_id, None, None, None, None)
         elif is_shares:
-            # CGT owed is provisioned on the Tax Liability account, not repeated here.
             tax_return = await return_repo.upsert(
-                user_id, account.id, tax_period_id, income, capital_gain, None)
+                user_id, account.id, tax_period_id, income, capital_gain, None, tax_due)
         else:
             tax_return = await return_repo.get_or_create(
                 user_id, account.id, tax_period_id,
-                income=income, capital_gain=capital_gain, tax_taken_off=tax_taken_off)
+                income=income, capital_gain=capital_gain, tax_taken_off=None)
         documents = await doc_repo.list_for_return(tax_return.id, user_id) if tax_return else []
         status_id = getattr(tax_return, "scope_status_id", None)
         scope = (scope_by_id or {}).get(status_id) if status_id is not None else None
@@ -208,8 +210,7 @@ async def get_eligible_with_returns(
             for r in rows_list
         ]
 
-    # An eligible account manually marked out of scope drops to not-in-scope,
-    # keeping its tax_return so the note travels to the briefing extract.
+    # Eligible accounts marked out of scope drop to not-in-scope (keeping tax_return).
     overridden = [e for e in eligible if e.get("scope") == OUT_OF_SCOPE]
     eligible = [e for e in eligible if e.get("scope") != OUT_OF_SCOPE]
     for item in overridden:

@@ -65,17 +65,19 @@ class TestSharesPeriodFiltering:
         income, gain, tax, due = await _run(monkeypatch, datetime(2023, 6, 1))
         assert gain is None  # sale in 2023, outside 2024/25
         assert income == 50.0  # dividends still synced for the in-scope shares account
-        assert tax is None and due is None  # CGT lives on the Tax Liability account
+        assert tax is None
+        assert due == 20.0  # CGT excluded (out of period); 40% of £50 dividends = £20
 
     @pytest.mark.asyncio
     async def test_includes_sale_recorded_within_period(self, monkeypatch):
         income, gain, tax, due = await _run(monkeypatch, datetime(2024, 8, 1))
         assert gain == 1000.0
         assert income == 50.0
-        assert tax is None and due is None  # shares never carry CGT as tax_taken_off/tax_due
+        assert tax is None  # nothing withheld at source
+        assert due == 220.0  # CGT £200 + 40% of £50 dividends
 
     @pytest.mark.asyncio
-    async def test_tax_liability_balance_routes_to_tax_due(self, monkeypatch):
+    async def test_tax_liability_carries_no_return_figures(self, monkeypatch):
         captured: dict = {}
         _patch_repos(monkeypatch, _sale_group(datetime(2024, 8, 1)), captured)
         account = MagicMock(id=9)
@@ -86,5 +88,4 @@ class TestSharesPeriodFiltering:
             date(2024, 4, 6), date(2025, 4, 5),
         )
         _income, _gain, tax, due = captured["upsert"]
-        assert due == 1200.0       # provision pot = tax due
-        assert tax is None         # not tax taken off
+        assert due is None and tax is None  # pot drives net wealth, not the return figures

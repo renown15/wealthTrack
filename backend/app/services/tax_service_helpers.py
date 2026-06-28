@@ -35,6 +35,15 @@ def parse_date(value: str | None) -> date | None:
         return None
 
 
+DIVIDEND_TAX_RATE = 40.0  # mirrors dividend_service._DIVIDEND_TAX_RATE
+
+
+def optional_sum(*values: float | None) -> float | None:
+    """Sum the non-None values, returning None if all are None."""
+    present = [v for v in values if v is not None]
+    return round(sum(present), 2) if present else None
+
+
 def group_sale_date(group: dict[str, Any]) -> date | None:
     """Recorded sale date (Share Sale Date event), falling back to the group's record time."""
     for event in group.get("events", []):
