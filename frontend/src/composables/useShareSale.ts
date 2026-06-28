@@ -20,6 +20,7 @@ export function useShareSale(): {
     taxLiabilityAccountId: number;
     sharesSold: string;
     salePricePerShare: string;
+    saleDate?: string;
   }) => Promise<boolean>;
   reset: () => void;
 } {
@@ -69,6 +70,7 @@ export function useShareSale(): {
     taxLiabilityAccountId: number;
     sharesSold: string;
     salePricePerShare: string;
+    saleDate?: string;
   }): Promise<boolean> {
     submitting.value = true;
     error.value = null;
@@ -80,6 +82,7 @@ export function useShareSale(): {
         taxLiabilityAccountId: payload.taxLiabilityAccountId,
         sharesSold: payload.sharesSold,
         salePricePerShare: payload.salePricePerShare,
+        saleDate: payload.saleDate ?? null,
       });
       return true;
     } catch (e) {

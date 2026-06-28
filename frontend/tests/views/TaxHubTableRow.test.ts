@@ -87,7 +87,7 @@ describe('TaxHubTableRow — first balance date display', () => {
   it('shows "No balance" when firstBalanceDate is null', () => {
     const wrapper = row(makeAccount({ firstBalanceDate: null }));
     const cells = wrapper.findAll('td');
-    expect(cells[11].text()).toBe('No balance');
+    expect(cells[12].text()).toBe('No balance');
   });
 });
 

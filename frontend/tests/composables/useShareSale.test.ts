@@ -109,7 +109,7 @@ describe('useShareSale', () => {
       const { submitSale, result } = useShareSale();
       const ok = await submitSale(salePayload);
       expect(ok).toBe(true);
-      expect(mockApi.recordShareSale).toHaveBeenCalledWith(salePayload);
+      expect(mockApi.recordShareSale).toHaveBeenCalledWith({ ...salePayload, saleDate: null });
       expect(result.value).toStrictEqual(mockResponse);
     });
 

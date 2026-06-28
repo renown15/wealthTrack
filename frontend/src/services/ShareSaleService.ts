@@ -24,6 +24,7 @@ class ShareSaleService extends BaseApiClient {
         taxLiabilityAccountId: Number(data.taxLiabilityAccountId),
         sharesSold: String(data.sharesSold),
         salePricePerShare: String(data.salePricePerShare),
+        saleDate: data.saleDate ?? null,
       };
 
       debug.log('[ShareSaleService] Final payload before HTTP:', JSON.stringify(payload));

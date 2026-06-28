@@ -16,7 +16,9 @@ from app.repositories.account_repository import AccountRepository
 from app.repositories.event_group_repository import EventGroupRepository
 from app.schemas.account_event import AccountEventCreate, AccountEventResponse
 
-_INTERNAL_EVENT_TYPES = {"Dividend Payment Date", "Gift Date", "Gift Donor", "Gift Shares"}
+_INTERNAL_EVENT_TYPES = {
+    "Dividend Payment Date", "Gift Date", "Gift Donor", "Gift Shares", "Share Sale Date",
+}
 
 
 async def _verify_account_access(

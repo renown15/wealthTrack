@@ -48,14 +48,10 @@
     <TaxScopeModal :open="scopeModalOpen" :account="activeAccount"
       @close="scopeModalOpen = false" @save="handleSaveScope" />
 
-    <AccountModal :open="editAccountOpen" type="edit" :institutions="quickAddInstitutions"
+    <AccountEditModal :open="editAccountOpen" type="edit"
+      :item="editingPortfolioItem?.account ?? null" :institutions="quickAddInstitutions"
       :account-types="accountTypes" :account-statuses="accountStatuses"
-      :account-id="editingPortfolioItem?.account.id" :initial-name="editingPortfolioItem?.account.name"
-      :initial-institution-id="editingPortfolioItem?.account.institutionId"
-      :initial-type-id="editingPortfolioItem?.account.typeId" :initial-status-id="editingPortfolioItem?.account.statusId"
-      :initial-opened-at="editingPortfolioItem?.account.openedAt" :initial-account-number="editingPortfolioItem?.account.accountNumber"
-      :initial-sort-code="editingPortfolioItem?.account.sortCode" :initial-roll-ref-number="editingPortfolioItem?.account.rollRefNumber"
-      :initial-interest-rate="editingPortfolioItem?.account.interestRate" @close="editAccountOpen = false" @save="handleSaveEditedAccount" />
+      @close="editAccountOpen = false" @save="handleSaveEditedAccount" />
 
     <TaxDocumentsModal
       :open="docsModalOpen"
@@ -128,7 +124,7 @@ import TaxReturnModal from '@views/TaxHub/TaxReturnModal.vue';
 import TaxScopeModal from '@views/TaxHub/TaxScopeModal.vue';
 import TaxDocumentsModal from '@views/TaxHub/TaxDocumentsModal.vue';
 import AddAccountModal from '@views/AccountHub/AddAccountModal.vue';
-import AccountModal from '@views/AccountHub/AccountModal.vue';
+import AccountEditModal from '@views/AccountHub/AccountEditModal.vue';
 import DeleteConfirmModal from '@views/AccountHub/DeleteConfirmModal.vue';
 import AccountEventsModal from '@views/AccountHub/AccountEventsModal.vue';
 import DocumentPreviewModal from '@views/TaxHub/DocumentPreviewModal.vue';

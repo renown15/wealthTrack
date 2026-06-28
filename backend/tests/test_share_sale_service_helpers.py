@@ -63,6 +63,7 @@ def make_session_and_repos(
             "Balance Update": 11,
             "Deposit": 12,
             "Capital Gains Tax": 13,
+            "Share Sale Date": 14,
         }.get(name)
     )
     event_repo.create_event = AsyncMock(side_effect=lambda *a, **kw: MagicMock(id=50))

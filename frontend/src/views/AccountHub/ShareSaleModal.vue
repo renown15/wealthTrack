@@ -45,6 +45,11 @@
           </div>
 
           <div class="form-group">
+            <label class="form-label">Sale date</label>
+            <input v-model="saleDate" type="date" class="form-input" />
+          </div>
+
+          <div class="form-group">
             <label class="form-label">Cash / Savings account (receives proceeds)</label>
             <select v-model="cashAccountId" class="form-select">
               <option value="">— select account —</option>
@@ -122,21 +127,14 @@ const emit = defineEmits<{
 const { submitting, error, result, history, historyLoading, getCashAccounts, getTaxAccounts, loadHistory, deleteSale, submitSale, reset } = useShareSale();
 
 const tab = ref<'record' | 'history'>('record');
-const sharesSold = ref('');
-const salePricePerShare = ref('');
+const sharesSold = ref(''); const salePricePerShare = ref(''); const saleDate = ref('');
 const cashAccountId = ref<number | ''>(''); const taxAccountId = ref<number | ''>('');
 
 const cashAccounts = computed(() => getCashAccounts(props.allItems));
 const taxAccounts = computed(() => getTaxAccounts(props.allItems));
-
-const sharesAccount = computed(() =>
-  props.allItems.find((item) => item.account.id === props.sharesAccountId)
-);
-
-const canSubmit = computed(() =>
-  !!sharesSold.value && !!salePricePerShare.value &&
-  cashAccountId.value !== '' && taxAccountId.value !== ''
-);
+const sharesAccount = computed(() => props.allItems.find((i) => i.account.id === props.sharesAccountId));
+const canSubmit = computed(() => !!sharesSold.value && !!salePricePerShare.value
+  && cashAccountId.value !== '' && taxAccountId.value !== '');
 
 // Adapt the POST response into ShareSaleSummary shape for SaleSummaryCard
 const resultAsSummary = computed((): ShareSaleSummary => {
@@ -184,6 +182,7 @@ watch(
       if (tab.value === 'history') {
         await loadHistory(props.sharesAccountId);
       } else {
+        saleDate.value = new Date().toISOString().slice(0, 10);
         const account = sharesAccount.value;
         if (account?.account.numberOfShares) {
           sharesSold.value = account.account.numberOfShares.toString();
@@ -208,13 +207,14 @@ async function submit(): Promise<void> {
     taxLiabilityAccountId: taxAccountId.value as number,
     sharesSold: String(sharesSold.value),
     salePricePerShare: String(salePricePerShare.value),
+    saleDate: saleDate.value || undefined,
   });
   if (ok) emit('sold');
 }
 
 function emitClose(): void {
   reset();
-  sharesSold.value = ''; salePricePerShare.value = '';
+  sharesSold.value = ''; salePricePerShare.value = ''; saleDate.value = '';
   cashAccountId.value = ''; taxAccountId.value = '';
   tab.value = 'record';
   emit('close');

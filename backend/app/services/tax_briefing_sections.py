@@ -95,25 +95,28 @@ def wealth_section(
 def tax_detail_section(
     styles: Styles, in_scope: list[dict[str, Any]]
 ) -> list[Flowable]:
-    """Per in-scope account: income, capital gain, tax taken off, with totals."""
+    """Per in-scope account: income, capital gain, tax due, tax taken off, with totals."""
     flow: list[Flowable] = [Paragraph("2. Tax Return Detail", styles["h2"])]
     if not in_scope:
         flow.append(Paragraph("No accounts are in scope for this period.", styles["body"]))
         return flow
 
-    rows: list[list[Any]] = [["Account", "Income", "Capital gain", "Tax taken off"]]
-    t_income = t_gain = t_tax = 0.0
+    rows: list[list[Any]] = [["Account", "Income", "Capital gain", "Tax due", "Tax taken off"]]
+    t_income = t_gain = t_due = t_tax = 0.0
     for item in in_scope:
         tax_return = item.get("tax_return")
         income = to_float(getattr(tax_return, "income", None))
         gain = to_float(getattr(tax_return, "capital_gain", None))
+        due = to_float(getattr(tax_return, "tax_due", None))
         tax = to_float(getattr(tax_return, "tax_taken_off", None))
         t_income += income
         t_gain += gain
+        t_due += due
         t_tax += tax
-        rows.append([_cell(item["account"].name, styles), money(income), money(gain), money(tax)])
-    rows.append(["Totals", money(t_income), money(t_gain), money(t_tax)])
-    flow.append(styled_table(rows, [70 * mm, 33 * mm, 33 * mm, 34 * mm]))
+        rows.append([_cell(item["account"].name, styles),
+                     money(income), money(gain), money(due), money(tax)])
+    rows.append(["Totals", money(t_income), money(t_gain), money(t_due), money(t_tax)])
+    flow.append(styled_table(rows, [58 * mm, 28 * mm, 28 * mm, 28 * mm, 28 * mm]))
     return flow
 
 

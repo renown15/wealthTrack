@@ -864,6 +864,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/accounts/share-sales/{groupId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Reverse Share Sale
+         * @description Reverse a recorded share sale: restore the share count and undo balances.
+         */
+        delete: operations["reverse_share_sale_api_v1_accounts_share_sales__group_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/accounts/{accountId}/Dividends": {
         parameters: {
             query?: never;
@@ -2295,6 +2315,11 @@ export interface components {
              * @description Sale price per share in pence
              */
             salePricePerShare: string;
+            /**
+             * Saledate
+             * @description Date the sale took place; defaults to today when omitted
+             */
+            saleDate?: string | null;
         };
         /**
          * ShareSaleResponse
@@ -2334,6 +2359,8 @@ export interface components {
              * Format: date-time
              */
             soldAt: string;
+            /** Saledate */
+            saleDate?: string | null;
             /** Events */
             events: components["schemas"]["ShareSaleSummaryEvent"][];
             /** Attributes */
@@ -2498,6 +2525,8 @@ export interface components {
             capitalGain?: number | null;
             /** Taxtakenoff */
             taxTakenOff?: number | null;
+            /** Taxdue */
+            taxDue?: number | null;
             /** Scope */
             scope?: string | null;
             /** Note */
@@ -4407,6 +4436,35 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ShareSaleSummary"][];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reverse_share_sale_api_v1_accounts_share_sales__group_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

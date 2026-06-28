@@ -1,7 +1,7 @@
 <template>
   <div class="border border-gray-200 rounded-lg overflow-hidden text-sm">
     <div class="bg-gray-50 px-4 py-2 flex justify-between items-center">
-      <span class="font-semibold text-gray-700">Sale — {{ formatDate(sale.soldAt) }}</span>
+      <span class="font-semibold text-gray-700">Sale — {{ saleDateLabel }}</span>
       <div v-if="sale.groupId" class="flex items-center gap-2">
         <span class="text-gray-400 text-xs">Group #{{ sale.groupId }}</span>
         <button
@@ -74,6 +74,12 @@ const props = defineProps<{
 
 const emit = defineEmits<{ reverse: [groupId: number] }>();
 const confirming = ref(false);
+
+const saleDateLabel = computed(() => {
+  const iso = props.sale.saleDate;
+  const d = iso ? new Date(`${iso}T00:00:00`) : new Date(props.sale.soldAt);
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+});
 function confirmReverse(): void {
   confirming.value = false;
   emit('reverse', props.sale.groupId);
@@ -97,13 +103,6 @@ const taxAccountName = computed(() => {
   if (!id) return null;
   return props.allItems.find((i) => i.account.id === id)?.account.name ?? null;
 });
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString('en-GB', {
-    day: 'numeric', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  });
-}
 
 function formatGBP(value: string | null | undefined): string {
   if (!value) return '—';

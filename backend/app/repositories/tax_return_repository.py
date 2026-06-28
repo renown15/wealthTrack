@@ -54,6 +54,7 @@ class TaxReturnRepository:
         income: Optional[float],
         capital_gain: Optional[float],
         tax_taken_off: Optional[float],
+        tax_due: Optional[float] = None,
     ) -> TaxReturn:
         """Create or update a tax return, replacing all values."""
         existing = await self.get_for_account_period(user_id, account_id, tax_period_id)
@@ -62,13 +63,14 @@ class TaxReturnRepository:
             existing.income = income
             existing.capital_gain = capital_gain
             existing.tax_taken_off = tax_taken_off
+            existing.tax_due = tax_due
             existing.updated_at = now
             await self.session.flush()
             await self.session.refresh(existing)
             return existing
 
         return await self._create(
-            user_id, account_id, tax_period_id, income, capital_gain, tax_taken_off, now
+            user_id, account_id, tax_period_id, income, capital_gain, tax_taken_off, now, tax_due
         )
 
     async def sync_income(
@@ -146,6 +148,7 @@ class TaxReturnRepository:
         capital_gain: Optional[float],
         tax_taken_off: Optional[float],
         now: datetime,
+        tax_due: Optional[float] = None,
     ) -> TaxReturn:
         tax_return = TaxReturn()
         tax_return.user_id = user_id
@@ -154,6 +157,7 @@ class TaxReturnRepository:
         tax_return.income = income
         tax_return.capital_gain = capital_gain
         tax_return.tax_taken_off = tax_taken_off
+        tax_return.tax_due = tax_due
         tax_return.created_at = now
         tax_return.updated_at = now
         self.session.add(tax_return)

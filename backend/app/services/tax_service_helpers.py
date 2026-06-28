@@ -35,6 +35,18 @@ def parse_date(value: str | None) -> date | None:
         return None
 
 
+def group_sale_date(group: dict[str, Any]) -> date | None:
+    """Recorded sale date (Share Sale Date event), falling back to the group's record time."""
+    for event in group.get("events", []):
+        if event.get("event_type") == "Share Sale Date" and event.get("value"):
+            try:
+                return date.fromisoformat(event["value"])
+            except ValueError:
+                pass
+    created = group.get("created_at")
+    return created.date() if created is not None else None
+
+
 def savings_eligible(
     account_type: str,
     attrs: dict[str, str],

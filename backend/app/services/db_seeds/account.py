@@ -59,6 +59,9 @@ ACCOUNT_ITEMS: list[ReferenceDataItem] = [
     ReferenceDataItem(
         class_key="account_event_type", reference_value="Dividend Payment Date", sort_index=11
     ),
+    ReferenceDataItem(
+        class_key="account_event_type", reference_value="Share Sale Date", sort_index=12
+    ),
     # -----------------------------------------------------------------------
     # Account attribute types
     # -----------------------------------------------------------------------

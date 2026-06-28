@@ -38,22 +38,10 @@
       @save="(d) => $emit('saveAccountGroup', d)"
       @delete-group="(id) => $emit('deleteGroupFromModal', id)"
     />
-    <AccountModal
-      :open="accountModalOpen" :type="modalType"
+    <AccountEditModal
+      :open="accountModalOpen" :type="modalType" :item="accountEditItem"
       :institutions="institutions" :account-types="accountTypes" :account-statuses="accountStatuses"
-      :initial-name="initialModalName" :initial-institution-id="initialModalInstitutionId"
-      :initial-type-id="initialModalTypeId" :initial-status-id="initialModalStatusId"
-      :initial-opened-at="initialModalOpenedAt" :initial-closed-at="initialModalClosedAt"
-      :initial-account-number="initialModalAccountNumber" :initial-sort-code="initialModalSortCode"
-      :initial-roll-ref-number="initialModalRollRefNumber" :initial-interest-rate="initialModalInterestRate"
-      :initial-fixed-bonus-rate="initialModalFixedBonusRate"
-      :initial-fixed-bonus-rate-end-date="initialModalFixedBonusRateEndDate"
-      :initial-release-date="initialModalReleaseDate" :initial-number-of-shares="initialModalNumberOfShares"
-      :initial-underlying="initialModalUnderlying" :initial-price="initialModalPrice"
-      :initial-purchase-price="initialModalPurchasePrice"
-      :initial-pension-monthly-payment="initialModalPensionMonthlyPayment"
-      :initial-asset-class="initialModalAssetClass" :initial-encumbrance="initialModalEncumbrance"
-      :initial-tax-year="initialModalTaxYear" :transfer-accounts="transferAccounts" :account-id="editingItem?.id" :error="accountError"
+      :transfer-accounts="transferAccounts" :error="accountError"
       @close="$emit('closeAccount')" @save="(p) => $emit('saveAccount', p)" @transferred="$emit('accountTransferred')"
     />
     <InstitutionModal
@@ -90,7 +78,7 @@ import RecordDividendModal from '@views/AccountHub/RecordDividendModal.vue';
 import GiftModal from '@views/AccountHub/GiftModal.vue';
 import ShareSaleModal from '@views/AccountHub/ShareSaleModal.vue';
 import AccountGroupModal from '@views/AccountHub/AccountGroupModal.vue';
-import AccountModal from '@views/AccountHub/AccountModal.vue';
+import AccountEditModal from '@views/AccountHub/AccountEditModal.vue';
 import InstitutionModal from '@views/AccountHub/InstitutionModal.vue';
 import DeleteConfirmModal from '@views/AccountHub/DeleteConfirmModal.vue';
 import InstitutionCredentialsModal from '@views/AccountHub/InstitutionCredentialsModal.vue';
@@ -167,6 +155,8 @@ defineEmits<{
 const dividendModalOpen = ref(false);
 const giftModalOpen = ref(false);
 const editingItemRef = computed(() => props.editingItem);
+const accountEditItem = computed<Account | null>(() =>
+  props.editingItem && 'typeId' in props.editingItem ? props.editingItem : null);
 
 const transferAccounts = computed<{ id: number; label: string }[]>(() => {
   if (props.modalType !== 'edit' || !props.editingItem || !('typeId' in props.editingItem)) return [];
@@ -190,13 +180,9 @@ const transferAccounts = computed<{ id: number; label: string }[]>(() => {
     });
 });
 
+// Account fields are derived inside AccountEditModal; only the institution
+// modal's initials are needed here.
 const {
-  initialModalName, initialModalInstitutionId, initialModalTypeId, initialModalStatusId,
-  initialModalOpenedAt, initialModalClosedAt, initialModalAccountNumber, initialModalSortCode,
-  initialModalRollRefNumber, initialModalInterestRate, initialModalFixedBonusRate,
-  initialModalFixedBonusRateEndDate, initialModalReleaseDate, initialModalNumberOfShares,
-  initialModalUnderlying, initialModalPrice, initialModalPurchasePrice,
-  initialModalPensionMonthlyPayment, initialModalAssetClass, initialModalEncumbrance, initialModalTaxYear, initialModalParentId,
-  initialModalInstitutionType,
+  initialModalName, initialModalParentId, initialModalInstitutionType,
 } = useModalInitialValues(editingItemRef);
 </script>

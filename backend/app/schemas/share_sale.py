@@ -1,5 +1,5 @@
 """Schemas for share sale request/response."""
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any, Optional
 
 from pydantic import Field, field_validator
@@ -15,6 +15,9 @@ class ShareSaleRequest(BaseSchema):
     tax_liability_account_id: int = Field(..., description="Tax Liability account for CGT")
     shares_sold: str = Field(..., description="Number of shares sold")
     sale_price_per_share: str = Field(..., description="Sale price per share in pence")
+    sale_date: Optional[date] = Field(
+        default=None, description="Date the sale took place; defaults to today when omitted"
+    )
 
     @field_validator("shares_sold", mode="before")
     @classmethod
@@ -57,6 +60,7 @@ class ShareSaleSummary(BaseSchema):
 
     group_id: int
     sold_at: datetime
+    sale_date: Optional[str] = None  # ISO date from the "Share Sale Date" event, if recorded
     events: list[ShareSaleSummaryEvent]
     attributes: list[ShareSaleSummaryAttribute]
     # Derived fields extracted from events for convenient display
@@ -106,6 +110,7 @@ class ShareSaleSummary(BaseSchema):
         return cls(
             group_id=group["group_id"],
             sold_at=group["created_at"],
+            sale_date=_event_val("Share Sale Date"),
             events=events,
             attributes=attributes,
             shares_sold=_event_val("Share Sale"),

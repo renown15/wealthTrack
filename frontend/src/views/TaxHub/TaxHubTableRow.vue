@@ -31,6 +31,7 @@
     <td class="table-cell">{{ formatCurrency(account.taxReturn?.income) }}</td>
     <td class="table-cell">{{ formatCurrency(account.taxReturn?.capitalGain) }}</td>
     <td class="table-cell">{{ formatCurrency(account.taxReturn?.taxTakenOff) }}</td>
+    <td class="table-cell">{{ formatCurrency(account.taxReturn?.taxDue) }}</td>
     <td class="table-cell">{{ account.firstBalanceDate ?? 'No balance' }}</td>
     <td class="table-cell">
       <button

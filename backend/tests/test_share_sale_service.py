@@ -150,13 +150,13 @@ class TestExecuteShareSaleSuccess:
         group_repo.create_group.assert_called_once_with(1, "Share Sale")
 
     @pytest.mark.asyncio
-    async def test_six_events_written(self, monkeypatch):
-        # 6 events: Share Sale, Balance Update (shares), Deposit,
+    async def test_seven_events_written(self, monkeypatch):
+        # 7 events: Share Sale, Share Sale Date, Balance Update (shares), Deposit,
         # Balance Update (cash), Capital Gains Tax, Balance Update (tax)
         session, account_repo, attr_repo, event_repo, group_repo = make_session_and_repos()
         patch_repos(monkeypatch, account_repo, attr_repo, event_repo, group_repo)
         await execute_share_sale(make_request(), 1, session)
-        assert event_repo.create_event.call_count == 6
+        assert event_repo.create_event.call_count == 7
 
     @pytest.mark.asyncio
     async def test_new_cash_balance_added_to_existing(self, monkeypatch):

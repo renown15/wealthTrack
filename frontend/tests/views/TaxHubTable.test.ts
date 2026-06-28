@@ -156,25 +156,27 @@ describe('TaxHubTable', () => {
     expect(wrapper.emitted('moveToEligible')).toEqual([[1]]);
   });
 
-  it('sums income, capital gain and tax taken off across all sections', () => {
-    const withReturn = (id: number, income: number, gain: number, tax: number): EligibleAccount => ({
+  it('sums income, capital gain, tax taken off and tax due across all sections', () => {
+    const withReturn = (
+      id: number, income: number, gain: number, tax: number, due: number,
+    ): EligibleAccount => ({
       ...makeAccount(id, `Acc ${id}`),
       taxReturn: {
-        id, accountId: id, taxPeriodId: 1, income, capitalGain: gain, taxTakenOff: tax,
+        id, accountId: id, taxPeriodId: 1, income, capitalGain: gain, taxTakenOff: tax, taxDue: due,
         createdAt: '2025-01-01', updatedAt: '2025-01-01',
       },
     });
     const wrapper = mount(TaxHubTable, {
       props: {
         ...defaultProps,
-        inScope: [withReturn(1, 100, 50, 20)],
-        eligible: [withReturn(2, 200, 0, 30)],
+        inScope: [withReturn(1, 100, 50, 0, 600)],
+        eligible: [withReturn(2, 200, 0, 0, 400)],
       },
     });
     const foot = wrapper.find('tfoot').text();
     expect(foot).toContain('Totals');
-    expect(foot).toContain('£300.00'); // income
-    expect(foot).toContain('£50.00');  // capital gain
-    expect(foot).toContain('£50.00');  // tax taken off (20 + 30)
+    expect(foot).toContain('£300.00');   // income
+    expect(foot).toContain('£50.00');    // capital gain
+    expect(foot).toContain('£1,000.00'); // tax due (600 + 400)
   });
 });

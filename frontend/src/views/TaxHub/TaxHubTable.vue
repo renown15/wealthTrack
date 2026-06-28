@@ -28,6 +28,7 @@
             <th class="table-cell table-header text-left">Income</th>
             <th class="table-cell table-header text-left">Capital Gain</th>
             <th class="table-cell table-header text-left">Tax Taken Off</th>
+            <th class="table-cell table-header text-left">Tax Due</th>
             <th class="table-cell table-header text-left">First Balance</th>
             <th class="table-cell table-header text-left">Events</th>
             <th class="table-cell table-header text-left">Docs</th>
@@ -36,7 +37,7 @@
         </thead>
         <tbody>
           <tr class="bg-indigo-50 border-t-2 border-indigo-200" @dragover.prevent @drop="onDropInScope">
-            <td colspan="15" class="table-cell py-2">
+            <td colspan="16" class="table-cell py-2">
               <button class="flex items-center gap-2 font-semibold text-indigo-700 bg-transparent border-none cursor-pointer hover:text-indigo-900" @click="inScopeCollapsed = !inScopeCollapsed">
                 <span>{{ inScopeCollapsed ? Icons.chevronRight : Icons.chevronDown }}</span>
                 <span>In Scope ({{ inScope.length }})</span>
@@ -50,18 +51,15 @@
               :account="account"
               :portfolio-item="portfolioItemMap[account.accountId] ?? null"
               section="inScope"
-              @edit-return="emit('editReturn', $event)"
-              @edit-account="emit('editAccount', $event)"
-              @manage-documents="emit('manageDocuments', $event)"
-              @show-events="emit('showEvents', $event)"
-              @drag-start="onDragStart($event, 'inScope')"
-              @move-to-eligible="emit('moveToEligible', $event)"
+              @edit-return="emit('editReturn', $event)" @edit-account="emit('editAccount', $event)"
+              @manage-documents="emit('manageDocuments', $event)" @show-events="emit('showEvents', $event)"
+              @drag-start="onDragStart($event, 'inScope')" @move-to-eligible="emit('moveToEligible', $event)"
               @move-to-in-scope="emit('moveToInScope', $event)"
             />
           </template>
 
           <tr class="bg-gray-50 border-t-2 border-gray-200" @dragover.prevent @drop="onDropEligible">
-            <td colspan="15" class="table-cell py-2">
+            <td colspan="16" class="table-cell py-2">
               <button class="flex items-center gap-2 font-semibold text-gray-600 bg-transparent border-none cursor-pointer hover:text-gray-900" @click="eligibleCollapsed = !eligibleCollapsed">
                 <span>{{ eligibleCollapsed ? Icons.chevronRight : Icons.chevronDown }}</span>
                 <span>Eligible ({{ eligible.length }})</span>
@@ -83,7 +81,7 @@
           </template>
 
           <tr v-if="taxFree.length > 0" class="bg-green-50 border-t-2 border-green-200">
-            <td colspan="15" class="table-cell py-2">
+            <td colspan="16" class="table-cell py-2">
               <button class="flex items-center gap-2 font-semibold text-green-700 bg-transparent border-none cursor-pointer hover:text-green-900" @click="taxFreeCollapsed = !taxFreeCollapsed">
                 <span>{{ taxFreeCollapsed ? Icons.chevronRight : Icons.chevronDown }}</span>
                 <span>Tax Free ({{ taxFree.length }})</span>
@@ -105,7 +103,7 @@
           </template>
 
           <tr v-if="notInScope.length > 0" class="bg-red-50 border-t-2 border-red-200">
-            <td colspan="15" class="table-cell py-2">
+            <td colspan="16" class="table-cell py-2">
               <button class="flex items-center gap-2 font-semibold text-red-700 bg-transparent border-none cursor-pointer hover:text-red-900" @click="notInScopeCollapsed = !notInScopeCollapsed">
                 <span>{{ notInScopeCollapsed ? Icons.chevronRight : Icons.chevronDown }}</span>
                 <span>Not in Scope ({{ notInScope.length }})</span>
@@ -133,6 +131,7 @@
             <td class="table-cell">{{ formatCurrency(totals.income) }}</td>
             <td class="table-cell">{{ formatCurrency(totals.capitalGain) }}</td>
             <td class="table-cell">{{ formatCurrency(totals.taxTakenOff) }}</td>
+            <td class="table-cell">{{ formatCurrency(totals.taxDue) }}</td>
             <td colspan="4"></td>
           </tr>
         </tfoot>
@@ -164,8 +163,9 @@ const totals = computed(() =>
       income: t.income + (a.taxReturn?.income ?? 0),
       capitalGain: t.capitalGain + (a.taxReturn?.capitalGain ?? 0),
       taxTakenOff: t.taxTakenOff + (a.taxReturn?.taxTakenOff ?? 0),
+      taxDue: t.taxDue + (a.taxReturn?.taxDue ?? 0),
     }),
-    { income: 0, capitalGain: 0, taxTakenOff: 0 },
+    { income: 0, capitalGain: 0, taxTakenOff: 0, taxDue: 0 },
   )
 );
 

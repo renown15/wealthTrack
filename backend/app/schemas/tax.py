@@ -64,7 +64,8 @@ class TaxReturnResponse(BaseSchema):
     tax_period_id: int
     income: Optional[float] = None
     capital_gain: Optional[float] = None
-    tax_taken_off: Optional[float] = None
+    tax_taken_off: Optional[float] = None  # tax withheld at source (currently always 0)
+    tax_due: Optional[float] = None  # estimated tax owed (CGT + dividend provision)
     scope: Optional[str] = None  # resolved tax_scope_status value; None = derived
     note: Optional[str] = None
     created_at: datetime

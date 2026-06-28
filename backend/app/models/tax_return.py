@@ -40,6 +40,7 @@ class TaxReturn(Base):
     income: Mapped[Optional[float]] = mapped_column(Numeric(15, 2), nullable=True)
     capital_gain: Mapped[Optional[float]] = mapped_column(Numeric(15, 2), nullable=True)
     tax_taken_off: Mapped[Optional[float]] = mapped_column(Numeric(15, 2), nullable=True)
+    tax_due: Mapped[Optional[float]] = mapped_column(Numeric(15, 2), nullable=True)
     scope_status_id: Mapped[Optional[int]] = mapped_column(
         "scopestatusid", Integer, ForeignKey("ReferenceData.id"), nullable=True
     )

@@ -1,4 +1,5 @@
 """Service for recording a share sale across three accounts atomically."""
+from datetime import date
 from decimal import ROUND_HALF_UP, Decimal
 
 from fastapi import HTTPException, status
@@ -103,9 +104,10 @@ async def execute_share_sale(
     balance_type_id = await event_repo.get_event_type_id("Balance Update")
     deposit_type_id = await event_repo.get_event_type_id("Deposit")
     cgt_type_id = await event_repo.get_event_type_id("Capital Gains Tax")
+    sale_date_type_id = await event_repo.get_event_type_id("Share Sale Date")
 
-    if sale_type_id is None or balance_type_id is None \
-            or deposit_type_id is None or cgt_type_id is None:
+    if sale_type_id is None or balance_type_id is None or deposit_type_id is None \
+            or cgt_type_id is None or sale_date_type_id is None:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Required event types not found in reference data",
@@ -126,46 +128,23 @@ async def execute_share_sale(
     )
 
     # Write events in logical transaction order
-    # 1. Share Sale event on shares account (count of shares sold)
     sale_event = await event_repo.create_event(
-        request.shares_account_id,
-        user_id,
-        sale_type_id,
-        str(shares_sold),    )
-    # 2. Update number_of_shares attribute
+        request.shares_account_id, user_id, sale_type_id, str(shares_sold))
+    sale_date_event = await event_repo.create_event(
+        request.shares_account_id, user_id, sale_date_type_id,
+        (request.sale_date or date.today()).isoformat())
     updated_attr = await attr_repo.set_attribute_by_name(
-        request.shares_account_id, user_id, "number_of_shares", str(remaining_shares)
-    )
-    # 3. Balance Update on shares account (remaining value in £)
+        request.shares_account_id, user_id, "number_of_shares", str(remaining_shares))
     shares_balance_event = await event_repo.create_event(
-        request.shares_account_id,
-        user_id,
-        balance_type_id,
-        str(shares_remaining_value),    )
-    # 4. Deposit event on cash account (proceeds in £)
+        request.shares_account_id, user_id, balance_type_id, str(shares_remaining_value))
     deposit_event = await event_repo.create_event(
-        request.cash_account_id,
-        user_id,
-        deposit_type_id,
-        str(proceeds_pounds),    )
-    # 5. Balance Update on cash account (new running total)
+        request.cash_account_id, user_id, deposit_type_id, str(proceeds_pounds))
     cash_balance_event = await event_repo.create_event(
-        request.cash_account_id,
-        user_id,
-        balance_type_id,
-        str(new_cash_balance),    )
-    # 6. Capital Gains Tax event on tax account (CGT owed)
+        request.cash_account_id, user_id, balance_type_id, str(new_cash_balance))
     liability_event = await event_repo.create_event(
-        request.tax_liability_account_id,
-        user_id,
-        cgt_type_id,
-        str(cgt_pounds),    )
-    # 7. Balance Update on tax account (cumulative CGT owed)
+        request.tax_liability_account_id, user_id, cgt_type_id, str(cgt_pounds))
     tax_balance_event = await event_repo.create_event(
-        request.tax_liability_account_id,
-        user_id,
-        balance_type_id,
-        str(new_tax_balance),    )
+        request.tax_liability_account_id, user_id, balance_type_id, str(new_tax_balance))
 
     # 8. Store sale metadata as per-sale attributes on the shares account
     sale_price_attr = await attr_repo.set_attribute_by_name(
@@ -184,6 +163,7 @@ async def execute_share_sale(
     # 9. Create event group linking all written records
     group = await group_repo.create_group(user_id, "Share Sale")
     await group_repo.add_event_member(group.id, sale_event.id)
+    await group_repo.add_event_member(group.id, sale_date_event.id)
     if updated_attr:
         await group_repo.add_attribute_member(group.id, updated_attr.id)
     await group_repo.add_event_member(group.id, shares_balance_event.id)
