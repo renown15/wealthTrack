@@ -56,10 +56,10 @@
 
       <article class="stat-card">
         <p class="stat-label">
-          Encumbrances
+          Encumbrances + Tax
           <InfoBadge subtle :text="getEncumbranceTooltip()" />
         </p>
-        <p class="stat-value">{{ formatCurrency(totalEncumbrances()) }}</p>
+        <p class="stat-value">{{ formatCurrency(totalEncumbrances() + props.totalTax) }}</p>
       </article>
 
       <article class="stat-card">
@@ -100,6 +100,7 @@ const props = defineProps<{
   isaSavings: number;
   illiquid: number;
   trustAssets: number;
+  totalTax: number;
   projectedAnnualYield: number;
   pensionBreakdown: PensionBreakdown;
   items: PortfolioItem[];
@@ -124,7 +125,7 @@ const totalEncumbrances = (): number =>
 
 const getEncumbranceTooltip = (): string => {
   const enc = (props.items ?? []).filter(i => parseFloat(i.account.encumbrance ?? '0') > 0);
-  return enc.length ? [...enc.map(i => `${i.account.name}: ${formatCurrency(parseFloat(i.account.encumbrance!))}`), '─────────────────', `Total: ${formatCurrency(totalEncumbrances())}`].join('\n') : 'Status: No encumbrances';
+  return [...enc.map(i => `Enc ${i.account.name}: ${formatCurrency(parseFloat(i.account.encumbrance!))}`), `Tax owed: ${formatCurrency(props.totalTax)}`, '─────────────────', `Total: ${formatCurrency(totalEncumbrances() + props.totalTax)}`].join('\n');
 };
 
 const buildBreakdownTooltip = (types: string[]): string => {

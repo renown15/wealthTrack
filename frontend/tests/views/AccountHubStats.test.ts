@@ -18,6 +18,7 @@ const defaultProps = {
   isaSavings: 0,
   illiquid: 0,
   trustAssets: 0,
+  totalTax: 0,
   projectedAnnualYield: 0,
   pensionBreakdown: mockPensionBreakdown,
   items: [],
@@ -71,5 +72,11 @@ describe('AccountHubStats', () => {
     });
 
     expect(wrapper.text()).toContain('£1,234.56');
+  });
+
+  it('shows the Encumbrances + Tax card including unpaid tax', () => {
+    const wrapper = mount(AccountHubStats, { props: { ...defaultProps, totalTax: 1200 } });
+    expect(wrapper.text()).toContain('Encumbrances + Tax');
+    expect(wrapper.text()).toContain('£1,200.00');
   });
 });

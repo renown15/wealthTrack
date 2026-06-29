@@ -1,7 +1,7 @@
 <template>
   <div class="page-view">
     <div class="hub-header-card">
-      <AccountHubStats :total-value="totalValue" :cash-at-hand="cashAtHand" :isa-savings="isaSavings" :illiquid="illiquid" :trust-assets="trustAssets" :projected-annual-yield="projectedAnnualYield" :pension-breakdown="pensionBreakdown" :items="visibleItems" :last-price-update="lastPriceUpdate" @create-account="openCreateAccountModal" @create-institution="openCreateInstitutionModal" @create-account-group="openCreateAccountGroupModal" />
+      <AccountHubStats :total-value="totalValue" :cash-at-hand="cashAtHand" :isa-savings="isaSavings" :illiquid="illiquid" :trust-assets="trustAssets" :total-tax="totalTax" :projected-annual-yield="projectedAnnualYield" :pension-breakdown="pensionBreakdown" :items="visibleItems" :last-price-update="lastPriceUpdate" @create-account="openCreateAccountModal" @create-institution="openCreateInstitutionModal" @create-account-group="openCreateAccountGroupModal" />
     </div>
     <div v-if="state.error" class="hub-content-card p-6">
       <div class="error-banner"><span>{{ state.error }}</span><button class="btn-close" @click="clearError">×</button></div>
@@ -119,7 +119,7 @@ const grouped = ref(true); const groupByParent = ref(true);
 const { accountTypes, accountStatuses, institutionTypes, credentialTypes, lifeExpectancy, annuityRate } = useHubReferenceData();
 const { otherMembers, allMembers, activeMemberId, tableItems, activeInstitutions, memberGroups, memberGroupMembersMap, isLoadingMember, memberError, loadFamilyTabs, selectMember, familyId, reloadMemberPortfolio } =
   useFamilyTabs(() => authState.user?.id ?? 0, () => ({ firstName: authState.user?.firstName ?? '', lastName: authState.user?.lastName ?? '' }), computed(() => state.items));
-const { hideClosed, searchText, visibleItems, filteredItems, totalValue, cashAtHand, isaSavings, illiquid, trustAssets, projectedAnnualYield, pensionBreakdown } =
+const { hideClosed, searchText, visibleItems, filteredItems, totalValue, cashAtHand, isaSavings, illiquid, trustAssets, totalTax, projectedAnnualYield, pensionBreakdown } =
   useAccountHubStats(tableItems, accountStatuses, lifeExpectancy, annuityRate);
 const institutionsToShow = computed<Institution[]>(() => activeInstitutions.value ?? state.institutions);
 onMounted(() => { void loadPortfolio(); void loadGroups(); void loadFamilyTabs(); });

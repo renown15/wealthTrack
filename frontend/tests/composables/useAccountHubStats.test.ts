@@ -168,3 +168,15 @@ describe('useAccountHubStats - filteredItems search', () => {
     expect(filteredItems.value).toHaveLength(0);
   });
 });
+
+describe('useAccountHubStats - totalTax', () => {
+  it('sums the absolute balance of Tax Liability accounts (unpaid tax)', () => {
+    const items = ref([
+      makeItem(1, 1000, OPEN_STATUS_ID, 'Savings Account'),
+      makeItem(2, -1200, OPEN_STATUS_ID, 'Tax Liability'),
+      makeItem(3, -300, OPEN_STATUS_ID, 'Tax Liability'),
+    ]);
+    const { totalTax } = useAccountHubStats(items, accountStatuses, ref(36), ref(0.075));
+    expect(totalTax.value).toBe(1500);
+  });
+});

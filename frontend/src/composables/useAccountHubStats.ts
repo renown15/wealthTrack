@@ -29,6 +29,7 @@ export function useAccountHubStats(
   isaSavings: ComputedRef<number>;
   illiquid: ComputedRef<number>;
   trustAssets: ComputedRef<number>;
+  totalTax: ComputedRef<number>;
   projectedAnnualYield: ComputedRef<number>;
   pensionBreakdown: ComputedRef<PensionBreakdown>;
 } {
@@ -65,6 +66,9 @@ export function useAccountHubStats(
   const isaSavings = computed(() => calculateIsaSavings(visibleItems.value));
   const illiquid = computed(() => calculateIlliquid(visibleItems.value));
   const trustAssets = computed(() => calculateTrustAssets(visibleItems.value));
+  const totalTax = computed(() => visibleItems.value.reduce((s, i) =>
+    i.accountType === 'Tax Liability'
+      ? s + Math.abs(parseFloat(i.latestBalance?.value ?? '0')) : s, 0));
   const projectedAnnualYield = computed(() => calculateProjectedAnnualYield(visibleItems.value));
   const pensionBreakdown = computed<PensionBreakdown>(() =>
     calculatePensionValue(visibleItems.value, lifeExpectancy.value, annuityRate.value)
@@ -80,6 +84,7 @@ export function useAccountHubStats(
     isaSavings,
     illiquid,
     trustAssets,
+    totalTax,
     projectedAnnualYield,
     pensionBreakdown,
   };
