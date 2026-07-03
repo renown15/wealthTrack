@@ -43,6 +43,7 @@ import { useAccountForm, type AccountFormProps } from '@/composables/useAccountF
 import { buildSavePayload, type SavePayload } from '@views/AccountHub/accountModalSave';
 import { apiService } from '@services/ApiService';
 import { authState } from '@/modules/auth';
+import { useActionEmit } from '@/utils/actionEmit';
 
 interface Props {
   open: boolean;
@@ -79,11 +80,12 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits<{
+const rawEmit = defineEmits<{
   close: [];
   save: [SavePayload];
   transferred: [];
 }>();
+const emit = useActionEmit(rawEmit);
 
 const formProps = computed<AccountFormProps>(() => ({
   open: props.open,

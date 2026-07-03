@@ -75,6 +75,7 @@
       :error="editModalError"
       @close="closeEdit"
       @save="handleEditSave"
+      @transferred="reloadAndReselect"
     />
   </div>
 </template>

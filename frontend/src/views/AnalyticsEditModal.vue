@@ -29,6 +29,7 @@
     :error="error"
     @close="$emit('close')"
     @save="(p) => $emit('save', p)"
+    @transferred="$emit('transferred')"
   />
 </template>
 
@@ -49,7 +50,7 @@ const props = defineProps<{
   error: string | null;
 }>();
 
-defineEmits<{ close: []; save: [AnalyticsEditSavePayload] }>();
+defineEmits<{ close: []; save: [AnalyticsEditSavePayload]; transferred: [] }>();
 
 const editingItem = computed(() => props.account);
 const {

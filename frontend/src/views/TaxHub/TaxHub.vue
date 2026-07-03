@@ -94,14 +94,11 @@
       @save="handleQuickAdd"
     />
 
-    <AccountEventsModal
-      :open="eventsModalOpen"
-      :title="eventsTitle"
-      :events="events"
-      :loading="eventsLoading"
-      :error="eventsError"
-      :account-type="eventsAccountType"
-      @close="closeEventsModal"
+    <AccountEventsGroup
+      :open="eventsModalOpen" :title="eventsTitle" :events="events"
+      :loading="eventsLoading" :error="eventsError" :account-type="eventsAccountType"
+      :current-account-id="currentAccountId" :items="Object.values(portfolioItemMap)"
+      @close="closeEventsModal" @changed="handleEventsChanged"
     />
   </div>
 </template>
@@ -126,7 +123,7 @@ import TaxDocumentsModal from '@views/TaxHub/TaxDocumentsModal.vue';
 import AddAccountModal from '@views/AccountHub/AddAccountModal.vue';
 import AccountEditModal from '@views/AccountHub/AccountEditModal.vue';
 import DeleteConfirmModal from '@views/AccountHub/DeleteConfirmModal.vue';
-import AccountEventsModal from '@views/AccountHub/AccountEventsModal.vue';
+import AccountEventsGroup from '@views/AccountHub/AccountEventsGroup.vue';
 import DocumentPreviewModal from '@views/TaxHub/DocumentPreviewModal.vue';
 import GiftsSummary from '@views/TaxHub/GiftsSummary.vue';
 import BriefingPackModal from '@views/TaxHub/BriefingPackModal.vue';
@@ -145,8 +142,14 @@ const {
 
 const {
   eventsModalOpen, eventsTitle, eventsLoading, eventsError, events, accountType: eventsAccountType,
-  openEventsModal, closeEventsModal,
+  currentAccountId, openEventsModal, closeEventsModal,
 } = useEventsModal();
+
+const handleEventsChanged = async (): Promise<void> => {
+  if (selectedPeriodId.value !== null) await loadAccounts(selectedPeriodId.value);
+  const acc = accounts.value.find(a => a.accountId === currentAccountId.value);
+  if (acc) await openEventsModal(acc.accountId, acc.accountName, acc.accountType);
+};
 
 const {
   returnModalOpen, docsModalOpen, quickAddOpen,

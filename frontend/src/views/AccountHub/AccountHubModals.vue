@@ -1,32 +1,10 @@
 <template>
   <div>
-    <AccountEventsModal
+    <AccountEventsGroup
       :open="eventsModalOpen" :title="eventsTitle" :events="events"
-      :loading="eventsLoading" :error="eventsError ?? undefined" :account-type="accountType"
-      @close="$emit('closeEvents')" @add-win="(w) => $emit('addWin', w)"
-      @record-sale="$emit('recordSale')" @view-sales="$emit('viewSales')"
-      @record-dividend="dividendModalOpen = true"
-      @record-gift="giftModalOpen = true"
-      @delete-gift="(id) => $emit('deleteGift', id)"
-    />
-    <GiftModal
-      :open="giftModalOpen" :account-type="accountType"
-      @close="giftModalOpen = false"
-      @save="(donor, date, val, shares) => { giftModalOpen = false; $emit('saveGift', donor, date, val, shares); }"
-    />
-    <RecordDividendModal
-      :open="dividendModalOpen"
-      @close="dividendModalOpen = false"
-      @save="(a, d) => { dividendModalOpen = false; $emit('saveDividend', a, d); }"
-    />
-    <ShareSaleModal
-      :open="shareSaleModalOpen"
-      :shares-account-id="sharesAccountId"
-      :all-items="items"
-      :start-tab="shareSaleStartTab"
-      @close="$emit('closeShareSale')"
-      @sold="$emit('shareSold')"
-      @reversed="$emit('shareReversed')"
+      :loading="eventsLoading" :error="eventsError" :account-type="accountType"
+      :current-account-id="sharesAccountId" :items="items"
+      @close="$emit('closeEvents')" @changed="$emit('eventsChanged')"
     />
     <AccountGroupModal
       :open="accountGroupModalOpen" :type="accountGroupModalType" :items="items"
@@ -72,11 +50,8 @@ import type { Account, Institution, PortfolioItem, AccountGroup, AccountEvent, I
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 import { useModalInitialValues } from '@/composables/useModalInitialValues';
 import { ACCOUNT_TYPE_ASSET_GROUP } from '@views/AccountHub/accountTypeFieldConfigData';
-import { ref, computed } from 'vue';
-import AccountEventsModal from '@views/AccountHub/AccountEventsModal.vue';
-import RecordDividendModal from '@views/AccountHub/RecordDividendModal.vue';
-import GiftModal from '@views/AccountHub/GiftModal.vue';
-import ShareSaleModal from '@views/AccountHub/ShareSaleModal.vue';
+import { computed } from 'vue';
+import AccountEventsGroup from '@views/AccountHub/AccountEventsGroup.vue';
 import AccountGroupModal from '@views/AccountHub/AccountGroupModal.vue';
 import AccountEditModal from '@views/AccountHub/AccountEditModal.vue';
 import InstitutionModal from '@views/AccountHub/InstitutionModal.vue';
@@ -110,9 +85,7 @@ const props = defineProps<{
   eventsError?: string | null;
   events: AccountEvent[];
   accountType?: string;
-  shareSaleModalOpen: boolean;
   sharesAccountId: number;
-  shareSaleStartTab: 'record' | 'history';
   credentialModalOpen: boolean;
   credentialInstitution: Institution | null;
   credentialTypes: ReferenceDataItem[];
@@ -126,15 +99,7 @@ const props = defineProps<{
 
 defineEmits<{
   closeEvents: [];
-  addWin: [amount: string];
-  recordSale: [];
-  viewSales: [];
-  saveDividend: [amount: string, paymentDate: string];
-  saveGift: [donor: string, giftDate: string, giftValueGbp: string, numShares: string | null];
-  deleteGift: [eventId: number];
-  closeShareSale: [];
-  shareSold: [];
-  shareReversed: [];
+  eventsChanged: [];
   closeAccountGroup: [];
   saveAccountGroup: [data: { name: string; accountIds: number[]; groupId?: number }];
   deleteGroupFromModal: [groupId: number];
@@ -152,8 +117,6 @@ defineEmits<{
   removeCredential: [id: number];
 }>();
 
-const dividendModalOpen = ref(false);
-const giftModalOpen = ref(false);
 const editingItemRef = computed(() => props.editingItem);
 const accountEditItem = computed<Account | null>(() =>
   props.editingItem && 'typeId' in props.editingItem ? props.editingItem : null);

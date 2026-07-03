@@ -66,13 +66,12 @@
       :editing-group-id="editingGroupId" :editing-group-name="editingGroupName" :editing-group-member-ids="editingGroupMemberIds"
       :events-modal-open="eventsModalOpen" :events-title="eventsTitle" :events-loading="eventsLoading"
       :events-error="eventsError" :events="events" :account-type="accountType"
-      :share-sale-modal-open="shareSaleModalOpen" :shares-account-id="currentAccountId" :share-sale-start-tab="shareSaleStartTab"
+      :shares-account-id="currentAccountId"
       :credential-modal-open="credentialModalOpen" :credential-institution="credentialInstitution"
       :credential-types="credentialTypes" :credentials="credentials" :credential-loading="credentialLoading"
       :credential-saving="credentialSaving" :credential-deleting-id="credentialDeletingId"
       :credential-error="credentialError" :editing-credential="editingCredential"
-      @close-events="closeEventsModal" @add-win="handleAddWin" @record-sale="openShareSaleModal" @view-sales="openShareSaleModalHistory" @save-dividend="handleSaveDividend" @save-gift="handleSaveGift"
-      @close-share-sale="closeShareSaleModal" @share-sold="handleShareSold" @share-reversed="loadPortfolio" @delete-gift="handleDeleteGift"
+      @close-events="closeEventsModal" @events-changed="handleEventsChanged"
       @close-account-group="closeAccountGroupModal"
       @save-account-group="handleAccountGroupSave" @delete-group-from-modal="handleDeleteGroupFromModal"
       @close-account="closeAccountModal" @save-account="handleAccountSave" @account-transferred="loadPortfolio"
@@ -109,7 +108,6 @@ import { apiService } from '@/services/ApiService';
 import { institutionCredentialsService } from '@/services/InstitutionCredentialsService';
 import { exportAccountsToExcel, exportFamilyToExcel, exportInstitutionsToExcel } from '@/utils/exportToExcel';
 import { useHubEventHandlers } from '@/composables/useHubEventHandlers';
-import { useShareSaleModal } from '@/composables/useShareSaleModal';
 import { useHubReferenceData } from '@/composables/useHubReferenceData';
 import { usePortfolioGroups } from '@/composables/usePortfolioGroups';
 
@@ -130,8 +128,10 @@ const {
   handleCredentialSave, handleCredentialEdit, cancelCredentialEdit, handleCredentialDelete,
 } = useCredentialsModal();
 const { eventsModalOpen, eventsTitle, eventsLoading, eventsError, events, accountType, currentAccountId, openEventsModal, closeEventsModal } = useEventsModal();
-const { shareSaleModalOpen, shareSaleStartTab, openShareSaleModal, openShareSaleModalHistory, closeShareSaleModal, handleShareSold } =
-  useShareSaleModal(state, loadPortfolio, currentAccountId, openEventsModal);
+const handleEventsChanged = async (): Promise<void> => {
+  await loadPortfolio();
+  await openEventsModal(currentAccountId.value, state.items.find((i) => i.account.id === currentAccountId.value)?.account.name ?? '', accountType.value);
+};
 const accountModalOpen = ref(false); const institutionModalOpen = ref(false);
 const modalType = ref<'create' | 'edit'>('create'); const editingItem = ref<Account | Institution | null>(null);
 const deleteConfirmOpen = ref(false); const deleteConfirmType = ref<'account' | 'institution'>('account');
@@ -184,7 +184,7 @@ const handleConfirmDelete = async (): Promise<void> => {
     await loadPortfolio();
   } catch (e) { state.error = e instanceof Error ? e.message : 'Failed to delete'; } finally { closeDeleteConfirm(); }
 };
-const { handleUpdateBalance, handleAddWin, handleSaveDividend, handleSaveGift, handleDeleteGift } = useHubEventHandlers(state, loadPortfolio, currentAccountId, accountType, openEventsModal);
+const { handleUpdateBalance } = useHubEventHandlers(state, loadPortfolio);
 
 const handleBalanceUpdate = async (accountId: number, value: string): Promise<void> => {
   const memberId = activeMemberId.value;
@@ -195,9 +195,7 @@ const handleBalanceUpdate = async (accountId: number, value: string): Promise<vo
       await apiService.createFamilyMemberEvent(familyId.value, memberId, accountId, { eventType: 'Balance', value: grossValue.toString() });
       await reloadMemberPortfolio(memberId);
     } catch (e) { state.error = e instanceof Error ? e.message : 'Failed to update balance'; }
-  } else {
-    await handleUpdateBalance(accountId, value);
-  }
+  } else { await handleUpdateBalance(accountId, value); }
 };
 const docsModalOpen = ref(false); const docsAccountId = ref(0); const docsAccountName = ref('');
 const openDocsModal = (id: number, name: string): void => { docsAccountId.value = id; docsAccountName.value = name; docsModalOpen.value = true; };

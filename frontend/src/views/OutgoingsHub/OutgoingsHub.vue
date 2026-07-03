@@ -27,6 +27,7 @@
       :initial-monthly-cost="editingItem?.account.monthlyCost"
       @close="closeAccountModal"
       @save="handleSave"
+      @transferred="loadPortfolio"
     />
 
     <DeleteConfirmModal

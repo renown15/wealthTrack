@@ -134,6 +134,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { AccountEvent } from '@/models/WealthTrackDataModels';
+import { useActionEmit } from '@/utils/actionEmit';
 
 interface Props {
   open: boolean;
@@ -146,7 +147,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits<{
+const rawEmit = defineEmits<{
   close: [];
   addWin: [value: string];
   recordSale: [];
@@ -155,10 +156,9 @@ const emit = defineEmits<{
   recordGift: [];
   deleteGift: [eventId: number];
 }>();
+const emit = useActionEmit(rawEmit);
 
-const showWinForm = ref(false);
-const winAmount = ref('');
-const savingWin = ref(false);
+const showWinForm = ref(false); const winAmount = ref(''); const savingWin = ref(false);
 const pendingDeleteEventId = ref<number | null>(null);
 
 const confirmDeleteGift = (): void => {
