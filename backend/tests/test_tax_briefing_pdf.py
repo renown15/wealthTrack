@@ -6,7 +6,14 @@ from types import SimpleNamespace
 from PIL import Image as PILImage
 
 from app.schemas.gift import GiftSummary
-from app.services.tax_briefing_format import category_for, exclusion_reason, money, to_float
+from app.services.tax_briefing_format import (
+    category_for,
+    exclusion_reason,
+    money,
+    money_plain,
+    styled_table,
+    to_float,
+)
 from app.services.tax_briefing_images import (
     compress_document_image,
     is_image,
@@ -28,6 +35,21 @@ def test_money_formats_and_handles_invalid():
     assert money("250") == "£250.00"
     assert money(None) == "—"
     assert money("abc") == "—"
+
+
+def test_money_plain_bare_numbers_and_accounting_negatives():
+    assert money_plain(1234.5) == "1,234.50"      # no £ symbol (lives in the header)
+    assert money_plain("250") == "250.00"
+    assert money_plain(-3200) == "(3,200.00)"     # accounting-style negative
+    assert money_plain(None) == "—"
+    assert money_plain("abc") == "—"
+
+
+def test_styled_table_accepts_alignment_and_total_row():
+    from reportlab.lib.units import mm
+    rows = [["A", "B"], ["x", "1.00"], ["Total", "1.00"]]
+    table = styled_table(rows, [80 * mm, 40 * mm], right_cols=(1,), total_row=True)
+    assert table is not None
 
 
 def test_to_float():

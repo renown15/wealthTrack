@@ -11,7 +11,7 @@ from app.services.tax_briefing_format import (
     WEALTH_CATEGORIES,
     category_for,
     exclusion_reason,
-    money,
+    money_plain,
     styled_table,
     to_float,
 )
@@ -61,34 +61,46 @@ def wealth_section(
     """Total wealth by category + reconciliation of in-scope vs excluded accounts."""
     flow: list[Flowable] = [Paragraph("1. Wealth Reconciliation", styles["h2"])]
 
+    # category_for only ever returns one of these labels, so rows always foot to grand.
     totals = {label: 0.0 for label, _ in WEALTH_CATEGORIES}
+    totals["Tax Liability"] = 0.0
+    totals["Other"] = 0.0
     grand = 0.0
     for item in items:
         value = to_float((item.get("latestBalance") or {}).get("value"))
         grand += value
-        label = category_for(item.get("accountType", ""))
-        if label in totals:
-            totals[label] += value
-    summary = [["Category", "Total"]]
-    summary += [[label, money(totals[label])] for label, _ in WEALTH_CATEGORIES]
-    summary.append(["Total wealth", money(grand)])
-    flow.append(styled_table(summary, [110 * mm, 50 * mm]))
+        totals[category_for(item.get("accountType", ""))] += value
+    summary = [["Category", "Total (£)"]]
+    summary += [[label, money_plain(totals[label])] for label, _ in WEALTH_CATEGORIES]
+    for extra in ("Tax Liability", "Other"):
+        if totals[extra]:
+            summary.append([extra, money_plain(totals[extra])])
+    summary.append(["Total wealth", money_plain(grand)])
+    flow.append(styled_table(summary, [120 * mm, 50 * mm], right_cols=(1,), total_row=True))
     flow.append(Spacer(1, 6 * mm))
 
     flow.append(Paragraph("Accounts in scope, eligible, and excluded", styles["h3"]))
     tax_ids = {i["account"].id for i in in_scope + eligible}
-    rows: list[list[Any]] = [["Account", "Type", "Balance", "Status / reason"]]
+    rows: list[list[Any]] = [["Account", "Type", "Balance (£)", "Status / reason"]]
+    running = 0.0
     for item in in_scope:
+        value = _account_value(item, pmap)
+        running += value
         rows.append([_cell(item["account"].name, styles), item["account_type"],
-                     money(_account_value(item, pmap)), "In scope for return"])
+                     money_plain(value), _cell("In scope for return", styles)])
     for item in eligible:
+        value = _account_value(item, pmap)
+        running += value
         rows.append([_cell(item["account"].name, styles), item["account_type"],
-                     money(_account_value(item, pmap)), "Eligible — review"])
+                     money_plain(value), _cell("Eligible — review", styles)])
     for account_id, info in pmap.items():
         if account_id not in tax_ids:
+            running += info["value"]
             rows.append([_cell(info["name"], styles), info["type"],
-                         money(info["value"]), exclusion_reason(info["type"])])
-    flow.append(styled_table(rows, [55 * mm, 38 * mm, 30 * mm, 47 * mm]))
+                         money_plain(info["value"]), _cell(exclusion_reason(info["type"]), styles)])
+    rows.append(["Total", "", money_plain(running), ""])
+    widths = [55 * mm, 38 * mm, 30 * mm, 47 * mm]
+    flow.append(styled_table(rows, widths, right_cols=(2,), total_row=True))
     return flow
 
 
@@ -101,22 +113,28 @@ def tax_detail_section(
         flow.append(Paragraph("No accounts are in scope for this period.", styles["body"]))
         return flow
 
-    rows: list[list[Any]] = [["Account", "Income", "Capital gain", "Tax due", "Tax taken off"]]
-    t_income = t_gain = t_due = t_tax = 0.0
+    header = ["Account", "Income (£)", "Capital gain (£)", "Tax due (£)",
+              "Tax taken off (£)", "Net due (£)"]
+    rows: list[list[Any]] = [header]
+    t_income = t_gain = t_due = t_tax = t_net = 0.0
     for item in in_scope:
         tax_return = item.get("tax_return")
         income = to_float(getattr(tax_return, "income", None))
         gain = to_float(getattr(tax_return, "capital_gain", None))
         due = to_float(getattr(tax_return, "tax_due", None))
         tax = to_float(getattr(tax_return, "tax_taken_off", None))
+        net = due - tax
         t_income += income
         t_gain += gain
         t_due += due
         t_tax += tax
-        rows.append([_cell(item["account"].name, styles),
-                     money(income), money(gain), money(due), money(tax)])
-    rows.append(["Totals", money(t_income), money(t_gain), money(t_due), money(t_tax)])
-    flow.append(styled_table(rows, [58 * mm, 28 * mm, 28 * mm, 28 * mm, 28 * mm]))
+        t_net += net
+        rows.append([_cell(item["account"].name, styles), money_plain(income), money_plain(gain),
+                     money_plain(due), money_plain(tax), money_plain(net)])
+    rows.append(["Totals", money_plain(t_income), money_plain(t_gain),
+                 money_plain(t_due), money_plain(t_tax), money_plain(t_net)])
+    widths = [40 * mm, 26 * mm, 26 * mm, 26 * mm, 26 * mm, 26 * mm]
+    flow.append(styled_table(rows, widths, right_cols=(1, 2, 3, 4, 5), total_row=True))
     return flow
 
 
@@ -133,7 +151,7 @@ def out_of_scope_section(
         rows.append(
             [_cell(item["account"].name, styles), item["account_type"], _cell(note, styles)]
         )
-    flow.append(styled_table(rows, [55 * mm, 35 * mm, 70 * mm]))
+    flow.append(styled_table(rows, [55 * mm, 35 * mm, 80 * mm]))
     return flow
 
 
@@ -144,19 +162,24 @@ def gifts_section(styles: Styles, gifts: list[GiftSummary]) -> list[Flowable]:
         flow.append(Paragraph("No gifts recorded.", styles["body"]))
         return flow
 
-    rows: list[list[Any]] = [["Donor", "Account", "Date", "Value", "Yrs", "Taper", "Exposure"]]
+    rows: list[list[Any]] = [
+        ["Donor", "Account", "Date", "Value (£)", "Years", "Taper", "Exposure (£)"]]
+    t_value = t_exposure = 0.0
     for gift in gifts:
+        t_value += to_float(gift.gift_value_gbp)
+        t_exposure += to_float(gift.iht_exposure)
         rows.append([
             _cell(gift.donor, styles),
             _cell(gift.account_name, styles),
-            gift.gift_date.isoformat(),
-            money(gift.gift_value_gbp),
+            gift.gift_date.strftime("%d %b %Y"),
+            money_plain(gift.gift_value_gbp),
             f"{gift.years_elapsed:.1f}",
             f"{to_float(gift.iht_rate) * 100:.0f}%",
-            money(gift.iht_exposure),
+            money_plain(gift.iht_exposure),
         ])
-    flow.append(styled_table(
-        rows, [28 * mm, 32 * mm, 22 * mm, 24 * mm, 12 * mm, 16 * mm, 24 * mm]))
+    rows.append(["Total", "", "", money_plain(t_value), "", "", money_plain(t_exposure)])
+    widths = [26 * mm, 34 * mm, 24 * mm, 24 * mm, 16 * mm, 18 * mm, 28 * mm]
+    flow.append(styled_table(rows, widths, right_cols=(3, 4, 5, 6), total_row=True))
     return flow
 
 

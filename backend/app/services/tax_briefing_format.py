@@ -25,16 +25,31 @@ WEALTH_CATEGORIES: list[tuple[str, set[str]]] = [
 HEADER_BG = colors.HexColor("#1e1b4b")
 _ROW_ALT = colors.HexColor("#f1f5f9")
 _GRID = colors.HexColor("#cbd5e1")
+_TOTAL_BG = colors.HexColor("#e2e8f0")
 
 
 def money(value: Any) -> str:
-    """Format a numeric value as GBP; em-dash for missing/invalid."""
+    """Format a numeric value as GBP with the £ symbol; em-dash for missing/invalid."""
     if value is None or value == "":
         return "—"
     try:
         return f"£{float(value):,.2f}"
     except (TypeError, ValueError):
         return "—"
+
+
+def money_plain(value: Any) -> str:
+    """Bare GBP number for right-aligned table cells (unit lives in the header).
+
+    Negatives use accounting style — (1,234.00) — so Tax Liability pots read clearly.
+    """
+    if value is None or value == "":
+        return "—"
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return "—"
+    return f"({abs(number):,.2f})" if number < 0 else f"{number:,.2f}"
 
 
 def to_float(value: Any) -> float:
@@ -68,22 +83,41 @@ def exclusion_reason(account_type: str) -> str:
     return "No taxable income or gains in period"
 
 
-def styled_table(rows: list[list[Any]], col_widths: list[float]) -> Table:
-    """Build a table with the standard briefing styling (header row + zebra striping)."""
+def styled_table(
+    rows: list[list[Any]],
+    col_widths: list[float],
+    *,
+    right_cols: tuple[int, ...] = (),
+    total_row: bool = False,
+) -> Table:
+    """Build a table with the standard briefing styling.
+
+    Dark header, zebra rows, horizontal rules only (no vertical lines).
+    right_cols: 0-based columns to right-align (numeric/money).
+    total_row: emphasise the final row as a bold, ruled summary.
+    """
     table = Table(rows, colWidths=col_widths, repeatRows=1)
-    table.setStyle(
-        TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), HEADER_BG),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("FONTSIZE", (0, 0), (-1, -1), 8),
-                ("GRID", (0, 0), (-1, -1), 0.5, _GRID),
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, _ROW_ALT]),
-                ("TOPPADDING", (0, 0), (-1, -1), 3),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
-            ]
-        )
-    )
+    style: list[Any] = [
+        ("BACKGROUND", (0, 0), (-1, 0), HEADER_BG),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, -1), 8),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, _ROW_ALT]),
+        ("LINEBELOW", (0, 0), (-1, -1), 0.25, _GRID),
+        ("BOX", (0, 0), (-1, -1), 0.5, _GRID),
+        ("TOPPADDING", (0, 0), (-1, -1), 3),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+        ("LEFTPADDING", (0, 0), (-1, -1), 5),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+    ]
+    for col in right_cols:
+        style.append(("ALIGN", (col, 0), (col, -1), "RIGHT"))
+    if total_row:
+        style += [
+            ("FONTNAME", (0, -1), (-1, -1), "Helvetica-Bold"),
+            ("BACKGROUND", (0, -1), (-1, -1), _TOTAL_BG),
+            ("LINEABOVE", (0, -1), (-1, -1), 0.75, HEADER_BG),
+        ]
+    table.setStyle(TableStyle(style))
     return table
