@@ -42,6 +42,16 @@ describe('useAccountHubStats - visibleItems filtering', () => {
     expect(visibleItems.value).toHaveLength(2);
   });
 
+  it('always excludes Outgoings account types (utilities/insurance/subscriptions)', () => {
+    const subscription = makeItem(3, 20, OPEN_STATUS_ID, 'Subscription');
+    const utility = makeItem(4, 80, OPEN_STATUS_ID, 'Utility - Gas');
+    const items = ref([openAccount, subscription, utility]);
+    const { visibleItems, hideClosed } = useAccountHubStats(items, accountStatuses, ref(36), ref(0.075));
+    expect(visibleItems.value.map((i) => i.account.id)).toEqual([1]);
+    hideClosed.value = false; // even with closed shown, outgoings stay hidden
+    expect(visibleItems.value.map((i) => i.account.id)).toEqual([1]);
+  });
+
   it('toggling hideClosed updates visibleItems reactively', () => {
     const items = ref([openAccount, closedAccount]);
     const { visibleItems, hideClosed } = useAccountHubStats(items, accountStatuses, ref(36), ref(0.075));

@@ -40,6 +40,27 @@ ACCOUNT_ITEMS: list[ReferenceDataItem] = [
     ),
     ReferenceDataItem(class_key="account_type", reference_value="Shares", sort_index=15),
     ReferenceDataItem(class_key="account_type", reference_value="Tax Liability", sort_index=16),
+    # Outgoings-hub account types (see migration 049; OUTGOING_ACCOUNT_TYPES).
+    ReferenceDataItem(
+        class_key="account_type", reference_value="Utility - Gas", sort_index=50),
+    ReferenceDataItem(
+        class_key="account_type", reference_value="Utility - Electric", sort_index=51),
+    ReferenceDataItem(
+        class_key="account_type", reference_value="Utility - Water", sort_index=52),
+    ReferenceDataItem(
+        class_key="account_type", reference_value="Utility - Broadband", sort_index=53),
+    ReferenceDataItem(
+        class_key="account_type", reference_value="Insurance - Home", sort_index=54),
+    ReferenceDataItem(
+        class_key="account_type", reference_value="Insurance - Car", sort_index=55),
+    ReferenceDataItem(
+        class_key="account_type", reference_value="Insurance - Life", sort_index=56),
+    ReferenceDataItem(
+        class_key="account_type", reference_value="Insurance - Health", sort_index=57),
+    ReferenceDataItem(
+        class_key="account_type", reference_value="Insurance - Income Protection", sort_index=58),
+    ReferenceDataItem(
+        class_key="account_type", reference_value="Subscription", sort_index=59),
     # -----------------------------------------------------------------------
     # Account statuses
     # -----------------------------------------------------------------------
@@ -138,4 +159,9 @@ ACCOUNT_ITEMS: list[ReferenceDataItem] = [
     ReferenceDataItem(
         class_key="account_attribute_type", reference_value="Tax Year", sort_index=23
     ),
+    # Outgoings-hub account attribute types (see migration 049).
+    ReferenceDataItem(
+        class_key="account_attribute_type", reference_value="Renewal Date", sort_index=30),
+    ReferenceDataItem(
+        class_key="account_attribute_type", reference_value="Monthly Cost", sort_index=31),
 ]

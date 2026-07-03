@@ -8,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased, selectinload
 
+from app.constants import OUTGOING_ACCOUNT_TYPES
 from app.models.account import Account
 from app.models.account_event import AccountEvent
 from app.models.account_event_attribute_group_member import AccountEventAttributeGroupMember
@@ -101,6 +102,8 @@ async def fetch_accounts_with_attrs(
         .join(ReferenceData, ReferenceData.id == Account.type_id)
         .outerjoin(status_rd, status_rd.id == Account.status_id)
         .where(Account.user_id == user_id)
+        # Outgoings (utilities/insurance/subs) live in the Outgoings Hub, not here.
+        .where(ReferenceData.reference_value.not_in(OUTGOING_ACCOUNT_TYPES))
         .options(selectinload(Account.institution))
     )
     result = await session.execute(stmt)

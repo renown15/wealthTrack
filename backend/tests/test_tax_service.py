@@ -175,3 +175,32 @@ async def test_get_eligible_with_returns_no_eligible(
     )
     assert len(results["eligible"]) == 0
     assert len(results["in_scope"]) == 0
+
+
+@pytest.mark.asyncio
+async def test_get_eligible_with_returns_excludes_outgoings(
+    db_session: AsyncSession, user: UserProfile
+) -> None:
+    """Outgoing accounts (utilities/insurance/subscriptions) never reach the Tax Hub."""
+    sub_type_id = await _get_or_create_ref(db_session, "account_type", "Subscription")
+    status_id = await _get_or_create_ref(db_session, "account_status", "Active")
+
+    period = TaxPeriod()
+    period.user_id = user.id
+    period.name = "2024/25"
+    period.start_date = date(2024, 4, 6)
+    period.end_date = date(2025, 4, 5)
+    period.created_at = period.updated_at = datetime.utcnow()
+    db_session.add(period)
+
+    account = Account(user_id=user.id, name="Netflix", type_id=sub_type_id, status_id=status_id)
+    db_session.add(account)
+    await db_session.flush()
+    await db_session.refresh(period)
+
+    results = await get_eligible_with_returns(
+        db_session, user.id, period.id, period.start_date, period.end_date,
+        period_name=period.name,
+    )
+    all_ids = [row["account"].id for section in results.values() for row in section]
+    assert account.id not in all_ids

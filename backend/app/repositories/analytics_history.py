@@ -6,6 +6,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.constants import OUTGOING_ACCOUNT_TYPES
 from app.models.account import Account
 from app.models.account_event import AccountEvent
 from app.models.reference_data import ReferenceData
@@ -38,12 +39,19 @@ async def get_portfolio_history(session: AsyncSession, user_id: int) -> dict[str
         )
         .scalar_subquery()
     )
+    outgoing_type_ids_subq = (
+        select(ReferenceData.id).where(
+            ReferenceData.class_key == "account_type",
+            ReferenceData.reference_value.in_(OUTGOING_ACCOUNT_TYPES),
+        )
+    )
     stmt = (
         select(AccountEvent.account_id, AccountEvent.created_at, AccountEvent.value)
         .join(Account, Account.id == AccountEvent.account_id)
         .where(Account.user_id == user_id)
         .where(AccountEvent.type_id == balance_type_subq)
         .where(Account.status_id != closed_status_subq)
+        .where(Account.type_id.not_in(outgoing_type_ids_subq))
         .order_by(AccountEvent.created_at)
     )
     result = await session.execute(stmt)

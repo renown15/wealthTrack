@@ -8,6 +8,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
+from app.constants import OUTGOING_ACCOUNT_TYPES
 from app.models.account import Account
 from app.models.account_attribute import AccountAttribute
 from app.models.account_event import AccountEvent
@@ -83,6 +84,7 @@ class AnalyticsRepository:
             )
             .outerjoin(status_rd, status_rd.id == Account.status_id)
             .where(Account.user_id == user_id)
+            .where(ReferenceData.reference_value.not_in(OUTGOING_ACCOUNT_TYPES))
         )
 
         result = await self.session.execute(stmt)

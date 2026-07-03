@@ -176,3 +176,41 @@ async def test_history_excludes_closed_accounts(
     assert history, "expected at least one history entry"
     latest = history[-1]
     assert latest["total_value"] == 1000.0
+
+
+@pytest.mark.asyncio
+async def test_outgoing_accounts_excluded_from_breakdown_and_history(
+    db_session: AsyncSession,
+    user: UserProfile,
+    institution: Institution,
+):
+    """Outgoings (utilities/insurance/subscriptions) belong to the Outgoings Hub only."""
+    active_type_id = await _get_type_id(db_session, "account_status", "Active")
+    savings_type_id = await _get_type_id(db_session, "account_type", "Savings Account")
+    balance_type_id = await _get_type_id(db_session, "account_event_type", "Balance Update")
+    # The conftest seeds a subset of reference data; add the outgoing type it needs.
+    db_session.add(
+        ReferenceData(class_key="account_type", reference_value="Subscription", sort_index=59)
+    )
+    await db_session.flush()
+    sub_type_id = await _get_type_id(db_session, "account_type", "Subscription")
+
+    savings = Account(
+        user_id=user.id, institution_id=institution.id,
+        name="Savings", type_id=savings_type_id, status_id=active_type_id,
+    )
+    subscription = Account(
+        user_id=user.id, institution_id=institution.id,
+        name="Netflix", type_id=sub_type_id, status_id=active_type_id,
+    )
+    db_session.add_all([savings, subscription])
+    await db_session.flush()
+    await _add_balance_event(db_session, savings, balance_type_id, "1000.00")
+    await _add_balance_event(db_session, subscription, balance_type_id, "15.00")
+
+    breakdown = await AnalyticsRepository(db_session).get_portfolio_breakdown(user.id)
+    assert breakdown["total"] == 1000.0  # subscription excluded
+    assert all(seg["label"] != "Subscription" for seg in breakdown["by_type"])
+
+    history = await get_portfolio_history(db_session, user.id)
+    assert history["history"][-1]["total_value"] == 1000.0  # subscription excluded
