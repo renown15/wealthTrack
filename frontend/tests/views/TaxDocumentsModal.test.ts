@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import TaxDocumentsModal from '@/views/TaxHub/TaxDocumentsModal.vue';
+import DocumentUploadPanel from '@/views/TaxHub/DocumentUploadPanel.vue';
 import type { EligibleAccount } from '@models/TaxModels';
 
 vi.mock('@/utils/imageCompression', () => ({
@@ -77,33 +78,21 @@ describe('TaxDocumentsModal', () => {
     });
   });
 
-  describe('handleFileChange', () => {
-    it('enables upload button when file selected', async () => {
+  describe('upload panel', () => {
+    it('renders the DocumentUploadPanel', () => {
       const wrapper = mount(TaxDocumentsModal, {
         props: { open: true, account: makeAccount() },
       });
-      const input = wrapper.find('input[type="file"]').element as HTMLInputElement;
-      const file = new File(['data'], 'new.pdf', { type: 'application/pdf' });
-      Object.defineProperty(input, 'files', { value: [file], configurable: true });
-      await wrapper.find('input[type="file"]').trigger('change');
-      const uploadBtn = wrapper.find('button.btn-primary');
-      expect(uploadBtn.attributes('disabled')).toBeUndefined();
+      expect(wrapper.findComponent(DocumentUploadPanel).exists()).toBe(true);
     });
-  });
 
-  describe('handleUpload', () => {
-    it('emits upload with compressed file and resets selection', async () => {
-      const { compressFile } = await import('@/utils/imageCompression');
+    it("re-emits the panel's upload event to its parent", async () => {
       const wrapper = mount(TaxDocumentsModal, {
         props: { open: true, account: makeAccount() },
       });
-      const file = new File(['data'], 'upload.pdf', { type: 'application/pdf' });
-      const input = wrapper.find('input[type="file"]').element as HTMLInputElement;
-      Object.defineProperty(input, 'files', { value: [file], configurable: true });
-      await wrapper.find('input[type="file"]').trigger('change');
-      await wrapper.find('button.btn-primary').trigger('click');
-      expect(compressFile).toHaveBeenCalledWith(file);
-      expect(wrapper.emitted('upload')).toBeTruthy();
+      const file = new File(['pdf'], 'combined.pdf', { type: 'application/pdf' });
+      await wrapper.findComponent(DocumentUploadPanel).vm.$emit('upload', file, 'Statement');
+      expect(wrapper.emitted('upload')?.[0]).toEqual([file, 'Statement']);
     });
   });
 

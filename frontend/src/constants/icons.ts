@@ -16,6 +16,8 @@ export const Icons = {
   download: '⬇',
   chevronDown: '▼',
   chevronRight: '▶',
+  chevronLeft: '◀',
+  rotate: '⟳',
   outOfScope: '⊘',
   restore: '↩︎', // return arrow, forced text presentation
 } as const;

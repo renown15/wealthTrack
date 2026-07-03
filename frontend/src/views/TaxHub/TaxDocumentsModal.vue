@@ -64,23 +64,11 @@
 
       <div v-else class="text-muted text-sm mb-4">No documents uploaded yet.</div>
 
-      <div class="grid grid-cols-2 gap-4 mt-2">
-        <div class="form-field">
-          <label class="form-label">Upload New Document</label>
-          <input ref="fileInput" type="file" class="form-input" @change="handleFileChange" />
-        </div>
-        <div class="form-field">
-          <label class="form-label">Description <span class="text-muted">(optional)</span></label>
-          <input v-model="description" type="text" class="form-input" placeholder="e.g. Annual statement 2025" maxlength="500" />
-        </div>
-      </div>
+      <DocumentUploadPanel @upload="(file, desc) => emit('upload', file, desc)" />
     </template>
 
     <template #footer>
       <button class="btn-modal-secondary" @click="emit('close')">Close</button>
-      <button class="btn-primary" :disabled="!selectedFile" @click="handleUpload">
-        {{ Icons.upload }} Upload
-      </button>
     </template>
   </BaseModal>
 </template>
@@ -89,8 +77,8 @@
 import { ref, computed } from 'vue';
 import type { EligibleAccount, TaxDocument } from '@models/TaxModels';
 import BaseModal from '@/components/BaseModal.vue';
+import DocumentUploadPanel from '@views/TaxHub/DocumentUploadPanel.vue';
 import { Icons } from '@/constants/icons';
-import { compressFile } from '@/utils/imageCompression';
 
 const editingDocId = ref<number | null>(null);
 const editingDescription = ref('');
@@ -109,30 +97,11 @@ const emit = defineEmits<{
   deleteDoc: [docId: number];
 }>();
 
-const fileInput = ref<HTMLInputElement | null>(null);
-const selectedFile = ref<File | null>(null);
-const description = ref('');
-
 const documents = computed<TaxDocument[]>(() => props.account?.documents ?? []);
 
 function formatDate(iso: string): string {
   if (!iso) return '';
   return new Date(iso).toLocaleDateString('en-GB');
-}
-
-function handleFileChange(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  selectedFile.value = input.files?.[0] ?? null;
-}
-
-async function handleUpload(): Promise<void> {
-  if (selectedFile.value) {
-    const compressed = await compressFile(selectedFile.value);
-    emit('upload', compressed, description.value || undefined);
-    selectedFile.value = null;
-    description.value = '';
-    if (fileInput.value) fileInput.value.value = '';
-  }
 }
 
 function startEdit(doc: TaxDocument): void {
