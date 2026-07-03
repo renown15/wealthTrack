@@ -60,7 +60,8 @@
       "Bash(DATABASE_URL=\"postgresql+asyncpg://postgres:password@localhost:5434/wealthtrack_test\" python -m pytest tests/test_family_controller.py tests/test_family_service.py -v --no-cov)",
       "Bash(DATABASE_URL=\"postgresql+asyncpg://postgres:test_postgres_password@localhost:5434/wealthtrack\" python -m pytest tests/test_family_controller.py tests/test_family_service.py -v --no-cov)",
       "Bash(sed -n '20,30p' /Users/marklewis/dev/wealthTrack/backend/tests/test_account_controller.py)",
-      "Bash(sed -n '44,48p' /Users/marklewis/dev/wealthTrack/backend/tests/test_institution_controller.py)"
+      "Bash(sed -n '44,48p' /Users/marklewis/dev/wealthTrack/backend/tests/test_institution_controller.py)",
+      "Bash(echo \"EXIT=$?\")"
     ]
   }
 }
