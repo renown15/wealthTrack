@@ -13,7 +13,15 @@ from app.repositories.account_event_repository import AccountEventRepository
 from app.repositories.event_group_repository import EventGroupRepository
 from app.schemas.dividend import RecordDividendResponse
 
-_DIVIDEND_TAX_RATE = Decimal("40")
+
+async def _get_dividend_tax_rate(session: AsyncSession) -> Decimal:
+    """Read dividend tax rate (%) from ReferenceData where classkey='dividend_tax_rate'."""
+    rate = (await session.execute(
+        select(ReferenceData.reference_value).where(
+            ReferenceData.class_key == "dividend_tax_rate",
+        )
+    )).scalar_one_or_none()
+    return Decimal(rate) if rate is not None else Decimal("40")
 
 
 async def _find_tax_account(
@@ -54,7 +62,7 @@ async def record_dividend(
     payment_date: date,
     session: AsyncSession,
 ) -> RecordDividendResponse:
-    """Record a dividend and auto-provision 40% tax to the matching Tax Liability account."""
+    """Record a dividend and auto-provision tax (ReferenceData rate) to the Tax Liability."""
     event_repo = AccountEventRepository(session)
     group_repo = EventGroupRepository(session)
 
@@ -75,7 +83,8 @@ async def record_dividend(
     provision: Optional[Decimal] = None
     tax_account_id = await _find_tax_account(session, user_id, payment_date)
     if tax_account_id:
-        provision = (Decimal(amount) * _DIVIDEND_TAX_RATE / 100).quantize(
+        rate = await _get_dividend_tax_rate(session)
+        provision = (Decimal(amount) * rate / 100).quantize(
             Decimal("0.01"), rounding=ROUND_HALF_UP
         )
         tax_type_id = await event_repo.get_event_type_id("Dividend Tax")

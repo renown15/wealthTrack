@@ -13,12 +13,15 @@ from app.services.dividend_service import _find_tax_account, record_dividend
 def _scalar(value):
     r = MagicMock()
     r.scalar.return_value = value
+    r.scalar_one_or_none.return_value = value
     return r
 
 
 def _make_session(*scalars):
     session = AsyncMock()
-    session.execute = AsyncMock(side_effect=[_scalar(v) for v in scalars])
+    # Trailing "40" answers the dividend-rate lookup (last execute in record_dividend);
+    # unused by _find_tax_account-only tests.
+    session.execute = AsyncMock(side_effect=[_scalar(v) for v in (*scalars, "40")])
     return session
 
 

@@ -35,4 +35,14 @@ MISC_ITEMS: list[ReferenceDataItem] = [
     # Add further values here (e.g. "Deferred", "Queried") with no migration.
     # -----------------------------------------------------------------------
     ReferenceDataItem(class_key="tax_scope_status", reference_value="Out of Scope", sort_index=1),
+    # -----------------------------------------------------------------------
+    # Savings interest tax — flat highest-rate provision on in-scope interest
+    # income. Applied as tax_due = income × rate. Edit the % here or in admin.
+    # -----------------------------------------------------------------------
+    ReferenceDataItem(class_key="savings_tax_rate", reference_value="45", sort_index=1),
+    # -----------------------------------------------------------------------
+    # Dividend tax — provision rate applied when recording a dividend and shown
+    # per share account in the Tax Hub. Edit the % here or in admin.
+    # -----------------------------------------------------------------------
+    ReferenceDataItem(class_key="dividend_tax_rate", reference_value="40", sort_index=1),
 ]

@@ -17,6 +17,7 @@ def _patch_repos(monkeypatch, group, captured):
             return MagicMock(id=1, scope_status_id=None, tax_due=tax_due)
 
         async def get_or_create(self, *_a, **_k):
+            captured["get_or_create"] = _a
             return MagicMock(id=1, scope_status_id=None)
 
     class FakeDocRepo:
@@ -38,6 +39,15 @@ def _patch_repos(monkeypatch, group, captured):
     monkeypatch.setattr(svc, "EventGroupRepository", FakeGroupRepo)
 
 
+def _session():
+    """Session mock whose only execute() call (the dividend rate lookup) returns 40%."""
+    result = MagicMock()
+    result.scalar_one_or_none.return_value = "40"
+    session = AsyncMock()
+    session.execute.return_value = result
+    return session
+
+
 def _sale_group(created: datetime) -> dict:
     return {
         "group_id": 1,
@@ -53,7 +63,7 @@ async def _run(monkeypatch, created: datetime):
     account = MagicMock(id=5)
     items = [{"account": account, "account_type": "Shares", "eligibility_reason": "in_scope"}]
     await svc._enrich_items(
-        AsyncMock(), 1, 10, items, {}, None, {5: 50.0}, None,
+        _session(), 1, 10, items, {}, None, {5: 50.0}, None,
         date(2024, 4, 6), date(2025, 4, 5),
     )
     return captured["upsert"]
@@ -77,15 +87,16 @@ class TestSharesPeriodFiltering:
         assert due == 220.0  # CGT £200 + 40% of £50 dividends
 
     @pytest.mark.asyncio
-    async def test_tax_liability_carries_no_return_figures(self, monkeypatch):
+    async def test_tax_liability_preserves_return_via_get_or_create(self, monkeypatch):
         captured: dict = {}
         _patch_repos(monkeypatch, _sale_group(datetime(2024, 8, 1)), captured)
         account = MagicMock(id=9)
         items = [{"account": account, "account_type": "Tax Liability",
                   "eligibility_reason": "in_scope", "_tax_balance": 1200.0}]
         await svc._enrich_items(
-            AsyncMock(), 1, 10, items, {}, None, {}, None,
+            _session(), 1, 10, items, {}, None, {}, None,
             date(2024, 4, 6), date(2025, 4, 5),
         )
-        _income, _gain, tax, due = captured["upsert"]
-        assert due is None and tax is None  # pot drives net wealth, not the return figures
+        # get_or_create preserves any user-entered figures; the wiping upsert is NOT used.
+        assert "upsert" not in captured
+        assert captured["get_or_create"] == (1, 9, 10)

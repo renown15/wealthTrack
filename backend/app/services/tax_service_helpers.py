@@ -35,9 +35,6 @@ def parse_date(value: str | None) -> date | None:
         return None
 
 
-DIVIDEND_TAX_RATE = 40.0  # mirrors dividend_service._DIVIDEND_TAX_RATE
-
-
 def optional_sum(*values: float | None) -> float | None:
     """Sum the non-None values, returning None if all are None."""
     present = [v for v in values if v is not None]

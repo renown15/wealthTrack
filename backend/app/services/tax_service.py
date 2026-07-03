@@ -14,6 +14,7 @@ from app.repositories.account_group_repository import AccountGroupRepository
 from app.repositories.event_group_repository import EventGroupRepository
 from app.repositories.tax_document_repository import TaxDocumentRepository
 from app.repositories.tax_return_repository import TaxReturnRepository
+from app.services.tax_income_helpers import get_dividend_tax_rate, resolve_savings_return
 from app.services.tax_liability_helpers import (
     get_first_balance_dates,
     get_share_sales_in_period,
@@ -21,7 +22,6 @@ from app.services.tax_liability_helpers import (
 )
 from app.services.tax_scope_helpers import OUT_OF_SCOPE, get_scope_maps
 from app.services.tax_service_helpers import (
-    DIVIDEND_TAX_RATE,
     TAX_FREE_TYPES,
     fetch_accounts_with_attrs,
     filter_eligible,
@@ -76,6 +76,7 @@ async def _enrich_items(
     return_repo = TaxReturnRepository(session)
     doc_repo = TaxDocumentRepository(session)
     group_repo = EventGroupRepository(session)
+    dividend_rate = await get_dividend_tax_rate(session)
     enriched: list[dict[str, Any]] = []
 
     for item in items:
@@ -88,20 +89,18 @@ async def _enrich_items(
         if is_shares:
             groups = await group_repo.get_groups_for_account(account.id, user_id, "Share Sale")
             capital_gain, cgt = _share_sale_gain_tax(groups, period_start, period_end)
-            dividend_tax = round(income * DIVIDEND_TAX_RATE / 100, 2) if income else None
+            dividend_tax = round(income * dividend_rate / 100, 2) if income else None
             tax_due = optional_sum(cgt, dividend_tax)
 
         if item["account_type"] == "Tax Liability":
-            # Pot drives net wealth via its negated balance; tax shown per share account.
-            tax_return = await return_repo.upsert(
-                user_id, account.id, tax_period_id, None, None, None, None)
+            # Pot drives net wealth via its negated balance; preserve user-entered figures.
+            tax_return = await return_repo.get_or_create(user_id, account.id, tax_period_id)
         elif is_shares:
             tax_return = await return_repo.upsert(
                 user_id, account.id, tax_period_id, income, capital_gain, None, tax_due)
         else:
-            tax_return = await return_repo.get_or_create(
-                user_id, account.id, tax_period_id,
-                income=income, capital_gain=capital_gain, tax_taken_off=None)
+            tax_return = await resolve_savings_return(
+                session, return_repo, user_id, account, tax_period_id, item["account_type"])
         documents = await doc_repo.list_for_return(tax_return.id, user_id) if tax_return else []
         status_id = getattr(tax_return, "scope_status_id", None)
         scope = (scope_by_id or {}).get(status_id) if status_id is not None else None
