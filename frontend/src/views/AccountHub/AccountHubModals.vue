@@ -18,13 +18,13 @@
     />
     <AccountEditModal
       :open="accountModalOpen" :type="modalType" :item="accountEditItem"
-      :institutions="institutions" :account-types="accountTypes" :account-statuses="accountStatuses"
+      :institutions="wealthInstitutions" :account-types="accountTypes" :account-statuses="accountStatuses"
       :transfer-accounts="transferAccounts" :error="accountError"
       @close="$emit('closeAccount')" @save="(p) => $emit('saveAccount', p)" @transferred="$emit('accountTransferred')"
     />
     <InstitutionModal
       :open="institutionModalOpen" :type="modalType"
-      :institutions="institutions" :institution-types="institutionTypes"
+      :institutions="wealthInstitutions" :institution-types="wealthInstitutionTypes"
       :initial-name="initialModalName" :initial-parent-id="initialModalParentId"
       :initial-institution-type="initialModalInstitutionType" :error="accountError"
       @close="$emit('closeInstitution')" @save="(p) => $emit('saveInstitution', p)"
@@ -50,6 +50,7 @@ import type { Account, Institution, PortfolioItem, AccountGroup, AccountEvent, I
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 import { useModalInitialValues } from '@/composables/useModalInitialValues';
 import { ACCOUNT_TYPE_ASSET_GROUP } from '@views/AccountHub/accountTypeFieldConfigData';
+import { OUTGOING_INSTITUTION_TYPES, isOutgoingInstitution } from '@composables/portfolioCalculations';
 import { computed } from 'vue';
 import AccountEventsGroup from '@views/AccountHub/AccountEventsGroup.vue';
 import AccountGroupModal from '@views/AccountHub/AccountGroupModal.vue';
@@ -120,6 +121,13 @@ defineEmits<{
 const editingItemRef = computed(() => props.editingItem);
 const accountEditItem = computed<Account | null>(() =>
   props.editingItem && 'typeId' in props.editingItem ? props.editingItem : null);
+
+// Outgoings-hub providers are managed in the Outgoings Hub; keep them out of the
+// wealth account/institution modals here.
+const wealthInstitutions = computed(() =>
+  props.institutions.filter((i) => !isOutgoingInstitution(i.institutionType)));
+const wealthInstitutionTypes = computed(() =>
+  props.institutionTypes.filter((t) => !OUTGOING_INSTITUTION_TYPES.includes(t.referenceValue)));
 
 const transferAccounts = computed<{ id: number; label: string }[]>(() => {
   if (props.modalType !== 'edit' || !props.editingItem || !('typeId' in props.editingItem)) return [];

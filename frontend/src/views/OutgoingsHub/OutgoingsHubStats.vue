@@ -6,6 +6,7 @@
         <p class="header-subtitle">Track utilities, insurance, and subscriptions in one place.</p>
       </div>
       <div class="header-actions">
+        <button class="btn-secondary" @click="emit('addProvider')">+ Add Provider</button>
         <button class="btn-primary" @click="emit('addAccount')">+ Add Outgoing</button>
       </div>
     </div>
@@ -39,7 +40,7 @@ defineProps<{
   totalCount: number;
 }>();
 
-const emit = defineEmits<{ addAccount: [] }>();
+const emit = defineEmits<{ addAccount: []; addProvider: [] }>();
 
 function formatGbp(value: number): string {
   return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 }).format(value);

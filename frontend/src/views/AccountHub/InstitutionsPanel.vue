@@ -59,6 +59,7 @@ import { ref, computed } from 'vue';
 import type { Institution, PortfolioItem } from '@/models/WealthTrackDataModels';
 import type { FamilyMember } from '@/models/family';
 import { Icons } from '@/constants/icons';
+import { isOutgoingInstitution } from '@composables/portfolioCalculations';
 import InstitutionsList from '@views/AccountHub/InstitutionsList.vue';
 import InstitutionsFamilyView from '@views/AccountHub/InstitutionsFamilyView.vue';
 
@@ -91,10 +92,12 @@ const activeInstitutionIds = computed<Set<number>>(() => {
 });
 
 const visibleInstitutions = computed<Institution[]>(() => {
-  if (!hideInactive.value) return props.institutions;
+  // Outgoings-hub providers live only in the Outgoings Hub, not the wealth view.
+  const wealth = props.institutions.filter((i) => !isOutgoingInstitution(i.institutionType));
+  if (!hideInactive.value) return wealth;
   const hasActiveChild = (parentId: number): boolean =>
-    props.institutions.some((c) => c.parentId === parentId && activeInstitutionIds.value.has(c.id));
-  return props.institutions.filter(
+    wealth.some((c) => c.parentId === parentId && activeInstitutionIds.value.has(c.id));
+  return wealth.filter(
     (inst) => activeInstitutionIds.value.has(inst.id) || hasActiveChild(inst.id),
   );
 });

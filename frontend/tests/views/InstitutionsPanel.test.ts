@@ -41,6 +41,20 @@ describe('InstitutionsPanel hide inactive toggle', () => {
     expect(wrapper.text()).not.toContain('Inactive Bank');
   });
 
+  it('excludes Outgoings-hub provider institutions even when active', () => {
+    const bank = makeInstitution(1, 'Active Bank');
+    const provider: Institution = { ...makeInstitution(2, 'British Gas'), institutionType: 'Utility Provider' };
+    const wrapper = mount(InstitutionsPanel, {
+      props: {
+        ...defaultProps,
+        institutions: [bank, provider],
+        portfolioItems: [makeItem(1), makeItem(2)], // both have accounts (active)
+      },
+    });
+    expect(wrapper.text()).toContain('Active Bank');
+    expect(wrapper.text()).not.toContain('British Gas');
+  });
+
   it('shows all institutions when hide inactive is toggled off', async () => {
     const active = makeInstitution(1, 'Active Bank');
     const inactive = makeInstitution(2, 'Inactive Bank');

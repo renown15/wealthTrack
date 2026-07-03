@@ -17,7 +17,8 @@ describe('OutgoingsHubStats', () => {
     });
     expect(wrapper.text()).toContain('Outgoings Hub');
     expect(wrapper.text()).toContain('Track utilities');
-    expect(wrapper.find('button').text()).toContain('Add Outgoing');
+    expect(wrapper.text()).toContain('Add Outgoing');
+    expect(wrapper.text()).toContain('Add Provider');
   });
 
   it('renders monthly and annual cost', () => {
@@ -43,11 +44,21 @@ describe('OutgoingsHubStats', () => {
     expect(wrapper.find('.red-card').exists()).toBe(false);
   });
 
-  it('emits addAccount when button clicked', async () => {
+  it('emits addAccount when the Add Outgoing button is clicked', async () => {
     const wrapper = mount(OutgoingsHubStats, {
       props: { stats: defaultStats, totalCount: 0 },
     });
-    await wrapper.find('button').trigger('click');
+    const btn = wrapper.findAll('button').find((b) => b.text().includes('Add Outgoing'));
+    await btn!.trigger('click');
     expect(wrapper.emitted('addAccount')).toBeTruthy();
+  });
+
+  it('emits addProvider when the Add Provider button is clicked', async () => {
+    const wrapper = mount(OutgoingsHubStats, {
+      props: { stats: defaultStats, totalCount: 0 },
+    });
+    const btn = wrapper.findAll('button').find((b) => b.text().includes('Add Provider'));
+    await btn!.trigger('click');
+    expect(wrapper.emitted('addProvider')).toBeTruthy();
   });
 });

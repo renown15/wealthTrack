@@ -61,4 +61,12 @@ CREDENTIAL_ITEMS: list[ReferenceDataItem] = [
     ReferenceDataItem(
         class_key="institution_type", reference_value="Share Registrar", sort_index=6
     ),
+    # Outgoings-hub provider types (see OUTGOING_INSTITUTION_TYPES on the frontend)
+    ReferenceDataItem(
+        class_key="institution_type", reference_value="Utility Provider", sort_index=7
+    ),
+    ReferenceDataItem(class_key="institution_type", reference_value="Insurer", sort_index=8),
+    ReferenceDataItem(
+        class_key="institution_type", reference_value="Subscription Service", sort_index=9
+    ),
 ]

@@ -1,6 +1,9 @@
 <template>
   <div class="page-view">
-    <OutgoingsHubStats :stats="stats" :total-count="outgoingItems.length" @add-account="openCreate" />
+    <OutgoingsHubStats
+      :stats="stats" :total-count="outgoingItems.length"
+      @add-account="openCreate" @add-provider="providerModalOpen = true"
+    />
 
     <OutgoingsTable
       :items="outgoingItems"
@@ -14,7 +17,7 @@
     <AccountModal
       :open="accountModalOpen"
       :type="modalType"
-      :institutions="institutions"
+      :institutions="outgoingProviders"
       :account-types="outgoingAccountTypes"
       :account-statuses="accountStatuses"
       :account-id="editingItem?.account.id"
@@ -45,6 +48,15 @@
       @uploaded="loadPortfolio"
       @deleted="loadPortfolio"
     />
+
+    <InstitutionModal
+      :open="providerModalOpen"
+      type="create"
+      :institutions="outgoingProviders"
+      :institution-types="outgoingInstitutionTypes"
+      @close="providerModalOpen = false"
+      @save="handleSaveProvider"
+    />
   </div>
 </template>
 
@@ -55,16 +67,17 @@ import { apiService } from '@services/ApiService';
 import { useOutgoings } from '@composables/useOutgoings';
 import { useHubReferenceData } from '@composables/useHubReferenceData';
 import { useToast } from '@composables/useToast';
-import { OUTGOING_TYPES } from '@composables/portfolioCalculations';
+import { OUTGOING_TYPES, OUTGOING_INSTITUTION_TYPES, isOutgoingInstitution } from '@composables/portfolioCalculations';
 import type { SavePayload } from '@views/AccountHub/accountModalSave';
 import OutgoingsHubStats from '@views/OutgoingsHub/OutgoingsHubStats.vue';
 import OutgoingsTable from '@views/OutgoingsHub/OutgoingsTable.vue';
 import AccountModal from '@views/AccountHub/AccountModal.vue';
+import InstitutionModal from '@views/AccountHub/InstitutionModal.vue';
 import DeleteConfirmModal from '@views/AccountHub/DeleteConfirmModal.vue';
 import AccountDocumentsModal from '@views/AccountHub/AccountDocumentsModal.vue';
 
 const { outgoingItems, stats, loading, error, loadPortfolio, createAccount, updateAccount, deleteAccount } = useOutgoings();
-const { accountTypes, accountStatuses } = useHubReferenceData();
+const { accountTypes, accountStatuses, institutionTypes } = useHubReferenceData();
 const { showSuccess, showError } = useToast();
 
 const institutions = ref<Institution[]>([]);
@@ -78,9 +91,30 @@ const docsModalOpen = ref(false);
 const docsAccountId = ref(0);
 const docsAccountName = ref('');
 
+const providerModalOpen = ref(false);
+
 const outgoingAccountTypes = computed(() =>
   accountTypes.value.filter((t) => OUTGOING_TYPES.includes(t.referenceValue))
 );
+const outgoingProviders = computed(() =>
+  institutions.value.filter((i) => isOutgoingInstitution(i.institutionType))
+);
+const outgoingInstitutionTypes = computed(() =>
+  institutionTypes.value.filter((t) => OUTGOING_INSTITUTION_TYPES.includes(t.referenceValue))
+);
+
+async function handleSaveProvider(payload: { name: string; parentId?: number | null; institutionType?: string | null }): Promise<void> {
+  try {
+    await apiService.createInstitution({
+      name: payload.name, parentId: payload.parentId ?? null, institutionType: payload.institutionType ?? null,
+    });
+    providerModalOpen.value = false;
+    institutions.value = await apiService.getInstitutions();
+    showSuccess('Provider added');
+  } catch (e) {
+    showError(e instanceof Error ? e.message : 'Failed to add provider');
+  }
+}
 
 function openCreate(): void {
   modalType.value = 'create';

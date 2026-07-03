@@ -10,6 +10,8 @@ import {
   calculateTrustAssets,
   calculateProjectedAnnualYield,
   calculatePensionValue,
+  OUTGOING_INSTITUTION_TYPES,
+  isOutgoingInstitution,
 } from '@composables/portfolioCalculations';
 import type { PortfolioItem } from '@/models/WealthTrackDataModels';
 
@@ -174,5 +176,20 @@ describe('calculatePensionValue', () => {
     const result = calculatePensionValue(items, 36, 0.075);
     expect(result.total).toBe(0);
     expect(result.accounts).toHaveLength(0);
+  });
+});
+
+describe('isOutgoingInstitution', () => {
+  it('is true for the Outgoings provider types', () => {
+    for (const t of OUTGOING_INSTITUTION_TYPES) {
+      expect(isOutgoingInstitution(t)).toBe(true);
+    }
+  });
+
+  it('is false for wealth institution types and empty/null', () => {
+    expect(isOutgoingInstitution('Bank')).toBe(false);
+    expect(isOutgoingInstitution('Building Society')).toBe(false);
+    expect(isOutgoingInstitution(null)).toBe(false);
+    expect(isOutgoingInstitution(undefined)).toBe(false);
   });
 });

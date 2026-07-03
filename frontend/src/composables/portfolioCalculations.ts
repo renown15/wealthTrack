@@ -62,6 +62,19 @@ export const OUTGOING_TYPES = [
   'Subscription',
 ];
 
+// Institution (provider) types that belong to the Outgoings Hub. Institutions of
+// any other type belong to the Account/Tax hubs. Mirrors OUTGOING_TYPES (accounts).
+export const OUTGOING_INSTITUTION_TYPES = [
+  'Utility Provider',
+  'Insurer',
+  'Subscription Service',
+];
+
+/** True if the institution's type is an Outgoings-hub provider type. */
+export function isOutgoingInstitution(institutionType?: string | null): boolean {
+  return OUTGOING_INSTITUTION_TYPES.includes(institutionType ?? '');
+}
+
 /**
  * Calculate total portfolio value from items
  */
