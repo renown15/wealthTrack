@@ -6,7 +6,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.constants import OUTGOING_ACCOUNT_TYPES
+from app.constants import OUTGOING_ACCOUNT_TYPE_CLASS
 from app.models.account import Account
 from app.models.account_event import AccountEvent
 from app.models.reference_data import ReferenceData
@@ -41,8 +41,7 @@ async def get_portfolio_history(session: AsyncSession, user_id: int) -> dict[str
     )
     outgoing_type_ids_subq = (
         select(ReferenceData.id).where(
-            ReferenceData.class_key == "account_type",
-            ReferenceData.reference_value.in_(OUTGOING_ACCOUNT_TYPES),
+            ReferenceData.class_key == OUTGOING_ACCOUNT_TYPE_CLASS,
         )
     )
     stmt = (

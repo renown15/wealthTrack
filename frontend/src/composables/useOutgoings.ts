@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue';
 import { apiService } from '@services/ApiService';
-import { OUTGOING_TYPES } from '@composables/portfolioCalculations';
+import { isOutgoingAccountType } from '@composables/outgoingTypes';
 import type { PortfolioItem, Account } from '@models/WealthTrackDataModels';
 import type { SavePayload } from '@views/AccountHub/accountModalSave';
 import { debug } from '@utils/debug';
@@ -74,7 +74,7 @@ export function useOutgoings(): {
   const error = ref<string | null>(null);
 
   const outgoingItems = computed(() =>
-    items.value.filter((i) => OUTGOING_TYPES.includes(i.accountType ?? ''))
+    items.value.filter((i) => isOutgoingAccountType(i.accountType))
   );
 
   const stats = computed<OutgoingsStats>(() => {

@@ -1,22 +1,9 @@
 """Cross-cutting constants shared across services and repositories."""
 
-# Account types that belong to the Outgoings Hub only. They are excluded from
-# the wealth views — Account Hub, Tax Hub and Analytics. Mirrors the frontend
-# OUTGOING_TYPES in portfolioCalculations.ts.
-OUTGOING_ACCOUNT_TYPES = frozenset(
-    {
-        "Utility - Gas",
-        "Utility - Electric",
-        "Utility - Water",
-        "Utility - Broadband",
-        "Insurance - Home",
-        "Insurance - Car",
-        "Insurance - Life",
-        "Insurance - Health",
-        "Insurance - Income Protection",
-        "Subscription",
-        "Household",
-        "Membership",
-        "Tax",
-    }
-)
+# ReferenceData class keys. Outgoing account/institution types live under their
+# own class keys so the Outgoings Hub vs wealth-view split is derived from the
+# DB (a new outgoing type is a seed-only change) rather than hardcoded lists.
+ACCOUNT_TYPE_CLASS = "account_type"
+INSTITUTION_TYPE_CLASS = "institution_type"
+OUTGOING_ACCOUNT_TYPE_CLASS = "outgoing_account_type"
+OUTGOING_INSTITUTION_TYPE_CLASS = "outgoing_institution_type"

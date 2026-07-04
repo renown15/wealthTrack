@@ -12,6 +12,11 @@ vi.mock('@services/ApiService', () => ({
   },
 }));
 
+vi.mock('@composables/outgoingTypes', () => ({
+  isOutgoingAccountType: (t: string | null | undefined) =>
+    ['Utility - Gas', 'Utility - Water', 'Insurance - Car'].includes(t ?? ''),
+}));
+
 const mockPortfolio = {
   items: [
     {

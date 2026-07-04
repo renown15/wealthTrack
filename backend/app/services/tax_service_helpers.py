@@ -8,7 +8,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased, selectinload
 
-from app.constants import OUTGOING_ACCOUNT_TYPES
+from app.constants import ACCOUNT_TYPE_CLASS
 from app.models.account import Account
 from app.models.account_event import AccountEvent
 from app.models.account_event_attribute_group_member import AccountEventAttributeGroupMember
@@ -104,8 +104,8 @@ async def fetch_accounts_with_attrs(
         .outerjoin(status_rd, status_rd.id == Account.status_id)
         .outerjoin(Institution, Account.institution_id == Institution.id)
         .where(Account.user_id == user_id)
-        # Outgoings (utilities/insurance/subs) live in the Outgoings Hub, not here.
-        .where(ReferenceData.reference_value.not_in(OUTGOING_ACCOUNT_TYPES))
+        # Outgoings (their own class key) live in the Outgoings Hub, not here.
+        .where(ReferenceData.class_key == ACCOUNT_TYPE_CLASS)
         .options(selectinload(Account.institution))
         # Stable, sensible order — matches the wealth views (institution then name).
         .order_by(func.lower(Institution.name).nulls_last(), func.lower(Account.name))

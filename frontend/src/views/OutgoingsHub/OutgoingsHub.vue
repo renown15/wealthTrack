@@ -69,7 +69,7 @@ import { apiService } from '@services/ApiService';
 import { useOutgoings } from '@composables/useOutgoings';
 import { useHubReferenceData } from '@composables/useHubReferenceData';
 import { useToast } from '@composables/useToast';
-import { OUTGOING_TYPES, OUTGOING_INSTITUTION_TYPES, isOutgoingInstitution } from '@composables/portfolioCalculations';
+import { useOutgoingTypes, isOutgoingInstitution } from '@composables/outgoingTypes';
 import type { SavePayload } from '@views/AccountHub/accountModalSave';
 import OutgoingsHubStats from '@views/OutgoingsHub/OutgoingsHubStats.vue';
 import OutgoingsTable from '@views/OutgoingsHub/OutgoingsTable.vue';
@@ -79,7 +79,8 @@ import DeleteConfirmModal from '@views/AccountHub/DeleteConfirmModal.vue';
 import AccountDocumentsModal from '@views/AccountHub/AccountDocumentsModal.vue';
 
 const { outgoingItems, stats, loading, error, loadPortfolio, createAccount, updateAccount, deleteAccount } = useOutgoings();
-const { accountTypes, accountStatuses, institutionTypes, credentialTypes } = useHubReferenceData();
+const { accountStatuses, credentialTypes } = useHubReferenceData();
+const { outgoingAccountTypes, outgoingInstitutionTypes } = useOutgoingTypes();
 const { showSuccess, showError } = useToast();
 
 const institutions = ref<Institution[]>([]);
@@ -94,14 +95,8 @@ const docsModalOpen = ref(false);
 const docsAccountId = ref(0);
 const docsAccountName = ref('');
 
-const outgoingAccountTypes = computed(() =>
-  accountTypes.value.filter((t) => OUTGOING_TYPES.includes(t.referenceValue))
-);
 const outgoingProviders = computed(() =>
   institutions.value.filter((i) => isOutgoingInstitution(i.institutionType))
-);
-const outgoingInstitutionTypes = computed(() =>
-  institutionTypes.value.filter((t) => OUTGOING_INSTITUTION_TYPES.includes(t.referenceValue))
 );
 
 async function loadInstitutions(): Promise<void> {

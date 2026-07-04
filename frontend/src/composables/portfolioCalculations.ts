@@ -49,36 +49,8 @@ export const TRUST_TYPES = [
   'Trust Stocks Investment Account',
 ];
 
-export const OUTGOING_TYPES = [
-  'Utility - Gas',
-  'Utility - Electric',
-  'Utility - Water',
-  'Utility - Broadband',
-  'Insurance - Home',
-  'Insurance - Car',
-  'Insurance - Life',
-  'Insurance - Health',
-  'Insurance - Income Protection',
-  'Subscription',
-  'Household',
-  'Membership',
-  'Tax',
-];
-
-// Institution (provider) types that belong to the Outgoings Hub. Institutions of
-// any other type belong to the Account/Tax hubs. Mirrors OUTGOING_TYPES (accounts).
-export const OUTGOING_INSTITUTION_TYPES = [
-  'Utility Provider',
-  'Insurer',
-  'Subscription Service',
-  'Household',
-  'Memberships',
-];
-
-/** True if the institution's type is an Outgoings-hub provider type. */
-export function isOutgoingInstitution(institutionType?: string | null): boolean {
-  return OUTGOING_INSTITUTION_TYPES.includes(institutionType ?? '');
-}
+// Outgoing account/institution types are data-driven — see composables/outgoingTypes.ts
+// (isOutgoingAccountType / isOutgoingInstitution, backed by DB reference data).
 
 /**
  * Calculate total portfolio value from items

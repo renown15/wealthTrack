@@ -188,12 +188,14 @@ async def test_outgoing_accounts_excluded_from_breakdown_and_history(
     active_type_id = await _get_type_id(db_session, "account_status", "Active")
     savings_type_id = await _get_type_id(db_session, "account_type", "Savings Account")
     balance_type_id = await _get_type_id(db_session, "account_event_type", "Balance Update")
-    # The conftest seeds a subset of reference data; add the outgoing type it needs.
+    # The conftest seeds a subset of reference data; add the outgoing type it needs
+    # (outgoing types live under their own class key).
     db_session.add(
-        ReferenceData(class_key="account_type", reference_value="Subscription", sort_index=59)
+        ReferenceData(
+            class_key="outgoing_account_type", reference_value="Subscription", sort_index=59)
     )
     await db_session.flush()
-    sub_type_id = await _get_type_id(db_session, "account_type", "Subscription")
+    sub_type_id = await _get_type_id(db_session, "outgoing_account_type", "Subscription")
 
     savings = Account(
         user_id=user.id, institution_id=institution.id,

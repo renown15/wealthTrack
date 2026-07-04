@@ -4,7 +4,7 @@ import type { ReferenceDataItem } from '@models/ReferenceData';
 import type { AccountFormData } from '@views/AccountHub/addAccountModalValidation';
 import { apiService } from '@services/ApiService';
 import { useToast } from '@composables/useToast';
-import { OUTGOING_INSTITUTION_TYPES, isOutgoingInstitution } from '@composables/portfolioCalculations';
+import { isOutgoingInstitution, loadOutgoingTypes } from '@composables/outgoingTypes';
 
 export function useQuickAddAccount(): {
   institutions: Ref<Institution[]>;
@@ -29,13 +29,15 @@ export function useQuickAddAccount(): {
       apiService.getReferenceData('account_type'),
       apiService.getReferenceData('account_status'),
       apiService.getReferenceData('institution_type'),
+      loadOutgoingTypes(),
     ]);
-    // Tax Hub is a wealth context — keep Outgoings-only providers out of the pickers.
+    // account_type / institution_type classes are wealth-only (outgoing types have
+    // their own class), so the type pickers already exclude Outgoings. Existing
+    // institutions still carry outgoing type strings, so filter those out here.
     institutions.value = insts.filter((i) => !isOutgoingInstitution(i.institutionType));
     accountTypes.value = types;
     accountStatuses.value = statuses;
-    institutionTypes.value = instTypes.filter(
-      (t) => !OUTGOING_INSTITUTION_TYPES.includes(t.referenceValue));
+    institutionTypes.value = instTypes;
   }
 
   function getClosedStatusId(): number | null {

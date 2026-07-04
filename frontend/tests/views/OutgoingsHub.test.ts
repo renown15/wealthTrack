@@ -28,12 +28,21 @@ vi.mock('@composables/useHubReferenceData', () => ({
   useHubReferenceData: () => ({
     accountTypes: ref([{ id: 1, referenceValue: 'Utility - Gas' }]),
     accountStatuses: ref([]),
-    institutionTypes: ref([
-      { id: 1, referenceValue: 'Bank' },
+    institutionTypes: ref([]),
+    credentialTypes: ref([]),
+  }),
+}));
+vi.mock('@composables/outgoingTypes', () => ({
+  useOutgoingTypes: () => ({
+    outgoingAccountTypes: ref([{ id: 1, referenceValue: 'Utility - Gas' }]),
+    outgoingInstitutionTypes: ref([
       { id: 2, referenceValue: 'Utility Provider' },
       { id: 3, referenceValue: 'Insurer' },
     ]),
   }),
+  isOutgoingInstitution: (t: string | null | undefined) =>
+    ['Utility Provider', 'Insurer', 'Subscription Service'].includes(t ?? ''),
+  loadOutgoingTypes: vi.fn().mockResolvedValue(undefined),
 }));
 const showSuccess = vi.fn();
 const showError = vi.fn();

@@ -1,5 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
+
+vi.mock('@composables/outgoingTypes', () => ({
+  isOutgoingInstitution: (t: string | null | undefined) =>
+    ['Utility Provider', 'Insurer', 'Subscription Service', 'Household', 'Memberships', 'School']
+      .includes(t ?? ''),
+}));
+
 import InstitutionsPanel from '@/views/AccountHub/InstitutionsPanel.vue';
 import type { Institution, PortfolioItem } from '@/models/WealthTrackDataModels';
 

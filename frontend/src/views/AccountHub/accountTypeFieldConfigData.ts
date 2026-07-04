@@ -36,6 +36,10 @@ const shares: Partial<FieldConfig> = { showNumberOfShares: true, showUnderlying:
 // they get a Renewal Type + optional Renewal Date + Cost instead.
 const outgoing: Partial<FieldConfig> = { isDeferredType: true, showRenewalType: true, showRenewalDate: true, showMonthlyCost: true, showPolicyNumber: true, showAssetClass: false };
 
+// Form config for any outgoing account type. Used as the fallback for outgoing
+// types not individually listed below, so a new outgoing type is seed-only.
+export const OUTGOING_FIELD_CONFIG: FieldConfig = { ...baseConfig, ...outgoing };
+
 export const ACCOUNT_TYPE_ASSET_GROUP: Record<string, string> = {
   'Current Account':                'cash',
   'Savings Account':                'cash',

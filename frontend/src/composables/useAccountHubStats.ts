@@ -11,9 +11,9 @@ import {
   calculateTrustAssets,
   calculateProjectedAnnualYield,
   calculatePensionValue,
-  OUTGOING_TYPES,
   type PensionBreakdown,
 } from '@composables/portfolioCalculations';
+import { isOutgoingAccountType } from '@composables/outgoingTypes';
 
 export function useAccountHubStats(
   items: Ref<PortfolioItem[]>,
@@ -42,7 +42,7 @@ export function useAccountHubStats(
     return items.value
       .filter(i => {
         // Outgoings (utilities/insurance/subscriptions) live in the Outgoings Hub only.
-        if (OUTGOING_TYPES.includes(i.accountType ?? '')) return false;
+        if (isOutgoingAccountType(i.accountType)) return false;
         if (hideClosed.value && i.account.statusId === closedId) return false;
         return true;
       })

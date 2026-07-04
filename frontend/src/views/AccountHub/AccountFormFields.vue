@@ -156,6 +156,8 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue';
 import { ACCOUNT_TYPE_FIELD_CONFIG } from '@views/AccountHub/accountTypeFieldConfig';
+import { OUTGOING_FIELD_CONFIG } from '@views/AccountHub/accountTypeFieldConfigData';
+import { isOutgoingAccountType } from '@composables/outgoingTypes';
 import { type AccountFormFieldsProps } from '@views/AccountHub/accountFormFieldsTypes';
 import { referenceDataService } from '@/services/ReferenceDataService';
 import { taxService } from '@/services/TaxService';
@@ -181,7 +183,11 @@ function onSortCodeInput(e: Event): void {
 
 const getFieldConfig = computed(() => {
   const typeName = props.accountTypes.find((t) => t.id === props.formData.typeId)?.referenceValue;
-  return ACCOUNT_TYPE_FIELD_CONFIG[typeName || 'DEFAULT'] || ACCOUNT_TYPE_FIELD_CONFIG['DEFAULT'];
+  const explicit = typeName ? ACCOUNT_TYPE_FIELD_CONFIG[typeName] : undefined;
+  if (explicit) return explicit;
+  // Data-driven outgoing types (not individually listed) use the outgoing config.
+  if (isOutgoingAccountType(typeName)) return OUTGOING_FIELD_CONFIG;
+  return ACCOUNT_TYPE_FIELD_CONFIG['DEFAULT'];
 });
 
 const isClosedStatus = computed(() => {

@@ -1,6 +1,7 @@
 import { ref, onMounted, type Ref } from 'vue';
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 import { apiService } from '@/services/ApiService';
+import { loadOutgoingTypes } from '@composables/outgoingTypes';
 
 export function useHubReferenceData(): {
   accountTypes: Ref<ReferenceDataItem[]>;
@@ -18,6 +19,7 @@ export function useHubReferenceData(): {
   const annuityRate = ref(0.075);
 
   onMounted(() => {
+    void loadOutgoingTypes();
     void Promise.all([
       apiService.getReferenceData('account_type'),
       apiService.getReferenceData('account_status'),

@@ -1,5 +1,14 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { ref } from 'vue';
+
+vi.mock('@composables/outgoingTypes', () => ({
+  isOutgoingAccountType: (t: string | null | undefined) => {
+    const s = t ?? '';
+    return s.startsWith('Utility') || s.startsWith('Insurance')
+      || ['Subscription', 'Household', 'Membership', 'Tax', 'School Fees', 'Mobile phone'].includes(s);
+  },
+}));
+
 import { useAccountHubStats } from '@/composables/useAccountHubStats';
 import type { PortfolioItem } from '@/models/WealthTrackDataModels';
 import type { ReferenceDataItem } from '@/models/ReferenceData';

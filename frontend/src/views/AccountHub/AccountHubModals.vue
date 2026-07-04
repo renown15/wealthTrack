@@ -50,7 +50,7 @@ import type { Account, Institution, PortfolioItem, AccountGroup, AccountEvent, I
 import type { ReferenceDataItem } from '@/models/ReferenceData';
 import { useModalInitialValues } from '@/composables/useModalInitialValues';
 import { ACCOUNT_TYPE_ASSET_GROUP } from '@views/AccountHub/accountTypeFieldConfigData';
-import { OUTGOING_INSTITUTION_TYPES, isOutgoingInstitution } from '@composables/portfolioCalculations';
+import { isOutgoingInstitution } from '@composables/outgoingTypes';
 import { computed } from 'vue';
 import AccountEventsGroup from '@views/AccountHub/AccountEventsGroup.vue';
 import AccountGroupModal from '@views/AccountHub/AccountGroupModal.vue';
@@ -126,8 +126,9 @@ const accountEditItem = computed<Account | null>(() =>
 // wealth account/institution modals here.
 const wealthInstitutions = computed(() =>
   props.institutions.filter((i) => !isOutgoingInstitution(i.institutionType)));
-const wealthInstitutionTypes = computed(() =>
-  props.institutionTypes.filter((t) => !OUTGOING_INSTITUTION_TYPES.includes(t.referenceValue)));
+// institutionTypes is the wealth 'institution_type' class (outgoing types have
+// their own class), so no filtering needed here.
+const wealthInstitutionTypes = computed(() => props.institutionTypes);
 
 const transferAccounts = computed<{ id: number; label: string }[]>(() => {
   if (props.modalType !== 'edit' || !props.editingItem || !('typeId' in props.editingItem)) return [];

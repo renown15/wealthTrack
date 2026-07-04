@@ -59,7 +59,7 @@ import { ref, computed } from 'vue';
 import type { Institution, PortfolioItem } from '@/models/WealthTrackDataModels';
 import type { FamilyMember } from '@/models/family';
 import { Icons } from '@/constants/icons';
-import { isOutgoingInstitution } from '@composables/portfolioCalculations';
+import { isOutgoingInstitution } from '@composables/outgoingTypes';
 import InstitutionsList from '@views/AccountHub/InstitutionsList.vue';
 import InstitutionsFamilyView from '@views/AccountHub/InstitutionsFamilyView.vue';
 

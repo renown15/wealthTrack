@@ -40,33 +40,44 @@ ACCOUNT_ITEMS: list[ReferenceDataItem] = [
     ),
     ReferenceDataItem(class_key="account_type", reference_value="Shares", sort_index=15),
     ReferenceDataItem(class_key="account_type", reference_value="Tax Liability", sort_index=16),
-    # Outgoings-hub account types (see migration 049; OUTGOING_ACCOUNT_TYPES).
+    # Outgoings-hub account types (class key outgoing_account_type; see migration 059).
+    # Adding a new outgoing type here (or via the same-class migration) is all that's
+    # needed — the Outgoings/wealth split is derived from the class key.
     ReferenceDataItem(
-        class_key="account_type", reference_value="Utility - Gas", sort_index=50),
+        class_key="outgoing_account_type", reference_value="Utility - Gas", sort_index=50),
     ReferenceDataItem(
-        class_key="account_type", reference_value="Utility - Electric", sort_index=51),
+        class_key="outgoing_account_type", reference_value="Utility - Electric", sort_index=51),
     ReferenceDataItem(
-        class_key="account_type", reference_value="Utility - Water", sort_index=52),
+        class_key="outgoing_account_type", reference_value="Utility - Water", sort_index=52),
     ReferenceDataItem(
-        class_key="account_type", reference_value="Utility - Broadband", sort_index=53),
+        class_key="outgoing_account_type", reference_value="Utility - Broadband", sort_index=53),
     ReferenceDataItem(
-        class_key="account_type", reference_value="Insurance - Home", sort_index=54),
+        class_key="outgoing_account_type", reference_value="Insurance - Home", sort_index=54),
     ReferenceDataItem(
-        class_key="account_type", reference_value="Insurance - Car", sort_index=55),
+        class_key="outgoing_account_type", reference_value="Insurance - Car", sort_index=55),
     ReferenceDataItem(
-        class_key="account_type", reference_value="Insurance - Life", sort_index=56),
+        class_key="outgoing_account_type", reference_value="Insurance - Life", sort_index=56),
     ReferenceDataItem(
-        class_key="account_type", reference_value="Insurance - Health", sort_index=57),
+        class_key="outgoing_account_type", reference_value="Insurance - Health", sort_index=57),
     ReferenceDataItem(
-        class_key="account_type", reference_value="Insurance - Income Protection", sort_index=58),
+        class_key="outgoing_account_type",
+        reference_value="Insurance - Income Protection", sort_index=58),
     ReferenceDataItem(
-        class_key="account_type", reference_value="Subscription", sort_index=59),
+        class_key="outgoing_account_type", reference_value="Subscription", sort_index=59),
     ReferenceDataItem(
-        class_key="account_type", reference_value="Household", sort_index=60),
+        class_key="outgoing_account_type", reference_value="Household", sort_index=60),
     ReferenceDataItem(
-        class_key="account_type", reference_value="Membership", sort_index=61),
+        class_key="outgoing_account_type", reference_value="Membership", sort_index=61),
     ReferenceDataItem(
-        class_key="account_type", reference_value="Tax", sort_index=62),
+        class_key="outgoing_account_type", reference_value="Tax", sort_index=62),
+    ReferenceDataItem(
+        class_key="outgoing_account_type", reference_value="School Fees", sort_index=63),
+    ReferenceDataItem(
+        class_key="outgoing_account_type", reference_value="Mobile phone", sort_index=64),
+    ReferenceDataItem(
+        class_key="account_type", reference_value="School Fees", sort_index=63),
+    ReferenceDataItem(
+        class_key="account_type", reference_value="Mobile phone", sort_index=64),
     # -----------------------------------------------------------------------
     # Account statuses
     # -----------------------------------------------------------------------

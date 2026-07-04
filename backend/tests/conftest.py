@@ -186,12 +186,22 @@ async def institution(db_session: AsyncSession, user: UserProfile) -> Institutio
 @pytest.fixture(scope="function")
 async def account(db_session: AsyncSession, user: UserProfile, institution: Institution) -> Account:
     """Create a test account."""
+    from sqlalchemy import select as _select
+
+    async def _ref_id(class_key: str, value: str) -> int:
+        return (await db_session.execute(
+            _select(ReferenceData.id).where(
+                ReferenceData.class_key == class_key,
+                ReferenceData.reference_value == value,
+            )
+        )).scalar_one()
+
     acc = Account(
         user_id=user.id,
         institution_id=institution.id,
         name="Test Checking Account",
-        type_id=1,
-        status_id=1,
+        type_id=await _ref_id("account_type", "Checking Account"),
+        status_id=await _ref_id("account_status", "Active"),
     )
     db_session.add(acc)
     await db_session.flush()

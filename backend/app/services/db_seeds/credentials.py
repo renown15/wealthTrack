@@ -61,16 +61,23 @@ CREDENTIAL_ITEMS: list[ReferenceDataItem] = [
     ReferenceDataItem(
         class_key="institution_type", reference_value="Share Registrar", sort_index=6
     ),
-    # Outgoings-hub provider types (see OUTGOING_INSTITUTION_TYPES on the frontend)
+    # Outgoings-hub provider types (class key outgoing_institution_type; see migration 059).
     ReferenceDataItem(
-        class_key="institution_type", reference_value="Utility Provider", sort_index=7
+        class_key="outgoing_institution_type", reference_value="Utility Provider", sort_index=7
     ),
-    ReferenceDataItem(class_key="institution_type", reference_value="Insurer", sort_index=8),
     ReferenceDataItem(
-        class_key="institution_type", reference_value="Subscription Service", sort_index=9
+        class_key="outgoing_institution_type", reference_value="Insurer", sort_index=8
     ),
-    ReferenceDataItem(class_key="institution_type", reference_value="Household", sort_index=10),
     ReferenceDataItem(
-        class_key="institution_type", reference_value="Memberships", sort_index=11
+        class_key="outgoing_institution_type", reference_value="Subscription Service", sort_index=9
+    ),
+    ReferenceDataItem(
+        class_key="outgoing_institution_type", reference_value="Household", sort_index=10
+    ),
+    ReferenceDataItem(
+        class_key="outgoing_institution_type", reference_value="Memberships", sort_index=11
+    ),
+    ReferenceDataItem(
+        class_key="outgoing_institution_type", reference_value="School", sort_index=12
     ),
 ]

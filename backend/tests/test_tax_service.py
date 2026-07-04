@@ -182,7 +182,7 @@ async def test_get_eligible_with_returns_excludes_outgoings(
     db_session: AsyncSession, user: UserProfile
 ) -> None:
     """Outgoing accounts (utilities/insurance/subscriptions) never reach the Tax Hub."""
-    sub_type_id = await _get_or_create_ref(db_session, "account_type", "Subscription")
+    sub_type_id = await _get_or_create_ref(db_session, "outgoing_account_type", "Subscription")
     status_id = await _get_or_create_ref(db_session, "account_status", "Active")
 
     period = TaxPeriod()
