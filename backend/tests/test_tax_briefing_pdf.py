@@ -148,18 +148,28 @@ def test_build_pdf_renders_tax_liability_and_rules_excluded():
     liability = {
         "account": SimpleNamespace(id=2, name="Tax Liability - 2025/26"),
         "account_type": "Tax Liability",
-        "tax_return": SimpleNamespace(income=30000, capital_gain=0, tax_due=6000),
+        "tax_return": SimpleNamespace(
+            income=30000, capital_gain=0, tax_taken_off=6000, tax_due=0),
         "attrs": {"Notes": "HSBC Employment"},
         "documents": [],
     }
-    excluded = {
-        "account": SimpleNamespace(id=3, name="My Cash ISA"),
-        "account_type": "Cash ISA",
-    }
+
+    def excl(i, name, atype, inst, attrs):
+        return {
+            "account": SimpleNamespace(id=i, name=name, institution=SimpleNamespace(name=inst)),
+            "account_type": atype, "attrs": attrs,
+        }
+
+    rules_excluded = [
+        excl(3, "My Cash ISA", "Cash ISA", "Barclays",
+             {"Account Number": "1234", "Sort Code": "11-22-33"}),
+        excl(4, "Vanguard ISA", "Stocks ISA", "Vanguard", {}),
+        excl(5, "Halifax Saver", "Cash ISA", "Halifax", {"Roll / Ref Number": "RR-99"}),
+    ]
     data = BriefingData(
         member_name="Test User", period_name="2025/26",
         portfolio_items=[], in_scope=[liability], eligible=[], gifts=[],
-        rules_excluded=[excluded],
+        rules_excluded=rules_excluded,
     )
     pdf = build_pdf(data)
     assert pdf[:5] == b"%PDF-"

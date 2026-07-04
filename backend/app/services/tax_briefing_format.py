@@ -6,6 +6,8 @@ from typing import Any
 from reportlab.lib import colors
 from reportlab.platypus import Table, TableStyle
 
+from app.types.attribute_types import AttributeType
+
 # Account-type groupings mirror frontend/src/composables/portfolioCalculations.ts
 CASH_TYPES = {"Current Account", "Savings Account", "Premium Bonds", "Fixed / Bonus Rate Saver"}
 ISA_TYPES = {"Cash ISA", "Fixed Rate ISA", "Stocks ISA"}
@@ -58,6 +60,16 @@ def to_float(value: Any) -> float:
         return float(value) if value not in (None, "") else 0.0
     except (TypeError, ValueError):
         return 0.0
+
+
+def account_ref(item: dict[str, Any]) -> str:
+    """Identify an account by its number (with sort code) or building-society roll/ref."""
+    attrs: dict[str, str] = item.get("attrs") or {}
+    number = attrs.get(AttributeType.ACCOUNT_NUMBER)
+    sort = attrs.get(AttributeType.SORT_CODE)
+    if number:
+        return f"{number} ({sort})" if sort else number
+    return attrs.get(AttributeType.ROLL_REF_NUMBER) or sort or ""
 
 
 def category_for(account_type: str) -> str:

@@ -8,6 +8,7 @@ from reportlab.platypus import Flowable, Paragraph, Spacer
 
 from app.schemas.gift import GiftSummary
 from app.services.tax_briefing_format import (
+    account_ref,
     exclusion_reason,
     money_plain,
     styled_table,
@@ -41,11 +42,27 @@ def build_portfolio_map(items: list[dict[str, Any]]) -> dict[int, dict[str, Any]
 
 
 def _cell(text: str, styles: Styles) -> Paragraph:
-    return Paragraph(text, styles["cell"])
+    safe = str(text).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    return Paragraph(safe, styles["cell"])
+
+
+def _inst_name(item: dict[str, Any]) -> str:
+    inst = getattr(item["account"], "institution", None)
+    return (getattr(inst, "name", "") or "") if inst is not None else ""
+
+
+def _by_type(items: list[dict[str, Any]]) -> list[tuple[str, list[dict[str, Any]]]]:
+    """Group items by account type; within each type sort by institution then account name."""
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for item in items:
+        groups.setdefault(item["account_type"], []).append(item)
+    for group in groups.values():
+        group.sort(key=lambda i: (_inst_name(i).lower(), i["account"].name.lower()))
+    return sorted(groups.items(), key=lambda kv: kv[0].lower())
 
 
 def out_of_scope_section(styles: Styles, items: list[dict[str, Any]]) -> list[Flowable]:
-    """Accounts the client marked out of scope, with the reason — so nothing is missed."""
+    """Accounts the client marked out of scope — grouped by type, with institution and ref."""
     if not items:
         return []
     flow: list[Flowable] = [
@@ -54,18 +71,20 @@ def out_of_scope_section(styles: Styles, items: list[dict[str, Any]]) -> list[Fl
             "Marked out of scope by the client and not included above; shown for completeness.",
             styles["small"]),
     ]
-    rows: list[list[Any]] = [["Account", "Type", "Reason"]]
-    for item in items:
-        note = getattr(item.get("tax_return"), "note", None) or "—"
-        rows.append(
-            [_cell(item["account"].name, styles), item["account_type"], _cell(note, styles)]
-        )
-    flow.append(styled_table(rows, [55 * mm, 35 * mm, 80 * mm]))
+    for account_type, group in _by_type(items):
+        flow.append(Paragraph(f"<b>{account_type}</b>", styles["cell"]))
+        rows: list[list[Any]] = [["Institution", "Account", "Account no. / ref", "Reason"]]
+        for item in group:
+            note = getattr(item.get("tax_return"), "note", None) or "—"
+            rows.append([
+                _cell(_inst_name(item) or "—", styles), _cell(item["account"].name, styles),
+                _cell(account_ref(item) or "—", styles), _cell(note, styles)])
+        flow.append(styled_table(rows, [42 * mm, 45 * mm, 43 * mm, 40 * mm]))
     return flow
 
 
 def rules_excluded_section(styles: Styles, items: list[dict[str, Any]]) -> list[Flowable]:
-    """Accounts the eligibility rules excluded automatically, with the reason for each."""
+    """Accounts the rules excluded — grouped by type (with reason), institution and ref."""
     if not items:
         return []
     flow: list[Flowable] = [
@@ -73,16 +92,17 @@ def rules_excluded_section(styles: Styles, items: list[dict[str, Any]]) -> list[
         Paragraph(
             "Held but automatically excluded from the return — tax-free wrappers, pensions, "
             "trust holdings, and accounts with no taxable income or gains in the period. "
-            "Listed so nothing is overlooked.", styles["small"]),
+            "Grouped by type; listed so nothing is overlooked.", styles["small"]),
     ]
-    rows: list[list[Any]] = [["Account", "Type", "Reason"]]
-    for item in items:
-        rows.append([
-            _cell(item["account"].name, styles),
-            item["account_type"],
-            _cell(exclusion_reason(item["account_type"]), styles),
-        ])
-    flow.append(styled_table(rows, [55 * mm, 35 * mm, 80 * mm]))
+    for account_type, group in _by_type(items):
+        flow.append(
+            Paragraph(f"<b>{account_type}</b> — {exclusion_reason(account_type)}", styles["cell"]))
+        rows: list[list[Any]] = [["Institution", "Account", "Account no. / ref"]]
+        for item in group:
+            rows.append([
+                _cell(_inst_name(item) or "—", styles), _cell(item["account"].name, styles),
+                _cell(account_ref(item) or "—", styles)])
+        flow.append(styled_table(rows, [55 * mm, 55 * mm, 60 * mm]))
     return flow
 
 

@@ -15,8 +15,7 @@ from typing import Any
 from reportlab.lib.units import mm
 from reportlab.platypus import Flowable, Paragraph
 
-from app.services.tax_briefing_format import money_plain, styled_table, to_float
-from app.types.attribute_types import AttributeType
+from app.services.tax_briefing_format import account_ref, money_plain, styled_table, to_float
 
 Styles = dict[str, Any]
 
@@ -25,18 +24,9 @@ _TAX_LIABILITY = "Tax Liability"
 _NON_INCOME_TYPES = {_TAX_LIABILITY}
 
 
-def account_ref(item: dict[str, Any]) -> str:
-    """Identify an account by its number (with sort code) or building-society roll/ref."""
-    attrs: dict[str, str] = item.get("attrs") or {}
-    number = attrs.get(AttributeType.ACCOUNT_NUMBER)
-    sort = attrs.get(AttributeType.SORT_CODE)
-    if number:
-        return f"{number} ({sort})" if sort else number
-    return attrs.get(AttributeType.ROLL_REF_NUMBER) or sort or ""
-
-
 def _cell(text: str, styles: Styles) -> Paragraph:
-    return Paragraph(text, styles["cell"])
+    safe = str(text).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    return Paragraph(safe, styles["cell"])
 
 
 def _income(item: dict[str, Any]) -> float:
@@ -166,19 +156,24 @@ def capital_gains_section(styles: Styles, in_scope: list[dict[str, Any]]) -> lis
 
 def tax_liability_items(
     accounts: list[dict[str, Any]]
-) -> list[tuple[str, float, float, float]]:
-    """Tax Liability accounts carrying recorded income, gain or tax due, with the client note."""
-    out: list[tuple[str, float, float, float]] = []
+) -> list[tuple[str, float, float, float, float]]:
+    """Tax Liability accounts carrying recorded figures, labelled with the client's note.
+
+    Returns (description, income, gain, tax_deducted, tax_due). The description is
+    the client's own comment (the account's Notes attribute), NOT the account name.
+    """
+    out: list[tuple[str, float, float, float, float]] = []
     for item in accounts:
         if item["account_type"] != _TAX_LIABILITY:
             continue
         tax_return = item.get("tax_return")
         income = to_float(getattr(tax_return, "income", None))
         gain = to_float(getattr(tax_return, "capital_gain", None))
+        tax_off = to_float(getattr(tax_return, "tax_taken_off", None))
         tax_due = to_float(getattr(tax_return, "tax_due", None))
-        if income or gain or tax_due:
+        if income or gain or tax_off or tax_due:
             note = (item.get("attrs") or {}).get("Notes") or item["account"].name
-            out.append((note, income, gain, tax_due))
+            out.append((note, income, gain, tax_off, tax_due))
     return out
 
 
@@ -188,24 +183,30 @@ def tax_liability_section(styles: Styles, accounts: list[dict[str, Any]]) -> lis
         Paragraph("4. Other recorded taxable items", styles["h2"]),
         Paragraph(
             "Income, gains and tax the client recorded directly against the tax-year liability "
-            "— e.g. employment, pensions or other income not held in a tracked account. "
-            "Each row carries the client's own note.", styles["small"]),
+            "— e.g. employment, pensions or other income not held in a tracked account. Each "
+            "row is labelled with the client's own description.", styles["small"]),
     ]
     items = tax_liability_items(accounts)
     if not items:
         flow.append(Paragraph("No other taxable items recorded.", styles["body"]))
         return flow
-    rows: list[list[Any]] = [["Item", "Income (£)", "Capital gain (£)", "Tax due (£)"]]
-    t_income = t_gain = t_tax = 0.0
-    for note, income, gain, tax_due in items:
+    rows: list[list[Any]] = [
+        ["Description", "Income (£)", "Capital gain (£)", "Tax deducted (£)", "Tax due (£)"]]
+    t_income = t_gain = t_off = t_due = 0.0
+    for note, income, gain, tax_off, tax_due in items:
         t_income += income
         t_gain += gain
-        t_tax += tax_due
+        t_off += tax_off
+        t_due += tax_due
         rows.append([
-            _cell(note, styles), money_plain(income), money_plain(gain), money_plain(tax_due)])
-    rows.append(["Total", money_plain(t_income), money_plain(t_gain), money_plain(t_tax)])
+            _cell(note, styles), money_plain(income), money_plain(gain),
+            money_plain(tax_off), money_plain(tax_due)])
+    rows.append([
+        "Total", money_plain(t_income), money_plain(t_gain),
+        money_plain(t_off), money_plain(t_due)])
     flow.append(styled_table(
-        rows, [71 * mm, 33 * mm, 33 * mm, 33 * mm], right_cols=(1, 2, 3), total_row=True))
+        rows, [54 * mm, 29 * mm, 29 * mm, 29 * mm, 29 * mm],
+        right_cols=(1, 2, 3, 4), total_row=True))
     return flow
 
 
