@@ -6,17 +6,18 @@ from app.services.tax_briefing_sa_sections import (
     dividend_items,
     gain_items,
     interest_items,
+    tax_liability_items,
 )
 
 
-def _item(name, account_type, income=0.0, gain=0.0, institution=None, attrs=None):
+def _item(name, account_type, income=0.0, gain=0.0, institution=None, attrs=None, tax_due=0.0):
     return {
         "account": SimpleNamespace(
             id=1, name=name,
             institution=SimpleNamespace(name=institution) if institution else None,
         ),
         "account_type": account_type,
-        "tax_return": SimpleNamespace(income=income, capital_gain=gain),
+        "tax_return": SimpleNamespace(income=income, capital_gain=gain, tax_due=tax_due),
         "attrs": attrs or {},
     }
 
@@ -76,3 +77,25 @@ def test_zero_amounts_are_omitted():
 def test_missing_institution_yields_blank():
     rows = [_item("Saver", "Savings Account", income=10.0, institution=None)]
     assert interest_items(rows) == [("Saver", "", "", 10.0)]
+
+
+def test_tax_liability_item_uses_note_and_included_when_any_value():
+    rows = [_item(
+        "Tax Liability - 2025/26", "Tax Liability", income=30000.0, tax_due=6000.0,
+        attrs={"Notes": "HSBC Employment"})]
+    assert tax_liability_items(rows) == [("HSBC Employment", 30000.0, 0.0, 6000.0)]
+
+
+def test_tax_liability_item_falls_back_to_account_name_without_note():
+    rows = [_item("Tax Liability - 2025/26", "Tax Liability", gain=500.0)]
+    assert tax_liability_items(rows) == [("Tax Liability - 2025/26", 0.0, 500.0, 0.0)]
+
+
+def test_tax_liability_item_omitted_when_all_zero():
+    rows = [_item("Tax Liability - 2025/26", "Tax Liability", attrs={"Notes": "Empty"})]
+    assert tax_liability_items(rows) == []
+
+
+def test_tax_liability_ignores_non_liability_accounts():
+    rows = [_item("Saver", "Savings Account", income=100.0)]
+    assert tax_liability_items(rows) == []

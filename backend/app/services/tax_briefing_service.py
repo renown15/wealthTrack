@@ -79,6 +79,12 @@ async def generate_briefing_pack(
     gifts = await get_user_gifts(member_id, session)
 
     out_of_scope = [i for i in tax_result["not_in_scope"] if i.get("scope")]
+    # Accounts the eligibility rules excluded (tax-free wrappers, pensions, and
+    # accounts with no taxable income/gains) — excludes the client-overridden ones,
+    # which are shown separately as "excluded by the client".
+    rules_excluded = tax_result["tax_free"] + [
+        i for i in tax_result["not_in_scope"] if not i.get("scope")
+    ]
     data = BriefingData(
         member_name=member_name,
         period_name=period.name,
@@ -87,6 +93,7 @@ async def generate_briefing_pack(
         eligible=tax_result["eligible"],
         gifts=gifts,
         out_of_scope=out_of_scope,
+        rules_excluded=rules_excluded,
         period_start=period.start_date,
         period_end=period.end_date,
         utr=member.utr,

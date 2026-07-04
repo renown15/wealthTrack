@@ -7,7 +7,12 @@ from reportlab.lib.units import mm
 from reportlab.platypus import Flowable, Paragraph, Spacer
 
 from app.schemas.gift import GiftSummary
-from app.services.tax_briefing_format import money_plain, styled_table, to_float
+from app.services.tax_briefing_format import (
+    exclusion_reason,
+    money_plain,
+    styled_table,
+    to_float,
+)
 from app.services.tax_briefing_images import (
     compress_document_image,
     is_image,
@@ -59,9 +64,31 @@ def out_of_scope_section(styles: Styles, items: list[dict[str, Any]]) -> list[Fl
     return flow
 
 
+def rules_excluded_section(styles: Styles, items: list[dict[str, Any]]) -> list[Flowable]:
+    """Accounts the eligibility rules excluded automatically, with the reason for each."""
+    if not items:
+        return []
+    flow: list[Flowable] = [
+        Paragraph("Accounts excluded by the rules", styles["h3"]),
+        Paragraph(
+            "Held but automatically excluded from the return — tax-free wrappers, pensions, "
+            "trust holdings, and accounts with no taxable income or gains in the period. "
+            "Listed so nothing is overlooked.", styles["small"]),
+    ]
+    rows: list[list[Any]] = [["Account", "Type", "Reason"]]
+    for item in items:
+        rows.append([
+            _cell(item["account"].name, styles),
+            item["account_type"],
+            _cell(exclusion_reason(item["account_type"]), styles),
+        ])
+    flow.append(styled_table(rows, [55 * mm, 35 * mm, 80 * mm]))
+    return flow
+
+
 def gifts_section(styles: Styles, gifts: list[GiftSummary]) -> list[Flowable]:
     """Gifts recorded for IHT — context for the accountant, not part of the SA return."""
-    flow: list[Flowable] = [Paragraph("5. Gifts made (Inheritance Tax)", styles["h2"])]
+    flow: list[Flowable] = [Paragraph("6. Gifts made (Inheritance Tax)", styles["h2"])]
     if not gifts:
         flow.append(Paragraph("No gifts recorded.", styles["body"]))
         return flow
@@ -111,7 +138,7 @@ def _document_flowables(doc: Any, styles: Styles) -> list[Flowable]:
 
 def documents_section(styles: Styles, items: list[dict[str, Any]]) -> list[Flowable]:
     """Supporting-document checklist; image documents are embedded (compressed)."""
-    flow: list[Flowable] = [Paragraph("6. Supporting documents", styles["h2"])]
+    flow: list[Flowable] = [Paragraph("7. Supporting documents", styles["h2"])]
     any_docs = False
     for item in items:
         documents = item.get("documents") or []

@@ -142,3 +142,25 @@ def test_build_pdf_handles_empty_data():
     )
     pdf = build_pdf(data)
     assert pdf[:5] == b"%PDF-"
+
+
+def test_build_pdf_renders_tax_liability_and_rules_excluded():
+    liability = {
+        "account": SimpleNamespace(id=2, name="Tax Liability - 2025/26"),
+        "account_type": "Tax Liability",
+        "tax_return": SimpleNamespace(income=30000, capital_gain=0, tax_due=6000),
+        "attrs": {"Notes": "HSBC Employment"},
+        "documents": [],
+    }
+    excluded = {
+        "account": SimpleNamespace(id=3, name="My Cash ISA"),
+        "account_type": "Cash ISA",
+    }
+    data = BriefingData(
+        member_name="Test User", period_name="2025/26",
+        portfolio_items=[], in_scope=[liability], eligible=[], gifts=[],
+        rules_excluded=[excluded],
+    )
+    pdf = build_pdf(data)
+    assert pdf[:5] == b"%PDF-"
+    assert len(pdf) > 1000

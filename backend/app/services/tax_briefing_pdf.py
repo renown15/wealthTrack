@@ -13,19 +13,21 @@ from reportlab.lib.units import mm
 from reportlab.platypus import Flowable, PageBreak, Paragraph, SimpleDocTemplate, Spacer
 
 from app.schemas.gift import GiftSummary
+from app.services.tax_briefing_commentary import commentary_flowables
 from app.services.tax_briefing_format import HEADER_BG
 from app.services.tax_briefing_sa_sections import (
     capital_gains_section,
-    commentary_flowables,
     dividends_section,
     figures_reference,
     interest_section,
     provisions_section,
+    tax_liability_section,
 )
 from app.services.tax_briefing_sections import (
     documents_section,
     gifts_section,
     out_of_scope_section,
+    rules_excluded_section,
 )
 
 
@@ -40,6 +42,7 @@ class BriefingData:  # pylint: disable=too-many-instance-attributes
     eligible: list[dict[str, Any]]
     gifts: list[GiftSummary]
     out_of_scope: list[dict[str, Any]] = field(default_factory=list)
+    rules_excluded: list[dict[str, Any]] = field(default_factory=list)
     generated_at: date = field(default_factory=date.today)
     period_start: date | None = None
     period_end: date | None = None
@@ -114,6 +117,8 @@ def build_pdf(data: BriefingData) -> bytes:
     story += dividends_section(styles, data.in_scope)
     story.append(Spacer(1, 6 * mm))
     story += capital_gains_section(styles, data.in_scope)
+    story.append(Spacer(1, 6 * mm))
+    story += tax_liability_section(styles, data.in_scope + data.eligible)
     provisions = provisions_section(styles, data.in_scope)
     if provisions:
         story.append(Spacer(1, 6 * mm))
@@ -122,6 +127,10 @@ def build_pdf(data: BriefingData) -> bytes:
     if excluded:
         story.append(Spacer(1, 6 * mm))
         story += excluded
+    rules_excluded = rules_excluded_section(styles, data.rules_excluded)
+    if rules_excluded:
+        story.append(Spacer(1, 6 * mm))
+        story += rules_excluded
     story.append(PageBreak())
     story += gifts_section(styles, data.gifts)
     story.append(PageBreak())

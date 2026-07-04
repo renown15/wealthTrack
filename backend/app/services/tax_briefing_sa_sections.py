@@ -10,8 +10,6 @@ gain is the chargeable gain on share disposals.
 """
 from __future__ import annotations
 
-import html as html_lib
-import re
 from typing import Any
 
 from reportlab.lib.units import mm
@@ -23,7 +21,8 @@ from app.types.attribute_types import AttributeType
 Styles = dict[str, Any]
 
 _SHARES = "Shares"
-_NON_INCOME_TYPES = {"Tax Liability"}
+_TAX_LIABILITY = "Tax Liability"
+_NON_INCOME_TYPES = {_TAX_LIABILITY}
 
 
 def account_ref(item: dict[str, Any]) -> str:
@@ -34,28 +33,6 @@ def account_ref(item: dict[str, Any]) -> str:
     if number:
         return f"{number} ({sort})" if sort else number
     return attrs.get(AttributeType.ROLL_REF_NUMBER) or sort or ""
-
-
-def commentary_flowables(commentary: str | None, styles: Styles) -> list[Flowable]:
-    """Render the tax-period commentary (rich-text HTML) as plain-text paragraphs.
-
-    Block elements become paragraph breaks and list items get a bullet; all tags
-    are stripped so any editor markup renders safely.
-    """
-    if not commentary or not commentary.strip():
-        return []
-    text = re.sub(r"<br\s*/?>", "\n", commentary, flags=re.IGNORECASE)
-    text = re.sub(r"<li[^>]*>", "\n• ", text, flags=re.IGNORECASE)
-    text = re.sub(r"</(p|div|li|h[1-6]|ul|ol|tr)>", "\n", text, flags=re.IGNORECASE)
-    text = re.sub(r"<[^>]+>", "", text)
-    text = html_lib.unescape(text)
-    flow: list[Flowable] = [Paragraph("Commentary", styles["h2"])]
-    for line in text.split("\n"):
-        line = line.strip()
-        if line:
-            safe = line.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-            flow.append(Paragraph(safe, styles["body"]))
-    return flow if len(flow) > 1 else []
 
 
 def _cell(text: str, styles: Styles) -> Paragraph:
@@ -187,6 +164,51 @@ def capital_gains_section(styles: Styles, in_scope: list[dict[str, Any]]) -> lis
     return flow
 
 
+def tax_liability_items(
+    accounts: list[dict[str, Any]]
+) -> list[tuple[str, float, float, float]]:
+    """Tax Liability accounts carrying recorded income, gain or tax due, with the client note."""
+    out: list[tuple[str, float, float, float]] = []
+    for item in accounts:
+        if item["account_type"] != _TAX_LIABILITY:
+            continue
+        tax_return = item.get("tax_return")
+        income = to_float(getattr(tax_return, "income", None))
+        gain = to_float(getattr(tax_return, "capital_gain", None))
+        tax_due = to_float(getattr(tax_return, "tax_due", None))
+        if income or gain or tax_due:
+            note = (item.get("attrs") or {}).get("Notes") or item["account"].name
+            out.append((note, income, gain, tax_due))
+    return out
+
+
+def tax_liability_section(styles: Styles, accounts: list[dict[str, Any]]) -> list[Flowable]:
+    """Other taxable items the client recorded directly against a tax-year liability."""
+    flow: list[Flowable] = [
+        Paragraph("4. Other recorded taxable items", styles["h2"]),
+        Paragraph(
+            "Income, gains and tax the client recorded directly against the tax-year liability "
+            "— e.g. employment, pensions or other income not held in a tracked account. "
+            "Each row carries the client's own note.", styles["small"]),
+    ]
+    items = tax_liability_items(accounts)
+    if not items:
+        flow.append(Paragraph("No other taxable items recorded.", styles["body"]))
+        return flow
+    rows: list[list[Any]] = [["Item", "Income (£)", "Capital gain (£)", "Tax due (£)"]]
+    t_income = t_gain = t_tax = 0.0
+    for note, income, gain, tax_due in items:
+        t_income += income
+        t_gain += gain
+        t_tax += tax_due
+        rows.append([
+            _cell(note, styles), money_plain(income), money_plain(gain), money_plain(tax_due)])
+    rows.append(["Total", money_plain(t_income), money_plain(t_gain), money_plain(t_tax)])
+    flow.append(styled_table(
+        rows, [71 * mm, 33 * mm, 33 * mm, 33 * mm], right_cols=(1, 2, 3), total_row=True))
+    return flow
+
+
 def provisions_section(styles: Styles, in_scope: list[dict[str, Any]]) -> list[Flowable]:
     """Tax the client has provisioned per account — for context, not a return entry."""
     rows: list[list[Any]] = [["Account", "Reference", "Tax provisioned (£)"]]
@@ -202,7 +224,7 @@ def provisions_section(styles: Styles, in_scope: list[dict[str, Any]]) -> list[F
         return []
     rows.append(["Total", "", money_plain(total)])
     return [
-        Paragraph("4. Tax provisioned by the client", styles["h3"]),
+        Paragraph("5. Tax provisioned by the client", styles["h3"]),
         Paragraph(
             "The client's own estimate of tax set aside against this income and these gains "
             "— for context only.", styles["small"]),
