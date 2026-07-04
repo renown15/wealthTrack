@@ -17,11 +17,27 @@ vi.mock('@services/ApiService', () => ({
 }));
 vi.mock('@composables/useOutgoings', () => ({
   useOutgoings: () => ({
+    items: ref([]),
     outgoingItems: computed(() => []),
     stats: computed(() => ({ totalMonthlyGbp: 0, totalAnnualGbp: 0, renewingSoonCount: 0, byCategory: [] })),
     loading: ref(false), error: ref(null),
     loadPortfolio: vi.fn().mockResolvedValue(undefined),
     createAccount: vi.fn(), updateAccount: vi.fn(), deleteAccount: vi.fn(),
+  }),
+  computeOutgoingsStats: () => ({ totalMonthlyGbp: 0, totalAnnualGbp: 0, renewingSoonCount: 0, byCategory: [] }),
+  filterOutgoings: (items: unknown[]) => items,
+}));
+const familyActiveId = ref<number | null>(null);
+const familyMembers = ref<{ accountId: number; firstName: string; lastName: string }[]>([]);
+const familyTableItems = ref<unknown[]>([]);
+const selectMember = vi.fn((id: number | null) => { familyActiveId.value = id; });
+vi.mock('@composables/useFamilyTabs', () => ({
+  useFamilyTabs: () => ({
+    otherMembers: familyMembers,
+    activeMemberId: familyActiveId,
+    tableItems: familyTableItems,
+    selectMember,
+    loadFamilyTabs: vi.fn().mockResolvedValue(undefined),
   }),
 }));
 vi.mock('@composables/useHubReferenceData', () => ({
@@ -52,6 +68,8 @@ import OutgoingsHub from '@/views/OutgoingsHub/OutgoingsHub.vue';
 import AccountModal from '@views/AccountHub/AccountModal.vue';
 import InstitutionModal from '@views/AccountHub/InstitutionModal.vue';
 import OutgoingsHubStats from '@views/OutgoingsHub/OutgoingsHubStats.vue';
+import FamilyMemberTabs from '@views/AccountHub/FamilyMemberTabs.vue';
+import OutgoingsProvidersPanel from '@views/OutgoingsHub/OutgoingsProvidersPanel.vue';
 
 const mountHub = () =>
   mount(OutgoingsHub, {
@@ -62,6 +80,9 @@ beforeEach(() => {
   vi.clearAllMocks();
   mockGetInstitutions.mockResolvedValue(institutionsData);
   mockCreateInstitution.mockResolvedValue({ id: 3 });
+  familyActiveId.value = null;
+  familyMembers.value = [];
+  familyTableItems.value = [];
 });
 
 describe('OutgoingsHub — providers', () => {
@@ -95,5 +116,30 @@ describe('OutgoingsHub — providers', () => {
     });
     expect(mockGetInstitutions).toHaveBeenCalled(); // reloaded
     expect(showSuccess).toHaveBeenCalledWith('Provider added');
+  });
+});
+
+describe('OutgoingsHub — family view', () => {
+  it('shows member tabs only when there are other members', async () => {
+    const wrapper = mountHub();
+    await flushPromises();
+    expect(wrapper.findComponent(FamilyMemberTabs).exists()).toBe(false);
+
+    familyMembers.value = [{ accountId: 7, firstName: 'Sam', lastName: 'Lee' }];
+    await flushPromises();
+    expect(wrapper.findComponent(FamilyMemberTabs).exists()).toBe(true);
+  });
+
+  it('goes read-only and hides the providers panel on a member tab', async () => {
+    familyMembers.value = [{ accountId: 7, firstName: 'Sam', lastName: 'Lee' }];
+    const wrapper = mountHub();
+    await flushPromises();
+    expect(wrapper.findComponent(OutgoingsProvidersPanel).exists()).toBe(true);
+    expect(wrapper.findComponent(OutgoingsHubStats).props('readOnly')).toBe(false);
+
+    familyActiveId.value = 7; // viewing a member
+    await flushPromises();
+    expect(wrapper.findComponent(OutgoingsHubStats).props('readOnly')).toBe(true);
+    expect(wrapper.findComponent(OutgoingsProvidersPanel).exists()).toBe(false);
   });
 });

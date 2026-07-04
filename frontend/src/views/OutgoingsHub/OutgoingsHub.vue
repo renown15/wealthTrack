@@ -2,21 +2,30 @@
   <div class="page-view">
     <div class="hub-header-card">
       <OutgoingsHubStats
-        :stats="stats" :total-count="outgoingItems.length"
+        :stats="displayedStats" :total-count="displayedOutgoings.length" :read-only="readOnly"
         @add-account="openCreate" @add-provider="providersPanel?.openCreate()"
       />
     </div>
 
+    <FamilyMemberTabs
+      v-if="otherMembers.length > 0"
+      :members="otherMembers"
+      :active-id="activeMemberId"
+      @select="selectMember"
+    />
+
     <OutgoingsTable
-      :items="outgoingItems"
+      :items="displayedOutgoings"
       :loading="loading"
       :error="error"
+      :read-only="readOnly"
       @edit-account="openEdit"
       @delete-account="openDeleteConfirm"
       @show-docs="(item) => openDocs(item.account.id, item.account.name)"
     />
 
     <OutgoingsProvidersPanel
+      v-if="!readOnly"
       ref="providersPanel"
       :providers="outgoingProviders"
       :institution-types="outgoingInstitutionTypes"
@@ -66,22 +75,37 @@
 import { ref, computed, onMounted } from 'vue';
 import type { Institution, PortfolioItem } from '@models/WealthTrackDataModels';
 import { apiService } from '@services/ApiService';
-import { useOutgoings } from '@composables/useOutgoings';
+import {
+  useOutgoings, computeOutgoingsStats, filterOutgoings,
+} from '@composables/useOutgoings';
 import { useHubReferenceData } from '@composables/useHubReferenceData';
+import { useFamilyTabs } from '@composables/useFamilyTabs';
 import { useToast } from '@composables/useToast';
 import { useOutgoingTypes, isOutgoingInstitution } from '@composables/outgoingTypes';
+import { authState } from '@/modules/auth';
 import type { SavePayload } from '@views/AccountHub/accountModalSave';
 import OutgoingsHubStats from '@views/OutgoingsHub/OutgoingsHubStats.vue';
 import OutgoingsTable from '@views/OutgoingsHub/OutgoingsTable.vue';
 import OutgoingsProvidersPanel from '@views/OutgoingsHub/OutgoingsProvidersPanel.vue';
+import FamilyMemberTabs from '@views/AccountHub/FamilyMemberTabs.vue';
 import AccountModal from '@views/AccountHub/AccountModal.vue';
 import DeleteConfirmModal from '@views/AccountHub/DeleteConfirmModal.vue';
 import AccountDocumentsModal from '@views/AccountHub/AccountDocumentsModal.vue';
 
-const { outgoingItems, stats, loading, error, loadPortfolio, createAccount, updateAccount, deleteAccount } = useOutgoings();
+const { items, loading, error, loadPortfolio, createAccount, updateAccount, deleteAccount } = useOutgoings();
 const { accountStatuses, credentialTypes } = useHubReferenceData();
 const { outgoingAccountTypes, outgoingInstitutionTypes } = useOutgoingTypes();
 const { showSuccess, showError } = useToast();
+
+// Household/family view: switch the displayed outgoings to the active member's.
+const { otherMembers, activeMemberId, tableItems, selectMember, loadFamilyTabs } = useFamilyTabs(
+  () => authState.user?.id ?? 0,
+  () => ({ firstName: authState.user?.firstName ?? '', lastName: authState.user?.lastName ?? '' }),
+  computed(() => items.value),
+);
+const readOnly = computed(() => activeMemberId.value !== null);
+const displayedOutgoings = computed(() => filterOutgoings(tableItems.value));
+const displayedStats = computed(() => computeOutgoingsStats(displayedOutgoings.value));
 
 const institutions = ref<Institution[]>([]);
 const providersPanel = ref<InstanceType<typeof OutgoingsProvidersPanel> | null>(null);
@@ -157,5 +181,6 @@ async function handleConfirmDelete(): Promise<void> {
 onMounted(async () => {
   await loadPortfolio();
   await loadInstitutions();
+  void loadFamilyTabs();
 });
 </script>

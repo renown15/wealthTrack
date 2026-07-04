@@ -5,7 +5,7 @@
         <h2 class="header-title">Outgoings Hub</h2>
         <p class="header-subtitle">Track utilities, insurance, and subscriptions in one place.</p>
       </div>
-      <div class="header-actions">
+      <div v-if="!readOnly" class="header-actions">
         <button class="btn-secondary" @click="emit('addProvider')">+ Add Provider</button>
         <button class="btn-primary" @click="emit('addAccount')">+ Add Outgoing</button>
       </div>
@@ -38,6 +38,7 @@ import type { OutgoingsStats } from '@composables/useOutgoings';
 defineProps<{
   stats: OutgoingsStats;
   totalCount: number;
+  readOnly?: boolean;
 }>();
 
 const emit = defineEmits<{ addAccount: []; addProvider: [] }>();

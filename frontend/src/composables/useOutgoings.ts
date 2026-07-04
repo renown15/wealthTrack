@@ -58,6 +58,44 @@ export function formatRenewalDate(renewalDate: string | null | undefined): strin
   });
 }
 
+/** Compute the Outgoings Hub stats for a set of outgoing items (annualised). */
+export function computeOutgoingsStats(active: PortfolioItem[]): OutgoingsStats {
+  let totalAnnual = 0;
+  const categoryMap: Record<string, { count: number; annual: number }> = {};
+
+  for (const item of active) {
+    const annual = annualCost(item);
+    totalAnnual += annual;
+
+    const cat = item.accountType ?? 'Other';
+    if (!categoryMap[cat]) categoryMap[cat] = { count: 0, annual: 0 };
+    categoryMap[cat].count += 1;
+    categoryMap[cat].annual += annual;
+  }
+
+  const byCategory = Object.entries(categoryMap).map(([label, v]) => ({
+    label,
+    count: v.count,
+    monthlyGbp: v.annual / 12,
+  }));
+
+  const renewingSoonCount = active.filter((i) =>
+    isRenewingWithin30Days(i.account.renewalDate)
+  ).length;
+
+  return {
+    totalMonthlyGbp: totalAnnual / 12,
+    totalAnnualGbp: totalAnnual,
+    renewingSoonCount,
+    byCategory,
+  };
+}
+
+/** Filter a portfolio to just its outgoing items. */
+export function filterOutgoings(items: PortfolioItem[]): PortfolioItem[] {
+  return items.filter((i) => isOutgoingAccountType(i.accountType));
+}
+
 export function useOutgoings(): {
   items: import('vue').Ref<PortfolioItem[]>;
   outgoingItems: import('vue').ComputedRef<PortfolioItem[]>;
@@ -73,41 +111,10 @@ export function useOutgoings(): {
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-  const outgoingItems = computed(() =>
-    items.value.filter((i) => isOutgoingAccountType(i.accountType))
-  );
+  const outgoingItems = computed(() => filterOutgoings(items.value));
 
   const stats = computed<OutgoingsStats>(() => {
-    const active = outgoingItems.value;
-    let totalAnnual = 0;
-    const categoryMap: Record<string, { count: number; annual: number }> = {};
-
-    for (const item of active) {
-      const annual = annualCost(item);
-      totalAnnual += annual;
-
-      const cat = item.accountType ?? 'Other';
-      if (!categoryMap[cat]) categoryMap[cat] = { count: 0, annual: 0 };
-      categoryMap[cat].count += 1;
-      categoryMap[cat].annual += annual;
-    }
-
-    const byCategory = Object.entries(categoryMap).map(([label, v]) => ({
-      label,
-      count: v.count,
-      monthlyGbp: v.annual / 12,
-    }));
-
-    const renewingSoonCount = active.filter((i) =>
-      isRenewingWithin30Days(i.account.renewalDate)
-    ).length;
-
-    return {
-      totalMonthlyGbp: totalAnnual / 12,
-      totalAnnualGbp: totalAnnual,
-      renewingSoonCount,
-      byCategory,
-    };
+    return computeOutgoingsStats(outgoingItems.value);
   });
 
   async function loadPortfolio(): Promise<void> {

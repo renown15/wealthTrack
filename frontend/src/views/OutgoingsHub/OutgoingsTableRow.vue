@@ -9,13 +9,15 @@
     <td class="table-cell" :class="renewalClass">{{ renewalDisplay }}</td>
     <td class="table-cell text-center">
       <button
+        v-if="!readOnly"
         class="inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium rounded-lg border-none cursor-pointer bg-purple-100 text-purple-600 hover:bg-purple-200"
         title="Documents"
         @click="emit('showDocs', item)"
       >{{ item.docCount ?? 0 }}</button>
+      <span v-else class="text-muted">{{ item.docCount ?? 0 }}</span>
     </td>
     <td class="table-cell">
-      <div class="flex gap-1">
+      <div v-if="!readOnly" class="flex gap-1">
         <button
           class="btn-icon inline-flex items-center justify-center w-7 h-7 text-xs rounded border-none cursor-pointer bg-gray-100 text-gray-600 hover:bg-gray-200"
           title="Edit"
@@ -27,6 +29,7 @@
           @click="emit('delete', item)"
         >{{ Icons.delete }}</button>
       </div>
+      <span v-else class="text-muted">—</span>
     </td>
   </tr>
 </template>
@@ -37,7 +40,7 @@ import type { PortfolioItem } from '@models/WealthTrackDataModels';
 import { Icons } from '@/constants/icons';
 import { isRenewingWithin30Days, formatRenewalDate } from '@composables/useOutgoings';
 
-const props = defineProps<{ item: PortfolioItem }>();
+const props = defineProps<{ item: PortfolioItem; readOnly?: boolean }>();
 const emit = defineEmits<{
   edit: [item: PortfolioItem];
   delete: [item: PortfolioItem];

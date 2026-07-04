@@ -23,6 +23,7 @@
           v-for="item in items"
           :key="item.account.id"
           :item="item"
+          :read-only="readOnly"
           @edit="emit('editAccount', $event)"
           @delete="emit('deleteAccount', $event)"
           @show-docs="emit('showDocs', $event)"
@@ -40,6 +41,7 @@ defineProps<{
   items: PortfolioItem[];
   loading: boolean;
   error: string | null;
+  readOnly?: boolean;
 }>();
 
 const emit = defineEmits<{
