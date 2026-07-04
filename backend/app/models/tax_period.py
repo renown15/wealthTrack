@@ -4,7 +4,7 @@ TaxPeriod model — a named date range for tax return management.
 from datetime import date, datetime
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import Date, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Date, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -26,6 +26,7 @@ class TaxPeriod(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     start_date: Mapped[date] = mapped_column(Date, nullable=False)
     end_date: Mapped[date] = mapped_column(Date, nullable=False)
+    commentary: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     account_group_id: Mapped[Optional[int]] = mapped_column(
         Integer,
         ForeignKey("AccountGroup.accountgroupid", ondelete="SET NULL"),

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="open" class="modal-overlay" @mousedown.self="close" data-testid="base-modal">
+  <div v-if="open" class="modal-overlay" @mousedown.self="onOverlayMousedown" data-testid="base-modal">
     <div class="modal-content" :class="sizeClass" @click.stop>
       <header class="modal-header">
         <slot name="header">
@@ -22,15 +22,21 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   open: boolean;
   title?: string;
   size?: 'small' | 'medium' | 'large';
-}>();
+  // When false, clicking the overlay does NOT close the dialog (explicit close only).
+  dismissable?: boolean;
+}>(), { dismissable: true });
 
 const emit = defineEmits<{
   close: [];
 }>();
+
+const onOverlayMousedown = (): void => {
+  if (props.dismissable) close();
+};
 
 const sizeClass = computed(() => {
   switch (props.size) {

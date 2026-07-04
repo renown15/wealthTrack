@@ -61,6 +61,11 @@
       </select>
     </div>
 
+    <div v-if="showUtrField" class="form-group">
+      <label for="utr" class="form-label">UTR</label>
+      <input id="utr" v-model="formData.utr" type="text" maxlength="20" class="form-input" placeholder="Unique Taxpayer Reference" />
+    </div>
+
     <div class="form-group">
       <label for="institution-select" class="form-label">Institution</label>
       <select v-model.number="formData.institutionId" id="institution-select" class="form-select">
@@ -195,6 +200,11 @@ const isClosedStatus = computed(() => {
 const showTaxYearField = computed(() => {
   const typeName = props.accountTypes.find((t) => t.id === props.formData.typeId)?.referenceValue;
   return typeName === 'Tax Liability';
+});
+
+const showUtrField = computed(() => {
+  const typeName = props.accountTypes.find((t) => t.id === props.formData.typeId)?.referenceValue;
+  return typeName === 'Trust Bank Account' || typeName === 'Trust Stocks Investment Account';
 });
 
 onMounted(async () => {

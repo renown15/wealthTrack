@@ -12,6 +12,17 @@
       </p>
 
       <div class="form-field">
+        <label class="form-label">Comment</label>
+        <input
+          v-model="form.comment"
+          class="form-input"
+          type="text"
+          maxlength="500"
+          placeholder="e.g. HSBC Employment"
+        />
+      </div>
+
+      <div class="form-field">
         <label class="form-label">Income (£)</label>
         <input
           v-model="form.income"
@@ -65,13 +76,14 @@ const emit = defineEmits<{
   save: [data: TaxReturnUpsertRequest];
 }>();
 
-const form = ref({ income: '', capitalGain: '', taxTakenOff: '' });
+const form = ref({ income: '', capitalGain: '', taxTakenOff: '', comment: '' });
 
 watch(() => props.account, (acct) => {
   if (acct) {
     form.value.income = acct.taxReturn?.income?.toString() ?? '';
     form.value.capitalGain = acct.taxReturn?.capitalGain?.toString() ?? '';
     form.value.taxTakenOff = acct.taxReturn?.taxTakenOff?.toString() ?? '';
+    form.value.comment = acct.comment ?? '';
   }
 }, { immediate: true });
 
@@ -85,6 +97,7 @@ function handleSave(): void {
     income: parseNum(form.value.income),
     capitalGain: parseNum(form.value.capitalGain),
     taxTakenOff: parseNum(form.value.taxTakenOff),
+    comment: form.value.comment,
   });
 }
 </script>

@@ -36,6 +36,7 @@ _SHORTHAND_MAP: dict[str, str] = {
     "closed_date": "Account Closed Date",
     "iban": "IBAN",
     "notes": "Notes",
+    "utr": "UTR",
     "deferred_shares_balance": "Deferred Shares Balance",
     "deferred_cash_balance": "Deferred Cash Balance",
     "rsu_balance": "RSU Balance",

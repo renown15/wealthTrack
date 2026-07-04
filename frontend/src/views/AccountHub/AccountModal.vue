@@ -72,6 +72,7 @@ interface Props {
   initialAssetClass?: string | null;
   initialEncumbrance?: string | null;
   initialTaxYear?: string | null;
+  initialUtr?: string | null;
   initialRenewalDate?: string | null;
   initialMonthlyCost?: string | null;
   transferAccounts?: { id: number; label: string }[];
@@ -112,6 +113,7 @@ const formProps = computed<AccountFormProps>(() => ({
   initialAssetClass: props.initialAssetClass,
   initialEncumbrance: props.initialEncumbrance,
   initialTaxYear: props.initialTaxYear,
+  initialUtr: props.initialUtr,
   initialRenewalDate: props.initialRenewalDate,
   initialMonthlyCost: props.initialMonthlyCost,
   accountTypes: props.accountTypes,

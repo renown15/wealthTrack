@@ -41,6 +41,7 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     assetClass: props.value.initialAssetClass || '',
     encumbrance: props.value.initialEncumbrance || '',
     taxYear: props.value.initialTaxYear || '',
+    utr: props.value.initialUtr || '',
     renewalDate: convertToDateInputFormat(props.value.initialRenewalDate),
     monthlyCost: props.value.initialMonthlyCost || '',
     transferToAccountId: null,
@@ -94,6 +95,7 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     formData.value.assetClass = props.value.initialAssetClass || '';
     formData.value.encumbrance = props.value.initialEncumbrance || '';
     formData.value.taxYear = props.value.initialTaxYear || '';
+    formData.value.utr = props.value.initialUtr || '';
     formData.value.renewalDate = convertToDateInputFormat(props.value.initialRenewalDate);
     formData.value.monthlyCost = props.value.initialMonthlyCost || '';
     formData.value.transferToAccountId = null;

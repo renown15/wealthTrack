@@ -1360,6 +1360,8 @@ export interface components {
              * @description Monthly cost
              */
             monthlyCost?: string | null;
+            /** Utr */
+            utr?: string | null;
         };
         /**
          * AccountDatesUpdate
@@ -1556,6 +1558,8 @@ export interface components {
             renewalDate?: string | null;
             /** Monthlycost */
             monthlyCost?: string | null;
+            /** Utr */
+            utr?: string | null;
             /**
              * Createdat
              * Format: date-time
@@ -1678,6 +1682,8 @@ export interface components {
              * @description Monthly cost
              */
             monthlyCost?: string | null;
+            /** Utr */
+            utr?: string | null;
         };
         /**
          * AddMemberRequest
@@ -1764,6 +1770,8 @@ export interface components {
             eventCount: number;
             /** Firstbalancedate */
             firstBalanceDate?: string | null;
+            /** Comment */
+            comment?: string | null;
             taxReturn?: components["schemas"]["TaxReturnResponse"] | null;
             /** Documents */
             documents?: components["schemas"]["TaxDocumentResponse"][];
@@ -2495,6 +2503,8 @@ export interface components {
              * Format: date
              */
             endDate: string;
+            /** Commentary */
+            commentary?: string | null;
             /** Accountgroupid */
             accountGroupId?: number | null;
             /**
@@ -2553,6 +2563,8 @@ export interface components {
             capitalGain?: number | null;
             /** Taxtakenoff */
             taxTakenOff?: number | null;
+            /** Comment */
+            comment?: string | null;
         };
         /**
          * TaxScopeUpdate
@@ -2620,6 +2632,8 @@ export interface components {
             firstName: string;
             /** Lastname */
             lastName: string;
+            /** Utr */
+            utr?: string | null;
             /** Isactive */
             isActive: boolean;
             /** Isverified */

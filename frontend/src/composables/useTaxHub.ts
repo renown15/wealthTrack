@@ -89,7 +89,7 @@ export function useTaxHub(): {
   ): Promise<boolean> {
     try {
       const updated = await apiService.upsertTaxReturn(periodId, accountId, data);
-      updateAccount(accountId, (a) => ({ ...a, taxReturn: updated }));
+      updateAccount(accountId, (a) => ({ ...a, taxReturn: updated, comment: data.comment ?? a.comment }));
       return true;
     } catch (err) {
       showError(err instanceof Error ? err.message : 'Failed to save tax return');

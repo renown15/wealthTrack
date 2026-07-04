@@ -81,6 +81,7 @@ class AccountCreate(BaseSchema):
     )
     renewal_date: Optional[str] = Field(None, max_length=255, description="Renewal date")
     monthly_cost: Optional[str] = Field(None, max_length=255, description="Monthly cost")
+    utr: Optional[str] = Field(None, max_length=20, description="UTR for Trust accounts")
 
     @field_validator(*_NUMERIC_FIELDS, mode="before")
     @classmethod
@@ -137,6 +138,7 @@ class AccountUpdate(BaseSchema):
     )
     renewal_date: Optional[str] = Field(None, max_length=255, description="Renewal date")
     monthly_cost: Optional[str] = Field(None, max_length=255, description="Monthly cost")
+    utr: Optional[str] = Field(None, max_length=20, description="UTR for Trust accounts")
 
     @field_validator(*_NUMERIC_FIELDS, mode="before")
     @classmethod
@@ -177,6 +179,7 @@ class AccountResponse(BaseSchema):
     tax_year: Optional[str] = None
     renewal_date: Optional[str] = None
     monthly_cost: Optional[str] = None
+    utr: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

@@ -32,11 +32,11 @@ async def authorize_target(
         raise BriefingAuthError("You may not generate a briefing pack for this member")
 
 
-async def _member_name(session: AsyncSession, member_id: int) -> str:
+async def _member(session: AsyncSession, member_id: int) -> UserProfile:
     user = await session.get(UserProfile, member_id)
     if not user:
         raise BriefingNotFoundError("Member not found")
-    return f"{user.first_name} {user.last_name}".strip()
+    return user
 
 
 def _filename(member_name: str, period_name: str) -> str:
@@ -51,7 +51,8 @@ async def generate_briefing_pack(
 ) -> tuple[bytes, str]:
     """Build the briefing PDF for a member's tax period; returns (pdf_bytes, filename)."""
     await authorize_target(session, current_user_id, member_id)
-    member_name = await _member_name(session, member_id)
+    member = await _member(session, member_id)
+    member_name = f"{member.first_name} {member.last_name}".strip()
 
     period = await TaxPeriodRepository(session).get_by_id(period_id, member_id)
     if not period:
@@ -86,5 +87,9 @@ async def generate_briefing_pack(
         eligible=tax_result["eligible"],
         gifts=gifts,
         out_of_scope=out_of_scope,
+        period_start=period.start_date,
+        period_end=period.end_date,
+        utr=member.utr,
+        commentary=period.commentary,
     )
     return build_pdf(data), _filename(member_name, period.name)

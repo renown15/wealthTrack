@@ -7,6 +7,11 @@
     <td class="table-cell font-semibold cursor-default" @mouseenter="onNameEnter" @mouseleave="onNameLeave">
       {{ account.accountName }}
       <div
+        v-if="account.comment"
+        class="text-xs font-normal text-muted truncate max-w-[12rem]"
+        :title="account.comment"
+      >{{ account.comment }}</div>
+      <div
         v-if="account.taxReturn?.scope"
         class="text-xs font-normal text-red-600 truncate max-w-[12rem]"
         :title="account.taxReturn?.note ?? ''"

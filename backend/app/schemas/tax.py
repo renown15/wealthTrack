@@ -24,6 +24,12 @@ class TaxPeriodCreate(BaseSchema):
         return self
 
 
+class TaxPeriodUpdate(BaseSchema):
+    """Update editable fields on a tax period (currently the commentary)."""
+
+    commentary: Optional[str] = None
+
+
 class TaxPeriodResponse(BaseSchema):
     """Tax period response."""
 
@@ -32,6 +38,7 @@ class TaxPeriodResponse(BaseSchema):
     name: str
     start_date: date
     end_date: date
+    commentary: Optional[str] = None
     account_group_id: Optional[int] = None
     created_at: datetime
     updated_at: datetime
@@ -46,6 +53,8 @@ class TaxReturnUpsert(BaseSchema):
     income: Optional[float] = None
     capital_gain: Optional[float] = None
     tax_taken_off: Optional[float] = None
+    # Free-text label/comment, stored as the account's "Notes" attribute
+    comment: Optional[str] = Field(default=None, max_length=500)
 
 
 class TaxScopeUpdate(BaseSchema):
@@ -104,6 +113,7 @@ class EligibleAccountResponse(BaseSchema):
     eligibility_reason: str  # "interest_bearing" | "sold_in_period" | "in_scope"
     event_count: int = 0
     first_balance_date: Optional[date] = None
+    comment: Optional[str] = None  # account "Notes" attribute; free-text label
     tax_return: Optional[TaxReturnResponse] = None
     documents: list[TaxDocumentResponse] = Field(default_factory=list)
 

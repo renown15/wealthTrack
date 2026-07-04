@@ -28,6 +28,8 @@ import { accountGroupCrudService } from '@services/AccountGroupCrudService';
 import { analyticsService } from '@services/AnalyticsService';
 import { shareSaleService } from '@services/ShareSaleService';
 import { taxService } from '@services/TaxService';
+import { authService } from '@services/AuthService';
+import type { User } from '@models/User';
 import { familyService } from '@services/FamilyService';
 import { giftService } from '@services/GiftService';
 import { scenarioService } from '@services/ScenarioService';
@@ -120,6 +122,14 @@ class ApiService extends ApiServiceBase {
 
   async createTaxPeriod(data: TaxPeriodCreateRequest): Promise<TaxPeriod> {
     return taxService.createPeriod(data);
+  }
+
+  async updateTaxPeriodCommentary(periodId: number, commentary: string | null): Promise<TaxPeriod> {
+    return taxService.updatePeriod(periodId, commentary);
+  }
+
+  async setUtr(utr: string | null): Promise<User> {
+    return authService.setUtr(utr);
   }
 
   async deleteTaxPeriod(periodId: number): Promise<void> {

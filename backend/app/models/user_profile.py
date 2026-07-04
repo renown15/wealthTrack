@@ -27,6 +27,7 @@ class UserProfile(Base):
     first_name: Mapped[str] = mapped_column("firstname", String(100), nullable=False)
     last_name: Mapped[str] = mapped_column("surname", String(100), nullable=False)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    utr: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     profile: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     type_id: Mapped[int] = mapped_column(
         "typeid", Integer, ForeignKey("ReferenceData.id"), nullable=False

@@ -53,6 +53,17 @@ class TaxService extends BaseApiClient {
     }
   }
 
+  async updatePeriod(periodId: number, commentary: string | null): Promise<TaxPeriod> {
+    try {
+      const response = await this.retryRequest(() =>
+        this.client.patch<TaxPeriod>(`${BASE}/periods/${periodId}`, { commentary }),
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error, 'Failed to update tax period');
+    }
+  }
+
   async deletePeriod(periodId: number): Promise<void> {
     try {
       await this.retryRequest(() =>

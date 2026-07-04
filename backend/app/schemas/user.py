@@ -2,6 +2,7 @@
 Pydantic schemas for user registration and authentication.
 """
 from datetime import datetime
+from typing import Optional
 
 from pydantic import EmailStr, Field
 
@@ -24,12 +25,19 @@ class UserResponse(BaseSchema):
     email: str
     first_name: str = Field(..., validation_alias="first_name")
     last_name: str = Field(..., validation_alias="last_name")
+    utr: Optional[str] = None
     is_active: bool
     is_verified: bool
     created_at: datetime
 
     class Config:
         from_attributes = True
+
+
+class UtrUpdate(BaseSchema):
+    """Set or clear the current user's Unique Taxpayer Reference."""
+
+    utr: Optional[str] = Field(default=None, max_length=20)
 
 
 class TokenResponse(BaseSchema):

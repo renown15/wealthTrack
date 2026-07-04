@@ -6,6 +6,7 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
+  utr?: string | null;
   isActive: boolean;
   isVerified: boolean;
   createdAt: string;

@@ -164,4 +164,7 @@ ACCOUNT_ITEMS: list[ReferenceDataItem] = [
         class_key="account_attribute_type", reference_value="Renewal Date", sort_index=30),
     ReferenceDataItem(
         class_key="account_attribute_type", reference_value="Monthly Cost", sort_index=31),
+    # Account-level UTR, shown for Trust accounts (see migration 055).
+    ReferenceDataItem(
+        class_key="account_attribute_type", reference_value="UTR", sort_index=32),
 ]

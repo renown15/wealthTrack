@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.controllers.dependencies import get_current_user
 from app.database import get_db
 from app.models.user_profile import UserProfile
+from app.repositories.account_attribute_repository import AccountAttributeRepository
 from app.repositories.account_repository import AccountRepository
 from app.repositories.tax_period_repository import TaxPeriodRepository
 from app.repositories.tax_return_repository import TaxReturnRepository
@@ -55,6 +56,10 @@ async def upsert_tax_return(
         capital_gain=data.capital_gain,
         tax_taken_off=data.tax_taken_off,
     )
+    if data.comment is not None:
+        await AccountAttributeRepository(session).set_attribute_by_name(
+            account_id, current_user.id, "notes", data.comment
+        )
     await session.commit()
     by_id, _ = await get_scope_maps(session)
     return _scope_response(tax_return, by_id)

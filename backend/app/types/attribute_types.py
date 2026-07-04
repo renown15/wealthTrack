@@ -122,4 +122,5 @@ ATTRIBUTE_FIELDS: list[str] = [
     "tax_year",
     "renewal_date",
     "monthly_cost",
+    "utr",
 ]

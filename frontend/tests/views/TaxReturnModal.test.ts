@@ -27,10 +27,11 @@ describe('TaxReturnModal', () => {
     expect(wrapper.find('.modal-overlay').exists()).toBe(false);
   });
 
-  it('renders all three fields when open', () => {
+  it('renders the comment and three figure fields when open', () => {
     const wrapper = mount(TaxReturnModal, {
       props: { open: true, account: makeAccount() },
     });
+    expect(wrapper.text()).toContain('Comment');
     expect(wrapper.text()).toContain('Income (£)');
     expect(wrapper.text()).toContain('Capital Gain (£)');
     expect(wrapper.text()).toContain('Tax Taken Off (£)');
@@ -52,8 +53,10 @@ describe('TaxReturnModal', () => {
     expect(wrapper.text()).toContain('Capital Gain (£)');
   });
 
-  it('populates fields from existing taxReturn', () => {
+  // inputs order: [0] comment, [1] income, [2] capital gain, [3] tax taken off
+  it('populates fields from existing taxReturn and comment', () => {
     const account = makeAccount({
+      comment: 'HSBC Employment',
       taxReturn: {
         id: 10, accountId: 1, taxPeriodId: 1,
         income: 1234.56, capitalGain: 500, taxTakenOff: 246.91,
@@ -62,9 +65,10 @@ describe('TaxReturnModal', () => {
     });
     const wrapper = mount(TaxReturnModal, { props: { open: true, account } });
     const inputs = wrapper.findAll('input');
-    expect(inputs[0].element.value).toBe('1234.56');
-    expect(inputs[1].element.value).toBe('500');
-    expect(inputs[2].element.value).toBe('246.91');
+    expect(inputs[0].element.value).toBe('HSBC Employment');
+    expect(inputs[1].element.value).toBe('1234.56');
+    expect(inputs[2].element.value).toBe('500');
+    expect(inputs[3].element.value).toBe('246.91');
   });
 
   it('leaves fields empty when taxReturn is null', () => {
@@ -72,19 +76,20 @@ describe('TaxReturnModal', () => {
       props: { open: true, account: makeAccount({ taxReturn: null }) },
     });
     const inputs = wrapper.findAll('input');
-    expect(inputs[0].element.value).toBe('');
     expect(inputs[1].element.value).toBe('');
     expect(inputs[2].element.value).toBe('');
+    expect(inputs[3].element.value).toBe('');
   });
 
-  it('emits save with parsed values when Save clicked', async () => {
+  it('emits save with parsed values and comment when Save clicked', async () => {
     const wrapper = mount(TaxReturnModal, {
       props: { open: true, account: makeAccount() },
     });
     const inputs = wrapper.findAll('input');
-    await inputs[0].setValue('800');
-    await inputs[1].setValue('250.5');
-    await inputs[2].setValue('160');
+    await inputs[0].setValue('HSBC Employment');
+    await inputs[1].setValue('800');
+    await inputs[2].setValue('250.5');
+    await inputs[3].setValue('160');
 
     await wrapper.find('button.btn-primary').trigger('click');
 
@@ -93,10 +98,11 @@ describe('TaxReturnModal', () => {
       income: 800,
       capitalGain: 250.5,
       taxTakenOff: 160,
+      comment: 'HSBC Employment',
     });
   });
 
-  it('emits save with null for empty fields', async () => {
+  it('emits save with null figures and empty comment for empty fields', async () => {
     const wrapper = mount(TaxReturnModal, {
       props: { open: true, account: makeAccount() },
     });
@@ -106,6 +112,7 @@ describe('TaxReturnModal', () => {
       income: null,
       capitalGain: null,
       taxTakenOff: null,
+      comment: '',
     });
   });
 
@@ -147,8 +154,8 @@ describe('TaxReturnModal', () => {
       }),
     });
 
-    expect(wrapper.findAll('input')[0].element.value).toBe('999');
-    expect(wrapper.findAll('input')[1].element.value).toBe('');
-    expect(wrapper.findAll('input')[2].element.value).toBe('100');
+    expect(wrapper.findAll('input')[1].element.value).toBe('999');
+    expect(wrapper.findAll('input')[2].element.value).toBe('');
+    expect(wrapper.findAll('input')[3].element.value).toBe('100');
   });
 });

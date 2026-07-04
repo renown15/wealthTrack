@@ -26,6 +26,7 @@ export interface SavePayload {
   assetClass?: string;
   encumbrance?: string;
   taxYear?: string;
+  utr?: string;
   renewalDate?: string;
   monthlyCost?: string;
 }
@@ -71,6 +72,7 @@ export function buildSavePayload(
       assetClass: opt(fd.assetClass),
       encumbrance: opt(fd.encumbrance),
       taxYear: opt(fd.taxYear),
+      utr: opt(fd.utr),
       renewalDate: fd.renewalDate ? convertFromDateInputFormat(fd.renewalDate) : undefined,
       monthlyCost: opt(fd.monthlyCost),
       transferToAccountId: fd.transferToAccountId ?? undefined,

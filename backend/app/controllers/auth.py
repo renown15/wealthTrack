@@ -15,6 +15,7 @@ from app.schemas.user import (
     UserLoginRequest,
     UserRegistrationRequest,
     UserResponse,
+    UtrUpdate,
 )
 from app.services.auth import create_access_token
 from app.services.user import UserService
@@ -103,4 +104,18 @@ async def get_me(
     Returns:
         Current user data
     """
+    return UserResponse.model_validate(user)
+
+
+@router.put("/me/utr", response_model=UserResponse)
+async def set_utr(
+    data: UtrUpdate,
+    session: AsyncSession = Depends(get_db),
+    user: UserProfile = Depends(get_current_user),
+) -> UserResponse:
+    """Set or clear the current user's Unique Taxpayer Reference."""
+    user.utr = data.utr
+    session.add(user)
+    await session.commit()
+    await session.refresh(user)
     return UserResponse.model_validate(user)

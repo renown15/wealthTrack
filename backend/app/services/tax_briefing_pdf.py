@@ -1,4 +1,4 @@
-"""Assemble the tax briefing PDF document from section flowables."""
+"""Assemble the Self Assessment supporting schedule PDF from section flowables."""
 from __future__ import annotations
 
 import io
@@ -13,20 +13,25 @@ from reportlab.lib.units import mm
 from reportlab.platypus import Flowable, PageBreak, Paragraph, SimpleDocTemplate, Spacer
 
 from app.schemas.gift import GiftSummary
-from app.services.tax_briefing_format import HEADER_BG, money, to_float
+from app.services.tax_briefing_format import HEADER_BG
+from app.services.tax_briefing_sa_sections import (
+    capital_gains_section,
+    commentary_flowables,
+    dividends_section,
+    figures_reference,
+    interest_section,
+    provisions_section,
+)
 from app.services.tax_briefing_sections import (
-    build_portfolio_map,
     documents_section,
     gifts_section,
     out_of_scope_section,
-    tax_detail_section,
-    wealth_section,
 )
 
 
 @dataclass
-class BriefingData:
-    """Everything needed to render one member's briefing pack for a period."""
+class BriefingData:  # pylint: disable=too-many-instance-attributes
+    """Everything needed to render one member's Self Assessment schedule for a period."""
 
     member_name: str
     period_name: str
@@ -36,6 +41,10 @@ class BriefingData:
     gifts: list[GiftSummary]
     out_of_scope: list[dict[str, Any]] = field(default_factory=list)
     generated_at: date = field(default_factory=date.today)
+    period_start: date | None = None
+    period_end: date | None = None
+    utr: str | None = None
+    commentary: str | None = None
 
 
 def _styles() -> dict[str, Any]:
@@ -53,48 +62,66 @@ def _styles() -> dict[str, Any]:
     }
 
 
+def _tax_year_label(data: BriefingData) -> str:
+    if data.period_start and data.period_end:
+        start, end = data.period_start, data.period_end
+        return f"{start.day} {start:%B %Y} to {end.day} {end:%B %Y}"
+    return data.period_name
+
+
 def _cover(styles: dict[str, Any], data: BriefingData) -> list[Flowable]:
-    grand = sum(to_float((i.get("latestBalance") or {}).get("value")) for i in data.portfolio_items)
     return [
-        Spacer(1, 40 * mm),
-        Paragraph("Tax Briefing Pack", styles["title"]),
+        Spacer(1, 28 * mm),
+        Paragraph("Self Assessment", styles["title"]),
+        Paragraph("Supporting schedule", styles["h2"]),
         Spacer(1, 8 * mm),
-        Paragraph(f"Prepared for: <b>{data.member_name}</b>", styles["body"]),
-        Paragraph(f"Tax year: <b>{data.period_name}</b>", styles["body"]),
-        Paragraph(f"Generated: {data.generated_at.isoformat()}", styles["body"]),
-        Spacer(1, 10 * mm),
-        Paragraph(f"Total wealth: <b>{money(grand)}</b>", styles["body"]),
-        Paragraph(f"Accounts in scope for return: <b>{len(data.in_scope)}</b>", styles["body"]),
+        Paragraph(f"Taxpayer: <b>{data.member_name}</b>", styles["body"]),
+        Paragraph(f"Tax year: <b>{_tax_year_label(data)}</b>", styles["body"]),
         Paragraph(
-            "This pack reconciles total wealth to the accounts relevant to the self-assessment "
-            "return, details the taxable figures, summarises gift/IHT exposure, and lists the "
-            "supporting documents held for the period.",
-            styles["small"],
-        ),
+            f"Unique Taxpayer Reference (UTR): <b>{data.utr}</b>" if data.utr
+            else "Unique Taxpayer Reference (UTR): _______________________", styles["body"]),
+        Paragraph(f"Prepared: {data.generated_at.isoformat()}", styles["body"]),
+        Spacer(1, 8 * mm),
+        Paragraph(
+            "A summary of the client's recorded income, gains and supporting documents for "
+            "the year, organised to assist preparation of the Self Assessment return. Figures "
+            "are as recorded; box references are a guide only.", styles["small"]),
+        Spacer(1, 6 * mm),
+        Paragraph("Summary of recorded figures", styles["h3"]),
+        figures_reference(styles, data.in_scope),
     ]
 
 
 def build_pdf(data: BriefingData) -> bytes:
-    """Render the briefing pack and return the PDF as bytes."""
+    """Render the Self Assessment supporting schedule and return the PDF as bytes."""
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         buffer, pagesize=A4,
         leftMargin=20 * mm, rightMargin=20 * mm, topMargin=20 * mm, bottomMargin=18 * mm,
-        title=f"Tax Briefing {data.period_name}", author="WealthTrack",
+        title=f"Self Assessment schedule {data.period_name}", author="WealthTrack",
     )
     styles = _styles()
-    pmap = build_portfolio_map(data.portfolio_items)
 
     story: list[Flowable] = []
     story += _cover(styles, data)
     story.append(PageBreak())
-    story += wealth_section(styles, data.portfolio_items, data.in_scope, data.eligible, pmap)
+    commentary = commentary_flowables(data.commentary, styles)
+    if commentary:
+        story += commentary
+        story.append(PageBreak())
+    story += interest_section(styles, data.in_scope)
     story.append(Spacer(1, 6 * mm))
-    story += tax_detail_section(styles, data.in_scope)
-    out_of_scope = out_of_scope_section(styles, data.out_of_scope)
-    if out_of_scope:
+    story += dividends_section(styles, data.in_scope)
+    story.append(Spacer(1, 6 * mm))
+    story += capital_gains_section(styles, data.in_scope)
+    provisions = provisions_section(styles, data.in_scope)
+    if provisions:
         story.append(Spacer(1, 6 * mm))
-        story += out_of_scope
+        story += provisions
+    excluded = out_of_scope_section(styles, data.out_of_scope)
+    if excluded:
+        story.append(Spacer(1, 6 * mm))
+        story += excluded
     story.append(PageBreak())
     story += gifts_section(styles, data.gifts)
     story.append(PageBreak())

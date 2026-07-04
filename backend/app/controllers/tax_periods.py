@@ -18,6 +18,7 @@ from app.schemas.tax import (
     TaxPeriodAccountsResponse,
     TaxPeriodCreate,
     TaxPeriodResponse,
+    TaxPeriodUpdate,
     TaxReturnResponse,
 )
 from app.services.tax_service import get_eligible_with_returns
@@ -68,6 +69,24 @@ async def create_tax_period(
     return TaxPeriodResponse.model_validate(period)
 
 
+@router.patch("/periods/{period_id}", response_model=TaxPeriodResponse)
+async def update_tax_period(
+    period_id: int,
+    data: TaxPeriodUpdate,
+    session: AsyncSession = Depends(get_db),
+    current_user: UserProfile = Depends(get_current_user),
+) -> TaxPeriodResponse:
+    """Update editable fields on a tax period (the commentary)."""
+    repo = TaxPeriodRepository(session)
+    period = await repo.get_by_id(period_id, current_user.id)
+    if not period:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tax period not found")
+    period.commentary = data.commentary
+    await session.commit()
+    await session.refresh(period)
+    return TaxPeriodResponse.model_validate(period)
+
+
 @router.delete("/periods/{period_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_tax_period(
     period_id: int,
@@ -109,6 +128,7 @@ def _build_account_response(item: dict[str, Any]) -> EligibleAccountResponse:
         eligibility_reason=item["eligibility_reason"],
         event_count=item.get("event_count", 0),
         first_balance_date=item.get("first_balance_date"),
+        comment=item.get("attrs", {}).get("Notes"),
         tax_return=_tax_return_response(item),
         documents=[TaxDocumentResponse.model_validate(d) for d in item["documents"]],
     )

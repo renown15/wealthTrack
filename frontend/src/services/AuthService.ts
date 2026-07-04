@@ -52,6 +52,17 @@ class AuthService extends BaseApiClient {
       throw this.handleError(error, 'Failed to fetch user');
     }
   }
+
+  async setUtr(utr: string | null): Promise<User> {
+    try {
+      const response = await this.retryRequest(() =>
+        this.client.put<User>('/api/v1/auth/me/utr', { utr }),
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error, 'Failed to update UTR');
+    }
+  }
 }
 
 export const authService = new AuthService();

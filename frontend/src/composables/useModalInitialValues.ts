@@ -23,6 +23,7 @@ export function useModalInitialValues(editingItem: Ref<Account | Institution | n
   initialModalAssetClass: ComputedRef<string | null | undefined>;
   initialModalEncumbrance: ComputedRef<string | null | undefined>;
   initialModalTaxYear: ComputedRef<string | null | undefined>;
+  initialModalUtr: ComputedRef<string | null | undefined>;
   initialModalParentId: ComputedRef<number | null | undefined>;
   initialModalInstitutionType: ComputedRef<string | null | undefined>;
 } {
@@ -67,6 +68,8 @@ export function useModalInitialValues(editingItem: Ref<Account | Institution | n
     editingItem.value && 'encumbrance' in editingItem.value ? (editingItem.value).encumbrance : null);
   const initialModalTaxYear = computed(() =>
     editingItem.value && 'taxYear' in editingItem.value ? (editingItem.value as Account & { taxYear?: string | null }).taxYear : null);
+  const initialModalUtr = computed(() =>
+    editingItem.value && 'utr' in editingItem.value ? (editingItem.value as Account & { utr?: string | null }).utr : null);
   const initialModalParentId = computed(() =>
     editingItem.value && 'parentId' in editingItem.value ? (editingItem.value).parentId : null);
   const initialModalInstitutionType = computed(() =>
@@ -94,6 +97,7 @@ export function useModalInitialValues(editingItem: Ref<Account | Institution | n
     initialModalAssetClass,
     initialModalEncumbrance,
     initialModalTaxYear,
+    initialModalUtr,
     initialModalParentId,
     initialModalInstitutionType,
   };

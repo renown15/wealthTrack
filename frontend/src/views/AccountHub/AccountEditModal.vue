@@ -14,7 +14,8 @@
     :initial-purchase-price="initialModalPurchasePrice"
     :initial-pension-monthly-payment="initialModalPensionMonthlyPayment"
     :initial-asset-class="initialModalAssetClass" :initial-encumbrance="initialModalEncumbrance"
-    :initial-tax-year="initialModalTaxYear" :transfer-accounts="transferAccounts"
+    :initial-tax-year="initialModalTaxYear" :initial-utr="initialModalUtr"
+    :transfer-accounts="transferAccounts"
     :account-id="item?.id" :error="error"
     @close="emit('close')" @save="(p) => emit('save', p)" @transferred="emit('transferred')"
   />
@@ -48,5 +49,6 @@ const {
   initialModalFixedBonusRateEndDate, initialModalReleaseDate, initialModalNumberOfShares,
   initialModalUnderlying, initialModalPrice, initialModalPurchasePrice,
   initialModalPensionMonthlyPayment, initialModalAssetClass, initialModalEncumbrance, initialModalTaxYear,
+  initialModalUtr,
 } = useModalInitialValues(computed(() => props.item));
 </script>

@@ -13,6 +13,7 @@
           @click="emit('openQuickAdd')"
         >+ Add Closed Account</button>
         <button class="btn-secondary" @click="emit('exportBriefing')">Export Briefing Pack</button>
+        <TaxHubHeaderActions :periods="periods" :selected-period-id="selectedPeriodId" />
       </div>
     </div>
 
@@ -50,6 +51,7 @@
 <script setup lang="ts">
 import type { TaxPeriod } from '@models/TaxModels';
 import { Icons } from '@/constants/icons';
+import TaxHubHeaderActions from '@views/TaxHub/TaxHubHeaderActions.vue';
 
 defineProps<{
   periods: TaxPeriod[];
