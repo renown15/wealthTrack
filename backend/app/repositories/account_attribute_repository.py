@@ -30,6 +30,7 @@ _SHORTHAND_MAP: dict[str, str] = {
     "unencumbered_balance": AttributeType.UNENCUMBERED_BALANCE,
     "tax_year": AttributeType.TAX_YEAR,
     "renewal_date": AttributeType.RENEWAL_DATE,
+    "renewal_type": AttributeType.RENEWAL_TYPE,
     "monthly_cost": AttributeType.MONTHLY_COST,
     # Non-typed attributes (not in AttributeType enum)
     "opened_date": "Account Opened Date",

@@ -28,6 +28,7 @@ export interface SavePayload {
   taxYear?: string;
   utr?: string;
   renewalDate?: string;
+  renewalType?: string;
   monthlyCost?: string;
 }
 
@@ -74,6 +75,7 @@ export function buildSavePayload(
       taxYear: opt(fd.taxYear),
       utr: opt(fd.utr),
       renewalDate: fd.renewalDate ? convertFromDateInputFormat(fd.renewalDate) : undefined,
+      renewalType: opt(fd.renewalType),
       monthlyCost: opt(fd.monthlyCost),
       transferToAccountId: fd.transferToAccountId ?? undefined,
     },

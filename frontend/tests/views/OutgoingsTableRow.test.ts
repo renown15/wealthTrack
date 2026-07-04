@@ -35,6 +35,22 @@ describe('OutgoingsTableRow', () => {
     expect(wrapper.text()).toContain('—');
   });
 
+  it('shows the renewal type and "Rolling" when no renewal date', () => {
+    const wrapper = mount(OutgoingsTableRow, {
+      props: { item: makeItem({ renewalType: 'Quarterly', renewalDate: null }) },
+    });
+    expect(wrapper.text()).toContain('Quarterly');
+    expect(wrapper.text()).toContain('Rolling');
+  });
+
+  it('shows the renewal date when present (not Rolling)', () => {
+    const wrapper = mount(OutgoingsTableRow, {
+      props: { item: makeItem({ renewalType: 'Annually', renewalDate: '15/06/2027' }) },
+    });
+    expect(wrapper.text()).not.toContain('Rolling');
+    expect(wrapper.text()).toMatch(/Jun|2027/);
+  });
+
   it('shows doc count button', () => {
     const wrapper = mount(OutgoingsTableRow, { props: { item: makeItem() } });
     expect(wrapper.text()).toContain('2');

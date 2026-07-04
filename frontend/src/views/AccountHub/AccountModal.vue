@@ -74,6 +74,7 @@ interface Props {
   initialTaxYear?: string | null;
   initialUtr?: string | null;
   initialRenewalDate?: string | null;
+  initialRenewalType?: string | null;
   initialMonthlyCost?: string | null;
   transferAccounts?: { id: number; label: string }[];
   accountId?: number;
@@ -115,6 +116,7 @@ const formProps = computed<AccountFormProps>(() => ({
   initialTaxYear: props.initialTaxYear,
   initialUtr: props.initialUtr,
   initialRenewalDate: props.initialRenewalDate,
+  initialRenewalType: props.initialRenewalType,
   initialMonthlyCost: props.initialMonthlyCost,
   accountTypes: props.accountTypes,
   accountStatuses: props.accountStatuses,

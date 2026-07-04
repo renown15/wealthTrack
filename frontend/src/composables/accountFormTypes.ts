@@ -51,6 +51,7 @@ export interface AccountFormData {
   taxYear: string;
   utr: string;
   renewalDate: string;
+  renewalType: string;
   monthlyCost: string;
   transferToAccountId: number | null;
 }
@@ -82,6 +83,7 @@ export interface AccountFormProps {
   initialTaxYear?: string | null;
   initialUtr?: string | null;
   initialRenewalDate?: string | null;
+  initialRenewalType?: string | null;
   initialMonthlyCost?: string | null;
   accountTypes: ReferenceDataItem[];
   accountStatuses: ReferenceDataItem[];

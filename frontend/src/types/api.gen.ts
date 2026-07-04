@@ -1356,8 +1356,13 @@ export interface components {
              */
             renewalDate?: string | null;
             /**
+             * Renewaltype
+             * @description Renewal type (Monthly, Quarterly, Annually, ...)
+             */
+            renewalType?: string | null;
+            /**
              * Monthlycost
-             * @description Monthly cost
+             * @description Cost per renewal period
              */
             monthlyCost?: string | null;
             /** Utr */
@@ -1556,6 +1561,8 @@ export interface components {
             taxYear?: string | null;
             /** Renewaldate */
             renewalDate?: string | null;
+            /** Renewaltype */
+            renewalType?: string | null;
             /** Monthlycost */
             monthlyCost?: string | null;
             /** Utr */
@@ -1678,8 +1685,13 @@ export interface components {
              */
             renewalDate?: string | null;
             /**
+             * Renewaltype
+             * @description Renewal type (Monthly, Quarterly, Annually, ...)
+             */
+            renewalType?: string | null;
+            /**
              * Monthlycost
-             * @description Monthly cost
+             * @description Cost per renewal period
              */
             monthlyCost?: string | null;
             /** Utr */

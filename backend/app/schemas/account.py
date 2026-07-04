@@ -80,7 +80,10 @@ class AccountCreate(BaseSchema):
         None, max_length=10, description="Tax year (e.g. 2024/25) for Tax Liability accounts"
     )
     renewal_date: Optional[str] = Field(None, max_length=255, description="Renewal date")
-    monthly_cost: Optional[str] = Field(None, max_length=255, description="Monthly cost")
+    renewal_type: Optional[str] = Field(
+        None, max_length=50, description="Renewal type (Monthly, Quarterly, Annually, ...)"
+    )
+    monthly_cost: Optional[str] = Field(None, max_length=255, description="Cost per renewal period")
     utr: Optional[str] = Field(None, max_length=20, description="UTR for Trust accounts")
 
     @field_validator(*_NUMERIC_FIELDS, mode="before")
@@ -137,7 +140,10 @@ class AccountUpdate(BaseSchema):
         None, max_length=10, description="Tax year for Tax Liability accounts"
     )
     renewal_date: Optional[str] = Field(None, max_length=255, description="Renewal date")
-    monthly_cost: Optional[str] = Field(None, max_length=255, description="Monthly cost")
+    renewal_type: Optional[str] = Field(
+        None, max_length=50, description="Renewal type (Monthly, Quarterly, Annually, ...)"
+    )
+    monthly_cost: Optional[str] = Field(None, max_length=255, description="Cost per renewal period")
     utr: Optional[str] = Field(None, max_length=20, description="UTR for Trust accounts")
 
     @field_validator(*_NUMERIC_FIELDS, mode="before")
@@ -178,6 +184,7 @@ class AccountResponse(BaseSchema):
     unencumbered_balance: Optional[str] = None
     tax_year: Optional[str] = None
     renewal_date: Optional[str] = None
+    renewal_type: Optional[str] = None
     monthly_cost: Optional[str] = None
     utr: Optional[str] = None
     created_at: datetime

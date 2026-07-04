@@ -19,17 +19,22 @@ const baseConfig: FieldConfig = {
   showBankingDetails: false,
   showPolicyNumber: false,
   showTaxYear: false,
+  showReleaseDate: false,
   showRenewalDate: false,
+  showRenewalType: false,
   showMonthlyCost: false,
 };
 
 const withInterest: Partial<FieldConfig> = { showInterestRate: true };
-const deferred: Partial<FieldConfig> = { isDeferredType: true };
+// Deferred asset types: hide Opened Date/balance, but do show a Release Date.
+const deferred: Partial<FieldConfig> = { isDeferredType: true, showReleaseDate: true };
 const banking: Partial<FieldConfig> = { showBankingDetails: true };
 const encumbrance: Partial<FieldConfig> = { showEncumbrance: true };
 const assetClass: Partial<FieldConfig> = { showAssetClass: true };
 const shares: Partial<FieldConfig> = { showNumberOfShares: true, showUnderlying: true, showPrice: true };
-const outgoing: Partial<FieldConfig> = { isDeferredType: true, showRenewalDate: true, showMonthlyCost: true, showPolicyNumber: true, showAssetClass: false };
+// Outgoings: reuse isDeferredType to hide Opened Date/balance, but no Release Date;
+// they get a Renewal Type + optional Renewal Date + Cost instead.
+const outgoing: Partial<FieldConfig> = { isDeferredType: true, showRenewalType: true, showRenewalDate: true, showMonthlyCost: true, showPolicyNumber: true, showAssetClass: false };
 
 export const ACCOUNT_TYPE_ASSET_GROUP: Record<string, string> = {
   'Current Account':                'cash',

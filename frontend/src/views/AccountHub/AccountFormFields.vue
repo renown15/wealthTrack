@@ -149,16 +149,7 @@
         <option v-for="acc in props.transferAccounts" :key="acc.id" :value="acc.id">{{ acc.label }}</option>
       </select>
     </div>
-    <div v-if="!props.closedAccountMode && (getFieldConfig.showRenewalDate || getFieldConfig.showMonthlyCost)" class="grid grid-cols-2 gap-4">
-      <div v-if="getFieldConfig.showRenewalDate" class="form-group">
-        <label for="renewalDate" class="form-label">Renewal Date</label>
-        <input id="renewalDate" v-model="formData.renewalDate" type="date" class="form-input" />
-      </div>
-      <div v-if="getFieldConfig.showMonthlyCost" class="form-group">
-        <label for="monthlyCost" class="form-label">Monthly Cost (£)</label>
-        <input id="monthlyCost" v-model="formData.monthlyCost" type="text" inputmode="decimal" class="form-input" placeholder="e.g., 45.99" />
-      </div>
-    </div>
+    <AccountFormOutgoingFields v-if="!props.closedAccountMode" :form-data="formData" :field-config="getFieldConfig" />
     <AccountFormDeferredFields v-if="!props.closedAccountMode" :form-data="formData" :field-config="getFieldConfig" />
   </div>
 </template>
@@ -172,6 +163,7 @@ import type { TaxPeriod } from '@/models/TaxModels';
 import { debug } from '@utils/debug';
 import { SORT_CODE_REGEX } from '@/constants/attributeTypes';
 import AccountFormDeferredFields from '@views/AccountHub/AccountFormDeferredFields.vue';
+import AccountFormOutgoingFields from '@views/AccountHub/AccountFormOutgoingFields.vue';
 
 const props = defineProps<AccountFormFieldsProps>();
 

@@ -5,6 +5,7 @@
     <td class="table-cell">{{ item.accountType ?? '—' }}</td>
     <td class="table-cell text-muted">{{ item.account.accountNumber ?? '—' }}</td>
     <td class="table-cell">{{ monthlyCostDisplay }}</td>
+    <td class="table-cell text-muted">{{ item.account.renewalType ?? '—' }}</td>
     <td class="table-cell" :class="renewalClass">{{ renewalDisplay }}</td>
     <td class="table-cell text-center">
       <button
@@ -43,7 +44,9 @@ const emit = defineEmits<{
   showDocs: [item: PortfolioItem];
 }>();
 
-const renewalDisplay = computed(() => formatRenewalDate(props.item.account.renewalDate));
+const renewalDisplay = computed(() =>
+  props.item.account.renewalDate ? formatRenewalDate(props.item.account.renewalDate) : 'Rolling'
+);
 const renewingSoon = computed(() => isRenewingWithin30Days(props.item.account.renewalDate));
 
 const monthlyCostDisplay = computed(() => {

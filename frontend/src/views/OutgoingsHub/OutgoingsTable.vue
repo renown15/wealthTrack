@@ -11,7 +11,8 @@
           <th class="table-header text-left">Name</th>
           <th class="table-header text-left">Type</th>
           <th class="table-header text-left">Policy / Account No.</th>
-          <th class="table-header text-left">Monthly Cost</th>
+          <th class="table-header text-left">Cost</th>
+          <th class="table-header text-left">Renewal Type</th>
           <th class="table-header text-left">Renewal Date</th>
           <th class="table-header text-center">Docs</th>
           <th class="table-header"></th>

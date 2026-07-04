@@ -23,7 +23,9 @@ export interface Account {
   encumbrance?: string | null;
   taxYear?: string | null;
   renewalDate?: string | null;
+  renewalType?: string | null;
   monthlyCost?: string | null;
+  utr?: string | null;
   targetPrice?: string | null;
   openedAt: string | null;
   closedAt: string | null;

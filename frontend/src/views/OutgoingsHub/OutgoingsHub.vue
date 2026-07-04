@@ -27,6 +27,7 @@
       :initial-status-id="editingItem?.account.statusId"
       :initial-account-number="editingItem?.account.accountNumber"
       :initial-renewal-date="editingItem?.account.renewalDate"
+      :initial-renewal-type="editingItem?.account.renewalType"
       :initial-monthly-cost="editingItem?.account.monthlyCost"
       @close="closeAccountModal"
       @save="handleSave"

@@ -43,6 +43,7 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     taxYear: props.value.initialTaxYear || '',
     utr: props.value.initialUtr || '',
     renewalDate: convertToDateInputFormat(props.value.initialRenewalDate),
+    renewalType: props.value.initialRenewalType || '',
     monthlyCost: props.value.initialMonthlyCost || '',
     transferToAccountId: null,
   });
@@ -97,6 +98,7 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     formData.value.taxYear = props.value.initialTaxYear || '';
     formData.value.utr = props.value.initialUtr || '';
     formData.value.renewalDate = convertToDateInputFormat(props.value.initialRenewalDate);
+    formData.value.renewalType = props.value.initialRenewalType || '';
     formData.value.monthlyCost = props.value.initialMonthlyCost || '';
     formData.value.transferToAccountId = null;
     syncAccountType();

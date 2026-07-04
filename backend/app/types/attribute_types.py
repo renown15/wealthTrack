@@ -26,6 +26,7 @@ class AttributeType(StrEnum):
     UNENCUMBERED_BALANCE = "Unencumbered Balance"
     TAX_YEAR = "Tax Year"
     RENEWAL_DATE = "Renewal Date"
+    RENEWAL_TYPE = "Renewal Type"
     MONTHLY_COST = "Monthly Cost"
 
     @property
@@ -52,6 +53,7 @@ _VALUE_TYPES: dict[AttributeType, ValueType] = {
     AttributeType.UNENCUMBERED_BALANCE: "number",
     AttributeType.TAX_YEAR: "string",
     AttributeType.RENEWAL_DATE: "date",
+    AttributeType.RENEWAL_TYPE: "string",
     AttributeType.MONTHLY_COST: "number",
 }
 
@@ -74,6 +76,7 @@ FIELD_TO_ATTR_TYPE: dict[str, AttributeType] = {
     "unencumbered_balance": AttributeType.UNENCUMBERED_BALANCE,
     "tax_year": AttributeType.TAX_YEAR,
     "renewal_date": AttributeType.RENEWAL_DATE,
+    "renewal_type": AttributeType.RENEWAL_TYPE,
     "monthly_cost": AttributeType.MONTHLY_COST,
 }
 
@@ -121,6 +124,7 @@ ATTRIBUTE_FIELDS: list[str] = [
     "unencumbered_balance",
     "tax_year",
     "renewal_date",
+    "renewal_type",
     "monthly_cost",
     "utr",
 ]

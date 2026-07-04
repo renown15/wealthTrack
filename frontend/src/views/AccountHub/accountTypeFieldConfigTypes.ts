@@ -17,6 +17,8 @@ export interface FieldConfig {
   showBankingDetails: boolean;
   showPolicyNumber: boolean;
   showTaxYear: boolean;
+  showReleaseDate: boolean;
   showRenewalDate: boolean;
+  showRenewalType: boolean;
   showMonthlyCost: boolean;
 }

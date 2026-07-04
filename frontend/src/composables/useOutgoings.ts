@@ -12,6 +12,29 @@ export interface OutgoingsStats {
   byCategory: { label: string; count: number; monthlyGbp: number }[];
 }
 
+// Number of payments per year for each renewal type. One-off is non-recurring
+// (excluded from recurring totals); a missing type is treated as monthly for
+// backward compatibility with outgoings recorded before renewal types existed.
+const PAYMENTS_PER_YEAR: Record<string, number> = {
+  Monthly: 12,
+  Quarterly: 4,
+  Termly: 3,
+  Annually: 1,
+  'One-off': 0,
+};
+
+export function paymentsPerYear(renewalType: string | null | undefined): number {
+  if (!renewalType) return 12;
+  return PAYMENTS_PER_YEAR[renewalType] ?? 12;
+}
+
+/** Annualised cost of an outgoing = cost per period × periods per year. */
+export function annualCost(item: PortfolioItem): number {
+  const cost = parseFloat(item.account.monthlyCost ?? '');
+  if (isNaN(cost)) return 0;
+  return cost * paymentsPerYear(item.account.renewalType);
+}
+
 export function isRenewingWithin30Days(renewalDate: string | null | undefined): boolean {
   if (!renewalDate) return false;
   const parts = renewalDate.split('/');
@@ -56,23 +79,23 @@ export function useOutgoings(): {
 
   const stats = computed<OutgoingsStats>(() => {
     const active = outgoingItems.value;
-    let totalMonthly = 0;
-    const categoryMap: Record<string, { count: number; monthly: number }> = {};
+    let totalAnnual = 0;
+    const categoryMap: Record<string, { count: number; annual: number }> = {};
 
     for (const item of active) {
-      const cost = parseFloat(item.account.monthlyCost ?? '');
-      if (!isNaN(cost)) totalMonthly += cost;
+      const annual = annualCost(item);
+      totalAnnual += annual;
 
       const cat = item.accountType ?? 'Other';
-      if (!categoryMap[cat]) categoryMap[cat] = { count: 0, monthly: 0 };
+      if (!categoryMap[cat]) categoryMap[cat] = { count: 0, annual: 0 };
       categoryMap[cat].count += 1;
-      if (!isNaN(cost)) categoryMap[cat].monthly += cost;
+      categoryMap[cat].annual += annual;
     }
 
     const byCategory = Object.entries(categoryMap).map(([label, v]) => ({
       label,
       count: v.count,
-      monthlyGbp: v.monthly,
+      monthlyGbp: v.annual / 12,
     }));
 
     const renewingSoonCount = active.filter((i) =>
@@ -80,8 +103,8 @@ export function useOutgoings(): {
     ).length;
 
     return {
-      totalMonthlyGbp: totalMonthly,
-      totalAnnualGbp: totalMonthly * 12,
+      totalMonthlyGbp: totalAnnual / 12,
+      totalAnnualGbp: totalAnnual,
       renewingSoonCount,
       byCategory,
     };

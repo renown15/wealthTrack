@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { isRenewingWithin30Days, formatRenewalDate, useOutgoings } from '@composables/useOutgoings';
+import { isRenewingWithin30Days, formatRenewalDate, useOutgoings, paymentsPerYear, annualCost } from '@composables/useOutgoings';
 import { apiService } from '@services/ApiService';
 
 vi.mock('@services/ApiService', () => ({
@@ -83,6 +83,43 @@ describe('formatRenewalDate', () => {
   });
 });
 
+describe('paymentsPerYear', () => {
+  it('maps each renewal type to its cadence', () => {
+    expect(paymentsPerYear('Monthly')).toBe(12);
+    expect(paymentsPerYear('Quarterly')).toBe(4);
+    expect(paymentsPerYear('Termly')).toBe(3);
+    expect(paymentsPerYear('Annually')).toBe(1);
+    expect(paymentsPerYear('One-off')).toBe(0);
+  });
+
+  it('defaults a missing/unknown type to monthly', () => {
+    expect(paymentsPerYear(null)).toBe(12);
+    expect(paymentsPerYear(undefined)).toBe(12);
+    expect(paymentsPerYear('Weird')).toBe(12);
+  });
+});
+
+describe('annualCost', () => {
+  const mk = (monthlyCost: string | null, renewalType?: string): never =>
+    ({ account: { monthlyCost, renewalType } } as never);
+
+  it('annualises by renewal cadence', () => {
+    expect(annualCost(mk('45', 'Monthly'))).toBe(540);
+    expect(annualCost(mk('300', 'Quarterly'))).toBe(1200);
+    expect(annualCost(mk('100', 'Termly'))).toBe(300);
+    expect(annualCost(mk('600', 'Annually'))).toBe(600);
+  });
+
+  it('excludes one-off costs from the recurring total', () => {
+    expect(annualCost(mk('999', 'One-off'))).toBe(0);
+  });
+
+  it('returns 0 for a missing/invalid cost', () => {
+    expect(annualCost(mk(null, 'Monthly'))).toBe(0);
+    expect(annualCost(mk('', 'Monthly'))).toBe(0);
+  });
+});
+
 describe('useOutgoings', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -104,6 +141,21 @@ describe('useOutgoings', () => {
     await loadPortfolio();
     expect(stats.value.totalMonthlyGbp).toBe(45);
     expect(stats.value.totalAnnualGbp).toBe(540);
+  });
+
+  it('annualises mixed renewal frequencies', async () => {
+    vi.mocked(apiService.getPortfolio).mockResolvedValue({
+      items: [
+        { account: { id: 1, name: 'Gas', monthlyCost: '45.00', renewalType: 'Monthly', renewalDate: null }, accountType: 'Utility - Gas', docCount: 0 },
+        { account: { id: 2, name: 'Car Ins', monthlyCost: '600.00', renewalType: 'Annually', renewalDate: null }, accountType: 'Insurance - Car', docCount: 0 },
+        { account: { id: 3, name: 'Water', monthlyCost: '120.00', renewalType: 'Quarterly', renewalDate: null }, accountType: 'Utility - Water', docCount: 0 },
+      ],
+    } as never);
+    const { loadPortfolio, stats } = useOutgoings();
+    await loadPortfolio();
+    // 45*12 + 600*1 + 120*4 = 540 + 600 + 480 = 1620
+    expect(stats.value.totalAnnualGbp).toBe(1620);
+    expect(stats.value.totalMonthlyGbp).toBe(135);
   });
 
   it('sets error on portfolio load failure', async () => {

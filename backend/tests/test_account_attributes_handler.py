@@ -40,7 +40,7 @@ class TestLoadAccountAttributes:
         attr_repo.get_attribute_by_name = AsyncMock(return_value="val")
         response = _make_response()
         await load_account_attributes(attr_repo, 1, 1, response)
-        assert attr_repo.get_attribute_by_name.call_count == 19  # 19 ATTRIBUTE_FIELDS
+        assert attr_repo.get_attribute_by_name.call_count == 20  # 20 ATTRIBUTE_FIELDS
 
 
 class TestSaveAccountAttributes:

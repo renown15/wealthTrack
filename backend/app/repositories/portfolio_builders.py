@@ -30,7 +30,9 @@ _LABEL_TO_KEY: dict[str, str] = {
     "Unencumbered Balance": "unencumbered_balance",
     "Tax Year": "tax_year",
     "Renewal Date": "renewal_date",
+    "Renewal Type": "renewal_type",
     "Monthly Cost": "monthly_cost",
+    "UTR": "utr",
 }
 
 
@@ -72,6 +74,10 @@ def build_attributes_dict(raw: dict[str, str]) -> dict[str, Any]:
         "encumbrance": keyed.get("encumbrance"),
         "unencumbered_balance": keyed.get("unencumbered_balance"),
         "tax_year": keyed.get("tax_year"),
+        "renewal_date": keyed.get("renewal_date"),
+        "renewal_type": keyed.get("renewal_type"),
+        "monthly_cost": keyed.get("monthly_cost"),
+        "utr": keyed.get("utr"),
     }
 
 
@@ -114,6 +120,10 @@ async def build_portfolio_item(
     acct_data["assetClass"] = attrs.get("asset_class")
     acct_data["encumbrance"] = attrs.get("encumbrance")
     acct_data["taxYear"] = attrs.get("tax_year")
+    acct_data["renewalDate"] = attrs.get("renewal_date")
+    acct_data["renewalType"] = attrs.get("renewal_type")
+    acct_data["monthlyCost"] = attrs.get("monthly_cost")
+    acct_data["utr"] = attrs.get("utr")
     underlying = attrs.get("underlying")
     acct_data["targetPrice"] = target_prices_by_ticker.get(underlying) if underlying else None
 

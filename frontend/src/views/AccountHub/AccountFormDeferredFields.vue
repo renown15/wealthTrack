@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="fieldConfig.isDeferredType" class="form-group">
+    <div v-if="fieldConfig.showReleaseDate" class="form-group">
       <label for="releaseDate" class="form-label">Release Date</label>
       <input id="releaseDate" v-model="formData.releaseDate" type="date" class="form-input" />
     </div>
@@ -75,6 +75,7 @@ import type { FormData } from '@views/AccountHub/accountFormFieldsTypes';
 
 interface FieldConfig {
   isDeferredType: boolean;
+  showReleaseDate: boolean;
   showNumberOfShares: boolean;
   showUnderlying: boolean;
   showPrice: boolean;

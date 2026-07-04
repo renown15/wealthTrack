@@ -13,12 +13,12 @@
 
     <div class="stats-grid">
       <article class="stat-card">
-        <p class="stat-label">Monthly Cost</p>
-        <p class="stat-value">{{ formatGbp(stats.totalMonthlyGbp) }}</p>
-      </article>
-      <article class="stat-card">
         <p class="stat-label">Annual Cost</p>
         <p class="stat-value">{{ formatGbp(stats.totalAnnualGbp) }}</p>
+      </article>
+      <article class="stat-card">
+        <p class="stat-label">Monthly (equivalent)</p>
+        <p class="stat-value">{{ formatGbp(stats.totalMonthlyGbp) }}</p>
       </article>
       <article class="stat-card" :class="stats.renewingSoonCount > 0 ? 'red-card' : ''">
         <p class="stat-label">Renewing Within 30 Days</p>

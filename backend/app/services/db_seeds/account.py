@@ -167,4 +167,15 @@ ACCOUNT_ITEMS: list[ReferenceDataItem] = [
     # Account-level UTR, shown for Trust accounts (see migration 055).
     ReferenceDataItem(
         class_key="account_attribute_type", reference_value="UTR", sort_index=32),
+    # Renewal type for outgoings (see migration 056).
+    ReferenceDataItem(
+        class_key="account_attribute_type", reference_value="Renewal Type", sort_index=33),
+    # -----------------------------------------------------------------------
+    # Renewal types (outgoing payment cadence; see migration 056)
+    # -----------------------------------------------------------------------
+    ReferenceDataItem(class_key="renewal_type", reference_value="Monthly", sort_index=1),
+    ReferenceDataItem(class_key="renewal_type", reference_value="Quarterly", sort_index=2),
+    ReferenceDataItem(class_key="renewal_type", reference_value="Termly", sort_index=3),
+    ReferenceDataItem(class_key="renewal_type", reference_value="Annually", sort_index=4),
+    ReferenceDataItem(class_key="renewal_type", reference_value="One-off", sort_index=5),
 ]

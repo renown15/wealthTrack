@@ -34,6 +34,7 @@ export interface FormData {
   taxYear?: string | null;
   utr?: string | null;
   renewalDate?: string | null;
+  renewalType?: string | null;
   monthlyCost?: string | null;
   transferToAccountId?: number | null;
 }
