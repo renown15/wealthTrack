@@ -18,11 +18,22 @@ from reportlab.lib.units import mm
 from reportlab.platypus import Flowable, Paragraph
 
 from app.services.tax_briefing_format import money_plain, styled_table, to_float
+from app.types.attribute_types import AttributeType
 
 Styles = dict[str, Any]
 
 _SHARES = "Shares"
 _NON_INCOME_TYPES = {"Tax Liability"}
+
+
+def account_ref(item: dict[str, Any]) -> str:
+    """Identify an account by its number (with sort code) or building-society roll/ref."""
+    attrs: dict[str, str] = item.get("attrs") or {}
+    number = attrs.get(AttributeType.ACCOUNT_NUMBER)
+    sort = attrs.get(AttributeType.SORT_CODE)
+    if number:
+        return f"{number} ({sort})" if sort else number
+    return attrs.get(AttributeType.ROLL_REF_NUMBER) or sort or ""
 
 
 def commentary_flowables(commentary: str | None, styles: Styles) -> list[Flowable]:
@@ -60,45 +71,45 @@ def _institution(item: dict[str, Any]) -> str:
     return getattr(inst, "name", "") if inst is not None else ""
 
 
-def interest_items(in_scope: list[dict[str, Any]]) -> list[tuple[str, str, float]]:
+def interest_items(in_scope: list[dict[str, Any]]) -> list[tuple[str, str, str, float]]:
     """Savings-type accounts with recorded income (interest)."""
-    out: list[tuple[str, str, float]] = []
+    out: list[tuple[str, str, str, float]] = []
     for item in in_scope:
         atype = item["account_type"]
         if atype == _SHARES or atype in _NON_INCOME_TYPES:
             continue
         amount = _income(item)
         if amount:
-            out.append((item["account"].name, _institution(item), amount))
+            out.append((item["account"].name, _institution(item), account_ref(item), amount))
     return out
 
 
-def dividend_items(in_scope: list[dict[str, Any]]) -> list[tuple[str, float]]:
+def dividend_items(in_scope: list[dict[str, Any]]) -> list[tuple[str, str, float]]:
     """Shares accounts with recorded income (dividends)."""
-    out: list[tuple[str, float]] = []
+    out: list[tuple[str, str, float]] = []
     for item in in_scope:
         if item["account_type"] == _SHARES and _income(item):
-            out.append((item["account"].name, _income(item)))
+            out.append((item["account"].name, account_ref(item), _income(item)))
     return out
 
 
-def gain_items(in_scope: list[dict[str, Any]]) -> list[tuple[str, float]]:
+def gain_items(in_scope: list[dict[str, Any]]) -> list[tuple[str, str, float]]:
     """Shares accounts with a recorded chargeable gain."""
-    out: list[tuple[str, float]] = []
+    out: list[tuple[str, str, float]] = []
     for item in in_scope:
         if item["account_type"] != _SHARES:
             continue
         gain = to_float(getattr(item.get("tax_return"), "capital_gain", None))
         if gain:
-            out.append((item["account"].name, gain))
+            out.append((item["account"].name, account_ref(item), gain))
     return out
 
 
 def figures_reference(styles: Styles, in_scope: list[dict[str, Any]]) -> Flowable:
     """Cover-page summary: recorded totals by type, with the usual form box."""
-    interest = sum(a for _, _, a in interest_items(in_scope))
-    dividends = sum(a for _, a in dividend_items(in_scope))
-    gains = sum(g for _, g in gain_items(in_scope))
+    interest = sum(a for *_, a in interest_items(in_scope))
+    dividends = sum(a for *_, a in dividend_items(in_scope))
+    gains = sum(g for *_, g in gain_items(in_scope))
     rows: list[list[Any]] = [["Recorded figure", "Amount (£)", "Usual box"]]
     rows.append([_cell("UK interest", styles), money_plain(interest), "SA100, box 2"])
     rows.append([_cell("UK dividends", styles), money_plain(dividends), "SA100, box 4"])
@@ -118,13 +129,15 @@ def interest_section(styles: Styles, in_scope: list[dict[str, Any]]) -> list[Flo
     if not items:
         flow.append(Paragraph("No interest recorded for this period.", styles["body"]))
         return flow
-    rows: list[list[Any]] = [["Account", "Institution", "Interest (£)"]]
+    rows: list[list[Any]] = [["Account", "Institution", "Reference", "Interest (£)"]]
     total = 0.0
-    for name, inst, amount in items:
+    for name, inst, ref, amount in items:
         total += amount
-        rows.append([_cell(name, styles), _cell(inst, styles), money_plain(amount)])
-    rows.append(["Total", "", money_plain(total)])
-    flow.append(styled_table(rows, [70 * mm, 55 * mm, 45 * mm], right_cols=(2,), total_row=True))
+        rows.append(
+            [_cell(name, styles), _cell(inst, styles), _cell(ref, styles), money_plain(amount)])
+    rows.append(["Total", "", "", money_plain(total)])
+    flow.append(styled_table(
+        rows, [55 * mm, 42 * mm, 43 * mm, 30 * mm], right_cols=(3,), total_row=True))
     return flow
 
 
@@ -140,13 +153,13 @@ def dividends_section(styles: Styles, in_scope: list[dict[str, Any]]) -> list[Fl
     if not items:
         flow.append(Paragraph("No dividends recorded for this period.", styles["body"]))
         return flow
-    rows: list[list[Any]] = [["Holding", "Dividends (£)"]]
+    rows: list[list[Any]] = [["Holding", "Reference", "Dividends (£)"]]
     total = 0.0
-    for name, amount in items:
+    for name, ref, amount in items:
         total += amount
-        rows.append([_cell(name, styles), money_plain(amount)])
-    rows.append(["Total", money_plain(total)])
-    flow.append(styled_table(rows, [125 * mm, 45 * mm], right_cols=(1,), total_row=True))
+        rows.append([_cell(name, styles), _cell(ref, styles), money_plain(amount)])
+    rows.append(["Total", "", money_plain(total)])
+    flow.append(styled_table(rows, [90 * mm, 45 * mm, 35 * mm], right_cols=(2,), total_row=True))
     return flow
 
 
@@ -164,32 +177,34 @@ def capital_gains_section(styles: Styles, in_scope: list[dict[str, Any]]) -> lis
     if not items:
         flow.append(Paragraph("No chargeable gains on share disposals recorded.", styles["body"]))
         return flow
-    rows: list[list[Any]] = [["Holding", "Chargeable gain (£)"]]
+    rows: list[list[Any]] = [["Holding", "Reference", "Chargeable gain (£)"]]
     total = 0.0
-    for name, gain in items:
+    for name, ref, gain in items:
         total += gain
-        rows.append([_cell(name, styles), money_plain(gain)])
-    rows.append(["Total", money_plain(total)])
-    flow.append(styled_table(rows, [125 * mm, 45 * mm], right_cols=(1,), total_row=True))
+        rows.append([_cell(name, styles), _cell(ref, styles), money_plain(gain)])
+    rows.append(["Total", "", money_plain(total)])
+    flow.append(styled_table(rows, [90 * mm, 45 * mm, 35 * mm], right_cols=(2,), total_row=True))
     return flow
 
 
 def provisions_section(styles: Styles, in_scope: list[dict[str, Any]]) -> list[Flowable]:
     """Tax the client has provisioned per account — for context, not a return entry."""
-    rows: list[list[Any]] = [["Account", "Tax provisioned (£)"]]
+    rows: list[list[Any]] = [["Account", "Reference", "Tax provisioned (£)"]]
     total = 0.0
     for item in in_scope:
         due = to_float(getattr(item.get("tax_return"), "tax_due", None))
         if due:
             total += due
-            rows.append([_cell(item["account"].name, styles), money_plain(due)])
+            rows.append(
+                [_cell(item["account"].name, styles), _cell(account_ref(item), styles),
+                 money_plain(due)])
     if len(rows) == 1:
         return []
-    rows.append(["Total", money_plain(total)])
+    rows.append(["Total", "", money_plain(total)])
     return [
         Paragraph("4. Tax provisioned by the client", styles["h3"]),
         Paragraph(
             "The client's own estimate of tax set aside against this income and these gains "
             "— for context only.", styles["small"]),
-        styled_table(rows, [125 * mm, 45 * mm], right_cols=(1,), total_row=True),
+        styled_table(rows, [90 * mm, 45 * mm, 35 * mm], right_cols=(2,), total_row=True),
     ]

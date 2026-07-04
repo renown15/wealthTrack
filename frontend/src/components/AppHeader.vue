@@ -4,10 +4,10 @@
       <div class="flex items-center gap-3">
         <div class="brand-stack">
           <h1 class="logo">WealthTrack</h1>
-          <p class="tagline hidden sm:block">Strategic wealth intelligence</p>
-        </div>
-        <div v-if="envLabel" class="px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide bg-yellow-400 text-gray-900">
-          {{ envLabel }}
+          <p v-if="envLabel" class="mt-0.5 self-start px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide bg-yellow-400 text-gray-900">
+            {{ envLabel }}
+          </p>
+          <p v-else class="tagline hidden sm:block">Strategic wealth intelligence</p>
         </div>
       </div>
       <nav v-if="isAuth" class="flex flex-wrap items-center gap-1 sm:gap-2">

@@ -149,13 +149,13 @@ async def get_eligible_with_returns(
         member_ids = await group_repo.get_group_members(group_id, user_id)
         group_member_ids = set(member_ids)
 
-    rows_by_id = {r["account"].id: r for r in rows}
-
-    in_scope_rows = []
-    for account_id in group_member_ids:
-        row = rows_by_id.get(account_id)
-        if row:
-            in_scope_rows.append({**row, "eligibility_reason": "in_scope"})
+    # Iterate the already-sorted rows (institution, name) rather than the
+    # unordered member-id set, so in-scope accounts read in the same order.
+    in_scope_rows = [
+        {**row, "eligibility_reason": "in_scope"}
+        for row in rows
+        if row["account"].id in group_member_ids
+    ]
 
     eligible_only_rows = [r for r in eligible_rows if r["account"].id not in group_member_ids]
 

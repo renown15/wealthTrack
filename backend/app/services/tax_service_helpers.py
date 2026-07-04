@@ -4,7 +4,7 @@ Helper functions for tax service — eligibility checks and DB queries.
 from datetime import date
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased, selectinload
 
@@ -12,6 +12,7 @@ from app.constants import OUTGOING_ACCOUNT_TYPES
 from app.models.account import Account
 from app.models.account_event import AccountEvent
 from app.models.account_event_attribute_group_member import AccountEventAttributeGroupMember
+from app.models.institution import Institution
 from app.models.reference_data import ReferenceData
 from app.repositories.account_attribute_repository import AccountAttributeRepository
 
@@ -101,10 +102,13 @@ async def fetch_accounts_with_attrs(
         )
         .join(ReferenceData, ReferenceData.id == Account.type_id)
         .outerjoin(status_rd, status_rd.id == Account.status_id)
+        .outerjoin(Institution, Account.institution_id == Institution.id)
         .where(Account.user_id == user_id)
         # Outgoings (utilities/insurance/subs) live in the Outgoings Hub, not here.
         .where(ReferenceData.reference_value.not_in(OUTGOING_ACCOUNT_TYPES))
         .options(selectinload(Account.institution))
+        # Stable, sensible order — matches the wealth views (institution then name).
+        .order_by(func.lower(Institution.name).nulls_last(), func.lower(Account.name))
     )
     result = await session.execute(stmt)
     rows = result.all()

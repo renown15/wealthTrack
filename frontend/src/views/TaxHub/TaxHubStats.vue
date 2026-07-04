@@ -12,8 +12,8 @@
           class="btn-secondary"
           @click="emit('openQuickAdd')"
         >+ Add Closed Account</button>
-        <button class="btn-secondary" @click="emit('exportBriefing')">Export Briefing Pack</button>
         <TaxHubHeaderActions :periods="periods" :selected-period-id="selectedPeriodId" />
+        <button class="btn-secondary" @click="emit('exportBriefing')">Export Briefing Pack</button>
       </div>
     </div>
 

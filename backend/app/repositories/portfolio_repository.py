@@ -11,6 +11,7 @@ from sqlalchemy.orm import selectinload
 from app.models.account import Account
 from app.models.account_document import AccountDocument
 from app.models.account_event import AccountEvent
+from app.models.institution import Institution
 from app.models.reference_data import ReferenceData
 from app.repositories.account_attribute_repository import AccountAttributeRepository
 from app.repositories.account_processor import AccountProcessor
@@ -38,12 +39,16 @@ class PortfolioRepository:
         Uses batched queries to avoid N+1: total DB round-trips is O(1) regardless
         of account count (7 queries + optional price fetches for Deferred Shares/RSU).
         """
-        # 1. All accounts with their institutions
+        # 1. All accounts with their institutions.
+        # Ordered by institution then account name (case-insensitive) so every
+        # wealth view — Account Hub, Outgoings Hub — reads in a stable, sensible
+        # order rather than newest-first. Institution-less accounts sort last.
         stmt = (
             select(Account)
             .where(Account.user_id == user_id)
             .options(selectinload(Account.institution))
-            .order_by(Account.created_at.desc())
+            .outerjoin(Institution, Account.institution_id == Institution.id)
+            .order_by(func.lower(Institution.name).nulls_last(), func.lower(Account.name))
         )
         result = await self.session.execute(stmt)
         accounts = result.scalars().all()
