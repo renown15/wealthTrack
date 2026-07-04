@@ -8,7 +8,9 @@ from reportlab.platypus import Flowable, Paragraph, Spacer
 
 from app.schemas.gift import GiftSummary
 from app.services.tax_briefing_format import (
+    WEALTH_CATEGORIES,
     account_ref,
+    category_for,
     exclusion_reason,
     money_plain,
     styled_table,
@@ -22,6 +24,10 @@ from app.services.tax_briefing_images import (
 )
 
 Styles = dict[str, Any]
+
+# Order type groups by wealth category so like accounts cluster (all ISAs, then
+# pensions, then shares, …) instead of jumping around alphabetically by type.
+_CATEGORY_ORDER = {label: i for i, (label, _members) in enumerate(WEALTH_CATEGORIES)}
 
 
 def build_portfolio_map(items: list[dict[str, Any]]) -> dict[int, dict[str, Any]]:
@@ -52,13 +58,22 @@ def _inst_name(item: dict[str, Any]) -> str:
 
 
 def _by_type(items: list[dict[str, Any]]) -> list[tuple[str, list[dict[str, Any]]]]:
-    """Group items by account type; within each type sort by institution then account name."""
+    """Group items by account type, ordered so like types cluster by wealth category.
+
+    Category order first (ISAs together, pensions together, …), then type name;
+    within each type, sort by institution then account name.
+    """
     groups: dict[str, list[dict[str, Any]]] = {}
     for item in items:
         groups.setdefault(item["account_type"], []).append(item)
     for group in groups.values():
         group.sort(key=lambda i: (_inst_name(i).lower(), i["account"].name.lower()))
-    return sorted(groups.items(), key=lambda kv: kv[0].lower())
+
+    def order(kv: tuple[str, list[dict[str, Any]]]) -> tuple[int, str]:
+        account_type = kv[0]
+        return (_CATEGORY_ORDER.get(category_for(account_type), len(_CATEGORY_ORDER)), account_type)
+
+    return sorted(groups.items(), key=order)
 
 
 def out_of_scope_section(styles: Styles, items: list[dict[str, Any]]) -> list[Flowable]:
