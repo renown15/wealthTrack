@@ -60,6 +60,8 @@ export const OUTGOING_TYPES = [
   'Insurance - Health',
   'Insurance - Income Protection',
   'Subscription',
+  'Household',
+  'Membership',
 ];
 
 // Institution (provider) types that belong to the Outgoings Hub. Institutions of
@@ -68,6 +70,8 @@ export const OUTGOING_INSTITUTION_TYPES = [
   'Utility Provider',
   'Insurer',
   'Subscription Service',
+  'Household',
+  'Memberships',
 ];
 
 /** True if the institution's type is an Outgoings-hub provider type. */

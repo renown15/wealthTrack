@@ -61,6 +61,10 @@ ACCOUNT_ITEMS: list[ReferenceDataItem] = [
         class_key="account_type", reference_value="Insurance - Income Protection", sort_index=58),
     ReferenceDataItem(
         class_key="account_type", reference_value="Subscription", sort_index=59),
+    ReferenceDataItem(
+        class_key="account_type", reference_value="Household", sort_index=60),
+    ReferenceDataItem(
+        class_key="account_type", reference_value="Membership", sort_index=61),
     # -----------------------------------------------------------------------
     # Account statuses
     # -----------------------------------------------------------------------

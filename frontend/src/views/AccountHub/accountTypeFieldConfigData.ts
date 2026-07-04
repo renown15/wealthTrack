@@ -64,6 +64,8 @@ export const ACCOUNT_TYPE_ASSET_GROUP: Record<string, string> = {
   'Insurance - Health':             'outgoing',
   'Insurance - Income Protection':  'outgoing',
   'Subscription':                   'outgoing',
+  'Household':                      'outgoing',
+  'Membership':                     'outgoing',
 };
 
 export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
@@ -94,5 +96,7 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
   'Insurance - Health':            { ...baseConfig, ...outgoing },
   'Insurance - Income Protection': { ...baseConfig, ...outgoing },
   'Subscription':                  { ...baseConfig, ...outgoing },
+  'Household':                     { ...baseConfig, ...outgoing },
+  'Membership':                    { ...baseConfig, ...outgoing },
   'DEFAULT':                       { ...baseConfig, ...withInterest, ...banking },
 };

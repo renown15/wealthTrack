@@ -15,5 +15,7 @@ OUTGOING_ACCOUNT_TYPES = frozenset(
         "Insurance - Health",
         "Insurance - Income Protection",
         "Subscription",
+        "Household",
+        "Membership",
     }
 )
