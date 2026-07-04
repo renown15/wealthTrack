@@ -17,5 +17,6 @@ OUTGOING_ACCOUNT_TYPES = frozenset(
         "Subscription",
         "Household",
         "Membership",
+        "Tax",
     }
 )

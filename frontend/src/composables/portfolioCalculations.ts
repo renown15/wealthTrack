@@ -62,6 +62,7 @@ export const OUTGOING_TYPES = [
   'Subscription',
   'Household',
   'Membership',
+  'Tax',
 ];
 
 // Institution (provider) types that belong to the Outgoings Hub. Institutions of

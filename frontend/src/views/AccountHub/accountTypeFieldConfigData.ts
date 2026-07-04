@@ -66,6 +66,7 @@ export const ACCOUNT_TYPE_ASSET_GROUP: Record<string, string> = {
   'Subscription':                   'outgoing',
   'Household':                      'outgoing',
   'Membership':                     'outgoing',
+  'Tax':                            'outgoing',
 };
 
 export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
@@ -98,5 +99,6 @@ export const ACCOUNT_TYPE_FIELD_CONFIG: Record<string, FieldConfig> = {
   'Subscription':                  { ...baseConfig, ...outgoing },
   'Household':                     { ...baseConfig, ...outgoing },
   'Membership':                    { ...baseConfig, ...outgoing },
+  'Tax':                           { ...baseConfig, ...outgoing },
   'DEFAULT':                       { ...baseConfig, ...withInterest, ...banking },
 };
