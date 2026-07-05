@@ -146,17 +146,18 @@ const buildBreakdownTooltip = (types: string[]): string => {
 };
 
 const getTotalValueTooltip = (): string => {
-  const lines = [
-    `Cash at Hand: ${formatCurrency(props.cashAtHand)}`,
+  const lines = [`Cash at Hand: ${formatCurrency(props.cashAtHand)}`];
+  if (props.totalTax > 0) {
+    const afterTax = props.cashAtHand - props.totalTax;
+    lines.push(`Tax owed: ${formatCurrency(-props.totalTax)}`, `Subtotal: ${formatCurrency(afterTax)}`);
+  }
+  lines.push(
     `ISA Savings: ${formatCurrency(props.isaSavings)}`,
     `Illiquid: ${formatCurrency(props.illiquid)}`,
     `Trust Assets: ${formatCurrency(props.trustAssets)}`,
     `Pension Value: ${formatCurrency(props.pensionBreakdown.total)}`,
-  ];
-  if (totalEncumbrances() > 0) {
-    lines.push(`Encumbrances: ${formatCurrency(totalEncumbrances())}`);
-  }
-  lines.push(`─────────────────`, `Total: ${formatCurrency(props.totalValue)}`);
+    `─────────────────`,
+    `Total: ${formatCurrency(props.totalValue)}`);
   return lines.join('\n');
 };
 
