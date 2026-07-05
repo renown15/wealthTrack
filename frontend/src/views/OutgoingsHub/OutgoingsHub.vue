@@ -7,32 +7,35 @@
       />
     </div>
 
-    <FamilyMemberTabs
-      v-if="otherMembers.length > 0"
-      :members="otherMembers"
-      :active-id="activeMemberId"
-      @select="selectMember"
-    />
+    <div class="hub-content-card p-3 sm:p-6">
+      <FamilyMemberTabs
+        v-if="otherMembers.length > 0"
+        :members="otherMembers"
+        :active-id="activeMemberId"
+        @select="selectMember"
+      />
 
-    <div v-if="displayedOutgoings.length > 0" class="flex justify-end">
-      <input
-        :value="search"
-        type="search"
-        placeholder="Search name, provider, type, acc no…"
-        class="px-3 py-1.5 border border-gray-300 rounded text-xs w-44 sm:w-72"
-        @input="search = ($event.target as HTMLInputElement).value"
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <h3 class="section-title">Outgoings</h3>
+        <input
+          :value="search"
+          type="search"
+          placeholder="Search name, provider, type, acc no…"
+          class="px-3 py-1.5 border border-gray-300 rounded text-xs w-44 sm:w-72"
+          @input="search = ($event.target as HTMLInputElement).value"
+        />
+      </div>
+
+      <OutgoingsTable
+        :items="visibleOutgoings"
+        :loading="loading"
+        :error="error"
+        :read-only="readOnly"
+        @edit-account="openEdit"
+        @delete-account="openDeleteConfirm"
+        @show-docs="(item) => openDocs(item.account.id, item.account.name)"
       />
     </div>
-
-    <OutgoingsTable
-      :items="visibleOutgoings"
-      :loading="loading"
-      :error="error"
-      :read-only="readOnly"
-      @edit-account="openEdit"
-      @delete-account="openDeleteConfirm"
-      @show-docs="(item) => openDocs(item.account.id, item.account.name)"
-    />
 
     <OutgoingsProvidersPanel
       ref="providersPanel"

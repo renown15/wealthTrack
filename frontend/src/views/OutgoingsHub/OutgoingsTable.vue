@@ -1,5 +1,5 @@
 <template>
-  <div class="hub-content-card p-6">
+  <div>
     <div v-if="loading" class="text-muted text-sm">Loading…</div>
     <div v-else-if="error" class="error-banner"><span>{{ error }}</span></div>
     <div v-else-if="items.length === 0" class="text-muted text-sm py-4">No outgoings added yet. Use <strong>+ Add Outgoing</strong> above to get started.</div>
