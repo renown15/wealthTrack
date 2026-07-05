@@ -4,8 +4,8 @@
 
 A personal wealth management app: one place to see all your accounts and balances across financial institutions, with encrypted credential storage and tax tracking.
 
-**Status:** v1 complete — all 6 phases shipped, including Tax Hub.
-**Last Updated:** 2026-05-31 — PR gate hardened: vue-tsc added (Vue template type checking), ESLint extended to .vue files, mypy extended to tests/. Balance update bug fixed.
+**Status:** v1 complete — all 6 phases shipped. Post-v1 additions: Tax Hub depth (briefing PDF, SA schedule, commentary/UTR), Outgoings Hub, Scenario Hub (risk scenarios).
+**Last Updated:** 2026-07-05 — docs refreshed: migrations at 060, test counts updated, post-v1 hubs listed.
 
 ## Tech Stack
 
@@ -29,8 +29,8 @@ wealthTrack/
 │   │   ├── repositories/   # DB queries (SQLAlchemy)
 │   │   ├── models/         # SQLAlchemy ORM models
 │   │   └── schemas/        # Pydantic request/response schemas
-│   ├── alembic/            # DB migrations (~46 versions)
-│   └── tests/              # ~600 backend tests
+│   ├── alembic/            # DB migrations (060 as of 2026-07-05)
+│   └── tests/              # 86 backend test files
 ├── frontend/
 │   ├── src/
 │   │   ├── composables/    # Vue 3 composition API business logic
@@ -38,7 +38,7 @@ wealthTrack/
 │   │   ├── services/       # API client services
 │   │   ├── models/         # TypeScript data models
 │   │   └── utils/          # Shared utilities (debug.ts etc.)
-│   └── tests/              # ~1100 frontend tests across 114 files
+│   └── tests/              # 162 frontend test files
 │       └── e2e/            # 5 Playwright E2E specs (run separately via make test-e2e)
 ├── scripts/                # setup-dev.sh, dev.sh, seed-db.py, e2e-teardown.sh
 ├── .env.dev.example        # Template for local dev config

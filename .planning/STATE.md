@@ -5,13 +5,13 @@
 See: .planning/PROJECT.md (updated 2026-02-03)
 
 **Core value:** One place to see all your wealth with secure credential storage
-**Current focus:** Post-v1 enhancements — account type expansion, asset class, event types
+**Current focus:** Post-v1 enhancements — Tax Hub depth (briefing PDF, SA schedule), Outgoings Hub, risk scenarios
 
 ## Current Position
 
 Phase: 6 of 6 complete — v1 feature complete
 Status: Active development — ongoing feature additions and quality improvements
-Last activity: 2026-05-28 — Family portfolio sharing, Gift/IHT tracking, delete gift, test coverage improvements
+Last activity: 2026-07-05 — Outgoings Hub UI polish, charity types, table header unification
 
 ## Progress
 
@@ -97,10 +97,21 @@ Requirements: ~26/26 complete
 - Backend: ~600 tests | Frontend: ~1100 tests across 114 files
 - Coverage: backend ~81.7%, frontend stmts/lines ~82.8%, functions ~64.6%, branches ~81.9%
 
+## Recent Changes (since 2026-05-31)
+
+- **[2026-06] Risk scenarios feature (ScenarioHub)** — scenario tables (migration 047), code-split bundle
+- **[2026-06] Tax Briefing Pack** — server-side PDF for a tax year; Tax Liability items, rules-excluded accounts grouped by wealth category; PDF supporting docs embedded as compressed images; consistent table formatting
+- **[2026-06] Tax Hub depth** — out-of-scope override (050), tax due column with period-correct CGT (051), savings interest tax + ReferenceData tax rates (052), dividend tax rate (053), SA supporting schedule, per-return comment, period commentary + UTR (055), share-sale undo, shared edit modal, Tax Liability edit persistence fix
+- **[2026-06] Tax documents** — description field (048), multi-photo combine into one PDF with per-photo rotate
+- **[2026-06/07] Outgoings Hub** — new hub with providers, outgoings reference data (049), outgoings-only institutions scoped away from Account/Tax/Analytics views (054), renewal types (056), household/membership types + family member view (057), Tax outgoing type (058), data-driven outgoing type class keys (059), charity types (060), search + default sort, layout matched to Account Hub
+- **[2026-07] UI unification** — all table headers on the institution style; tax deduction in Total Value tooltip; Encumbrances + Tax stat
+- Migrations now at 060 (up from 046)
+- Backend: 86 test files | Frontend: 162 test files (plus 5 Playwright E2E specs)
+
 ## Session Continuity
 
-Last session: 2026-05-28
-Status: All `make pr-check` steps passing
+Last session: 2026-07-05
+Status: lint + type-check verified green 2026-07-05; last full `make pr-check` passing as of most recent merge
 
 ---
-*State updated: 2026-05-28*
+*State updated: 2026-07-05*
