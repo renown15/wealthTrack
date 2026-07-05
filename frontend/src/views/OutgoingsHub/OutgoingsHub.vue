@@ -35,16 +35,16 @@
         @delete-account="openDeleteConfirm"
         @show-docs="(item) => openDocs(item.account.id, item.account.name)"
       />
-    </div>
 
-    <OutgoingsProvidersPanel
-      ref="providersPanel"
-      :providers="displayedProviders"
-      :institution-types="outgoingInstitutionTypes"
-      :credential-types="credentialTypes"
-      :read-only="readOnly"
-      @changed="loadInstitutions"
-    />
+      <OutgoingsProvidersPanel
+        ref="providersPanel"
+        :providers="displayedProviders"
+        :institution-types="outgoingInstitutionTypes"
+        :credential-types="credentialTypes"
+        :read-only="readOnly"
+        @changed="loadInstitutions"
+      />
+    </div>
 
     <AccountModal
       :open="accountModalOpen"

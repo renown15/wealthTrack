@@ -1,47 +1,40 @@
 <template>
-  <div class="hub-content-card p-6">
-    <h3 class="header-title text-lg m-0 mb-4">Providers</h3>
+  <div>
+    <hr class="my-4 border-gray-200">
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+      <h3 class="section-title">Providers</h3>
+    </div>
 
     <div v-if="providers.length === 0" class="text-muted text-sm py-2">
       <span v-if="readOnly">No providers.</span>
       <span v-else>No providers yet. Use <strong>+ Add Provider</strong> (top right) to add one.</span>
     </div>
-    <table v-else class="w-full text-sm">
-      <thead>
-        <tr class="border-b">
-          <th class="table-header text-left">Provider</th>
-          <th class="table-header text-left">Type</th>
-          <th class="table-header text-left">Parent</th>
-          <th v-if="!readOnly" class="table-header"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="p in providers" :key="p.id" class="border-b">
-          <td class="table-cell font-medium">{{ p.name }}</td>
-          <td class="table-cell text-muted">{{ p.institutionType ?? '—' }}</td>
-          <td class="table-cell text-muted">{{ parentName(p.parentId) }}</td>
-          <td v-if="!readOnly" class="table-cell">
-            <div class="flex gap-1 justify-end">
-              <button
-                class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-lg border-none cursor-pointer bg-purple-100 text-purple-600 hover:bg-purple-200"
-                title="Credentials"
-                @click="openCredentialsModal(p)"
-              >Creds</button>
-              <button
-                class="btn-icon inline-flex items-center justify-center w-7 h-7 text-xs rounded border-none cursor-pointer bg-gray-100 text-gray-600 hover:bg-gray-200"
-                title="Edit"
-                @click="openEdit(p)"
-              >{{ Icons.edit }}</button>
-              <button
-                class="btn-icon delete inline-flex items-center justify-center w-7 h-7 text-xs rounded border-none cursor-pointer bg-red-100 text-red-600 hover:bg-red-200"
-                title="Delete"
-                @click="confirmDelete(p)"
-              >{{ Icons.delete }}</button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div v-else class="overflow-x-auto border border-gray-200 rounded-lg">
+      <table class="w-full">
+        <thead class="border-b-2 border-gray-200 bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Provider</th>
+            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
+            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Parent</th>
+            <th v-if="!readOnly" class="px-4 py-2 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="p in providers" :key="p.id" class="border-b border-gray-100 hover:bg-gray-50">
+            <td class="px-4 py-2 text-sm font-medium text-gray-900">{{ p.name }}</td>
+            <td class="px-4 py-2 text-sm text-gray-500">{{ p.institutionType ?? '—' }}</td>
+            <td class="px-4 py-2 text-sm text-gray-500">{{ parentName(p.parentId) }}</td>
+            <td v-if="!readOnly" class="px-4 py-3 text-right">
+              <div class="flex items-center justify-end gap-2">
+                <button class="btn-icon edit inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200" title="Edit" @click="openEdit(p)">{{ Icons.edit }}</button>
+                <button class="btn-icon delete inline-flex items-center justify-center w-8 h-8 text-sm rounded border-none cursor-pointer bg-red-100 text-red-600 hover:bg-red-200" title="Delete" @click="confirmDelete(p)">{{ Icons.delete }}</button>
+                <button class="inline-flex items-center justify-center px-2 py-1.5 text-xs font-medium rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200" type="button" @click="openCredentialsModal(p)">Creds</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <InstitutionModal
       :open="modalOpen"
