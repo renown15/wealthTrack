@@ -26,6 +26,7 @@ vi.mock('@composables/useOutgoings', () => ({
   }),
   computeOutgoingsStats: () => ({ totalMonthlyGbp: 0, totalAnnualGbp: 0, renewingSoonCount: 0, byCategory: [] }),
   filterOutgoings: (items: unknown[]) => items,
+  searchAndSortOutgoings: (items: unknown[]) => items,
 }));
 const familyActiveId = ref<number | null>(null);
 const familyMembers = ref<{ accountId: number; firstName: string; lastName: string }[]>([]);

@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue';
 import { apiService } from '@services/ApiService';
 import { isOutgoingAccountType } from '@composables/outgoingTypes';
+import { matchesAccountSearch } from '@/utils/accountSearch';
 import type { PortfolioItem, Account } from '@models/WealthTrackDataModels';
 import type { SavePayload } from '@views/AccountHub/accountModalSave';
 import { debug } from '@utils/debug';
@@ -94,6 +95,27 @@ export function computeOutgoingsStats(active: PortfolioItem[]): OutgoingsStats {
 /** Filter a portfolio to just its outgoing items. */
 export function filterOutgoings(items: PortfolioItem[]): PortfolioItem[] {
   return items.filter((i) => isOutgoingAccountType(i.accountType));
+}
+
+/**
+ * Filter outgoings by a search query (name/provider/type/account no./sort code)
+ * and sort them in a sensible order: by type, then provider, then account name.
+ */
+export function searchAndSortOutgoings(
+  items: PortfolioItem[], query: string,
+): PortfolioItem[] {
+  const q = query.trim().toLowerCase();
+  const matched = items.filter((item) =>
+    matchesAccountSearch(query, {
+      institutionName: item.institution?.name,
+      accountName: item.account.name,
+      accountNumber: item.account.accountNumber,
+      sortCode: item.account.sortCode,
+    }) || (!!q && (item.accountType ?? '').toLowerCase().includes(q)));
+  return [...matched].sort((a, b) =>
+    (a.accountType ?? '').localeCompare(b.accountType ?? '')
+    || (a.institution?.name ?? '').localeCompare(b.institution?.name ?? '')
+    || a.account.name.localeCompare(b.account.name));
 }
 
 export function useOutgoings(): {

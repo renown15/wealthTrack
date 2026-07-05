@@ -14,8 +14,18 @@
       @select="selectMember"
     />
 
+    <div v-if="displayedOutgoings.length > 0" class="flex justify-end">
+      <input
+        :value="search"
+        type="search"
+        placeholder="Search name, provider, type, acc no…"
+        class="px-3 py-1.5 border border-gray-300 rounded text-xs w-44 sm:w-72"
+        @input="search = ($event.target as HTMLInputElement).value"
+      />
+    </div>
+
     <OutgoingsTable
-      :items="displayedOutgoings"
+      :items="visibleOutgoings"
       :loading="loading"
       :error="error"
       :read-only="readOnly"
@@ -76,7 +86,7 @@ import { ref, computed, onMounted } from 'vue';
 import type { Institution, PortfolioItem } from '@models/WealthTrackDataModels';
 import { apiService } from '@services/ApiService';
 import {
-  useOutgoings, computeOutgoingsStats, filterOutgoings,
+  useOutgoings, computeOutgoingsStats, filterOutgoings, searchAndSortOutgoings,
 } from '@composables/useOutgoings';
 import { useHubReferenceData } from '@composables/useHubReferenceData';
 import { useFamilyTabs } from '@composables/useFamilyTabs';
@@ -106,6 +116,11 @@ const { otherMembers, activeMemberId, tableItems, selectMember, loadFamilyTabs }
 const readOnly = computed(() => activeMemberId.value !== null);
 const displayedOutgoings = computed(() => filterOutgoings(tableItems.value));
 const displayedStats = computed(() => computeOutgoingsStats(displayedOutgoings.value));
+
+// Search + a sensible default order (group by type, then provider, then name).
+const search = ref('');
+const visibleOutgoings = computed(() =>
+  searchAndSortOutgoings(displayedOutgoings.value, search.value));
 
 // Providers panel: your own institutions (editable) on "Me"; on a member/All tab
 // show the providers attached to the displayed outgoings, read-only.
