@@ -81,7 +81,7 @@ export default defineConfig({
     // Table
     'table-wrap': 'rounded-xl border border-border overflow-x-auto',
     'data-table': 'border-collapse bg-card table-auto w-full',
-    'table-header': 'text-xs tracking-[0.3em] uppercase text-muted whitespace-nowrap',
+    'table-header': 'p-2 px-4 border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase tracking-wider text-gray-600 whitespace-nowrap',
     'table-cell': 'p-2 px-4 border-b border-border text-text-dark text-sm whitespace-nowrap',
     'table-row-hover': 'hover:bg-blue-50',
     'actions-col': 'flex justify-end gap-2',
