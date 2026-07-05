@@ -80,4 +80,7 @@ CREDENTIAL_ITEMS: list[ReferenceDataItem] = [
     ReferenceDataItem(
         class_key="outgoing_institution_type", reference_value="School", sort_index=12
     ),
+    ReferenceDataItem(
+        class_key="outgoing_institution_type", reference_value="Charity", sort_index=13
+    ),
 ]

@@ -75,6 +75,8 @@ ACCOUNT_ITEMS: list[ReferenceDataItem] = [
     ReferenceDataItem(
         class_key="outgoing_account_type", reference_value="Mobile phone", sort_index=64),
     ReferenceDataItem(
+        class_key="outgoing_account_type", reference_value="Charitable giving", sort_index=65),
+    ReferenceDataItem(
         class_key="account_type", reference_value="School Fees", sort_index=63),
     ReferenceDataItem(
         class_key="account_type", reference_value="Mobile phone", sort_index=64),
