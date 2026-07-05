@@ -25,11 +25,11 @@
     />
 
     <OutgoingsProvidersPanel
-      v-if="!readOnly"
       ref="providersPanel"
-      :providers="outgoingProviders"
+      :providers="displayedProviders"
       :institution-types="outgoingInstitutionTypes"
       :credential-types="credentialTypes"
+      :read-only="readOnly"
       @changed="loadInstitutions"
     />
 
@@ -106,6 +106,17 @@ const { otherMembers, activeMemberId, tableItems, selectMember, loadFamilyTabs }
 const readOnly = computed(() => activeMemberId.value !== null);
 const displayedOutgoings = computed(() => filterOutgoings(tableItems.value));
 const displayedStats = computed(() => computeOutgoingsStats(displayedOutgoings.value));
+
+// Providers panel: your own institutions (editable) on "Me"; on a member/All tab
+// show the providers attached to the displayed outgoings, read-only.
+const displayedProviders = computed<Institution[]>(() => {
+  if (!readOnly.value) return outgoingProviders.value;
+  const map = new Map<number, Institution>();
+  for (const item of displayedOutgoings.value) {
+    if (item.institution) map.set(item.institution.id, item.institution);
+  }
+  return [...map.values()];
+});
 
 const institutions = ref<Institution[]>([]);
 const providersPanel = ref<InstanceType<typeof OutgoingsProvidersPanel> | null>(null);

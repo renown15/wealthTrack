@@ -3,7 +3,8 @@
     <h3 class="header-title text-lg m-0 mb-4">Providers</h3>
 
     <div v-if="providers.length === 0" class="text-muted text-sm py-2">
-      No providers yet. Use <strong>+ Add Provider</strong> (top right) to add one.
+      <span v-if="readOnly">No providers.</span>
+      <span v-else>No providers yet. Use <strong>+ Add Provider</strong> (top right) to add one.</span>
     </div>
     <table v-else class="w-full text-sm">
       <thead>
@@ -11,7 +12,7 @@
           <th class="table-header text-left">Provider</th>
           <th class="table-header text-left">Type</th>
           <th class="table-header text-left">Parent</th>
-          <th class="table-header"></th>
+          <th v-if="!readOnly" class="table-header"></th>
         </tr>
       </thead>
       <tbody>
@@ -19,7 +20,7 @@
           <td class="table-cell font-medium">{{ p.name }}</td>
           <td class="table-cell text-muted">{{ p.institutionType ?? '—' }}</td>
           <td class="table-cell text-muted">{{ parentName(p.parentId) }}</td>
-          <td class="table-cell">
+          <td v-if="!readOnly" class="table-cell">
             <div class="flex gap-1 justify-end">
               <button
                 class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-lg border-none cursor-pointer bg-purple-100 text-purple-600 hover:bg-purple-200"
@@ -103,6 +104,7 @@ const props = defineProps<{
   providers: Institution[];
   institutionTypes: ReferenceDataItem[];
   credentialTypes: ReferenceDataItem[];
+  readOnly?: boolean;
 }>();
 
 const emit = defineEmits<{ changed: [] }>();

@@ -130,16 +130,18 @@ describe('OutgoingsHub — family view', () => {
     expect(wrapper.findComponent(FamilyMemberTabs).exists()).toBe(true);
   });
 
-  it('goes read-only and hides the providers panel on a member tab', async () => {
+  it('goes read-only (stats + providers panel) on a member tab, panel stays visible', async () => {
     familyMembers.value = [{ accountId: 7, firstName: 'Sam', lastName: 'Lee' }];
     const wrapper = mountHub();
     await flushPromises();
-    expect(wrapper.findComponent(OutgoingsProvidersPanel).exists()).toBe(true);
     expect(wrapper.findComponent(OutgoingsHubStats).props('readOnly')).toBe(false);
+    expect(wrapper.findComponent(OutgoingsProvidersPanel).props('readOnly')).toBe(false);
 
     familyActiveId.value = 7; // viewing a member
     await flushPromises();
     expect(wrapper.findComponent(OutgoingsHubStats).props('readOnly')).toBe(true);
-    expect(wrapper.findComponent(OutgoingsProvidersPanel).exists()).toBe(false);
+    // Panel stays visible but read-only (institutions must not disappear).
+    expect(wrapper.findComponent(OutgoingsProvidersPanel).exists()).toBe(true);
+    expect(wrapper.findComponent(OutgoingsProvidersPanel).props('readOnly')).toBe(true);
   });
 });
