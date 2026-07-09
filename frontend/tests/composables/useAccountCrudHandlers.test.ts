@@ -94,10 +94,24 @@ describe('useAccountCrudHandlers', () => {
       });
       expect(mockUpdate).toHaveBeenCalledWith(3, 'Updated', 2, undefined, undefined,
         undefined, undefined, undefined, undefined, undefined, undefined,
-        undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+        undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
+        undefined, undefined);
       expect(mockDates).toHaveBeenCalledWith(3, { opened_at: '2020-01-01', closed_at: null });
       expect(mockLoad).toHaveBeenCalled();
       expect(closeModal).toHaveBeenCalled();
+    });
+
+    it('passes utr through to updateAccount (Trust accounts)', async () => {
+      const modalType = ref<'create' | 'edit'>('edit');
+      const editingItem = ref<typeof mockAccount | null>(mockAccount);
+      const closeModal = vi.fn();
+      const { handleSave } = useAccountCrudHandlers(
+        accountTypes, accountStatuses, modalType, editingItem, closeModal
+      );
+      await handleSave({ name: 'Trust', institutionId: 2, utr: '1234567890' });
+      // utr is the last positional param — dropping it silently loses the field
+      const call = mockUpdate.mock.calls[0];
+      expect(call[call.length - 1]).toBe('1234567890');
     });
 
     it('continues even if updateAccountDates throws', async () => {

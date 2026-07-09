@@ -23,6 +23,7 @@ export interface PortfolioCrudHandlers {
     assetClass?: string,
     encumbrance?: string,
     taxYear?: string,
+    utr?: string,
   ) => Promise<void>;
   updateAccount: (
     accountId: number,
@@ -45,6 +46,7 @@ export interface PortfolioCrudHandlers {
     assetClass?: string,
     encumbrance?: string,
     taxYear?: string,
+    utr?: string,
   ) => Promise<void>;
   deleteAccount: (accountId: number) => Promise<void>;
   createInstitution: (

@@ -24,6 +24,7 @@ export interface AccountCreatePayload {
   assetClass?: string;
   encumbrance?: string;
   taxYear?: string;
+  utr?: string;
 }
 
 export interface AccountUpdatePayload {
@@ -46,6 +47,7 @@ export interface AccountUpdatePayload {
   assetClass?: string;
   encumbrance?: string;
   taxYear?: string;
+  utr?: string;
 }
 
 /**

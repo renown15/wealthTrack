@@ -39,7 +39,11 @@ async def list_institutions(
     group_repo = InstitutionGroupRepository(session)
     own = await repo.get_by_user(current_user.id)
     member_ids = await FamilyRepository(session).get_member_ids_for_user(current_user.id)
-    family = await repo.get_by_user_ids(member_ids)
+    # The viewer's accounts can sit at a family member's institution (e.g. a
+    # child's bare trust at the parent's bank), so count them too.
+    family = await repo.get_by_user_ids(
+        member_ids, account_owner_ids=[*member_ids, current_user.id]
+    )
     own_ids = {i.id for i in own}
     all_institutions = list(own) + [i for i in family if i.id not in own_ids]
     responses = []

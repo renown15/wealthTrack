@@ -89,8 +89,6 @@
           v-model="formData.closedAt"
           type="date"
           class="form-input"
-          :readonly="props.closedAccountMode"
-          :class="props.closedAccountMode ? 'bg-gray-50 cursor-default' : ''"
         />
       </div>
     </div>

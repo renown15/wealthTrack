@@ -41,6 +41,7 @@ export function createPortfolioCrudHandlers(
     assetClass?: string,
     encumbrance?: string,
     taxYear?: string,
+    utr?: string,
   ): Promise<void> => {
     state.error = null;
     const payload: AccountCreatePayload = {
@@ -63,6 +64,7 @@ export function createPortfolioCrudHandlers(
       assetClass,
       encumbrance,
       taxYear,
+      utr,
     };
     await createAccountOp(payload);
     await loadPortfolio();
@@ -89,6 +91,7 @@ export function createPortfolioCrudHandlers(
     assetClass?: string,
     encumbrance?: string,
     taxYear?: string,
+    utr?: string,
   ): Promise<void> => {
     state.error = null;
     const payload: AccountUpdatePayload = {
@@ -111,6 +114,7 @@ export function createPortfolioCrudHandlers(
       assetClass,
       encumbrance,
       taxYear,
+      utr,
     };
     await updateAccountOp(accountId, payload);
     await loadPortfolio();

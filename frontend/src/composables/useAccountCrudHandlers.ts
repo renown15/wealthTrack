@@ -29,6 +29,7 @@ export interface AccountSavePayload {
   assetClass?: string;
   encumbrance?: string;
   taxYear?: string;
+  utr?: string;
 }
 
 export interface UseAccountCrudHandlersReturn {
@@ -82,6 +83,7 @@ export function useAccountCrudHandlers(
           payload.assetClass,
           payload.encumbrance,
           payload.taxYear,
+          payload.utr,
         );
       } else if (editingItem.value && 'id' in editingItem.value) {
         await updateAccount(
@@ -105,6 +107,7 @@ export function useAccountCrudHandlers(
           payload.assetClass,
           payload.encumbrance,
           payload.taxYear,
+          payload.utr,
         );
         try {
           await accountCrudService.updateAccountDates(editingItem.value.id, {

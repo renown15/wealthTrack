@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "frontend-pi-data",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "cd frontend && VITE_API_URL=http://localhost:8020 npx vite --port 3020 --strictPort"],
+      "port": 3020
+    }
+  ]
+}
