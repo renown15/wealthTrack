@@ -18,6 +18,7 @@ from app.schemas.account_event import AccountEventCreate, AccountEventResponse
 
 _INTERNAL_EVENT_TYPES = {
     "Dividend Payment Date", "Gift Date", "Gift Donor", "Gift Shares", "Share Sale Date",
+    "Actual Cost Date",
 }
 
 

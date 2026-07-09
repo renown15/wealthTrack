@@ -20,6 +20,14 @@
         <p class="stat-label">Monthly (equivalent)</p>
         <p class="stat-value">{{ formatGbp(stats.totalMonthlyGbp) }}</p>
       </article>
+      <article class="stat-card" title="Uses averaged actuals for provisions and stops at each outgoing's end date">
+        <p class="stat-label">Predicted Annual</p>
+        <p class="stat-value">{{ formatGbp(stats.predictedAnnualGbp) }}</p>
+      </article>
+      <article class="stat-card" title="Predicted annual divided by 12">
+        <p class="stat-label">Predicted Monthly</p>
+        <p class="stat-value">{{ formatGbp(stats.predictedMonthlyGbp) }}</p>
+      </article>
       <article class="stat-card" :class="stats.renewingSoonCount > 0 ? 'red-card' : ''">
         <p class="stat-label">Renewing Within 30 Days</p>
         <p class="stat-value">{{ stats.renewingSoonCount }}</p>

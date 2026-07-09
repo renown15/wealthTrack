@@ -108,10 +108,22 @@ Requirements: ~26/26 complete
 - Migrations now at 060 (up from 046)
 - Backend: 86 test files | Frontend: 162 test files (plus 5 Playwright E2E specs)
 
+## Recent Changes (2026-07-05)
+
+- **Outgoings budgeting (migration 061)** — forward-looking cashflow foundations:
+  - `Costing Method` attribute (Fixed | Provision) + `Outgoing End Date` attribute (ends an outgoing, e.g. last school fee; prorated in final year)
+  - Historic actuals: "Actual Cost" event groups (`Actual Cost` + `Actual Cost Date` events), CRUD via `POST/GET /accounts/{id}/actual-costs`, `DELETE /outgoings/actual-costs/{group_id}`
+  - `GET /outgoings/projections` — per-account projected per-period cost (trailing 12-month mean of actuals)
+  - Outgoings Hub: Predicted Annual/Monthly stat cards, actuals modal on Provision rows, projected cost shown as ~£ in table
+  - Splits for the 200-line limit: ApiServiceHubs.ts (tax/family/gift/scenario facade layer), useOutgoingsHubModals.ts, db_seeds/outgoings.py, outgoingBudget.ts
+  - Next planned: income modelling, then multi-year planning
+- Backend: 89 test files | Frontend: 166 test files
+- Note: frontend functions coverage threshold is 70% (vitest.config.ts) — docs previously said 55%
+
 ## Session Continuity
 
 Last session: 2026-07-05
-Status: lint + type-check verified green 2026-07-05; last full `make pr-check` passing as of most recent merge
+Status: `make pr-check` fully green after outgoings budgeting feature
 
 ---
 *State updated: 2026-07-05*

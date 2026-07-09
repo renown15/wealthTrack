@@ -4,8 +4,8 @@
 
 A personal wealth management app: one place to see all your accounts and balances across financial institutions, with encrypted credential storage and tax tracking.
 
-**Status:** v1 complete — all 6 phases shipped. Post-v1 additions: Tax Hub depth (briefing PDF, SA schedule, commentary/UTR), Outgoings Hub, Scenario Hub (risk scenarios).
-**Last Updated:** 2026-07-05 — docs refreshed: migrations at 060, test counts updated, post-v1 hubs listed.
+**Status:** v1 complete — all 6 phases shipped. Post-v1 additions: Tax Hub depth (briefing PDF, SA schedule, commentary/UTR), Outgoings Hub (incl. budgeting/provisions), Scenario Hub (risk scenarios).
+**Last Updated:** 2026-07-05 — Outgoings budgeting: costing methods, actual costs, projections, predicted totals (migration 061).
 
 ## Tech Stack
 
@@ -29,7 +29,7 @@ wealthTrack/
 │   │   ├── repositories/   # DB queries (SQLAlchemy)
 │   │   ├── models/         # SQLAlchemy ORM models
 │   │   └── schemas/        # Pydantic request/response schemas
-│   ├── alembic/            # DB migrations (060 as of 2026-07-05)
+│   ├── alembic/            # DB migrations (061 as of 2026-07-05)
 │   └── tests/              # 86 backend test files
 ├── frontend/
 │   ├── src/
@@ -106,8 +106,7 @@ Check these first when debugging runtime errors.
 
 1. **Coverage thresholds** — hard failures in `make pr-check`:
    - Backend: ≥80% overall
-   - Frontend statements/branches/lines: ≥70%
-   - Frontend functions: ≥55%
+   - Frontend statements/branches/lines/functions: ≥70% (functions raised from 55% — currently passing at ~70.3%, so add tests alongside new functions)
 
 2. **File size limit** — max 200 lines per `.py` / `.ts` / `.js` / `.vue` file (blank lines excluded). Enforced by `backend/tests/test_file_constraints.py`. Split long files.
 
@@ -165,6 +164,12 @@ The matching Tax Liability account is found by: querying `TaxPeriod` whose date 
 - `Balance Update` event — running total on the receiving account
 
 `Gift Date`, `Gift Donor`, and `Gift Shares` are internal event types (excluded from the account timeline via `_GIFT_INTERNAL_TYPES` in `gift_service.py`). Deleting a gift reverses the balance by deleting the entire group and its events.
+
+**Actual Costs** (`POST /accounts/{id}/actual-costs`): Creates an "Actual Cost" group for outgoing budgeting (Provision costing), containing:
+- `Actual Cost` event — what the period actually cost
+- `Actual Cost Date` event — ISO date string stored as the event value (internal, timeline-filtered)
+
+`GET /outgoings/projections` returns a projected per-period cost per account: the mean of actuals in the trailing 12 months (falling back to the most recent actual). Outgoings with `Costing Method` = `Provision` use this projection in the hub's Predicted Annual/Monthly stats; `Outgoing End Date` ends an outgoing's contribution (prorated inside the final year). Deleting an actual cost deletes the group + events — no balance impact to reverse. See `outgoing_cost_service.py` and `frontend/src/composables/outgoingBudget.ts`.
 
 **DB column naming with table aliases** — SQLAlchemy's `__table__.alias()` exposes DB column names, not Python attribute names. Always use DB names in raw alias queries:
 ```python

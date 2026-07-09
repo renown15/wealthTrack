@@ -25,6 +25,8 @@ export interface Account {
   renewalDate?: string | null;
   renewalType?: string | null;
   monthlyCost?: string | null;
+  costingMethod?: string | null;
+  outgoingEndDate?: string | null;
   utr?: string | null;
   targetPrice?: string | null;
   openedAt: string | null;

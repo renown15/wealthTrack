@@ -36,6 +36,8 @@ export interface FormData {
   renewalDate?: string | null;
   renewalType?: string | null;
   monthlyCost?: string | null;
+  costingMethod?: string | null;
+  outgoingEndDate?: string | null;
   transferToAccountId?: number | null;
 }
 

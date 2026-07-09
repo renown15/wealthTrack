@@ -25,6 +25,7 @@ from app.controllers.institution import router as institution_router
 from app.controllers.institution_security_credentials import (
     router as institution_credentials_router,
 )
+from app.controllers.outgoings import router as outgoings_router
 from app.controllers.portfolio import router as portfolio_router
 from app.controllers.reference_data import router as reference_data_router
 from app.controllers.risk_scenarios import router as risk_scenarios_router
@@ -108,6 +109,7 @@ app.include_router(account_documents_router, prefix=settings.api_v1_prefix)
 app.include_router(share_sale_router, prefix=settings.api_v1_prefix)
 app.include_router(dividends_router, prefix=settings.api_v1_prefix)
 app.include_router(gifts_router, prefix=settings.api_v1_prefix)
+app.include_router(outgoings_router, prefix=settings.api_v1_prefix)
 app.include_router(family_router, prefix=settings.api_v1_prefix)
 app.include_router(risk_scenarios_router, prefix=settings.api_v1_prefix)
 

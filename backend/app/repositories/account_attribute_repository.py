@@ -8,36 +8,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.account_attribute import AccountAttribute
 from app.models.reference_data import ReferenceData
-from app.types.attribute_types import AttributeType
+from app.types.attribute_types import FIELD_TO_ATTR_TYPE
 
-# Maps snake_case shorthands → full ReferenceData.reference_value labels
+# Maps snake_case shorthands → full ReferenceData.reference_value labels.
+# Typed attributes come from FIELD_TO_ATTR_TYPE; the rest are not in the enum.
 _SHORTHAND_MAP: dict[str, str] = {
-    # Typed attributes (sourced from AttributeType enum)
-    "account_number": AttributeType.ACCOUNT_NUMBER,
-    "sort_code": AttributeType.SORT_CODE,
-    "roll_ref_number": AttributeType.ROLL_REF_NUMBER,
-    "interest_rate": AttributeType.INTEREST_RATE,
-    "fixed_bonus_rate": AttributeType.FIXED_BONUS_RATE,
-    "fixed_bonus_rate_end_date": AttributeType.FIXED_BONUS_RATE_END_DATE,
-    "release_date": AttributeType.RELEASE_DATE,
-    "number_of_shares": AttributeType.NUMBER_OF_SHARES,
-    "underlying": AttributeType.UNDERLYING,
-    "price": AttributeType.PRICE,
-    "purchase_price": AttributeType.PURCHASE_PRICE,
-    "pension_monthly_payment": AttributeType.PENSION_MONTHLY_PAYMENT,
-    "asset_class": AttributeType.ASSET_CLASS,
-    "encumbrance": AttributeType.ENCUMBRANCE,
-    "unencumbered_balance": AttributeType.UNENCUMBERED_BALANCE,
-    "tax_year": AttributeType.TAX_YEAR,
-    "renewal_date": AttributeType.RENEWAL_DATE,
-    "renewal_type": AttributeType.RENEWAL_TYPE,
-    "monthly_cost": AttributeType.MONTHLY_COST,
-    # Non-typed attributes (not in AttributeType enum)
+    **{field: str(attr_type) for field, attr_type in FIELD_TO_ATTR_TYPE.items()},
     "opened_date": "Account Opened Date",
     "closed_date": "Account Closed Date",
     "iban": "IBAN",
     "notes": "Notes",
     "utr": "UTR",
+    "costing_method": "Costing Method",
+    "outgoing_end_date": "Outgoing End Date",
     "deferred_shares_balance": "Deferred Shares Balance",
     "deferred_cash_balance": "Deferred Cash Balance",
     "rsu_balance": "RSU Balance",

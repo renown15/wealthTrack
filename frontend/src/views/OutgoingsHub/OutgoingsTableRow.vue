@@ -4,7 +4,7 @@
     <td class="table-cell font-medium">{{ item.account.name }}</td>
     <td class="table-cell">{{ item.accountType ?? '—' }}</td>
     <td class="table-cell text-muted">{{ item.account.accountNumber ?? '—' }}</td>
-    <td class="table-cell">{{ monthlyCostDisplay }}</td>
+    <td class="table-cell" :title="isProvision && projectedCost ? 'Projected from recorded actuals' : undefined">{{ monthlyCostDisplay }}</td>
     <td class="table-cell text-muted">{{ item.account.renewalType ?? '—' }}</td>
     <td class="table-cell" :class="renewalClass">{{ renewalDisplay }}</td>
     <td class="table-cell text-center">
@@ -18,6 +18,12 @@
     </td>
     <td class="table-cell">
       <div v-if="!readOnly" class="flex gap-1">
+        <button
+          v-if="isProvision"
+          class="btn-icon inline-flex items-center justify-center w-7 h-7 text-xs rounded border-none cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200"
+          title="Actual costs"
+          @click="emit('showActuals', item)"
+        >£</button>
         <button
           class="btn-icon inline-flex items-center justify-center w-7 h-7 text-xs rounded border-none cursor-pointer bg-gray-100 text-gray-600 hover:bg-gray-200"
           title="Edit"
@@ -40,12 +46,15 @@ import type { PortfolioItem } from '@models/WealthTrackDataModels';
 import { Icons } from '@/constants/icons';
 import { isRenewingWithin30Days, formatRenewalDate } from '@composables/useOutgoings';
 
-const props = defineProps<{ item: PortfolioItem; readOnly?: boolean }>();
+const props = defineProps<{ item: PortfolioItem; readOnly?: boolean; projectedCost?: string }>();
 const emit = defineEmits<{
   edit: [item: PortfolioItem];
   delete: [item: PortfolioItem];
   showDocs: [item: PortfolioItem];
+  showActuals: [item: PortfolioItem];
 }>();
+
+const isProvision = computed(() => props.item.account.costingMethod === 'Provision');
 
 const renewalDisplay = computed(() =>
   props.item.account.renewalDate ? formatRenewalDate(props.item.account.renewalDate) : 'Rolling'
@@ -53,9 +62,14 @@ const renewalDisplay = computed(() =>
 const renewingSoon = computed(() => isRenewingWithin30Days(props.item.account.renewalDate));
 
 const monthlyCostDisplay = computed(() => {
+  const gbp = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' });
+  if (isProvision.value && props.projectedCost !== undefined) {
+    const projected = parseFloat(props.projectedCost);
+    if (!isNaN(projected)) return `~${gbp.format(projected)}`;
+  }
   const v = parseFloat(props.item.account.monthlyCost ?? '');
   if (isNaN(v)) return '—';
-  return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(v);
+  return gbp.format(v);
 });
 
 const rowClass = computed(() =>

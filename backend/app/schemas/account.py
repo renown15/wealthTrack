@@ -85,6 +85,12 @@ class AccountCreate(BaseSchema):
     )
     monthly_cost: Optional[str] = Field(None, max_length=255, description="Cost per renewal period")
     utr: Optional[str] = Field(None, max_length=20, description="UTR for Trust accounts")
+    costing_method: Optional[str] = Field(
+        None, max_length=50, description="Outgoing costing method (Fixed or Provision)"
+    )
+    outgoing_end_date: Optional[str] = Field(
+        None, max_length=255, description="Date the outgoing ends (e.g. last school fee)"
+    )
 
     @field_validator(*_NUMERIC_FIELDS, mode="before")
     @classmethod
@@ -145,6 +151,12 @@ class AccountUpdate(BaseSchema):
     )
     monthly_cost: Optional[str] = Field(None, max_length=255, description="Cost per renewal period")
     utr: Optional[str] = Field(None, max_length=20, description="UTR for Trust accounts")
+    costing_method: Optional[str] = Field(
+        None, max_length=50, description="Outgoing costing method (Fixed or Provision)"
+    )
+    outgoing_end_date: Optional[str] = Field(
+        None, max_length=255, description="Date the outgoing ends (e.g. last school fee)"
+    )
 
     @field_validator(*_NUMERIC_FIELDS, mode="before")
     @classmethod
@@ -187,6 +199,8 @@ class AccountResponse(BaseSchema):
     renewal_type: Optional[str] = None
     monthly_cost: Optional[str] = None
     utr: Optional[str] = None
+    costing_method: Optional[str] = None
+    outgoing_end_date: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

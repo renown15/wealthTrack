@@ -31,9 +31,11 @@
         :loading="loading"
         :error="error"
         :read-only="readOnly"
+        :projections="projections"
         @edit-account="openEdit"
         @delete-account="openDeleteConfirm"
         @show-docs="(item) => openDocs(item.account.id, item.account.name)"
+        @show-actuals="openActuals"
       />
 
       <OutgoingsProvidersPanel
@@ -61,6 +63,8 @@
       :initial-renewal-date="editingItem?.account.renewalDate"
       :initial-renewal-type="editingItem?.account.renewalType"
       :initial-monthly-cost="editingItem?.account.monthlyCost"
+      :initial-costing-method="editingItem?.account.costingMethod"
+      :initial-outgoing-end-date="editingItem?.account.outgoingEndDate"
       @close="closeAccountModal"
       @save="handleSave"
       @transferred="loadPortfolio"
@@ -81,6 +85,14 @@
       @uploaded="loadPortfolio"
       @deleted="loadPortfolio"
     />
+
+    <OutgoingActualsModal
+      :open="actualsModalOpen"
+      :account-id="actualsAccountId"
+      :account-name="actualsAccountName"
+      @close="actualsModalOpen = false"
+      @changed="loadProjections"
+    />
   </div>
 </template>
 
@@ -93,10 +105,9 @@ import {
 } from '@composables/useOutgoings';
 import { useHubReferenceData } from '@composables/useHubReferenceData';
 import { useFamilyTabs } from '@composables/useFamilyTabs';
-import { useToast } from '@composables/useToast';
+import { useOutgoingsHubModals } from '@composables/useOutgoingsHubModals';
 import { useOutgoingTypes, isOutgoingInstitution } from '@composables/outgoingTypes';
 import { authState } from '@/modules/auth';
-import type { SavePayload } from '@views/AccountHub/accountModalSave';
 import OutgoingsHubStats from '@views/OutgoingsHub/OutgoingsHubStats.vue';
 import OutgoingsTable from '@views/OutgoingsHub/OutgoingsTable.vue';
 import OutgoingsProvidersPanel from '@views/OutgoingsHub/OutgoingsProvidersPanel.vue';
@@ -104,11 +115,22 @@ import FamilyMemberTabs from '@views/AccountHub/FamilyMemberTabs.vue';
 import AccountModal from '@views/AccountHub/AccountModal.vue';
 import DeleteConfirmModal from '@views/AccountHub/DeleteConfirmModal.vue';
 import AccountDocumentsModal from '@views/AccountHub/AccountDocumentsModal.vue';
+import OutgoingActualsModal from '@views/OutgoingsHub/OutgoingActualsModal.vue';
 
-const { items, loading, error, loadPortfolio, createAccount, updateAccount, deleteAccount } = useOutgoings();
+const {
+  items, projections, loading, error,
+  loadPortfolio, loadProjections, createAccount, updateAccount, deleteAccount,
+} = useOutgoings();
 const { accountStatuses, credentialTypes } = useHubReferenceData();
 const { outgoingAccountTypes, outgoingInstitutionTypes } = useOutgoingTypes();
-const { showSuccess, showError } = useToast();
+const {
+  accountModalOpen, modalType, editingItem,
+  deleteConfirmOpen, deleteConfirmName,
+  docsModalOpen, docsAccountId, docsAccountName,
+  actualsModalOpen, actualsAccountId, actualsAccountName,
+  openCreate, openEdit, closeAccountModal,
+  openDeleteConfirm, openDocs, openActuals, handleSave, handleConfirmDelete,
+} = useOutgoingsHubModals({ createAccount, updateAccount, deleteAccount, error });
 
 // Household/family view: switch the displayed outgoings to the active member's.
 const { otherMembers, activeMemberId, tableItems, selectMember, loadFamilyTabs } = useFamilyTabs(
@@ -118,7 +140,8 @@ const { otherMembers, activeMemberId, tableItems, selectMember, loadFamilyTabs }
 );
 const readOnly = computed(() => activeMemberId.value !== null);
 const displayedOutgoings = computed(() => filterOutgoings(tableItems.value));
-const displayedStats = computed(() => computeOutgoingsStats(displayedOutgoings.value));
+const displayedStats = computed(() =>
+  computeOutgoingsStats(displayedOutgoings.value, projections.value));
 
 // Search + a sensible default order (group by type, then provider, then name).
 const search = ref('');
@@ -138,15 +161,6 @@ const displayedProviders = computed<Institution[]>(() => {
 
 const institutions = ref<Institution[]>([]);
 const providersPanel = ref<InstanceType<typeof OutgoingsProvidersPanel> | null>(null);
-const accountModalOpen = ref(false);
-const modalType = ref<'create' | 'edit'>('create');
-const editingItem = ref<PortfolioItem | null>(null);
-const deleteConfirmOpen = ref(false);
-const deleteConfirmId = ref(0);
-const deleteConfirmName = ref('');
-const docsModalOpen = ref(false);
-const docsAccountId = ref(0);
-const docsAccountName = ref('');
 
 const outgoingProviders = computed(() =>
   institutions.value.filter((i) => isOutgoingInstitution(i.institutionType))
@@ -156,55 +170,6 @@ async function loadInstitutions(): Promise<void> {
   try {
     institutions.value = await apiService.getInstitutions();
   } catch { /* non-critical */ }
-}
-
-function openCreate(): void {
-  modalType.value = 'create';
-  editingItem.value = null;
-  accountModalOpen.value = true;
-}
-
-function openEdit(item: PortfolioItem): void {
-  modalType.value = 'edit';
-  editingItem.value = item;
-  accountModalOpen.value = true;
-}
-
-function closeAccountModal(): void {
-  accountModalOpen.value = false;
-  editingItem.value = null;
-}
-
-function openDeleteConfirm(item: PortfolioItem): void {
-  deleteConfirmId.value = item.account.id;
-  deleteConfirmName.value = item.account.name;
-  deleteConfirmOpen.value = true;
-}
-
-function openDocs(accountId: number, accountName: string): void {
-  docsAccountId.value = accountId;
-  docsAccountName.value = accountName;
-  docsModalOpen.value = true;
-}
-
-async function handleSave(payload: SavePayload): Promise<void> {
-  const item = editingItem.value;
-  if (item) {
-    const ok = await updateAccount(item.account.id, payload);
-    if (ok) { showSuccess('Account updated'); closeAccountModal(); }
-    else showError(error.value ?? 'Update failed');
-  } else {
-    const acc = await createAccount(payload);
-    if (acc) { showSuccess('Account added'); closeAccountModal(); }
-    else showError(error.value ?? 'Create failed');
-  }
-}
-
-async function handleConfirmDelete(): Promise<void> {
-  deleteConfirmOpen.value = false;
-  const ok = await deleteAccount(deleteConfirmId.value);
-  if (ok) showSuccess('Account deleted');
-  else showError(error.value ?? 'Delete failed');
 }
 
 onMounted(async () => {

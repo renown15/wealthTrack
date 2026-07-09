@@ -23,6 +23,8 @@ const baseConfig: FieldConfig = {
   showRenewalDate: false,
   showRenewalType: false,
   showMonthlyCost: false,
+  showCostingMethod: false,
+  showOutgoingEndDate: false,
 };
 
 const withInterest: Partial<FieldConfig> = { showInterestRate: true };
@@ -34,7 +36,10 @@ const assetClass: Partial<FieldConfig> = { showAssetClass: true };
 const shares: Partial<FieldConfig> = { showNumberOfShares: true, showUnderlying: true, showPrice: true };
 // Outgoings: reuse isDeferredType to hide Opened Date/balance, but no Release Date;
 // they get a Renewal Type + optional Renewal Date + Cost instead.
-const outgoing: Partial<FieldConfig> = { isDeferredType: true, showRenewalType: true, showRenewalDate: true, showMonthlyCost: true, showPolicyNumber: true, showAssetClass: false };
+const outgoing: Partial<FieldConfig> = {
+  isDeferredType: true, showRenewalType: true, showRenewalDate: true, showMonthlyCost: true,
+  showPolicyNumber: true, showAssetClass: false, showCostingMethod: true, showOutgoingEndDate: true,
+};
 
 // Form config for any outgoing account type. Used as the fallback for outgoing
 // types not individually listed below, so a new outgoing type is seed-only.

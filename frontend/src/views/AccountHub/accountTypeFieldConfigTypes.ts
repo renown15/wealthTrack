@@ -21,4 +21,6 @@ export interface FieldConfig {
   showRenewalDate: boolean;
   showRenewalType: boolean;
   showMonthlyCost: boolean;
+  showCostingMethod: boolean;
+  showOutgoingEndDate: boolean;
 }

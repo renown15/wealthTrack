@@ -127,4 +127,6 @@ ATTRIBUTE_FIELDS: list[str] = [
     "renewal_type",
     "monthly_cost",
     "utr",
+    "costing_method",
+    "outgoing_end_date",
 ]

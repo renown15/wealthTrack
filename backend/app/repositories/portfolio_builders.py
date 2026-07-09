@@ -33,6 +33,8 @@ _LABEL_TO_KEY: dict[str, str] = {
     "Renewal Type": "renewal_type",
     "Monthly Cost": "monthly_cost",
     "UTR": "utr",
+    "Costing Method": "costing_method",
+    "Outgoing End Date": "outgoing_end_date",
 }
 
 
@@ -78,6 +80,8 @@ def build_attributes_dict(raw: dict[str, str]) -> dict[str, Any]:
         "renewal_type": keyed.get("renewal_type"),
         "monthly_cost": keyed.get("monthly_cost"),
         "utr": keyed.get("utr"),
+        "costing_method": keyed.get("costing_method"),
+        "outgoing_end_date": keyed.get("outgoing_end_date"),
     }
 
 
@@ -124,6 +128,8 @@ async def build_portfolio_item(
     acct_data["renewalType"] = attrs.get("renewal_type")
     acct_data["monthlyCost"] = attrs.get("monthly_cost")
     acct_data["utr"] = attrs.get("utr")
+    acct_data["costingMethod"] = attrs.get("costing_method")
+    acct_data["outgoingEndDate"] = attrs.get("outgoing_end_date")
     underlying = attrs.get("underlying")
     acct_data["targetPrice"] = target_prices_by_ticker.get(underlying) if underlying else None
 

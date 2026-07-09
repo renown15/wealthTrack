@@ -53,6 +53,8 @@ export interface AccountFormData {
   renewalDate: string;
   renewalType: string;
   monthlyCost: string;
+  costingMethod: string;
+  outgoingEndDate: string;
   transferToAccountId: number | null;
 }
 
@@ -85,6 +87,8 @@ export interface AccountFormProps {
   initialRenewalDate?: string | null;
   initialRenewalType?: string | null;
   initialMonthlyCost?: string | null;
+  initialCostingMethod?: string | null;
+  initialOutgoingEndDate?: string | null;
   accountTypes: ReferenceDataItem[];
   accountStatuses: ReferenceDataItem[];
   institutions?: Institution[];

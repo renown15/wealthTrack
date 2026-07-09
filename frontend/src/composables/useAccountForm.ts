@@ -45,6 +45,8 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     renewalDate: convertToDateInputFormat(props.value.initialRenewalDate),
     renewalType: props.value.initialRenewalType || '',
     monthlyCost: props.value.initialMonthlyCost || '',
+    costingMethod: props.value.initialCostingMethod || '',
+    outgoingEndDate: convertToDateInputFormat(props.value.initialOutgoingEndDate),
     transferToAccountId: null,
   });
 
@@ -100,6 +102,8 @@ export function useAccountForm(props: Ref<AccountFormProps>): { formData: Ref<Ac
     formData.value.renewalDate = convertToDateInputFormat(props.value.initialRenewalDate);
     formData.value.renewalType = props.value.initialRenewalType || '';
     formData.value.monthlyCost = props.value.initialMonthlyCost || '';
+    formData.value.costingMethod = props.value.initialCostingMethod || '';
+    formData.value.outgoingEndDate = convertToDateInputFormat(props.value.initialOutgoingEndDate);
     formData.value.transferToAccountId = null;
     syncAccountType();
     syncAccountStatus();

@@ -30,6 +30,8 @@ export interface SavePayload {
   renewalDate?: string;
   renewalType?: string;
   monthlyCost?: string;
+  costingMethod?: string;
+  outgoingEndDate?: string;
 }
 
 function opt(v: string): string | undefined {
@@ -77,6 +79,8 @@ export function buildSavePayload(
       renewalDate: fd.renewalDate ? convertFromDateInputFormat(fd.renewalDate) : undefined,
       renewalType: opt(fd.renewalType),
       monthlyCost: opt(fd.monthlyCost),
+      costingMethod: opt(fd.costingMethod),
+      outgoingEndDate: fd.outgoingEndDate ? convertFromDateInputFormat(fd.outgoingEndDate) : undefined,
       transferToAccountId: fd.transferToAccountId ?? undefined,
     },
   };

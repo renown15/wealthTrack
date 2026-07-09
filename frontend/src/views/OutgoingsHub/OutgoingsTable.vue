@@ -24,9 +24,11 @@
           :key="item.account.id"
           :item="item"
           :read-only="readOnly"
+          :projected-cost="projections?.[item.account.id]"
           @edit="emit('editAccount', $event)"
           @delete="emit('deleteAccount', $event)"
           @show-docs="emit('showDocs', $event)"
+          @show-actuals="emit('showActuals', $event)"
         />
       </tbody>
     </table>
@@ -42,11 +44,13 @@ defineProps<{
   loading: boolean;
   error: string | null;
   readOnly?: boolean;
+  projections?: Record<number, string>;
 }>();
 
 const emit = defineEmits<{
   editAccount: [item: PortfolioItem];
   deleteAccount: [item: PortfolioItem];
   showDocs: [item: PortfolioItem];
+  showActuals: [item: PortfolioItem];
 }>();
 </script>

@@ -76,6 +76,8 @@ interface Props {
   initialRenewalDate?: string | null;
   initialRenewalType?: string | null;
   initialMonthlyCost?: string | null;
+  initialCostingMethod?: string | null;
+  initialOutgoingEndDate?: string | null;
   transferAccounts?: { id: number; label: string }[];
   accountId?: number;
   error?: string | null;
@@ -118,6 +120,8 @@ const formProps = computed<AccountFormProps>(() => ({
   initialRenewalDate: props.initialRenewalDate,
   initialRenewalType: props.initialRenewalType,
   initialMonthlyCost: props.initialMonthlyCost,
+  initialCostingMethod: props.initialCostingMethod,
+  initialOutgoingEndDate: props.initialOutgoingEndDate,
   accountTypes: props.accountTypes,
   accountStatuses: props.accountStatuses,
   institutions: props.institutions,

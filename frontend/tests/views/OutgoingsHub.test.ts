@@ -15,19 +15,28 @@ vi.mock('@services/ApiService', () => ({
     createInstitution: (d: unknown) => mockCreateInstitution(d),
   },
 }));
-vi.mock('@composables/useOutgoings', () => ({
-  useOutgoings: () => ({
-    items: ref([]),
-    outgoingItems: computed(() => []),
-    stats: computed(() => ({ totalMonthlyGbp: 0, totalAnnualGbp: 0, renewingSoonCount: 0, byCategory: [] })),
-    loading: ref(false), error: ref(null),
-    loadPortfolio: vi.fn().mockResolvedValue(undefined),
-    createAccount: vi.fn(), updateAccount: vi.fn(), deleteAccount: vi.fn(),
-  }),
-  computeOutgoingsStats: () => ({ totalMonthlyGbp: 0, totalAnnualGbp: 0, renewingSoonCount: 0, byCategory: [] }),
-  filterOutgoings: (items: unknown[]) => items,
-  searchAndSortOutgoings: (items: unknown[]) => items,
-}));
+vi.mock('@composables/useOutgoings', () => {
+  const emptyStats = {
+    totalMonthlyGbp: 0, totalAnnualGbp: 0,
+    predictedMonthlyGbp: 0, predictedAnnualGbp: 0,
+    renewingSoonCount: 0, byCategory: [],
+  };
+  return {
+    useOutgoings: () => ({
+      items: ref([]),
+      outgoingItems: computed(() => []),
+      stats: computed(() => emptyStats),
+      projections: ref({}),
+      loading: ref(false), error: ref(null),
+      loadPortfolio: vi.fn().mockResolvedValue(undefined),
+      loadProjections: vi.fn().mockResolvedValue(undefined),
+      createAccount: vi.fn(), updateAccount: vi.fn(), deleteAccount: vi.fn(),
+    }),
+    computeOutgoingsStats: () => emptyStats,
+    filterOutgoings: (items: unknown[]) => items,
+    searchAndSortOutgoings: (items: unknown[]) => items,
+  };
+});
 const familyActiveId = ref<number | null>(null);
 const familyMembers = ref<{ accountId: number; firstName: string; lastName: string }[]>([]);
 const familyTableItems = ref<unknown[]>([]);

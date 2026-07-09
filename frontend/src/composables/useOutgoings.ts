@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue';
 import { apiService } from '@services/ApiService';
 import { isOutgoingAccountType } from '@composables/outgoingTypes';
+import { annualCost, computePredictedAnnualTotal } from '@composables/outgoingBudget';
 import { matchesAccountSearch } from '@/utils/accountSearch';
 import type { PortfolioItem, Account } from '@models/WealthTrackDataModels';
 import type { SavePayload } from '@views/AccountHub/accountModalSave';
@@ -9,32 +10,13 @@ import { debug } from '@utils/debug';
 export interface OutgoingsStats {
   totalMonthlyGbp: number;
   totalAnnualGbp: number;
+  predictedMonthlyGbp: number;
+  predictedAnnualGbp: number;
   renewingSoonCount: number;
   byCategory: { label: string; count: number; monthlyGbp: number }[];
 }
 
-// Number of payments per year for each renewal type. One-off is non-recurring
-// (excluded from recurring totals); a missing type is treated as monthly for
-// backward compatibility with outgoings recorded before renewal types existed.
-const PAYMENTS_PER_YEAR: Record<string, number> = {
-  Monthly: 12,
-  Quarterly: 4,
-  Termly: 3,
-  Annually: 1,
-  'One-off': 0,
-};
-
-export function paymentsPerYear(renewalType: string | null | undefined): number {
-  if (!renewalType) return 12;
-  return PAYMENTS_PER_YEAR[renewalType] ?? 12;
-}
-
-/** Annualised cost of an outgoing = cost per period × periods per year. */
-export function annualCost(item: PortfolioItem): number {
-  const cost = parseFloat(item.account.monthlyCost ?? '');
-  if (isNaN(cost)) return 0;
-  return cost * paymentsPerYear(item.account.renewalType);
-}
+export { paymentsPerYear, annualCost } from '@composables/outgoingBudget';
 
 export function isRenewingWithin30Days(renewalDate: string | null | undefined): boolean {
   if (!renewalDate) return false;
@@ -60,7 +42,10 @@ export function formatRenewalDate(renewalDate: string | null | undefined): strin
 }
 
 /** Compute the Outgoings Hub stats for a set of outgoing items (annualised). */
-export function computeOutgoingsStats(active: PortfolioItem[]): OutgoingsStats {
+export function computeOutgoingsStats(
+  active: PortfolioItem[],
+  projections: Record<number, string> = {},
+): OutgoingsStats {
   let totalAnnual = 0;
   const categoryMap: Record<string, { count: number; annual: number }> = {};
 
@@ -84,9 +69,13 @@ export function computeOutgoingsStats(active: PortfolioItem[]): OutgoingsStats {
     isRenewingWithin30Days(i.account.renewalDate)
   ).length;
 
+  const predictedAnnual = computePredictedAnnualTotal(active, projections);
+
   return {
     totalMonthlyGbp: totalAnnual / 12,
     totalAnnualGbp: totalAnnual,
+    predictedMonthlyGbp: predictedAnnual / 12,
+    predictedAnnualGbp: predictedAnnual,
     renewingSoonCount,
     byCategory,
   };
@@ -122,21 +111,24 @@ export function useOutgoings(): {
   items: import('vue').Ref<PortfolioItem[]>;
   outgoingItems: import('vue').ComputedRef<PortfolioItem[]>;
   stats: import('vue').ComputedRef<OutgoingsStats>;
+  projections: import('vue').Ref<Record<number, string>>;
   loading: import('vue').Ref<boolean>;
   error: import('vue').Ref<string | null>;
   loadPortfolio: () => Promise<void>;
+  loadProjections: () => Promise<void>;
   createAccount: (payload: SavePayload) => Promise<Account | null>;
   updateAccount: (accountId: number, payload: SavePayload) => Promise<boolean>;
   deleteAccount: (accountId: number) => Promise<boolean>;
 } {
   const items = ref<PortfolioItem[]>([]);
+  const projections = ref<Record<number, string>>({});
   const loading = ref(false);
   const error = ref<string | null>(null);
 
   const outgoingItems = computed(() => filterOutgoings(items.value));
 
   const stats = computed<OutgoingsStats>(() => {
-    return computeOutgoingsStats(outgoingItems.value);
+    return computeOutgoingsStats(outgoingItems.value, projections.value);
   });
 
   async function loadPortfolio(): Promise<void> {
@@ -145,11 +137,21 @@ export function useOutgoings(): {
     try {
       const portfolio = await apiService.getPortfolio();
       items.value = portfolio.items ?? [];
+      await loadProjections();
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Failed to load outgoings';
       debug.error('[useOutgoings] load error', e);
     } finally {
       loading.value = false;
+    }
+  }
+
+  async function loadProjections(): Promise<void> {
+    try {
+      const list = await apiService.getOutgoingProjections();
+      projections.value = Object.fromEntries(list.map((p) => [p.accountId, p.projectedCost]));
+    } catch (e) {
+      debug.error('[useOutgoings] projections load error', e);
     }
   }
 
@@ -193,9 +195,11 @@ export function useOutgoings(): {
     items,
     outgoingItems,
     stats,
+    projections,
     loading,
     error,
     loadPortfolio,
+    loadProjections,
     createAccount,
     updateAccount,
     deleteAccount,
