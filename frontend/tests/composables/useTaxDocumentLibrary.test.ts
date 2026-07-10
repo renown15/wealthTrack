@@ -5,6 +5,7 @@ import { apiService } from '@services/ApiService';
 vi.mock('@services/ApiService', () => ({
   apiService: {
     getTaxDocumentLibrary: vi.fn(),
+    uploadTaxLibraryDocument: vi.fn(),
     downloadTaxDocument: vi.fn(),
     deleteTaxDocument: vi.fn(),
     updateTaxDocumentDescription: vi.fn(),
@@ -73,6 +74,24 @@ describe('useTaxDocumentLibrary', () => {
     await updateDescription(2, 'now described');
     expect(apiService.updateTaxDocumentDescription).toHaveBeenCalledWith(2, 'now described');
     expect(documents.value.find((d) => d.id === 2)?.description).toBe('now described');
+  });
+
+  it('uploads a top-level document and reloads the library', async () => {
+    vi.mocked(apiService.uploadTaxLibraryDocument).mockResolvedValue(mockDocs[0] as never);
+    const { uploading, upload } = useTaxDocumentLibrary();
+    const file = new File(['x'], 'SA100 2019-20.pdf');
+    await upload(file, 'archived return');
+    expect(apiService.uploadTaxLibraryDocument).toHaveBeenCalledWith(file, 'archived return');
+    expect(apiService.getTaxDocumentLibrary).toHaveBeenCalled();
+    expect(uploading.value).toBe(false);
+  });
+
+  it('sets error when upload fails', async () => {
+    vi.mocked(apiService.uploadTaxLibraryDocument).mockRejectedValue(new Error('too big'));
+    const { error, upload } = useTaxDocumentLibrary();
+    await upload(new File(['x'], 'a.pdf'));
+    expect(error.value).toBe('too big');
+    expect(apiService.getTaxDocumentLibrary).not.toHaveBeenCalled();
   });
 
   it('downloads via an object URL', async () => {

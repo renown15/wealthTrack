@@ -27,6 +27,33 @@ async def list_all_documents(
     return [TaxDocumentLibraryItem(**row) for row in rows]
 
 
+@router.post(
+    "/documents", response_model=TaxDocumentLibraryItem, status_code=status.HTTP_201_CREATED
+)
+async def upload_library_document(
+    file: UploadFile = File(...),
+    description: str | None = Form(default=None),
+    session: AsyncSession = Depends(get_db),
+    current_user: UserProfile = Depends(get_current_user),
+) -> TaxDocumentLibraryItem:
+    """Upload a top-level library document (no tax return, no account).
+
+    For safe-storing standalone records like archived past returns; these
+    never appear in per-account views or briefing packs.
+    """
+    content = await file.read()
+    doc = await TaxDocumentRepository(session).create(
+        user_id=current_user.id,
+        tax_return_id=None,
+        filename=file.filename or "document",
+        content_type=file.content_type,
+        file_data=content,
+        description=description or None,
+    )
+    await session.commit()
+    return TaxDocumentLibraryItem.model_validate(doc)
+
+
 async def _get_or_create_return(
     session: AsyncSession,
     user_id: int,

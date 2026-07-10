@@ -11,7 +11,9 @@ export interface UseTaxDocumentLibraryReturn {
   previewUrl: Ref<string | null>;
   previewFilename: Ref<string>;
   previewContentType: Ref<string | null>;
+  uploading: Ref<boolean>;
   loadLibrary: () => Promise<void>;
+  upload: (file: File, description?: string) => Promise<void>;
   download: (docId: number, filename: string) => Promise<void>;
   preview: (docId: number, filename: string, contentType: string | null) => Promise<void>;
   closePreview: () => void;
@@ -28,6 +30,21 @@ export function useTaxDocumentLibrary(): UseTaxDocumentLibraryReturn {
   const previewUrl = ref<string | null>(null);
   const previewFilename = ref('');
   const previewContentType = ref<string | null>(null);
+  const uploading = ref(false);
+
+  async function upload(file: File, description?: string): Promise<void> {
+    uploading.value = true;
+    error.value = null;
+    try {
+      await apiService.uploadTaxLibraryDocument(file, description);
+      await loadLibrary();
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Failed to upload document';
+      debug.error('[useTaxDocumentLibrary] upload error', e);
+    } finally {
+      uploading.value = false;
+    }
+  }
 
   async function loadLibrary(): Promise<void> {
     loading.value = true;
@@ -103,8 +120,8 @@ export function useTaxDocumentLibrary(): UseTaxDocumentLibraryReturn {
   }
 
   return {
-    documents, loading, error,
+    documents, loading, error, uploading,
     previewOpen, previewUrl, previewFilename, previewContentType,
-    loadLibrary, download, preview, closePreview, removeDocument, updateDescription,
+    loadLibrary, upload, download, preview, closePreview, removeDocument, updateDescription,
   };
 }

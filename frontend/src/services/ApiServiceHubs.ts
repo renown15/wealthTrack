@@ -15,6 +15,7 @@ import type {
 import type { ScenarioDetail, ScenarioGroup, ScenarioListItem } from '@models/scenario';
 import type { User } from '@models/User';
 import { taxService } from '@services/TaxService';
+import { taxDocumentService } from '@services/TaxDocumentService';
 import { authService } from '@services/AuthService';
 import { familyService } from '@services/FamilyService';
 import { giftService } from '@services/GiftService';
@@ -67,23 +68,27 @@ export class ApiServiceHubs extends ApiServiceBase {
   }
 
   async uploadTaxDocument(periodId: number, accountId: number, file: File, description?: string): Promise<TaxDocument> {
-    return taxService.uploadDocument(periodId, accountId, file, description);
+    return taxDocumentService.uploadDocument(periodId, accountId, file, description);
   }
 
   async updateTaxDocumentDescription(docId: number, description: string | null): Promise<TaxDocument> {
-    return taxService.updateDescription(docId, description);
+    return taxDocumentService.updateDescription(docId, description);
   }
 
   async downloadTaxDocument(docId: number): Promise<Blob> {
-    return taxService.downloadDocument(docId);
+    return taxDocumentService.downloadDocument(docId);
   }
 
   async deleteTaxDocument(docId: number): Promise<void> {
-    return taxService.deleteDocument(docId);
+    return taxDocumentService.deleteDocument(docId);
   }
 
   async getTaxDocumentLibrary(): Promise<TaxDocumentLibraryItem[]> {
-    return taxService.listAllDocuments();
+    return taxDocumentService.listAllDocuments();
+  }
+
+  async uploadTaxLibraryDocument(file: File, description?: string): Promise<TaxDocumentLibraryItem> {
+    return taxDocumentService.uploadLibraryDocument(file, description);
   }
 
   async getFamilies(): Promise<Family[]> {

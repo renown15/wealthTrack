@@ -6,6 +6,7 @@ import { apiService } from '@services/ApiService';
 vi.mock('@services/ApiService', () => ({
   apiService: {
     getTaxDocumentLibrary: vi.fn(),
+    uploadTaxLibraryDocument: vi.fn(),
     downloadTaxDocument: vi.fn(),
     deleteTaxDocument: vi.fn(),
     updateTaxDocumentDescription: vi.fn(),
@@ -13,6 +14,9 @@ vi.mock('@services/ApiService', () => ({
 }));
 
 const mockDocs = [
+  { id: 3, taxReturnId: null, filename: 'SA100 2019-20.pdf', description: 'archived return',
+    contentType: 'application/pdf', createdAt: '2026-07-01T10:00:00',
+    accountName: null, periodName: null },
   { id: 1, taxReturnId: 5, filename: 'cert.pdf', description: 'interest cert',
     contentType: 'application/pdf', createdAt: '2026-06-01T10:00:00',
     accountName: 'Cahoot Savings', periodName: '2026/27' },
@@ -51,7 +55,7 @@ describe('TaxDocumentLibraryModal', () => {
     vi.mocked(apiService.getTaxDocumentLibrary).mockResolvedValue([]);
     const wrapper = mount(TaxDocumentLibraryModal, { props: { open: true } });
     await flushPromises();
-    expect(wrapper.text()).toContain('No documents uploaded yet');
+    expect(wrapper.text()).toContain('No documents yet');
   });
 
   it('deletes a document and drops its row', async () => {
@@ -59,9 +63,19 @@ describe('TaxDocumentLibraryModal', () => {
     await flushPromises();
     await wrapper.find('button[title="Delete"]').trigger('click');
     await flushPromises();
-    expect(apiService.deleteTaxDocument).toHaveBeenCalledWith(1);
-    expect(wrapper.text()).not.toContain('cert.pdf');
+    expect(apiService.deleteTaxDocument).toHaveBeenCalledWith(3);
+    expect(wrapper.text()).not.toContain('SA100 2019-20.pdf');
     expect(wrapper.text()).toContain('p60.pdf');
+  });
+
+  it('shows — labels for top-level documents and renders the upload panel', async () => {
+    const wrapper = mount(TaxDocumentLibraryModal, { props: { open: true } });
+    await flushPromises();
+    const firstRow = wrapper.find('tbody tr');
+    expect(firstRow.text()).toContain('SA100 2019-20.pdf');
+    expect(firstRow.text()).toContain('—');
+    expect(wrapper.find('input[type="file"]').exists()).toBe(true);
+    expect(wrapper.text()).toContain('never included in briefing packs');
   });
 
   it('emits close from the footer button', async () => {

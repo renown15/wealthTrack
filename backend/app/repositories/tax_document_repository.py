@@ -36,12 +36,15 @@ class TaxDocumentRepository:
                 Account.name.label("account_name"),
                 TaxPeriod.name.label("period_name"),
             )
-            .join(TaxReturn, TaxReturn.id == TaxDocument.tax_return_id)
-            .join(Account, Account.id == TaxReturn.account_id)
-            .join(TaxPeriod, TaxPeriod.id == TaxReturn.tax_period_id)
+            .outerjoin(TaxReturn, TaxReturn.id == TaxDocument.tax_return_id)
+            .outerjoin(Account, Account.id == TaxReturn.account_id)
+            .outerjoin(TaxPeriod, TaxPeriod.id == TaxReturn.tax_period_id)
             .where(TaxDocument.user_id == user_id)
             .order_by(
-                TaxPeriod.start_date.desc(), Account.name.asc(), TaxDocument.created_at.asc()
+                # Hub-level documents (no return, hence no period) sort first.
+                TaxPeriod.start_date.desc().nullsfirst(),
+                Account.name.asc(),
+                TaxDocument.created_at.asc(),
             )
         )
         result = await self.session.execute(stmt)
@@ -72,7 +75,7 @@ class TaxDocumentRepository:
     async def create(
         self,
         user_id: int,
-        tax_return_id: int,
+        tax_return_id: Optional[int],
         filename: str,
         content_type: Optional[str],
         file_data: bytes,

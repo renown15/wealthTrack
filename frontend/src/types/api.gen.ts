@@ -705,7 +705,14 @@ export interface paths {
          */
         get: operations["list_all_documents_api_v1_tax_documents_get"];
         put?: never;
-        post?: never;
+        /**
+         * Upload Library Document
+         * @description Upload a top-level library document (no tax return, no account).
+         *
+         *     For safe-storing standalone records like archived past returns; these
+         *     never appear in per-account views or briefing packs.
+         */
+        post: operations["upload_library_document_api_v1_tax_documents_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1904,6 +1911,16 @@ export interface components {
             /** Description */
             description?: string | null;
         };
+        /** Body_upload_library_document_api_v1_tax_documents_post */
+        BodyUploadLibraryDocumentApiV1TaxDocumentsPost: {
+            /**
+             * File
+             * Format: binary
+             */
+            file: string;
+            /** Description */
+            description?: string | null;
+        };
         /**
          * BreakdownItem
          * @description A labelled value for a breakdown chart, with per-account detail.
@@ -2623,12 +2640,15 @@ export interface components {
         /**
          * TaxDocumentLibraryItem
          * @description A tax document with its account and period labels (hub-level library).
+         *
+         *     Labels are None for top-level library documents, which belong to no
+         *     tax return (e.g. archived past returns stored for safekeeping).
          */
         TaxDocumentLibraryItem: {
             /** Id */
             id: number;
             /** Taxreturnid */
-            taxReturnId: number;
+            taxReturnId?: number | null;
             /** Filename */
             filename: string;
             /** Description */
@@ -2641,9 +2661,9 @@ export interface components {
              */
             createdAt: string;
             /** Accountname */
-            accountName: string;
+            accountName?: string | null;
             /** Periodname */
-            periodName: string;
+            periodName?: string | null;
         };
         /**
          * TaxDocumentResponse
@@ -4348,6 +4368,42 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TaxDocumentLibraryItem"][];
+                };
+            };
+        };
+    };
+    upload_library_document_api_v1_tax_documents_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxDocumentLibraryItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -65,3 +65,69 @@ async def test_library_empty_without_documents(
     response = await client.get("/api/v1/tax/documents", headers=authenticated_headers)
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == []
+
+
+@pytest.mark.asyncio
+async def test_upload_top_level_document(
+    client: AsyncClient,
+    authenticated_headers: dict[str, str],
+    db_session: AsyncSession,
+    user: UserProfile,
+    account: Account,
+):
+    """A library upload has no return: — labels, sorted first, still downloadable."""
+    await _make_doc(db_session, user, account, "2025/26", "account-cert.pdf")
+    await db_session.commit()
+
+    response = await client.post(
+        "/api/v1/tax/documents",
+        headers=authenticated_headers,
+        files={"file": ("SA100 2019-20.pdf", b"archived return", "application/pdf")},
+        data={"description": "archived return"},
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+    created = response.json()
+    assert created["taxReturnId"] is None
+    assert created["accountName"] is None
+
+    library = (
+        await client.get("/api/v1/tax/documents", headers=authenticated_headers)
+    ).json()
+    assert [d["filename"] for d in library] == ["SA100 2019-20.pdf", "account-cert.pdf"]
+    assert library[0]["periodName"] is None
+
+    download = await client.get(
+        f"/api/v1/tax/documents/{created['id']}/download", headers=authenticated_headers
+    )
+    assert download.status_code == status.HTTP_200_OK
+    assert download.content == b"archived return"
+
+
+@pytest.mark.asyncio
+async def test_top_level_document_invisible_to_account_views(
+    client: AsyncClient,
+    authenticated_headers: dict[str, str],
+    db_session: AsyncSession,
+    user: UserProfile,
+    account: Account,
+):
+    """Library docs never leak into per-account document lists (or briefings)."""
+    doc = await _make_doc(db_session, user, account, "2024/25", "cert.pdf")
+    await db_session.commit()
+
+    await client.post(
+        "/api/v1/tax/documents",
+        headers=authenticated_headers,
+        files={"file": ("standalone.pdf", b"x", "application/pdf")},
+    )
+
+    # The per-account listing for the period still only sees the account's doc.
+    tax_return = await db_session.get(TaxReturn, doc.tax_return_id)
+    assert tax_return is not None
+    per_account = (
+        await client.get(
+            f"/api/v1/tax/periods/{tax_return.tax_period_id}/accounts/{account.id}/documents",
+            headers=authenticated_headers,
+        )
+    ).json()
+    assert [d["filename"] for d in per_account] == ["cert.pdf"]

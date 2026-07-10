@@ -99,16 +99,23 @@ class TaxDocumentResponse(BaseSchema):
 
 
 class TaxDocumentLibraryItem(BaseSchema):
-    """A tax document with its account and period labels (hub-level library)."""
+    """A tax document with its account and period labels (hub-level library).
+
+    Labels are None for top-level library documents, which belong to no
+    tax return (e.g. archived past returns stored for safekeeping).
+    """
 
     id: int
-    tax_return_id: int
+    tax_return_id: Optional[int] = None
     filename: str
     description: Optional[str] = None
     content_type: Optional[str] = None
     created_at: datetime
-    account_name: str
-    period_name: str
+    account_name: Optional[str] = None
+    period_name: Optional[str] = None
+
+    class Config:
+        from_attributes = True
 
 
 class EligibleAccountResponse(BaseSchema):

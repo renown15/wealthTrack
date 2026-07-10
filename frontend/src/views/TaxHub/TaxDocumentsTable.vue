@@ -12,8 +12,8 @@
     </thead>
     <tbody>
       <tr v-for="doc in documents" :key="doc.id" class="border-b last:border-0">
-        <td v-if="showSource" class="py-2 pr-2 whitespace-nowrap">{{ doc.periodName }}</td>
-        <td v-if="showSource" class="py-2 pr-2 truncate max-w-40" :title="doc.accountName">{{ doc.accountName }}</td>
+        <td v-if="showSource" class="py-2 pr-2 whitespace-nowrap">{{ doc.periodName ?? '—' }}</td>
+        <td v-if="showSource" class="py-2 pr-2 truncate max-w-40" :title="doc.accountName ?? undefined">{{ doc.accountName ?? '—' }}</td>
         <td class="py-2 pr-2 truncate max-w-xs" :title="doc.filename">{{ doc.filename }}</td>
         <td class="py-2 pr-2 max-w-xs">
           <div v-if="editingDocId === doc.id" class="flex gap-1 items-center">
@@ -55,11 +55,20 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { TaxDocument } from '@models/TaxModels';
 import { Icons } from '@/constants/icons';
 
-/** A document row; period/account labels are present in library mode only. */
-type DocumentRow = TaxDocument & { periodName?: string; accountName?: string };
+/** The fields the table renders — satisfied by both per-account TaxDocument
+ *  rows and library items (whose account/period labels are null for
+ *  top-level documents that belong to no tax return). */
+interface DocumentRow {
+  id: number;
+  filename: string;
+  description?: string | null;
+  contentType?: string | null;
+  createdAt: string;
+  periodName?: string | null;
+  accountName?: string | null;
+}
 
 defineProps<{
   documents: DocumentRow[];

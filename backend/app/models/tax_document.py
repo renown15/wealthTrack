@@ -22,8 +22,10 @@ class TaxDocument(Base):
     user_id: Mapped[int] = mapped_column(
         "userid", Integer, ForeignKey("UserProfile.id"), nullable=False, index=True
     )
-    tax_return_id: Mapped[int] = mapped_column(
-        "taxreturnid", Integer, ForeignKey("TaxReturn.id"), nullable=False, index=True
+    # Nullable: hub-level library documents (e.g. archived past returns) have
+    # no owning tax return, which also keeps them out of briefing packs.
+    tax_return_id: Mapped[Optional[int]] = mapped_column(
+        "taxreturnid", Integer, ForeignKey("TaxReturn.id"), nullable=True, index=True
     )
     filename: Mapped[str] = mapped_column(String(500), nullable=False)
     description: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
@@ -34,7 +36,9 @@ class TaxDocument(Base):
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )
 
-    tax_return: Mapped["TaxReturn"] = relationship("TaxReturn", back_populates="documents")
+    tax_return: Mapped[Optional["TaxReturn"]] = relationship(
+        "TaxReturn", back_populates="documents"
+    )
 
     def __repr__(self) -> str:
         return f"<TaxDocument(id={self.id}, filename={self.filename})>"
