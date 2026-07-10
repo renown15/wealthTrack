@@ -28,6 +28,9 @@ import { shareSaleService } from '@services/ShareSaleService';
 import { familyService } from '@services/FamilyService';
 import { giftService } from '@services/GiftService';
 import { scenarioService } from '@services/ScenarioService';
+import { outgoingCostService } from '@services/OutgoingCostService';
+import { taxDocumentService } from '@services/TaxDocumentService';
+import { institutionCredentialsService } from '@/services/InstitutionCredentialsService';
 
 export class ApiServiceBase {
   public client: AxiosInstance;
@@ -61,6 +64,9 @@ export class ApiServiceBase {
     familyService['client'] = this.client;
     giftService['client'] = this.client;
     scenarioService['client'] = this.client;
+    outgoingCostService['client'] = this.client;
+    taxDocumentService['client'] = this.client;
+    institutionCredentialsService['client'] = this.client;
     /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any */
   }
 
