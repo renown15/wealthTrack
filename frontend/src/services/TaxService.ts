@@ -3,6 +3,7 @@
  */
 import type {
   TaxDocument,
+  TaxDocumentLibraryItem,
   TaxPeriod,
   TaxPeriodAccountsResponse,
   TaxPeriodCreateRequest,
@@ -118,6 +119,17 @@ class TaxService extends BaseApiClient {
       return response.data;
     } catch (error) {
       throw this.handleError(error, 'Failed to update scope');
+    }
+  }
+
+  async listAllDocuments(): Promise<TaxDocumentLibraryItem[]> {
+    try {
+      const response = await this.retryRequest(() =>
+        this.client.get<TaxDocumentLibraryItem[]>(`${BASE}/documents`),
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error, 'Failed to fetch document library');
     }
   }
 

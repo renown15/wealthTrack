@@ -10,6 +10,7 @@ import type {
   TaxReturnUpsertRequest,
   TaxScopeUpdateRequest,
   TaxDocument,
+  TaxDocumentLibraryItem,
 } from '@models/TaxModels';
 import type { ScenarioDetail, ScenarioGroup, ScenarioListItem } from '@models/scenario';
 import type { User } from '@models/User';
@@ -79,6 +80,10 @@ export class ApiServiceHubs extends ApiServiceBase {
 
   async deleteTaxDocument(docId: number): Promise<void> {
     return taxService.deleteDocument(docId);
+  }
+
+  async getTaxDocumentLibrary(): Promise<TaxDocumentLibraryItem[]> {
+    return taxService.listAllDocuments();
   }
 
   async getFamilies(): Promise<Family[]> {

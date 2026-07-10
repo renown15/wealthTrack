@@ -116,6 +116,19 @@ describe('TaxService', () => {
     expect(result).toStrictEqual([mockDoc]);
   });
 
+  it('listAllDocuments fetches the hub-level library', async () => {
+    const libDoc = { ...mockDoc, accountName: 'Cahoot', periodName: '2026/27' };
+    clientStub.get.mockResolvedValue({ data: [libDoc] });
+    const result = await taxService.listAllDocuments();
+    expect(result).toStrictEqual([libDoc]);
+    expect(clientStub.get).toHaveBeenCalledWith('/api/v1/tax/documents');
+  });
+
+  it('listAllDocuments throws on error', async () => {
+    clientStub.get.mockRejectedValue(new Error('Network error'));
+    await expect(taxService.listAllDocuments()).rejects.toThrow();
+  });
+
   it('deleteDocument calls delete', async () => {
     clientStub.delete.mockResolvedValue({ data: null });
     await taxService.deleteDocument(20);

@@ -9,6 +9,7 @@ export type TaxPeriodCreateRequest = components['schemas']['TaxPeriodCreate'];
 export type TaxReturn = components['schemas']['TaxReturnResponse'];
 export type TaxReturnUpsertRequest = components['schemas']['TaxReturnUpsert'];
 export type TaxDocument = components['schemas']['TaxDocumentResponse'];
+export type TaxDocumentLibraryItem = components['schemas']['TaxDocumentLibraryItem'];
 export type TaxPeriodAccountsResponse = components['schemas']['TaxPeriodAccountsResponse'];
 export type TaxScopeUpdateRequest = components['schemas']['TaxScopeUpdate'];
 

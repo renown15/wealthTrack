@@ -90,6 +90,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/me/utr": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set Utr
+         * @description Set or clear the current user's Unique Taxpayer Reference.
+         */
+        put: operations["set_utr_api_v1_auth_me_utr_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/analytics/breakdown": {
         parameters: {
             query?: never;
@@ -605,7 +625,11 @@ export interface paths {
         delete: operations["delete_tax_period_api_v1_tax_periods__period_id__delete"];
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Update Tax Period
+         * @description Update editable fields on a tax period (the commentary).
+         */
+        patch: operations["update_tax_period_api_v1_tax_periods__period_id__patch"];
         trace?: never;
     };
     "/api/v1/tax/periods/{periodId}/Accounts": {
@@ -661,6 +685,26 @@ export interface paths {
          * @description Set or clear an account's scope override and note for a period.
          */
         put: operations["set_tax_scope_api_v1_tax_periods__period_id__accounts__account_id__scope_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tax/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List All Documents
+         * @description All the user's tax documents across periods and accounts (the library).
+         */
+        get: operations["list_all_documents_api_v1_tax_documents_get"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -959,6 +1003,70 @@ export interface paths {
          * @description Delete a gift by its Gift event ID, reversing the balance contribution.
          */
         delete: operations["remove_gift_by_event_api_v1_gifts_by_event__event_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/accounts/{accountId}/Actual-Costs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Actual Costs
+         * @description List recorded actual costs for an account, newest period first.
+         */
+        get: operations["get_actual_costs_api_v1_accounts__account_id__actual_costs_get"];
+        put?: never;
+        /**
+         * Create Actual Cost
+         * @description Record a historic actual cost against an outgoing account.
+         */
+        post: operations["create_actual_cost_api_v1_accounts__account_id__actual_costs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/outgoings/actual-costs/{groupId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove Actual Cost
+         * @description Delete a recorded actual cost (the whole event group).
+         */
+        delete: operations["remove_actual_cost_api_v1_outgoings_actual_costs__group_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/outgoings/projections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Outgoing Projections
+         * @description Projected per-period cost per account, derived from actual-cost history.
+         */
+        get: operations["get_outgoing_projections_api_v1_outgoings_projections_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1365,8 +1473,21 @@ export interface components {
              * @description Cost per renewal period
              */
             monthlyCost?: string | null;
-            /** Utr */
+            /**
+             * Utr
+             * @description UTR for Trust accounts
+             */
             utr?: string | null;
+            /**
+             * Costingmethod
+             * @description Outgoing costing method (Fixed or Provision)
+             */
+            costingMethod?: string | null;
+            /**
+             * Outgoingenddate
+             * @description Date the outgoing ends (e.g. last school fee)
+             */
+            outgoingEndDate?: string | null;
         };
         /**
          * AccountDatesUpdate
@@ -1567,6 +1688,10 @@ export interface components {
             monthlyCost?: string | null;
             /** Utr */
             utr?: string | null;
+            /** Costingmethod */
+            costingMethod?: string | null;
+            /** Outgoingenddate */
+            outgoingEndDate?: string | null;
             /**
              * Createdat
              * Format: date-time
@@ -1694,8 +1819,52 @@ export interface components {
              * @description Cost per renewal period
              */
             monthlyCost?: string | null;
-            /** Utr */
+            /**
+             * Utr
+             * @description UTR for Trust accounts
+             */
             utr?: string | null;
+            /**
+             * Costingmethod
+             * @description Outgoing costing method (Fixed or Provision)
+             */
+            costingMethod?: string | null;
+            /**
+             * Outgoingenddate
+             * @description Date the outgoing ends (e.g. last school fee)
+             */
+            outgoingEndDate?: string | null;
+        };
+        /**
+         * ActualCostCreate
+         * @description Request body for recording a historic actual cost on an outgoing.
+         */
+        ActualCostCreate: {
+            /**
+             * Amount
+             * @description Actual cost for the period in GBP
+             */
+            amount: string;
+            /**
+             * Costdate
+             * Format: date
+             * @description Date the cost was incurred (period anchor)
+             */
+            costDate: string;
+        };
+        /**
+         * ActualCostItem
+         * @description A recorded actual cost (one per renewal period).
+         */
+        ActualCostItem: {
+            /** Groupid */
+            groupId: number;
+            /** Accountid */
+            accountId: number;
+            /** Amount */
+            amount: string;
+            /** Costdate */
+            costDate: string;
         };
         /**
          * AddMemberRequest
@@ -2018,6 +2187,18 @@ export interface components {
              * @description Type of institution (Bank, Building Society, HM Government, Fund Manager)
              */
             institutionType?: string | null;
+        };
+        /**
+         * OutgoingProjection
+         * @description Projected per-period cost for an outgoing, derived from actuals.
+         */
+        OutgoingProjection: {
+            /** Accountid */
+            accountId: number;
+            /** Projectedcost */
+            projectedCost: string;
+            /** Actualscount */
+            actualsCount: number;
         };
         /**
          * PortfolioBreakdown
@@ -2440,6 +2621,31 @@ export interface components {
             createdAt: string;
         };
         /**
+         * TaxDocumentLibraryItem
+         * @description A tax document with its account and period labels (hub-level library).
+         */
+        TaxDocumentLibraryItem: {
+            /** Id */
+            id: number;
+            /** Taxreturnid */
+            taxReturnId: number;
+            /** Filename */
+            filename: string;
+            /** Description */
+            description?: string | null;
+            /** Contenttype */
+            contentType?: string | null;
+            /**
+             * Createdat
+             * Format: date-time
+             */
+            createdAt: string;
+            /** Accountname */
+            accountName: string;
+            /** Periodname */
+            periodName: string;
+        };
+        /**
          * TaxDocumentResponse
          * @description Tax document metadata response (no file_data).
          */
@@ -2529,6 +2735,14 @@ export interface components {
              * Format: date-time
              */
             updatedAt: string;
+        };
+        /**
+         * TaxPeriodUpdate
+         * @description Update editable fields on a tax period (currently the commentary).
+         */
+        TaxPeriodUpdate: {
+            /** Commentary */
+            commentary?: string | null;
         };
         /**
          * TaxReturnResponse
@@ -2670,6 +2884,14 @@ export interface components {
             /** Email */
             email: string;
         };
+        /**
+         * UtrUpdate
+         * @description Set or clear the current user's Unique Taxpayer Reference.
+         */
+        UtrUpdate: {
+            /** Utr */
+            utr?: string | null;
+        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -2774,6 +2996,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserResponse"];
+                };
+            };
+        };
+    };
+    set_utr_api_v1_auth_me_utr_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UtrUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -3939,6 +4194,41 @@ export interface operations {
             };
         };
     };
+    update_tax_period_api_v1_tax_periods__period_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                period_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaxPeriodUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxPeriodResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_eligible_accounts_api_v1_tax_periods__period_id__accounts_get: {
         parameters: {
             query?: never;
@@ -4038,6 +4328,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_all_documents_api_v1_tax_documents_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxDocumentLibraryItem"][];
                 };
             };
         };
@@ -4618,6 +4928,121 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_actual_costs_api_v1_accounts__account_id__actual_costs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                account_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActualCostItem"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_actual_cost_api_v1_accounts__account_id__actual_costs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                account_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActualCostCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActualCostItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_actual_cost_api_v1_outgoings_actual_costs__group_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_outgoing_projections_api_v1_outgoings_projections_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OutgoingProjection"][];
                 };
             };
         };

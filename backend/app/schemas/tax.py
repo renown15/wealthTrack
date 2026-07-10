@@ -98,6 +98,19 @@ class TaxDocumentResponse(BaseSchema):
         from_attributes = True
 
 
+class TaxDocumentLibraryItem(BaseSchema):
+    """A tax document with its account and period labels (hub-level library)."""
+
+    id: int
+    tax_return_id: int
+    filename: str
+    description: Optional[str] = None
+    content_type: Optional[str] = None
+    created_at: datetime
+    account_name: str
+    period_name: str
+
+
 class EligibleAccountResponse(BaseSchema):
     """An account eligible for inclusion in a tax period."""
 

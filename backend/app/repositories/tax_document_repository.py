@@ -2,12 +2,15 @@
 Repository for TaxDocument CRUD operations.
 """
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.account import Account
 from app.models.tax_document import TaxDocument
+from app.models.tax_period import TaxPeriod
+from app.models.tax_return import TaxReturn
 
 
 class TaxDocumentRepository:
@@ -15,6 +18,34 @@ class TaxDocumentRepository:
 
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
+
+    async def list_all_for_user(self, user_id: int) -> list[dict[str, Any]]:
+        """All the user's tax documents with account + period labels.
+
+        Selects metadata columns only — never the file bytes — since the
+        library can span every uploaded document.
+        """
+        stmt = (
+            select(
+                TaxDocument.id,
+                TaxDocument.tax_return_id,
+                TaxDocument.filename,
+                TaxDocument.description,
+                TaxDocument.content_type,
+                TaxDocument.created_at,
+                Account.name.label("account_name"),
+                TaxPeriod.name.label("period_name"),
+            )
+            .join(TaxReturn, TaxReturn.id == TaxDocument.tax_return_id)
+            .join(Account, Account.id == TaxReturn.account_id)
+            .join(TaxPeriod, TaxPeriod.id == TaxReturn.tax_period_id)
+            .where(TaxDocument.user_id == user_id)
+            .order_by(
+                TaxPeriod.start_date.desc(), Account.name.asc(), TaxDocument.created_at.asc()
+            )
+        )
+        result = await self.session.execute(stmt)
+        return [dict(row) for row in result.mappings().all()]
 
     async def list_for_return(self, tax_return_id: int, user_id: int) -> list[TaxDocument]:
         """List documents for a tax return, ordered by creation date."""

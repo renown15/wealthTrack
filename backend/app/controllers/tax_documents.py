@@ -12,9 +12,19 @@ from app.repositories.account_repository import AccountRepository
 from app.repositories.tax_document_repository import TaxDocumentRepository
 from app.repositories.tax_period_repository import TaxPeriodRepository
 from app.repositories.tax_return_repository import TaxReturnRepository
-from app.schemas.tax import TaxDocumentResponse
+from app.schemas.tax import TaxDocumentLibraryItem, TaxDocumentResponse
 
 router = APIRouter()
+
+
+@router.get("/documents", response_model=list[TaxDocumentLibraryItem])
+async def list_all_documents(
+    session: AsyncSession = Depends(get_db),
+    current_user: UserProfile = Depends(get_current_user),
+) -> list[TaxDocumentLibraryItem]:
+    """All the user's tax documents across periods and accounts (the library)."""
+    rows = await TaxDocumentRepository(session).list_all_for_user(current_user.id)
+    return [TaxDocumentLibraryItem(**row) for row in rows]
 
 
 async def _get_or_create_return(
