@@ -52,6 +52,15 @@ def test_account_ref_falls_back_to_roll_ref():
     assert account_ref({"attrs": {}}) == ""
 
 
+def test_account_ref_appends_trust_utr():
+    attrs = {"Account Number": "12345678", "UTR": "9876543210"}
+    assert account_ref({"attrs": attrs}) == "12345678 · UTR 9876543210"
+
+
+def test_account_ref_shows_utr_alone_when_no_other_reference():
+    assert account_ref({"attrs": {"UTR": "9876543210"}}) == "UTR 9876543210"
+
+
 def test_interest_item_carries_account_reference():
     rows = [_item(
         "Chase Saver", "Savings Account", income=10.0, institution="Chase",

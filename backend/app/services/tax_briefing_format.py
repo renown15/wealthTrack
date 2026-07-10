@@ -63,13 +63,22 @@ def to_float(value: Any) -> float:
 
 
 def account_ref(item: dict[str, Any]) -> str:
-    """Identify an account by its number (with sort code) or building-society roll/ref."""
+    """Identify an account by its number (with sort code) or building-society roll/ref.
+
+    Trust accounts carry their own UTR attribute — HMRC's identifier for the
+    trust's return — so it is always appended when present.
+    """
     attrs: dict[str, str] = item.get("attrs") or {}
     number = attrs.get(AttributeType.ACCOUNT_NUMBER)
     sort = attrs.get(AttributeType.SORT_CODE)
     if number:
-        return f"{number} ({sort})" if sort else number
-    return attrs.get(AttributeType.ROLL_REF_NUMBER) or sort or ""
+        base = f"{number} ({sort})" if sort else number
+    else:
+        base = attrs.get(AttributeType.ROLL_REF_NUMBER) or sort or ""
+    utr = attrs.get("UTR")
+    if utr:
+        return f"{base} · UTR {utr}" if base else f"UTR {utr}"
+    return base
 
 
 def category_for(account_type: str) -> str:
