@@ -1,7 +1,7 @@
 # WealthTrack Development Makefile
 # Provides convenient commands for common development tasks
 
-.PHONY: help setup dev backend-dev frontend-dev local-prod stop-dev stop-prod test lint type-check format clean docker-up docker-down build-frontend tail-backend tail-frontend pi-setup deploy-pi deploy-pi-code migrate-pi sync-db-to-pi sync-db-from-pi deploy-windows dump-db check-pi-log-backend check-pi-log-frontend generate-api-types
+.PHONY: help setup dev backend-dev frontend-dev local-prod stop-dev stop-prod test lint type-check format clean docker-up docker-down build-frontend tail-backend tail-frontend pi-setup deploy-pi deploy-pi-code migrate-pi sync-db-to-pi sync-db-from-pi db-watermark-local db-watermark-pi db-backup-local db-backup-pi deploy-windows dump-db check-pi-log-backend check-pi-log-frontend generate-api-types
 
 help:
 	@echo "WealthTrack Development Commands"
@@ -204,7 +204,7 @@ sync-db-to-pi:
 sync-db-from-pi:
 	@if [ ! -f .env.dev ]; then echo "❌ .env.dev not found"; exit 1; fi
 	@if [ ! -f .env.pi ]; then echo "❌ .env.pi not found"; exit 1; fi
-	@printf "⚠️  This will OVERWRITE your local dev database with Pi data. Continue? [y/N] " && read ans && [ "$$ans" = "y" ] || { echo "Aborted."; exit 1; }
+	@[ "$(CONFIRM)" = "y" ] || { printf "⚠️  This will OVERWRITE your local dev database with Pi data. Continue? [y/N] " && read ans && [ "$$ans" = "y" ]; } || { echo "Aborted."; exit 1; }
 	@echo "Dumping Pi database..." && \
 	ssh $(PI_USER)@$(PI_HOST) "cd ~/wealthTrack && docker compose --env-file .env.pi --profile prod exec -T db pg_dump -U wealthtrack -d wealthtrack -Fc > /tmp/wealthtrack_from_pi.pgdump" && \
 	echo "Downloading dump from Pi (this may take a moment)..." && \
@@ -224,6 +224,32 @@ sync-db-from-pi:
 	ssh $(PI_USER)@$(PI_HOST) "rm /tmp/wealthtrack_from_pi.pgdump" && \
 	rm /tmp/wealthtrack_from_pi.pgdump && \
 	echo "✅ Pi database synced to local dev"
+
+# ── appHome sync-contract targets ─────────────────────────────────────────────
+# Read-only watermark = "how advanced" a DB is (monotonic max event id).
+# Used by appHome to detect which side is further ahead before syncing.
+db-watermark-local:
+	@. ./.env.dev && \
+	docker compose --env-file .env.dev exec -T db \
+		psql -U $$DB_USER -d $$DB_NAME -tAc 'SELECT COALESCE(MAX(id),0) FROM "AccountEvent"'
+
+db-watermark-pi:
+	@ssh $(PI_USER)@$(PI_HOST) "cd $(PI_DIR) && \
+		docker compose --env-file .env.pi --profile prod exec -T db \
+		psql -U wealthtrack -d wealthtrack -tAc 'SELECT COALESCE(MAX(id),0) FROM \"AccountEvent\"'"
+
+# Pre-sync backups (pg_dump -Fc). OUT= is the destination path on this Mac.
+db-backup-local:
+	@test -n "$(OUT)" || { echo "OUT= required"; exit 1; }
+	@. ./.env.dev && \
+	docker compose --env-file .env.dev exec -T db \
+		pg_dump -U $$DB_USER -d $$DB_NAME -Fc > "$(OUT)"
+
+db-backup-pi:
+	@test -n "$(OUT)" || { echo "OUT= required"; exit 1; }
+	@ssh $(PI_USER)@$(PI_HOST) "cd $(PI_DIR) && \
+		docker compose --env-file .env.pi --profile prod exec -T db \
+		pg_dump -U wealthtrack -d wealthtrack -Fc" > "$(OUT)"
 
 WINDOWS_HOST ?= KATE-SURFACE.local
 WINDOWS_USER ?= user
