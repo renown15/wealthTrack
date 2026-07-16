@@ -145,6 +145,4 @@ DB_NAME=wealthtrack
 
 ## Project Status
 
-See `.planning/STATE.md` for current phase and progress.
-
 Current state: v1 complete — all 6 phases shipped.

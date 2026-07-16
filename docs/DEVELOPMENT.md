@@ -621,5 +621,4 @@ If a file exceeds 200 lines:
 - **User Setup Guide:** [docs/setup/QUICKSTART.md](../setup/QUICKSTART.md)
 - **Project Rules:** [docs/architecture/PROJECT_RULES.md](./PROJECT_RULES.md)
 - **Features Guide:** [docs/FEATURES.md](../FEATURES.md)
-- **State & Progress:** [.planning/STATE.md](../../.planning/STATE.md)
 - **API Docs** (runtime): http://localhost:8000/docs (FastAPI Swagger)

@@ -262,4 +262,3 @@ DB_PORT=5433        # dev DB
 - [docs/setup/QUICKSTART.md](docs/setup/QUICKSTART.md) — getting started guide
 - [docs/architecture/PROJECT_RULES.md](docs/architecture/PROJECT_RULES.md) — rules and conventions (detailed)
 - [docs/testing/COVERAGE_ACHIEVEMENT.md](docs/testing/COVERAGE_ACHIEVEMENT.md) — coverage strategy and history
-- [.planning/STATE.md](.planning/STATE.md) — current project phase and progress
